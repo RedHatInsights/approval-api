@@ -1,15 +1,17 @@
 # spec/requests/templates_spec.rb
-require 'rails_helper'
 
 RSpec.describe 'Templates API', type: :request do
-  # initialize test data 
+  # initialize test data
   let!(:templates) { create_list(:template, 10) }
   let(:template_id) { templates.first.id }
+
+  let(:admin_encode_key) { { 'x-rh-auth-identity': 'eyJpZGVudGl0eSI6eyJpc19vcmdfYWRtaW4iOnRydWV9fQ==\n' } }
+  let(:user_encode_key) { { 'x-rh-auth-identity': 'eyJpZGVudGl0eSI6eyJpc19vcmdfYWRtaW4iOmZhbHNlfX0=\n' } }
 
   # Test suite for GET /templates
   describe 'GET /templates' do
     # make HTTP get request before each example
-    before { get '/templates' }
+    before { get '/templates', headers: admin_encode_key }
 
     it 'returns templates' do
       # Note `json` is a custom helper to parse JSON responses
@@ -24,7 +26,7 @@ RSpec.describe 'Templates API', type: :request do
 
   # Test suite for GET /templates/:id
   describe 'GET /templates/:id' do
-    before { get "/templates/#{template_id}" }
+    before { get "/templates/#{template_id}", headers: admin_encode_key }
 
     context 'when the record exists' do
       it 'returns the template' do
@@ -38,7 +40,7 @@ RSpec.describe 'Templates API', type: :request do
     end
 
     context 'when the record does not exist' do
-      let(:template_id) { 100 }
+      let(:template_id) { 0 }
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
@@ -53,10 +55,10 @@ RSpec.describe 'Templates API', type: :request do
   # Test suite for POST /templates
   describe 'POST /templates' do
     # valid payload
-    let(:valid_attributes) { { title: 'Learn Elm', description: '1234', created_by: '1' } }
+    let(:valid_attributes) { { title: 'Learn Elm', description: '1234' } }
 
     context 'when the request is valid' do
-      before { post '/templates', params: valid_attributes }
+      before { post '/templates', params: valid_attributes, headers: admin_encode_key }
 
       it 'creates a template' do
         expect(json['title']).to eq('Learn Elm')
@@ -68,7 +70,7 @@ RSpec.describe 'Templates API', type: :request do
     end
 
     context 'when the request is invalid' do
-      before { post '/templates', params: { title: 'Foobar', description: '1234' } }
+      before { post '/templates', params: { description: '1234' }, headers: admin_encode_key }
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
@@ -76,17 +78,17 @@ RSpec.describe 'Templates API', type: :request do
 
       it 'returns a validation failure message' do
         expect(response.body)
-          .to match(/Validation failed: Created by can't be blank/)
+          .to match(/Validation failed: Title can't be blank/)
       end
     end
   end
 
   # Test suite for PUT /templates/:id
   describe 'PUT /templates/:id' do
-    let(:valid_attributes) { { title: 'Shopping', description: '1234', created_by: '1' } }
+    let(:valid_attributes) { { title: 'Shopping', description: '1234' } }
 
     context 'when the record exists' do
-      before { put "/templates/#{template_id}", params: valid_attributes }
+      before { put "/templates/#{template_id}", params: valid_attributes, headers: admin_encode_key }
 
       it 'updates the record' do
         expect(response.body).to be_empty
@@ -100,7 +102,7 @@ RSpec.describe 'Templates API', type: :request do
 
   # Test suite for DELETE /templates/:id
   describe 'DELETE /templates/:id' do
-    before { delete "/templates/#{template_id}" }
+    before { delete "/templates/#{template_id}", headers: admin_encode_key }
 
     it 'returns status code 204' do
       expect(response).to have_http_status(204)

@@ -1,14 +1,16 @@
 # spec/requests/groups_spec.rb
-require 'rails_helper'
 
 RSpec.describe 'Groups API' do
   # Initialize the test data
-  let!(:groups) { create_list(:group, 20) }
+  let!(:groups) { create_list(:group, 5) }
   let(:id) { groups.first.id }
+
+  let(:admin_encode_key) { { 'x-rh-auth-identity': 'eyJpZGVudGl0eSI6eyJpc19vcmdfYWRtaW4iOnRydWV9fQ==\n' } }
+  let(:user_encode_key) { { 'x-rh-auth-identity': 'eyJpZGVudGl0eSI6eyJpc19vcmdfYWRtaW4iOmZhbHNlfX0=\n' } }
 
   # Test suite for GET /groups
   describe 'GET /groups' do
-    before { get "/groups" }
+    before { get "/groups", headers: admin_encode_key }
 
     it 'returns status code 200' do
       expect(response).to have_http_status(200)
@@ -16,44 +18,16 @@ RSpec.describe 'Groups API' do
 
     it 'returns all groups' do
       expect(json).not_to be_empty
-      expect(json.size).to eq(20)
-    end
-  end
-
-  # Test suite for GET /groups/:id
-  describe 'GET /groups/:id' do
-    before { get "/groups/#{id}" }
-
-    context 'when the group exists' do
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
-      end
-
-      it 'returns the group' do
-        expect(json).not_to be_empty
-        expect(json['id']).to eq(id)
-      end
-    end
-
-    context 'when group does not exist' do
-      let(:id) { 0 }
-
-      it 'returns status code 404' do
-        expect(response).to have_http_status(404)
-      end
-
-      it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find Group/)
-      end
+      expect(json.size).to eq(5)
     end
   end
 
   # Test suite for POST /groups
   describe 'POST /groups' do
-    let(:valid_attributes) { { name: 'Visit Narnia', email: '123@abc.com' } }
+    let(:valid_attributes) { { name: 'Visit Narnia', contact_method: 'email', contact_setting: JSON.generate({ 'email' => '123@abc.com'}) } }
 
     context 'when request attributes are valid' do
-      before { post "/groups", params: valid_attributes }
+      before { post "/groups", params: valid_attributes, headers: admin_encode_key }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
@@ -61,7 +35,7 @@ RSpec.describe 'Groups API' do
     end
 
     context 'when an invalid request' do
-      before { post "/groups", params: {} }
+      before { post "/groups", params: {}, headers: admin_encode_key }
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
@@ -73,11 +47,11 @@ RSpec.describe 'Groups API' do
     end
   end
 
-  # Test suite for PUT /workflows/:workflow_id/groups/:id
+  # Test suite for PUT /groups/:id
   describe 'PUT /groups/:id' do
     let(:valid_attributes) { { name: 'Mozart' } }
 
-    before { put "/groups/#{id}", params: valid_attributes }
+    before { put "/groups/#{id}", params: valid_attributes, headers: admin_encode_key }
 
     context 'when item exists' do
       it 'returns status code 204' do
@@ -105,7 +79,7 @@ RSpec.describe 'Groups API' do
 
   # Test suite for DELETE /groups/:id
   describe 'DELETE /groups/:id' do
-    before { delete "/groups/#{id}" }
+    before { delete "/groups/#{id}", headers: admin_encode_key }
 
     it 'returns status code 204' do
       expect(response).to have_http_status(204)
