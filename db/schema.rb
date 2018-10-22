@@ -15,7 +15,7 @@ ActiveRecord::Schema.define(version: 0) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "actions", id: :serial, force: :cascade do |t|
+  create_table "actions", force: :cascade do |t|
     t.string "processed_by"
     t.datetime "actioned_at"
     t.datetime "notified_at"
@@ -27,7 +27,7 @@ ActiveRecord::Schema.define(version: 0) do
     t.index ["stage_id"], name: "index_actions_on_stage_id"
   end
 
-  create_table "groups", id: :serial, force: :cascade do |t|
+  create_table "groups", force: :cascade do |t|
     t.string "name"
     t.string "contact_method"
     t.jsonb "contact_setting"
@@ -35,7 +35,7 @@ ActiveRecord::Schema.define(version: 0) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "requests", id: :serial, force: :cascade do |t|
+  create_table "requests", force: :cascade do |t|
     t.string "requester"
     t.string "name"
     t.string "description"
@@ -49,7 +49,7 @@ ActiveRecord::Schema.define(version: 0) do
     t.index ["workflow_id"], name: "index_requests_on_workflow_id"
   end
 
-  create_table "stages", id: :serial, force: :cascade do |t|
+  create_table "stages", force: :cascade do |t|
     t.string "state"
     t.string "decision"
     t.string "comments"
@@ -61,21 +61,22 @@ ActiveRecord::Schema.define(version: 0) do
     t.index ["request_id"], name: "index_stages_on_request_id"
   end
 
-  create_table "templates", id: :serial, force: :cascade do |t|
+  create_table "templates", force: :cascade do |t|
     t.string "title"
     t.string "description"
+    t.string "ext_ref"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "workflowgroups", id: :serial, force: :cascade do |t|
+  create_table "workflowgroups", force: :cascade do |t|
     t.bigint "workflow_id"
     t.bigint "group_id"
     t.index ["group_id"], name: "index_workflowgroups_on_group_id"
     t.index ["workflow_id"], name: "index_workflowgroups_on_workflow_id"
   end
 
-  create_table "workflows", id: :serial, force: :cascade do |t|
+  create_table "workflows", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.bigint "template_id"
