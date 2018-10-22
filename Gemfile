@@ -28,6 +28,7 @@ group :development, :test do
   gem 'pry-byebug'
   gem 'pry-rails'
   gem 'rspec-rails', '~> 3.5'
+  gem 'simplecov'
 end
 
 group :development do
@@ -48,3 +49,4 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'rest-client'
 gem 'rack-cors'
+gem 'swagger_ui_engine'

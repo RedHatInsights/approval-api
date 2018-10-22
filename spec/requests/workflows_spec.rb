@@ -1,5 +1,4 @@
 # spec/requests/workflows_spec.rb
-require 'rails_helper'
 
 RSpec.describe 'Workflows API' do
   # Initialize the test data
@@ -8,8 +7,11 @@ RSpec.describe 'Workflows API' do
   let!(:workflows) { create_list(:workflow, 20, template_id: template.id) }
   let(:id) { workflows.first.id }
 
+  let(:user_encode_key) { { 'x-rh-auth-identity': 'eyJpZGVudGl0eSI6eyJpc19vcmdfYWRtaW4iOmZhbHNlfX0=\n' } }
+  let(:admin_encode_key) { { 'x-rh-auth-identity': 'eyJpZGVudGl0eSI6eyJpc19vcmdfYWRtaW4iOnRydWV9fQ==\n' } }
+
   describe 'GET /templates/:template_id/workflows' do
-    before { get "/templates/#{template_id}/workflows" }
+    before { get "/templates/#{template_id}/workflows", headers: admin_encode_key }
 
     context 'when template exists' do
       it 'returns status code 200' do
@@ -34,53 +36,49 @@ RSpec.describe 'Workflows API' do
     end
   end
 
-  # Test suite for GET /templates/:template_id/workflows/:id
-  describe 'GET /templates/:template_id/workflows/:id' do
-    before { get "/templates/#{template_id}/workflows/#{id}" }
+  describe 'GET /workflows' do
+    before { get "/workflows", headers: admin_encode_key }
 
-    context 'when template item exists' do
+    context 'when no relate wiht template'
       it 'returns status code 200' do
         expect(response).to have_http_status(200)
       end
 
-      it 'returns the item' do
+      it 'returns all template workflows' do
+        expect(json.size).to eq(20)
+      end
+  end
+
+  describe 'GET /workflows/:id' do
+    before { get "/workflows/#{id}", headers: admin_encode_key }
+
+    context 'when the record exists' do
+      it 'returns the workflow' do
+        expect(json).not_to be_empty
         expect(json['id']).to eq(id)
+      end
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
       end
     end
 
-    context 'when template item does not exist' do
-      let(:id) { 0 }
-
+    context 'when the record does not exist' do
+      let(:id) { 100 }
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
       end
-
       it 'returns a not found message' do
         expect(response.body).to match(/Couldn't find Workflow/)
       end
     end
   end
 
-#  # Test suite for GET /workflows
-#  describe 'GET /workflows' do
-#    before { get '/workflows' }
-#
-#    it 'returns worlflows' do
-#      expect(json).not_to be_empty
-#      expect(json.size).to eq(20)
-#    end
-#
-#    it 'returns status code 200' do
-#      expect(response).to have_http_status(200)
-#    end
-#  end
-
-  # Test suite for PUT /templates/:template_id/workflows
+  # Test suite for POST /templates/:template_id/workflows
   describe 'POST /templates/:template_id/workflows' do
     let(:valid_attributes) { { name: 'Visit Narnia', done: false } }
 
     context 'when request attributes are valid' do
-      before { post "/templates/#{template_id}/workflows", params: valid_attributes }
+      before { post "/templates/#{template_id}/workflows", params: valid_attributes, headers: admin_encode_key }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
@@ -88,7 +86,7 @@ RSpec.describe 'Workflows API' do
     end
 
     context 'when an invalid request' do
-      before { post "/templates/#{template_id}/workflows", params: {} }
+      before { post "/templates/#{template_id}/workflows", params: {}, headers: admin_encode_key }
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
@@ -100,11 +98,11 @@ RSpec.describe 'Workflows API' do
     end
   end
 
-  # Test suite for PUT /templates/:template_id/workflows/:id
-  describe 'PUT /templates/:template_id/workflows/:id' do
+  # Test suite for PUT /workflows/:id
+  describe 'PUT /workflows/:id' do
     let(:valid_attributes) { { name: 'Mozart' } }
 
-    before { put "/templates/#{template_id}/workflows/#{id}", params: valid_attributes }
+    before { put "/workflows/#{id}", params: valid_attributes, headers: admin_encode_key }
 
     context 'when item exists' do
       it 'returns status code 204' do
@@ -130,9 +128,9 @@ RSpec.describe 'Workflows API' do
     end
   end
 
-  # Test suite for DELETE /templates/:id
-  describe 'DELETE /templates/:id' do
-    before { delete "/templates/#{template_id}/workflows/#{id}" }
+  # Test suite for DELETE /workflows/:id
+  describe 'DELETE /workflows/:id' do
+    before { delete "/workflows/#{id}", headers: admin_encode_key }
 
     it 'returns status code 204' do
       expect(response).to have_http_status(204)

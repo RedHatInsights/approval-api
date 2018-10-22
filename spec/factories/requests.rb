@@ -1,9 +1,14 @@
 # spec/factories/requests.rb
 FactoryBot.define do
   factory :request do
+    items = { Faker::Lorem.word   => Faker::Lorem.word,
+             Faker::Lorem.word   => Faker::Lorem.word }
     name         { Faker::Lorem.word }
-    content      { Faker::Lorem.word }
-    uuid         { Faker::Lorem.word }
-    requested_by { Faker::Lorem.word }
+    requester    { Faker::Lorem.word }
+    content      { JSON.generate(items) }
+    state        { :pending }
+    decision     { :unknown }
+
+    workflow
   end
 end
