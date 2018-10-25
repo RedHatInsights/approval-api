@@ -48,5 +48,8 @@ class EventService
     ) do |client|
       client.publish_topic(:service => APPROVAL_EVENT_TOPIC, :sender => 'approval_api_service', :event => event, :payload => payload)
     end
+  rescue StandardError => e
+    # Temporarily suppress the error for test without Kafka
+    Rails.logger.error("Can't send event " + event)
   end
 end
