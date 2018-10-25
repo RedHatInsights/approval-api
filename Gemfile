@@ -50,3 +50,4 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'rest-client'
 gem 'rack-cors'
 gem 'swagger_ui_engine'
+gem 'manageiq-messaging', '~> 0.1'

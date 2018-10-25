@@ -157,17 +157,12 @@ class AdminsController < ApplicationController
   end
 
   def update_request
-    req = Request.find(params[:id])
-    return json_response(req, :bad_request) if params[:decision] && !Request.valid_request_decisions.include?(params[:decision])
-    return json_response(req, :bad_request) if params[:state] && !Request.valid_request_states.include?(params[:state])
-
-    req.update(request_params)
-
+    RequestUpdateService.new(params[:id]).update(request_params)
     head :no_content
   end
 
   def update_stage
-    Stage.find(params[:id]).update(stage_params)
+    StageUpdateService.new(params[:id]).update(stage_params)
     head :no_content
   end
 

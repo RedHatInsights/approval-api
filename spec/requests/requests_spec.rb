@@ -141,7 +141,10 @@ RSpec.describe 'Requests API' do
   describe 'PUT /requests/:id' do
     let(:valid_attributes) { { name: 'Mozart' } }
 
-    before { put "/requests/#{id}", params: valid_attributes, headers: admin_encode_key }
+    before do
+      allow(ManageIQ::Messaging::Client).to receive(:open)
+      put "/requests/#{id}", params: valid_attributes, headers: admin_encode_key
+    end
 
     context 'when item exists' do
       it 'returns status code 204' do
@@ -163,22 +166,6 @@ RSpec.describe 'Requests API' do
 
       it 'returns a not found message' do
         expect(response.body).to match(/Couldn't find Request/)
-      end
-    end
-
-    context 'when status has invalid value' do
-      before { put "/requests/#{id}", params: {decision: 'bad', state: 'pending'}, headers: admin_encode_key }
-
-      it 'returns status code 400' do
-        expect(response).to have_http_status(400)
-      end
-    end
-
-    context 'when state has invalid value' do
-      before { put "/requests/#{id}", params: {state: 'bad_state'}, headers: admin_encode_key }
-
-      it 'returns status code 400' do
-        expect(response).to have_http_status(400)
       end
     end
   end
