@@ -123,18 +123,6 @@ RSpec.describe 'Requests API' do
         expect(response).to have_http_status(201)
       end
     end
-
-    context 'when an invalid request' do
-      before { post "/workflows/#{workflow_id}/requests", params: {requester: '1234', name: 'Visit Narnia', content: JSON.generate(item), decision: 'bad', state: 'pending'}, headers: admin_encode_key }
-
-      it 'returns status code 422' do
-        expect(response).to have_http_status(422)
-      end
-
-      it 'returns a failure message' do
-        expect(response.body).to match(/Validation failed: Decision is not included in the list/)
-      end
-    end
   end
 
   # Test suite for PUT /requests/:id
