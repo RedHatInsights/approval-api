@@ -94,7 +94,10 @@ RSpec.describe 'Stages API' do
   describe 'PUT /stages/:id' do
     let(:valid_attributes) { { state: 'notified' } }
 
-    before { put "/stages/#{id}", params: valid_attributes, headers: admin_encode_key }
+    before do
+      allow(ManageIQ::Messaging::Client).to receive(:open)
+      put "/stages/#{id}", params: valid_attributes, headers: admin_encode_key
+    end
 
     context 'when item exists' do
       it 'returns status code 204' do
