@@ -48,7 +48,7 @@ paths:
         - admins
         - approvers
       summary: Add an action
-      description: ''
+      description: Add an action
       operationId: addAction
       produces:
         - application/json
@@ -61,6 +61,10 @@ paths:
           schema:
             $ref: '#/definitions/Action'
       responses:
+        '201':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Action'
         '405':
           description: Invalid input
       security:
@@ -71,7 +75,7 @@ paths:
         - admins
         - approvers
       summary: Finds approver action by id
-      description: ''
+      description: Finds approver action by id
       operationId: fetchActionById
       parameters:
         - $ref: '#/parameters/id'
@@ -87,7 +91,7 @@ paths:
         - admins
         - approvers
       summary: Update an existing action
-      description: ''
+      description: Update an existing action
       operationId: updateAction
       consumes:
         - application/json
@@ -115,7 +119,7 @@ paths:
         - admins
         - approvers
       summary: Delete action by id
-      description: ''
+      description: Delete action by id
       operationId: removeAction
       produces:
         - application/json
@@ -156,7 +160,7 @@ paths:
       tags:
         - admins
       summary: Add a new approver group
-      description: ''
+      description: Add a new approver group
       operationId: addGroup
       consumes:
         - application/json
@@ -170,6 +174,10 @@ paths:
           schema:
             $ref: '#/definitions/Group'
       responses:
+        '201':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Group'
         '405':
           description: Invalid input
       security:
@@ -179,7 +187,7 @@ paths:
       tags:
         - admins
       summary: Finds approver group by id
-      description: ''
+      description: Finds approver group by id
       operationId: fetchGroupById
       parameters:
         - $ref: '#/parameters/id'
@@ -194,7 +202,7 @@ paths:
       tags:
         - admins
       summary: Update an existing approver group
-      description: ''
+      description: Update an existing approver group
       operationId: updateGroup
       consumes:
         - application/json
@@ -221,7 +229,7 @@ paths:
       tags:
         - admins
       summary: Delete approver group by id
-      description: ''
+      description: Delete group
       operationId: removeGroup
       produces:
         - application/json
@@ -238,7 +246,7 @@ paths:
       tags:
         - admins
       summary: List approval requests
-      description: ''
+      description: List requests
       operationId: fetchRequests
       consumes:
         - application/json
@@ -280,7 +288,7 @@ paths:
           headers:
             X-total-count:
               type: integer
-              description: ''
+              description: Total number of items
           schema:
             type: array
             items:
@@ -306,6 +314,10 @@ paths:
           schema:
             $ref: '#/definitions/Request'
       responses:
+        '201':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Request'
         '405':
           description: Invalid input
       security:
@@ -315,7 +327,7 @@ paths:
       tags:
         - users
       summary: Retrieves approval request by given id
-      description: ''
+      description: Query approval request by given id
       operationId: fetchRequestById
       parameters:
         - $ref: '#/parameters/id'
@@ -330,7 +342,7 @@ paths:
       tags:
         - admins
       summary: Update an existing approval request status
-      description: ''
+      description: Update request status
       operationId: updateRequest
       consumes:
         - application/json
@@ -357,7 +369,7 @@ paths:
       tags:
         - admins
       summary: Delete approval request by id
-      description: ''
+      description: Delete approval request by id
       operationId: removeRequest
       produces:
         - application/json
@@ -374,7 +386,7 @@ paths:
       tags:
         - admins
       summary: List approval stages
-      description: ''
+      description: List all approval stages
       operationId: fetchStages
       parameters:
         - $ref: '#/parameters/limit'
@@ -414,7 +426,7 @@ paths:
       tags:
         - admins
       summary: Add a new stage
-      description: ''
+      description: Add stage
       operationId: addStage
       consumes:
         - application/json
@@ -429,6 +441,10 @@ paths:
           schema:
             $ref: '#/definitions/Stage'
       responses:
+        '201':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Stage'
         '405':
           description: Invalid input
       security:
@@ -439,7 +455,7 @@ paths:
         - admins
         - approvers
       summary: Retrieves approval stages by given id
-      description: ''
+      description: Get stage by given id
       operationId: fetchStageById
       parameters:
         - $ref: '#/parameters/id'
@@ -455,7 +471,7 @@ paths:
         - admins
         - approvers
       summary: Update an existing approval stage
-      description: ''
+      description: Update stage
       operationId: updateStage
       consumes:
         - application/json
@@ -482,7 +498,7 @@ paths:
       tags:
         - admins
       summary: Delete approval stage by id
-      description: ''
+      description: Delete approval stage
       operationId: removeStage
       produces:
         - application/json
@@ -514,14 +530,16 @@ paths:
               type: integer
               description: Total number of items
           schema:
-            $ref: '#/definitions/Template'
+            type: array
+            items:
+              $ref: '#/definitions/Template'
       security:
         - approval_auth: []
     post:
       tags:
         - admins
       summary: Add a new template to the orgnization
-      description: ''
+      description: Add template
       operationId: addTemplate
       consumes:
         - application/json
@@ -535,6 +553,10 @@ paths:
           schema:
             $ref: '#/definitions/Template'
       responses:
+        '201':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Template'
         '405':
           description: Invalid input
       security:
@@ -544,7 +566,7 @@ paths:
       tags:
         - admins
       summary: Finds template by id
-      description: ''
+      description: Find template by given id
       operationId: fetchTemplateById
       parameters:
         - $ref: '#/parameters/id'
@@ -559,7 +581,7 @@ paths:
       tags:
         - admins
       summary: Update an existing template
-      description: ''
+      description: Update template
       operationId: updateTemplate
       consumes:
         - application/json
@@ -586,7 +608,7 @@ paths:
       tags:
         - admins
       summary: Delete template by id
-      description: ''
+      description: Delete template by id
       operationId: removeTemplate
       produces:
         - application/json
@@ -603,7 +625,7 @@ paths:
       tags:
         - admins
       summary: List all approval workflows
-      description: ''
+      description: List all approval workflows
       operationId: fetchWorkflows
       parameters:
         - $ref: '#/parameters/limit'
@@ -649,7 +671,7 @@ paths:
       tags:
         - admins
       summary: Add a new workflow
-      description: ''
+      description: Add workflow
       operationId: addWorkflow
       consumes:
         - application/json
@@ -664,6 +686,10 @@ paths:
           schema:
             $ref: '#/definitions/Workflow'
       responses:
+        '201':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Workflow'
         '405':
           description: Invalid input
       security:
@@ -672,8 +698,8 @@ paths:
     get:
       tags:
         - admins
-      summary: List all approval workflow by id
-      description: ''
+      summary: List approval workflow by id
+      description: Display workflow by given id
       operationId: fetchWorkflowById
       parameters:
         - $ref: '#/parameters/id'
@@ -688,7 +714,7 @@ paths:
       tags:
         - admins
       summary: Update an existing approval workflow
-      description: ''
+      description: Update approval workflow
       operationId: updateWorkflow
       consumes:
         - application/json
@@ -715,7 +741,7 @@ paths:
       tags:
         - admins
       summary: Delete approval workflow by id
-      description: ''
+      description: Delete approval workflow by id
       operationId: removeWorkflow
       produces:
         - application/json
@@ -736,6 +762,9 @@ definitions:
       - processed_by
       - stage
     properties:
+      id:
+        type: string
+        readOnly: true
       processed_by:
         type: string
         description: Person to process the action
@@ -756,6 +785,7 @@ definitions:
       comments:
         type: string
         description: Comments about the action
+        readOnly: true
   Decision:
     type: string
     description: may be one of (unknown, approved, or denied)
@@ -771,6 +801,9 @@ definitions:
       - contact_method
       - contact_setting
     properties:
+      id:
+        type: string
+        readOnly: true
       name:
         type: string
         description: Group name
@@ -780,14 +813,24 @@ definitions:
       contact_setting:
         type: string
         description: Settings of contact
+      workflows:
+        type: array
+        items:
+          $ref: '#/definitions/Workflow'
+      workflow-ids:
+        type: array
+        items:
+          type: string
   Request:
     type: object
     required:
       - requester
       - name
       - content
-      - workflow
     properties:
+      id:
+        type: string
+        readOnly: true
       requester:
         type: string
         description: Requester info
@@ -804,6 +847,7 @@ definitions:
       reason:
         type: string
         description: Comments for requests
+        readOnly: true
       content:
         type: string
         description: Request content
@@ -812,6 +856,9 @@ definitions:
     required:
       - group_id
     properties:
+      id:
+        type: string
+        readOnly: true
       group_id:
         type: integer
       state:
@@ -820,7 +867,7 @@ definitions:
         $ref: '#/definitions/Decision'
       comments:
         type: string
-        description: ''
+        description: approval stage
   State:
     type: string
     description: may be one of (pending, skipped, notified or finished)
@@ -835,6 +882,9 @@ definitions:
     required:
       - title
     properties:
+      id:
+        type: string
+        readOnly: true
       title:
         type: string
       description:
@@ -843,12 +893,22 @@ definitions:
     type: object
     required:
       - name
-      - template
     properties:
+      id:
+        type: string
+        readOnly: true
       name:
         type: string
       description:
         type: string
+      groups:
+        type: array
+        items:
+          $ref: '#/definitions/Group'
+      group-ids:
+        type: array
+        items:
+          type: string
 parameters:
   id:
     name: id

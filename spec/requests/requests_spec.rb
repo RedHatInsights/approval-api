@@ -111,13 +111,13 @@ RSpec.describe 'Requests API' do
     end
   end
 
-  # Test suite for PUT /workflows/:workflow_id/requests
+  # Test suite for POST /workflows/:workflow_id/requests
   describe 'POST /workflows/:workflow_id/requests' do
     let(:item) { { 'disk' => '100GB' } }
-    let(:valid_attributes) { { requester: '1234', name: 'Visit Narnia', content: JSON.generate(item), decision: 'unknown', state: 'pending' } }
+    let(:valid_attributes) { { requester: '1234', name: 'Visit Narnia', content: JSON.generate(item) } }
 
     context 'when request attributes are valid' do
-      before { post "/workflows/#{workflow_id}/requests", params: valid_attributes, headers: admin_encode_key }
+      before { post "/workflows/#{workflow_id}/requests", params: valid_attributes }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
