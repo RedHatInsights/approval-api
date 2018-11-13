@@ -43,4 +43,9 @@ module ApproverOperationsMixin
     head :no_content
   end
 
+  private
+
+  def action_params
+    params.permit(:decision, :processed_by, :actioned_at, :notified_at, :comments)
+  end
 end
