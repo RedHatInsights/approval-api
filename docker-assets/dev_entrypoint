@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+exec bundle exec /var/www/approval/bin/rails server -b 'ssl://0.0.0.0:5000?key=/var/www/approval/config/ssl/localhost.key&cert=/var/www/approval/config/ssl/localhost.crt'
