@@ -1,5 +1,5 @@
 class UsersConstraint
-  def self.matches?(req)
+  def self.matches?(_req)
     true
   end
 end

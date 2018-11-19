@@ -58,7 +58,7 @@ class AdminsController < ApplicationController
     json_response(stages)
   end
 
- def fetch_template_by_id
+  def fetch_template_by_id
     template = Template.find(params[:id])
     json_response(template)
   end
