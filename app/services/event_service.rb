@@ -1,7 +1,11 @@
 require 'manageiq-messaging'
 
 class EventService
-  APPROVAL_EVENT_TOPIC = 'insights-approval-service'.freeze
+  EVENT_REQUEST_STARTED  = 'request_started'.freeze
+  EVENT_REQUEST_FINISHED = 'request_finished'.freeze
+  EVENT_APPROVER_GROUP_NOTIFIED = 'approver_group_notified'.freeze
+  EVENT_APPROVER_GROUP_FINISHED = 'approver_group_finished'.freeze
+  EVENT_SENDER = 'approval_service'.freeze
 
   attr_accessor :request
 
@@ -10,14 +14,14 @@ class EventService
   end
 
   def approver_group_notified(stage)
-    send_event('approver_group_notified',
+    send_event(EVENT_APPROVER_GROUP_NOTIFIED,
       :request_id => request.id,
       :group_name => stage.group.name
     )
   end
 
   def approver_group_finished(stage)
-    send_event('approver_group_finished',
+    send_event(EVENT_APPROVER_GROUP_FINISHED,
       :request_id => request.id,
       :group_name => stage.group.name,
       :decision   => stage.decision,
@@ -26,11 +30,11 @@ class EventService
   end
 
   def request_started
-    send_event('request_started', :request_id => request.id)
+    send_event(EVENT_REQUEST_STARTED, :request_id => request.id)
   end
 
   def request_finished
-    send_event('request_finished',
+    send_event(EVENT_REQUEST_FINISHED,
       :request_id => request.id,
       :decision   => request.decision,
       :comments   => request.reason || ''
@@ -39,14 +43,18 @@ class EventService
 
   private
 
+  def topic
+    @topic ||= ENV['QUEUE_NAME'] || 'approval_events'.freeze
+  end
+
   def send_event(event, payload)
     ManageIQ::Messaging::Client.open(
-      :protocol  => 'Kafka',
-      :host      => ENV['INSIGHTS_KAFKA_HOST'] || 'localhost',
-      :port      => ENV['INSIGHTS_KAFKA_PORT'] || 9092,
-      :encoding  => 'json'
+      :protocol => 'Kafka',
+      :host     => ENV['QUEUE_HOST'] || 'localhost',
+      :port     => ENV['QUEUE_PORT'] || 9092,
+      :encoding => 'json'
     ) do |client|
-      client.publish_topic(:service => APPROVAL_EVENT_TOPIC, :sender => 'approval_api_service', :event => event, :payload => payload)
+      client.publish_topic(:service => topic, :sender => EVENT_SENDER, :event => event, :payload => payload)
     end
   rescue StandardError
     # Temporarily suppress the error for test without Kafka
