@@ -8,26 +8,15 @@ gem 'rack-cors',          '>= 0.4.1'
 gem 'rails',              '~> 5.1.5'
 gem 'rest-client',        '>= 1.8.0'
 gem 'swagger_ui_engine'
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 group :development, :test do
-  gem 'pry'
-  gem 'pry-byebug'
-  gem 'pry-rails'
-  gem 'rspec-rails', '~> 3.5'
   gem 'simplecov'
 end
 
-group :development do
-  gem 'listen', '~> 3.0.5'
-  gem 'spring'
-  gem 'spring-watcher-listen', '~> 2.0.0'
-end
-
 group :test do
-  gem 'database_cleaner'
   gem 'factory_bot_rails', '~> 4.0'
   gem 'faker'
+  gem 'rspec-rails', '~> 3.5'
   gem 'shoulda-matchers', '~> 3.1'
 end
 
