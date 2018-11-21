@@ -1,3 +1,3 @@
 
-RSpec.describe UsersController, type: :controller do
+RSpec.describe Api::V0::UsersController, type: :controller do
 end

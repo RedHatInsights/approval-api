@@ -11,7 +11,7 @@ RSpec.describe 'Templates API', type: :request do
   # Test suite for GET /templates
   describe 'GET /templates' do
     # make HTTP get request before each example
-    before { get '/templates', headers: admin_encode_key }
+    before { get "#{api_version}/templates", headers: admin_encode_key }
 
     it 'returns templates' do
       # Note `json` is a custom helper to parse JSON responses
@@ -26,7 +26,7 @@ RSpec.describe 'Templates API', type: :request do
 
   # Test suite for GET /templates/:id
   describe 'GET /templates/:id' do
-    before { get "/templates/#{template_id}", headers: admin_encode_key }
+    before { get "#{api_version}/templates/#{template_id}", headers: admin_encode_key }
 
     context 'when the record exists' do
       it 'returns the template' do
@@ -58,7 +58,7 @@ RSpec.describe 'Templates API', type: :request do
     let(:valid_attributes) { { title: 'Learn Elm', description: '1234' } }
 
     context 'when the request is valid' do
-      before { post '/templates', params: valid_attributes, headers: admin_encode_key }
+      before { post "#{api_version}/templates", params: valid_attributes, headers: admin_encode_key }
 
       it 'creates a template' do
         expect(json['title']).to eq('Learn Elm')
@@ -70,7 +70,7 @@ RSpec.describe 'Templates API', type: :request do
     end
 
     context 'when the request is invalid' do
-      before { post '/templates', params: { description: '1234' }, headers: admin_encode_key }
+      before { post "#{api_version}/templates", params: { description: '1234' }, headers: admin_encode_key }
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
@@ -88,7 +88,7 @@ RSpec.describe 'Templates API', type: :request do
     let(:valid_attributes) { { title: 'Shopping', description: '1234' } }
 
     context 'when the record exists' do
-      before { put "/templates/#{template_id}", params: valid_attributes, headers: admin_encode_key }
+      before { put "#{api_version}/templates/#{template_id}", params: valid_attributes, headers: admin_encode_key }
 
       it 'updates the record' do
         expect(response.body).to be_empty
@@ -102,7 +102,7 @@ RSpec.describe 'Templates API', type: :request do
 
   # Test suite for DELETE /templates/:id
   describe 'DELETE /templates/:id' do
-    before { delete "/templates/#{template_id}", headers: admin_encode_key }
+    before { delete "#{api_version}/templates/#{template_id}", headers: admin_encode_key }
 
     it 'returns status code 204' do
       expect(response).to have_http_status(204)

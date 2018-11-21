@@ -10,7 +10,7 @@ RSpec.describe 'Groups API' do
 
   # Test suite for GET /groups
   describe 'GET /groups' do
-    before { get "/groups", headers: admin_encode_key }
+    before { get "#{api_version}/groups", headers: admin_encode_key }
 
     it 'returns status code 200' do
       expect(response).to have_http_status(200)
@@ -27,7 +27,7 @@ RSpec.describe 'Groups API' do
     let(:valid_attributes) { { name: 'Visit Narnia', contact_method: 'email', contact_setting: JSON.generate({ 'email' => '123@abc.com'}) } }
 
     context 'when request attributes are valid' do
-      before { post "/groups", params: valid_attributes, headers: admin_encode_key }
+      before { post "#{api_version}/groups", params: valid_attributes, headers: admin_encode_key }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
@@ -35,7 +35,7 @@ RSpec.describe 'Groups API' do
     end
 
     context 'when an invalid request' do
-      before { post "/groups", params: {}, headers: admin_encode_key }
+      before { post "#{api_version}/groups", params: {}, headers: admin_encode_key }
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
@@ -51,7 +51,7 @@ RSpec.describe 'Groups API' do
   describe 'PUT /groups/:id' do
     let(:valid_attributes) { { name: 'Mozart' } }
 
-    before { put "/groups/#{id}", params: valid_attributes, headers: admin_encode_key }
+    before { put "#{api_version}/groups/#{id}", params: valid_attributes, headers: admin_encode_key }
 
     context 'when item exists' do
       it 'returns status code 204' do
@@ -79,7 +79,7 @@ RSpec.describe 'Groups API' do
 
   # Test suite for DELETE /groups/:id
   describe 'DELETE /groups/:id' do
-    before { delete "/groups/#{id}", headers: admin_encode_key }
+    before { delete "#{api_version}/groups/#{id}", headers: admin_encode_key }
 
     it 'returns status code 204' do
       expect(response).to have_http_status(204)

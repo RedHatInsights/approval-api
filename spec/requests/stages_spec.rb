@@ -13,7 +13,7 @@ RSpec.describe 'Stages API' do
   let(:admin_encode_key) { { 'x-rh-auth-identity': 'eyJpZGVudGl0eSI6eyJpc19vcmdfYWRtaW4iOnRydWV9fQ==\n' } }
 
   describe 'GET /stages' do
-    before { get "/stages", headers: admin_encode_key }
+    before { get "#{api_version}/stages", headers: admin_encode_key }
 
     it 'returns stages' do
       expect(response).to have_http_status(200)
@@ -23,7 +23,7 @@ RSpec.describe 'Stages API' do
 
   # Test suite for GET /stages/:id
   describe 'GET /stages/:id' do
-    before { get "/stages/#{id}", headers: admin_encode_key }
+    before { get "#{api_version}/stages/#{id}", headers: admin_encode_key }
 
     context 'when the record exists' do
       it 'returns the stage' do
@@ -51,7 +51,7 @@ RSpec.describe 'Stages API' do
 
   # Test suite for GET /requests/:request_id/stages
   describe 'GET /requests/:request_id/stages' do
-    before { get "/requests/#{request_id}/stages" }
+    before { get "#{api_version}/requests/#{request_id}/stages" }
 
     context 'when the record exists' do
       it 'returns the stages' do
@@ -82,7 +82,7 @@ RSpec.describe 'Stages API' do
     let(:valid_attributes) { { state: 'skipped', decision: 'approved', group_id: group.id } }
 
     context 'when request attributes are valid' do
-      before { post "/requests/#{request_id}/stages", params: valid_attributes, headers: admin_encode_key }
+      before { post "#{api_version}/requests/#{request_id}/stages", params: valid_attributes, headers: admin_encode_key }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
@@ -96,7 +96,7 @@ RSpec.describe 'Stages API' do
 
     before do
       allow(ManageIQ::Messaging::Client).to receive(:open)
-      put "/stages/#{id}", params: valid_attributes, headers: admin_encode_key
+      put "#{api_version}/stages/#{id}", params: valid_attributes, headers: admin_encode_key
     end
 
     context 'when item exists' do
@@ -125,7 +125,7 @@ RSpec.describe 'Stages API' do
 
   # Test suite for DELETE /stages/:id
   describe 'DELETE /stages/:id' do
-    before { delete "/stages/#{id}", headers: admin_encode_key }
+    before { delete "#{api_version}/stages/#{id}", headers: admin_encode_key }
 
     it 'returns status code 204' do
       expect(response).to have_http_status(204)

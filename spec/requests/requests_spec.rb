@@ -16,7 +16,7 @@ RSpec.describe 'Requests API' do
 
   # Test suite for GET /workflows/:workflow_id/requests
   describe 'GET /workflows/:workflow_id/requests' do
-    before { get "/workflows/#{workflow_id}/requests", headers: admin_encode_key }
+    before { get "#{api_version}/workflows/#{workflow_id}/requests", headers: admin_encode_key }
 
     context 'when workflow exists' do
       it 'returns status code 200' do
@@ -43,7 +43,7 @@ RSpec.describe 'Requests API' do
 
   # Test suite for GET /requests
   describe 'GET /requests' do
-    before { get '/requests', headers: admin_encode_key }
+    before { get "#{api_version}/requests", headers: admin_encode_key }
 
     it 'returns requests' do
       expect(json).not_to be_empty
@@ -57,7 +57,7 @@ RSpec.describe 'Requests API' do
 
   # Test suite for GET /requests?state=
   describe 'GET /requests?state=notified' do
-    before { get '/requests?state=notified', headers: admin_encode_key }
+    before { get "#{api_version}/requests?state=notified", headers: admin_encode_key }
 
     it 'returns requests' do
       expect(json).not_to be_empty
@@ -71,7 +71,7 @@ RSpec.describe 'Requests API' do
 
   # Test suite for GET /requests?decision=
   describe 'GET /requests?decision=approved' do
-    before { get '/requests?decision=approved', headers: admin_encode_key }
+    before { get "#{api_version}/requests?decision=approved", headers: admin_encode_key }
 
     it 'returns requests' do
       expect(json).not_to be_empty
@@ -85,7 +85,7 @@ RSpec.describe 'Requests API' do
 
   # Test suite for GET /requests/:id
   describe 'GET /requests/:id' do
-    before { get "/requests/#{id}" }
+    before { get "#{api_version}/requests/#{id}" }
 
     context 'when the record exist' do
       it 'returns the request' do
@@ -117,7 +117,7 @@ RSpec.describe 'Requests API' do
     let(:valid_attributes) { { requester: '1234', name: 'Visit Narnia', content: JSON.generate(item) } }
 
     context 'when request attributes are valid' do
-      before { post "/workflows/#{workflow_id}/requests", params: valid_attributes }
+      before { post "#{api_version}/workflows/#{workflow_id}/requests", params: valid_attributes }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
@@ -131,7 +131,7 @@ RSpec.describe 'Requests API' do
 
     before do
       allow(ManageIQ::Messaging::Client).to receive(:open)
-      put "/requests/#{id}", params: valid_attributes, headers: admin_encode_key
+      put "#{api_version}/requests/#{id}", params: valid_attributes, headers: admin_encode_key
     end
 
     context 'when item exists' do
@@ -160,7 +160,7 @@ RSpec.describe 'Requests API' do
 
   # Test suite for DELETE /requests/:id
   describe 'DELETE /requests/:id' do
-    before { delete "/requests/#{id}", headers: admin_encode_key }
+    before { delete "#{api_version}/requests/#{id}", headers: admin_encode_key }
 
     it 'returns status code 204' do
       expect(response).to have_http_status(204)
