@@ -813,14 +813,6 @@ definitions:
       contact_setting:
         type: string
         description: Settings of contact
-      workflows:
-        type: array
-        items:
-          $ref: '#/definitions/Workflow'
-      workflow-ids:
-        type: array
-        items:
-          type: string
   Request:
     type: object
     required:
@@ -851,6 +843,13 @@ definitions:
       content:
         type: string
         description: Request content
+      workflow_id:
+        type: string
+        description: Associate workflow id
+      stages:
+        type: array
+        items:
+          $ref: '#/definitions/Stage'
   Stage:
     type: object
     required:
@@ -868,6 +867,16 @@ definitions:
       comments:
         type: string
         description: approval stage
+      actions:
+        type: array
+        items:
+          $ref: '#/definitions/Action'
+      group_id:
+        type: string
+        description: Associated group id
+      request_id:
+        type: string
+        description: Associated request id
   State:
     type: string
     description: may be one of (pending, skipped, notified or finished)
@@ -901,11 +910,10 @@ definitions:
         type: string
       description:
         type: string
-      groups:
-        type: array
-        items:
-          $ref: '#/definitions/Group'
-      group-ids:
+      template_id:
+        type: string
+        description: Associated template id
+      group_ids:
         type: array
         items:
           type: string

@@ -139,10 +139,6 @@ class AdminsController < ApplicationController
 
   private
 
-  def action_params
-    params.permit(:decision, :processed_by, :actioned_at, :notified_at, :comments)
-  end
-
   def group_params
     params.permit(:name, :contact_method, :contact_setting)
   end
@@ -156,7 +152,7 @@ class AdminsController < ApplicationController
   end
 
   def workflow_params
-    params.permit(:name)
+    params.permit(:name, :description)
   end
 
   def request_params
