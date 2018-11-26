@@ -37,7 +37,7 @@ RSpec.describe 'Stages API' do
     end
 
     context 'when the record does not exist' do
-      let(:id) { 0 }
+      let!(:id) { 0 }
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
@@ -65,7 +65,7 @@ RSpec.describe 'Stages API' do
     end
 
     context 'when the record does not exist' do
-      let(:request_id) { 0 }
+      let!(:request_id) { 0 }
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
@@ -111,7 +111,7 @@ RSpec.describe 'Stages API' do
     end
 
     context 'when the item does not exist' do
-      let(:id) { 0 }
+      let!(:id) { 0 }
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)

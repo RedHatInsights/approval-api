@@ -40,7 +40,7 @@ RSpec.describe 'Templates API', :type => :request do
     end
 
     context 'when the record does not exist' do
-      let(:template_id) { 0 }
+      let!(:template_id) { 0 }
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)

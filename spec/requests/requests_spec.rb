@@ -28,7 +28,7 @@ RSpec.describe 'Requests API' do
     end
 
     context 'when workflow does not exist' do
-      let(:workflow_id) { 0 }
+      let!(:workflow_id) { 0 }
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
@@ -98,7 +98,7 @@ RSpec.describe 'Requests API' do
     end
 
     context 'when request does not exist' do
-      let(:id) { 0 }
+      let!(:id) { 0 }
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
@@ -145,7 +145,7 @@ RSpec.describe 'Requests API' do
     end
 
     context 'when the item does not exist' do
-      let(:id) { 0 }
+      let!(:id) { 0 }
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
