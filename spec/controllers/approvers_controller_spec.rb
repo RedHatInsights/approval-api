@@ -1,3 +1,2 @@
-
-RSpec.describe Api::V0::ApproversController, type: :controller do
+RSpec.describe Api::V0::ApproversController, :type => :controller do
 end
