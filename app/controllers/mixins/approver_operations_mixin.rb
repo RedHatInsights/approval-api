@@ -2,14 +2,14 @@ module ApproverOperationsMixin
   extend ActiveSupport::Concern
 
   def add_action
-    stage = Stage.find(params[:stage_id])
+    stage = Stage.find(params.require(:stage_id))
     action = stage.actions.create!(action_params)
 
     json_response(action, :created)
   end
 
   def fetch_action_by_id
-    action = Action.find(params[:id])
+    action = Action.find(params.require(:id))
 
     json_response(action)
   end
@@ -21,25 +21,25 @@ module ApproverOperationsMixin
   end
 
   def fetch_stage_by_id
-    stage = Stage.find(params[:id])
+    stage = Stage.find(params.require(:id))
 
     json_response(stage)
   end
 
   def remove_action
-    Action.find(params[:id]).destroy
+    Action.find(params.require(:id)).destroy
 
     head :no_content
   end
 
   def update_action
-    Action.find(params[:id]).update(action_params)
+    Action.find(params.require(:id)).update(action_params)
 
     head :no_content
   end
 
   def update_stage
-    StageUpdateService.new(params[:id]).update(stage_params)
+    StageUpdateService.new(params.require(:id)).update(stage_params)
     head :no_content
   end
 
