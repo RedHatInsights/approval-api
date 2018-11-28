@@ -11,6 +11,8 @@ class Stage < ApplicationRecord
   include ApprovalStates
   include ApprovalDecisions
 
+  acts_as_tenant(:tenant)
+
   has_many :actions
   belongs_to :group
   belongs_to :request

@@ -12,6 +12,8 @@ class Request < ApplicationRecord
   include ApprovalStates
   include ApprovalDecisions
 
+  acts_as_tenant(:tenant)
+
   belongs_to :workflow
   has_many :stages
 
