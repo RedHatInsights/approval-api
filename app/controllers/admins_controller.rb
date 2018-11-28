@@ -18,7 +18,7 @@ class AdminsController < ApplicationController
   end
 
   def add_stage
-    req = Request.find(params[:request_id])
+    req = Request.find(params.require(:request_id))
     stage = req.stages.create!(stage_params)
 
     json_response(stage, :created)
@@ -30,12 +30,12 @@ class AdminsController < ApplicationController
   end
 
   def add_workflow
-    workflow = Template.find(params[:template_id]).workflows.create!(workflow_params)
+    workflow = Template.find(params.require(:template_id)).workflows.create!(workflow_params)
     json_response(workflow, :created)
   end
 
   def fetch_group_by_id
-    group = Group.find(params[:id])
+    group = Group.find(params.require(:id))
 
     json_response(group)
   end
@@ -59,12 +59,12 @@ class AdminsController < ApplicationController
   end
 
   def fetch_template_by_id
-    template = Template.find(params[:id])
+    template = Template.find(params.require(:id))
     json_response(template)
   end
 
   def fetch_template_workflows
-    template = Template.find(params[:template_id])
+    template = Template.find(params.require(:template_id))
     json_response(template.workflows)
   end
 
@@ -74,13 +74,13 @@ class AdminsController < ApplicationController
   end
 
   def fetch_workflow_by_id
-    workflow = Workflow.find(params[:id])
+    workflow = Workflow.find(params.require(:id))
 
     json_response(workflow)
   end
 
   def fetch_workflow_requests
-    workflow = Workflow.find(params[:workflow_id])
+    workflow = Workflow.find(params.require(:workflow_id))
 
     json_response(workflow.requests)
   end
@@ -92,47 +92,47 @@ class AdminsController < ApplicationController
   end
 
   def remove_group
-    Group.find(params[:id]).destroy
+    Group.find(params.require(:id)).destroy
     head :no_content
   end
 
   def remove_request
-    Request.find(params[:id]).destroy
+    Request.find(params.require(:id)).destroy
     head :no_content
   end
 
   def remove_stage
-    Stage.find(params[:id]).destroy
+    Stage.find(params.require(:id)).destroy
     head :no_content
   end
 
   def remove_template
-    Template.find(params[:id]).destroy
+    Template.find(params.require(:id)).destroy
   end
 
   def remove_workflow
-    Workflow.find(params[:id]).destroy
+    Workflow.find(params.require(:id)).destroy
 
     head :no_content
   end
 
   def update_group
-    Group.find(params[:id]).update(group_params)
+    Group.find(params.require(:id)).update(group_params)
     head :no_content
   end
 
   def update_request
-    RequestUpdateService.new(params[:id]).update(request_params)
+    RequestUpdateService.new(params.require(:id)).update(request_params)
     head :no_content
   end
 
   def update_template
-    Template.find(params[:id]).update(template_params)
+    Template.find(params.require(:id)).update(template_params)
     head :no_content
   end
 
   def update_workflow
-    Workflow.find(params[:id]).update(workflow_params)
+    Workflow.find(params.require(:id)).update(workflow_params)
 
     head :no_content
   end
