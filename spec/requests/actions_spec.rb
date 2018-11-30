@@ -55,7 +55,7 @@ RSpec.describe 'Actions API' do
     end
   end
 
-  # Test suite for PUT /groups/:group_id/actions
+  # Test suite for PATCH /groups/:group_id/actions
   describe 'POST /stages/:stage_id/actions' do
     let(:valid_attributes) { { :decision => 'unknown', :processed_by => 'abcd' } }
 
@@ -68,11 +68,11 @@ RSpec.describe 'Actions API' do
     end
   end
 
-  # Test suite for PUT /actions/:id
-  describe 'PUT /actions/:id' do
+  # Test suite for PATCH /actions/:id
+  describe 'PATCH /actions/:id' do
     let(:valid_attributes) { { :processed_by => 'abcd', :decision => 'denied' } }
 
-    before { put "#{api_version}/actions/#{id}", :params => valid_attributes, :headers => admin_encode_key }
+    before { patch "#{api_version}/actions/#{id}", :params => valid_attributes, :headers => admin_encode_key }
 
     context 'when item exists' do
       it 'returns status code 204' do

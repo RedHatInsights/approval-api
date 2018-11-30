@@ -83,12 +83,12 @@ RSpec.describe 'Templates API', :type => :request do
     end
   end
 
-  # Test suite for PUT /templates/:id
-  describe 'PUT /templates/:id' do
+  # Test suite for PATCH /templates/:id
+  describe 'PATCH /templates/:id' do
     let(:valid_attributes) { { :title => 'Shopping', :description => '1234' } }
 
     context 'when the record exists' do
-      before { put "#{api_version}/templates/#{template_id}", :params => valid_attributes, :headers => admin_encode_key }
+      before { patch "#{api_version}/templates/#{template_id}", :params => valid_attributes, :headers => admin_encode_key }
 
       it 'updates the record' do
         expect(response.body).to be_empty

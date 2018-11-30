@@ -86,7 +86,7 @@ paths:
             $ref: '#/definitions/Action'
         '404':
           description: The approver action does not exist.
-    put:
+    patch:
       tags:
         - admins
         - approvers
@@ -198,7 +198,7 @@ paths:
             $ref: '#/definitions/Group'
         '404':
           description: The approver group does not exist.
-    put:
+    patch:
       tags:
         - admins
       summary: Update an existing approver group
@@ -338,7 +338,7 @@ paths:
             $ref: '#/definitions/Request'
         '404':
           description: The approval request does not exist.
-    put:
+    patch:
       tags:
         - admins
       summary: Update an existing approval request status
@@ -466,7 +466,7 @@ paths:
             $ref: '#/definitions/Request'
         '404':
           description: The approval request does not exist.
-    put:
+    patch:
       tags:
         - admins
         - approvers
@@ -577,7 +577,7 @@ paths:
             $ref: '#/definitions/Template'
         '404':
           description: The template does not exist.
-    put:
+    patch:
       tags:
         - admins
       summary: Update an existing template
@@ -710,7 +710,7 @@ paths:
             $ref: '#/definitions/Workflow'
       security:
         - approval_auth: []
-    put:
+    patch:
       tags:
         - admins
       summary: Update an existing approval workflow
