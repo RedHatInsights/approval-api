@@ -858,8 +858,6 @@ definitions:
       id:
         type: string
         readOnly: true
-      group_id:
-        type: integer
       state:
         $ref: '#/definitions/State'
       decision:
