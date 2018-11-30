@@ -16,7 +16,7 @@ RSpec.describe RequestCreateService do
     end
   end
 
-  describe '#create' do
+  context 'auto approval instructed by an environment variable' do
     before do
       allow(Thread).to receive(:new).and_yield
       ENV['AUTO_APPROVAL'] = 'y'
@@ -24,8 +24,8 @@ RSpec.describe RequestCreateService do
     end
 
     after do
-      ENV['AUTO_APPROVAL'] = 'y'
-      ENV['AUTO_APPROVAL_INTERVAL'] = '0.1'
+      ENV['AUTO_APPROVAL'] = nil
+      ENV['AUTO_APPROVAL_INTERVAL'] = nil
     end
 
     it 'creates a request and auto approves' do
@@ -51,6 +51,28 @@ RSpec.describe RequestCreateService do
       expect(request.stages.first.actions.last).to have_attributes(
         :operation => Action::APPROVE_OPERATION,
         :comments  => 'ok'
+      )
+    end
+  end
+
+  context 'auto approval with a seeded workflow' do
+    let(:workflow) do
+      Workflow.seed
+      Workflow.first
+    end
+
+    before { allow(Thread).to receive(:new).and_yield }
+
+    it 'creates a request and auto approves' do
+      request = subject.create(:name => 'req2', :requester => 'test2', :content => 'test me')
+      request.reload
+      expect(request).to have_attributes(
+        :name      => 'req2',
+        :requester => 'test2',
+        :content   => 'test me',
+        :state     => Request::FINISHED_STATE,
+        :decision  => Request::APPROVED_STATUS,
+        :reason    => 'System approved'
       )
     end
   end
