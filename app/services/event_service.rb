@@ -25,7 +25,7 @@ class EventService
       :request_id => request.id,
       :group_name => stage.group.name,
       :decision   => stage.decision,
-      :comments   => stage.comments
+      :reason     => stage.reason
     )
   end
 
@@ -37,7 +37,7 @@ class EventService
     send_event(EVENT_REQUEST_FINISHED,
       :request_id => request.id,
       :decision   => request.decision,
-      :comments   => request.reason || ''
+      :reason     => request.reason || ''
     )
   end
 

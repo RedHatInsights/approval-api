@@ -15,18 +15,18 @@ class Request < ApplicationRecord
   acts_as_tenant(:tenant)
 
   belongs_to :workflow
-  has_many :stages
+  has_many :stages, -> { order(:id => :asc) }, :inverse_of => :request, :dependent => :destroy
 
-  validates_presence_of :requester
-  validates_presence_of :name
-  validates_presence_of :content
+  validates :requester, :presence => true
+  validates :name,      :presence => true
+  validates :content,   :presence => true
 
-  validates :state, :inclusion => { :in => STATES }
+  validates :state,    :inclusion => { :in => STATES }
   validates :decision, :inclusion => { :in => DECISIONS }
 
-  scope :decision, ->(decision) { where decision: decision }
-  scope :state, ->(state) { where state: state }
-  scope :requester, ->(requester) { where requester: requester }
+  scope :decision,  ->(decision)  { where(:decision => decision) }
+  scope :state,     ->(state)     { where(:state => state) }
+  scope :requester, ->(requester) { where(:requester => requester) }
 
   def as_json(_options = {})
     super(:include => [:stages])

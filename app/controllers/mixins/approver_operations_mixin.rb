@@ -2,9 +2,7 @@ module ApproverOperationsMixin
   extend ActiveSupport::Concern
 
   def add_action
-    stage = Stage.find(params.require(:stage_id))
-    action = stage.actions.create!(action_params)
-
+    action = ActionCreateService.new(params.require(:stage_id)).create(action_params)
     json_response(action, :created)
   end
 
@@ -46,6 +44,6 @@ module ApproverOperationsMixin
   private
 
   def action_params
-    params.permit(:decision, :processed_by, :actioned_at, :notified_at, :comments)
+    params.permit(:operation, :processed_by, :comments)
   end
 end

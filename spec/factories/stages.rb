@@ -2,7 +2,7 @@
 FactoryBot.define do
   factory :stage do
     state { :pending }
-    decision { :unknown }
+    decision { :undecided }
 
     request
     group

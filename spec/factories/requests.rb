@@ -7,7 +7,7 @@ FactoryBot.define do
     requester    { Faker::Lorem.word }
     content      { JSON.generate(items) }
     state        { :pending }
-    decision     { :unknown }
+    decision     { :undecided }
 
     workflow
   end

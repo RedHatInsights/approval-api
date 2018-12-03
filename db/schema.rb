@@ -10,16 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181127152517) do
+ActiveRecord::Schema.define(version: 20181203202110) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "actions", force: :cascade do |t|
     t.string "processed_by"
-    t.datetime "actioned_at"
-    t.datetime "notified_at"
-    t.string "decision"
+    t.string "operation"
     t.string "comments"
     t.bigint "stage_id"
     t.datetime "created_at", null: false
@@ -58,7 +56,7 @@ ActiveRecord::Schema.define(version: 20181127152517) do
   create_table "stages", force: :cascade do |t|
     t.string "state"
     t.string "decision"
-    t.string "comments"
+    t.string "reason"
     t.bigint "group_id"
     t.bigint "request_id"
     t.datetime "created_at", null: false

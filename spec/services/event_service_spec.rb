@@ -9,7 +9,7 @@ RSpec.describe EventService do
   end
 
   it 'sends request_finished event' do
-    expect(subject).to receive(:send_event).with(described_class::EVENT_REQUEST_FINISHED, hash_including(:request_id, :decision, :comments))
+    expect(subject).to receive(:send_event).with(described_class::EVENT_REQUEST_FINISHED, hash_including(:request_id, :decision, :reason))
     subject.request_finished
   end
 
@@ -19,7 +19,7 @@ RSpec.describe EventService do
   end
 
   it 'sends approver_group_finished event' do
-    expect(subject).to receive(:send_event).with(described_class::EVENT_APPROVER_GROUP_FINISHED, hash_including(:request_id, :group_name, :decision, :comments))
+    expect(subject).to receive(:send_event).with(described_class::EVENT_APPROVER_GROUP_FINISHED, hash_including(:request_id, :group_name, :decision, :reason))
     subject.approver_group_finished(stage)
   end
 end

@@ -11,11 +11,11 @@ class Workflow < ApplicationRecord
   acts_as_tenant(:tenant)
 
   belongs_to :template
-  has_many :requests
-  has_many :workflowgroups
-  has_many :groups, -> { order(created_at: :asc) }, through: :workflowgroups
+  has_many :requests, :inverse_of => :workflow
+  has_many :workflowgroups, :dependent => :destroy
+  has_many :groups, -> { order(:id => :asc) }, :through => :workflowgroups
 
-  validates_presence_of :name
+  validates :name, :presence => :name
 
   def as_json(_options = {})
     super(:methods => [:group_ids])

@@ -57,44 +57,13 @@ RSpec.describe 'Actions API' do
 
   # Test suite for PATCH /groups/:group_id/actions
   describe 'POST /stages/:stage_id/actions' do
-    let(:valid_attributes) { { :decision => 'unknown', :processed_by => 'abcd' } }
+    let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
 
     context 'when request attributes are valid' do
       before { post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => admin_encode_key }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
-      end
-    end
-  end
-
-  # Test suite for PATCH /actions/:id
-  describe 'PATCH /actions/:id' do
-    let(:valid_attributes) { { :processed_by => 'abcd', :decision => 'denied' } }
-
-    before { patch "#{api_version}/actions/#{id}", :params => valid_attributes, :headers => admin_encode_key }
-
-    context 'when item exists' do
-      it 'returns status code 204' do
-        expect(response).to have_http_status(204)
-      end
-
-      it 'updates the item' do
-        updated_item = Action.find(id)
-        expect(updated_item.processed_by).to eq('abcd')
-        expect(updated_item.decision).to eq('denied')
-      end
-    end
-
-    context 'when the item does not exist' do
-      let!(:id) { 0 }
-
-      it 'returns status code 404' do
-        expect(response).to have_http_status(404)
-      end
-
-      it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find Action/)
       end
     end
   end
