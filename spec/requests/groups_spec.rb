@@ -47,11 +47,11 @@ RSpec.describe 'Groups API' do
     end
   end
 
-  # Test suite for PUT /groups/:id
-  describe 'PUT /groups/:id' do
+  # Test suite for patch /groups/:id
+  describe 'patch /groups/:id' do
     let(:valid_attributes) { { :name => 'Mozart' } }
 
-    before { put "#{api_version}/groups/#{id}", :params => valid_attributes, :headers => admin_encode_key }
+    before { patch "#{api_version}/groups/#{id}", :params => valid_attributes, :headers => admin_encode_key }
 
     context 'when item exists' do
       it 'returns status code 204' do

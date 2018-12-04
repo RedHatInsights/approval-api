@@ -98,11 +98,11 @@ RSpec.describe 'Workflows API' do
     end
   end
 
-  # Test suite for PUT /workflows/:id
-  describe 'PUT /workflows/:id' do
+  # Test suite for PATCH /workflows/:id
+  describe 'PATCH /workflows/:id' do
     let(:valid_attributes) { { :name => 'Mozart' } }
 
-    before { put "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => admin_encode_key }
+    before { patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => admin_encode_key }
 
     context 'when item exists' do
       it 'returns status code 204' do

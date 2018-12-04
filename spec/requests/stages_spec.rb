@@ -90,13 +90,13 @@ RSpec.describe 'Stages API' do
     end
   end
 
-  # Test suite for PUT /stages/:id
-  describe 'PUT /stages/:id' do
+  # Test suite for PATCH /stages/:id
+  describe 'PATCH /stages/:id' do
     let(:valid_attributes) { { :state => 'notified' } }
 
     before do
       allow(ManageIQ::Messaging::Client).to receive(:open)
-      put "#{api_version}/stages/#{id}", :params => valid_attributes, :headers => admin_encode_key
+      patch "#{api_version}/stages/#{id}", :params => valid_attributes, :headers => admin_encode_key
     end
 
     context 'when item exists' do

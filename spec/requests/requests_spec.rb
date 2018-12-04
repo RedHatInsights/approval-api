@@ -124,13 +124,13 @@ RSpec.describe 'Requests API' do
     end
   end
 
-  # Test suite for PUT /requests/:id
-  describe 'PUT /requests/:id' do
+  # Test suite for PATCH /requests/:id
+  describe 'PATCH /requests/:id' do
     let(:valid_attributes) { { :name => 'Mozart' } }
 
     before do
       allow(ManageIQ::Messaging::Client).to receive(:open)
-      put "#{api_version}/requests/#{id}", :params => valid_attributes, :headers => admin_encode_key
+      patch "#{api_version}/requests/#{id}", :params => valid_attributes, :headers => admin_encode_key
     end
 
     context 'when item exists' do
