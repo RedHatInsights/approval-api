@@ -156,13 +156,4 @@ RSpec.describe 'Requests API' do
       end
     end
   end
-
-  # Test suite for DELETE /requests/:id
-  describe 'DELETE /requests/:id' do
-    before { delete "#{api_version}/requests/#{id}", :headers => admin_encode_key }
-
-    it 'returns status code 204' do
-      expect(response).to have_http_status(204)
-    end
-  end
 end

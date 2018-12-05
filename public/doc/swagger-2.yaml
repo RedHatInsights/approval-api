@@ -3,16 +3,20 @@ info:
   title: Insights Service Approval APIs
   description: APIs to query approval service
   version: 1.0.0
+  contact:
+    email: support@redhat.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
 host: 'localhost:3000'
 tags:
   - name: admins
-    description: Admin users
+    description: Admin-only APIs
   - name: approvers
-    description: User with approval privilege
+    description: Approvers APIs
   - name: users
-    description: regular users
+    description: Regular users APIs
 schemes:
-  - https
   - http
 paths:
   # Endpoints for actions
@@ -31,7 +35,7 @@ paths:
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: successful operation
+          description: On success this API return an array of actions.
           headers:
             X-total-count:
               type: integer
@@ -40,15 +44,23 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Action'
-      security:
-        - approval_auth: []
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/stages/{stage_id}/actions':
     post:
       tags:
         - admins
         - approvers
-      summary: Add an action
-      description: Add an action
+      summary: Add an action to a given stage
+      description: Add an action to a given stage
       operationId: addAction
       produces:
         - application/json
@@ -62,36 +74,50 @@ paths:
             $ref: '#/definitions/Action'
       responses:
         '201':
-          description: successful operation
+          description: On success create an action with a given stage id
           schema:
             $ref: '#/definitions/Action'
-        '405':
-          description: Invalid input
-      security:
-        - approval_auth: []
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/actions/{id}':
     get:
       tags:
         - admins
         - approvers
-      summary: Finds approver action by id
-      description: Finds approver action by id
+      summary: Find an approver action by id
+      description: Find an approver action by id
       operationId: fetchActionById
       parameters:
         - $ref: '#/parameters/id'
       responses:
         '200':
-          description: successful operation
+          description: On success return an action with given id
           schema:
             $ref: '#/definitions/Action'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
         '404':
-          description: The approver action does not exist.
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
     patch:
       tags:
         - admins
         - approvers
       summary: Update an existing action
-      description: Update an existing action
+      description: Update an existing action with given parameters
       operationId: updateAction
       consumes:
         - application/json
@@ -101,42 +127,27 @@ paths:
         - $ref: '#/parameters/id'
         - in: body
           name: body
-          description: Action object that needs to be updated
+          description: The given parameters to update the action
           required: true
           schema:
             $ref: '#/definitions/Action'
       responses:
         '400':
-          description: Invalid ID supplied
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
         '404':
-          description: Action not found
-        '405':
-          description: Validation exception
-      security:
-        - approval_auth: []
-    delete:
-      tags:
-        - admins
-        - approvers
-      summary: Delete action by id
-      description: Delete action by id
-      operationId: removeAction
-      produces:
-        - application/json
-      parameters:
-        - $ref: '#/parameters/id'
-      responses:
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Action not found
-  # Endpoints for groups
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/groups':
     get:
       tags:
         - admins
-      summary: Returns list of approver groups
-      description: Returns a list of approver groups
+      summary: Returns an array of approver groups
+      description: Returns an array of approver groups
       operationId: fetchGroups
       produces:
         - application/json
@@ -145,7 +156,7 @@ paths:
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: successful operation
+          description: On success this API returns an array of approver groups
           headers:
             X-total-count:
               type: integer
@@ -154,13 +165,21 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Group'
-      security:
-        - approval_auth: []
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
     post:
       tags:
         - admins
-      summary: Add a new approver group
-      description: Add a new approver group
+      summary: Add a new approver group by given parameters
+      description: Add a new approver group by given parameters
       operationId: addGroup
       consumes:
         - application/json
@@ -169,40 +188,54 @@ paths:
       parameters:
         - in: body
           name: body
-          description: Approver group object that needs to be added to the orgnization
+          description: Parameters need to create approver group
           required: true
           schema:
             $ref: '#/definitions/Group'
       responses:
         '201':
-          description: successful operation
+          description: On success create a group with given parameters
           schema:
             $ref: '#/definitions/Group'
-        '405':
-          description: Invalid input
-      security:
-        - approval_auth: []
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/groups/{id}':
     get:
       tags:
         - admins
-      summary: Finds approver group by id
-      description: Finds approver group by id
+      summary: Finds approver group by given id
+      description: Finds approver group by given id
       operationId: fetchGroupById
       parameters:
         - $ref: '#/parameters/id'
       responses:
         '200':
-          description: successful operation
+          description: On success return a group by given id
           schema:
             $ref: '#/definitions/Group'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
         '404':
-          description: The approver group does not exist.
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
     patch:
       tags:
         - admins
-      summary: Update an existing approver group
-      description: Update an existing approver group
+      summary: Update an approver group by given id
+      description: Update an approver group by given id
       operationId: updateGroup
       consumes:
         - application/json
@@ -218,18 +251,20 @@ paths:
             $ref: '#/definitions/Group'
       responses:
         '400':
-          description: Invalid ID supplied
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
         '404':
-          description: Approver group not found
-        '405':
-          description: Validation exception
-      security:
-        - approval_auth: []
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
     delete:
       tags:
         - admins
-      summary: Delete approver group by id
-      description: Delete group
+      summary: Delete approver group by given id
+      description: Delete group by given id
       operationId: removeGroup
       produces:
         - application/json
@@ -237,16 +272,21 @@ paths:
         - $ref: '#/parameters/id'
       responses:
         '400':
-          description: Invalid ID supplied
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
         '404':
-          description: Group not found
-  # Endpoints for requests
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/requests':
     get:
       tags:
         - admins
-      summary: List approval requests
-      description: List requests
+      summary: Return an array of approval requests
+      description: Return an array of requests
       operationId: fetchRequests
       consumes:
         - application/json
@@ -260,7 +300,7 @@ paths:
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: successful operation
+          description: On success this API will return a approval group by given id
           headers:
             X-total-count:
               type: integer
@@ -269,12 +309,22 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Request'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/workflows/{workflow_id}/requests':
     get:
       tags:
         - admins
       summary: List of all approval requests
-      description: Returns a list of approval requests
+      description: Returns an array of approval requests by a given workflow id
       operationId: fetchWorkflowRequests
       produces:
         - application/json
@@ -284,7 +334,7 @@ paths:
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: successful operation
+          description: On success this API returns an array of approval requests
           headers:
             X-total-count:
               type: integer
@@ -293,13 +343,21 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Request'
-      security:
-        - approval_auth: []
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
     post:
       tags:
         - users
       summary: Add a new approval request
-      description: request creation may not be via rest
+      description: create a request by given parameters
       operationId: addRequest
       consumes:
         - application/json
@@ -309,40 +367,54 @@ paths:
         - $ref: '#/parameters/workflow_id'
         - in: body
           name: body
-          description: Approval request object that needs to be added
+          description: Parameters need to create a request
           required: true
           schema:
             $ref: '#/definitions/Request'
       responses:
         '201':
-          description: successful operation
+          description: On success create a request by given parameters
           schema:
             $ref: '#/definitions/Request'
-        '405':
-          description: Invalid input
-      security:
-        - approval_auth: []
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/requests/{id}':
     get:
       tags:
         - users
-      summary: Retrieves approval request by given id
-      description: Query approval request by given id
+      summary: Return an approval request by given id
+      description: Return an approval request by given id
       operationId: fetchRequestById
       parameters:
         - $ref: '#/parameters/id'
       responses:
         '200':
-          description: successful operation
+          description: On success return an approval request by given id
           schema:
             $ref: '#/definitions/Request'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
         '404':
-          description: The approval request does not exist.
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
     patch:
       tags:
         - admins
-      summary: Update an existing approval request status
-      description: Update request status
+      summary: Update the approval request by given id
+      description: Update the approval request by given id 
       operationId: updateRequest
       consumes:
         - application/json
@@ -352,48 +424,34 @@ paths:
         - $ref: '#/parameters/id'
         - in: body
           name: body
-          description: new status
+          description: Parameters to update the request
           required: true
           schema:
             $ref: '#/definitions/Request'
       responses:
         '400':
-          description: Invalid ID supplied
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
         '404':
-          description: Approval request not found
-        '405':
-          description: Validation exception
-      security:
-        - approval_auth: []
-    delete:
-      tags:
-        - admins
-      summary: Delete approval request by id
-      description: Delete approval request by id
-      operationId: removeRequest
-      produces:
-        - application/json
-      parameters:
-        - $ref: '#/parameters/id'
-      responses:
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Request not found
-  # Endpoints about stages
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/stages':
     get:
       tags:
         - admins
-      summary: List approval stages
-      description: List all approval stages
+      summary: List of approval stages
+      description: Return all approval stages
       operationId: fetchStages
       parameters:
         - $ref: '#/parameters/limit'
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: successful operation
+          description: On success return an array of approval stages
           headers:
             X-total-count:
               type: integer
@@ -402,12 +460,22 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Stage'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/requests/{request_id}/stages':
     get:
       tags:
         - users
-      summary: Returns stages by given request id
-      description: Returns stages by request id
+      summary: Returns an array of stages by given request id
+      description: Returns an array of stages by given request id
       operationId: fetchRequestStages
       produces:
         - application/json
@@ -415,107 +483,52 @@ paths:
         - $ref: '#/parameters/request_id'
       responses:
         '200':
-          description: successful operation
+          description: On success return an array of stages by given request id
           schema:
             type: array
             items:
               $ref: '#/definitions/Stage'
-      security:
-        - approval_auth: []
-    post:
-      tags:
-        - admins
-      summary: Add a new stage
-      description: Add stage
-      operationId: addStage
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - $ref: '#/parameters/request_id'
-        - in: body
-          name: body
-          description: Stage that needs to be added
-          required: true
-          schema:
-            $ref: '#/definitions/Stage'
-      responses:
-        '201':
-          description: successful operation
-          schema:
-            $ref: '#/definitions/Stage'
-        '405':
-          description: Invalid input
-      security:
-        - approval_auth: []
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/stages/{id}':
     get:
       tags:
         - admins
         - approvers
-      summary: Retrieves approval stages by given id
-      description: Get stage by given id
+      summary: Return an approval stage by given id
+      description: Return an approval stage by given id
       operationId: fetchStageById
       parameters:
         - $ref: '#/parameters/id'
       responses:
         '200':
-          description: successful operation
-          schema:
-            $ref: '#/definitions/Request'
-        '404':
-          description: The approval request does not exist.
-    patch:
-      tags:
-        - admins
-        - approvers
-      summary: Update an existing approval stage
-      description: Update stage
-      operationId: updateStage
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - $ref: '#/parameters/id'
-        - in: body
-          name: body
-          description: new stage
-          required: true
+          description: On success return an approval stage by given id
           schema:
             $ref: '#/definitions/Stage'
-      responses:
         '400':
-          description: Invalid ID supplied
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
         '404':
-          description: Approval request not found
-        '405':
-          description: Validation exception
-      security:
-        - approval_auth: []
-    delete:
-      tags:
-        - admins
-      summary: Delete approval stage by id
-      description: Delete approval stage
-      operationId: removeStage
-      produces:
-        - application/json
-      parameters:
-        - $ref: '#/parameters/id'
-      responses:
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Request not found
-  # Endpoints for templates
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/templates':
     get:
       tags:
         - admins
       summary: Returns list of templates
-      description: Returns list of templates
+      description: Returns an array of templates
       operationId: fetchTemplates
       produces:
         - application/json
@@ -524,7 +537,7 @@ paths:
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: successful operation
+          description: On success return an array of templates
           headers:
             X-total-count:
               type: integer
@@ -533,13 +546,21 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Template'
-      security:
-        - approval_auth: []
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
     post:
       tags:
         - admins
-      summary: Add a new template to the orgnization
-      description: Add template
+      summary: Create a new template by given parameters
+      description: Create a new template by given parameters
       operationId: addTemplate
       consumes:
         - application/json
@@ -548,40 +569,54 @@ paths:
       parameters:
         - in: body
           name: body
-          description: Approval template object that needs to be added to the orgnization
+          description: Parameters need to create approval template
           required: true
           schema:
             $ref: '#/definitions/Template'
       responses:
         '201':
-          description: successful operation
+          description: On success create a template
           schema:
             $ref: '#/definitions/Template'
-        '405':
-          description: Invalid input
-      security:
-        - approval_auth: []
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/templates/{id}':
     get:
       tags:
         - admins
-      summary: Finds template by id
-      description: Find template by given id
+      summary: Return a template by given id
+      description: Return a template by given id
       operationId: fetchTemplateById
       parameters:
         - $ref: '#/parameters/id'
       responses:
         '200':
-          description: successful operation
+          description: On success return a template by given id
           schema:
             $ref: '#/definitions/Template'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
         '404':
-          description: The template does not exist.
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
     patch:
       tags:
         - admins
-      summary: Update an existing template
-      description: Update template
+      summary: Update the template by given parameters
+      description: Update the template by given parameters
       operationId: updateTemplate
       consumes:
         - application/json
@@ -591,24 +626,26 @@ paths:
         - $ref: '#/parameters/id'
         - in: body
           name: body
-          description: Template needs to be updated
+          description: Parameters need to update template
           required: true
           schema:
             $ref: '#/definitions/Template'
       responses:
         '400':
-          description: Invalid ID supplied
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
         '404':
-          description: Template not found
-        '405':
-          description: Validation exception
-      security:
-        - approval_auth: []
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
     delete:
       tags:
         - admins
-      summary: Delete template by id
-      description: Delete template by id
+      summary: Delete the template by given id
+      description: Delete the template by given id
       operationId: removeTemplate
       produces:
         - application/json
@@ -616,23 +653,28 @@ paths:
         - $ref: '#/parameters/id'
       responses:
         '400':
-          description: Invalid ID supplied
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
         '404':
-          description: Template not found
-  # Endpoints for workflows
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/workflows':
     get:
       tags:
         - admins
-      summary: List all approval workflows
-      description: List all approval workflows
+      summary: Return all approval workflows
+      description: Return all approval workflows
       operationId: fetchWorkflows
       parameters:
         - $ref: '#/parameters/limit'
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: successful operation
+          description: On success return all workflows
           headers:
             X-total-count:
               type: integer
@@ -641,12 +683,22 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Workflow'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/templates/{template_id}/workflows':
     get:
       tags:
         - admins
-      summary: Returns list of workflows by given template id
-      description: Returns a list of workflows
+      summary: Returns an array of workflows by given template id
+      description: Returns an array of workflows by given template id
       operationId: fetchTemplateWorkflows
       produces:
         - application/json
@@ -656,7 +708,7 @@ paths:
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: successful operation
+          description: On success return an array of workflows by given template id
           headers:
             X-total-count:
               type: integer
@@ -665,13 +717,21 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Workflow'
-      security:
-        - approval_auth: []
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
     post:
       tags:
         - admins
-      summary: Add a new workflow
-      description: Add workflow
+      summary: Create a workflow by given template id
+      description: Create a workflow by given template id
       operationId: addWorkflow
       consumes:
         - application/json
@@ -681,40 +741,54 @@ paths:
         - $ref: '#/parameters/template_id'
         - in: body
           name: body
-          description: Workflow that needs to be added
+          description: Parameters need to create workflow
           required: true
           schema:
             $ref: '#/definitions/Workflow'
       responses:
         '201':
-          description: successful operation
+          description: On success create a workflow by given template id
           schema:
             $ref: '#/definitions/Workflow'
-        '405':
-          description: Invalid input
-      security:
-        - approval_auth: []
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/workflows/{id}':
     get:
       tags:
         - admins
-      summary: List approval workflow by id
-      description: Display workflow by given id
+      summary: Return an approval workflow by id
+      description: Return a workflow by given id
       operationId: fetchWorkflowById
       parameters:
         - $ref: '#/parameters/id'
       responses:
         '200':
-          description: successful operation
+          description: On success return the workflow by its id
           schema:
             $ref: '#/definitions/Workflow'
-      security:
-        - approval_auth: []
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
     patch:
       tags:
         - admins
-      summary: Update an existing approval workflow
-      description: Update approval workflow
+      summary: Update an approval workflow by given id
+      description: Update an approval workflow by given id
       operationId: updateWorkflow
       consumes:
         - application/json
@@ -724,24 +798,26 @@ paths:
         - $ref: '#/parameters/id'
         - in: body
           name: body
-          description: Approval workflow object that needs to be updated
+          description: Parameters need to update approval workflow
           required: true
           schema:
             $ref: '#/definitions/Workflow'
       responses:
         '400':
-          description: Invalid ID supplied
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
         '404':
-          description: Approval workflow not found
-        '405':
-          description: Validation exception
-      security:
-        - approval_auth: []
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
     delete:
       tags:
         - admins
-      summary: Delete approval workflow by id
-      description: Delete approval workflow by id
+      summary: Delete approval workflow by given id
+      description: Delete approval workflow by given id
       operationId: removeWorkflow
       produces:
         - application/json
@@ -749,15 +825,25 @@ paths:
         - $ref: '#/parameters/id'
       responses:
         '400':
-          description: Invalid ID supplied
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
         '404':
-          description: Workflow not found
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
 securityDefinitions:
   approval_auth:
     type: basic
+    description: The user id/password is needed when accessing this API externally
+security:
+  - approval_auth: []
 definitions:
   Action:
     type: object
+    description: Action is kind of like processing record. Each stage may have many actions before final decision.
     required:
       - processed_by
       - stage
@@ -767,35 +853,35 @@ definitions:
         readOnly: true
       processed_by:
         type: string
-        description: Person to process the action
+        description: Processor info who perform the action
       actioned_at:
         type: string
         format: date-time
-        description: Timestamp of action be processed
+        description: Timestamp of action processed
         readOnly: true
       notified_at:
         type: string
         format: date-time
-        description: Timestamp of action be notified
+        description: Timestamp of notification if sent
         readOnly: true
-      state:
-        $ref: '#/definitions/State'
-      decision:
-        $ref: '#/definitions/Decision'
+      operation:
+        $ref: '#/definitions/Operation'
       comments:
         type: string
-        description: Comments about the action
+        description: Comments for action
         readOnly: true
   Decision:
     type: string
-    description: may be one of (unknown, approved, or denied)
+    description: Final decision, may be one of the value (undecided, approved, or denied)
     enum:
-      - unknown
+      - undecided
       - approved
       - denied
-    default: unknown
+    default: undecided
   Group:
     type: object
+    description: Approver groups. Each group may have one or many approvers. The first response from any approver will
+      be treated as group response.
     required:
       - name
       - contact_method
@@ -809,12 +895,24 @@ definitions:
         description: Group name
       contact_method:
         type: string
-        description: Contact type
+        description: Contact type. It may be email, slack, team, etc. So far only email is supported.
+        example: email
       contact_setting:
-        type: string
-        description: Settings of contact
+        type: object
+        description: JSON object with contact Setting
+  Operation:
+    type: string
+    description: Types of action, may be one of the value (approved, denied, notified, noted, or skipped). The stage will be updated according to the operation.
+    enum:
+      - approved
+      - denied
+      - notified
+      - noted
+      - skipped
+    default: noted
   Request:
     type: object
+    description: Approval request. Each request will associate with a workflow. Corresponding to the groups of the associated workflow, every request will have a list of stages to record the request processing details.
     required:
       - requester
       - name
@@ -841,17 +939,15 @@ definitions:
         description: Comments for requests
         readOnly: true
       content:
-        type: string
-        description: Request content
+        type: object
+        description: JSON object with request content
       workflow_id:
         type: string
         description: Associate workflow id
-      stages:
-        type: array
-        items:
-          $ref: '#/definitions/Stage'
+        readOnly: true
   Stage:
     type: object
+    description: The stage of approval request.
     required:
       - group_id
     properties:
@@ -865,19 +961,16 @@ definitions:
       comments:
         type: string
         description: approval stage
-      actions:
-        type: array
-        items:
-          $ref: '#/definitions/Action'
       group_id:
         type: string
         description: Associated group id
       request_id:
         type: string
         description: Associated request id
+        readOnly: true
   State:
     type: string
-    description: may be one of (pending, skipped, notified or finished)
+    description: The state of stage or request. It may be one of values (pending, skipped, notified or finished)
     enum:
       - pending
       - skipped
@@ -886,6 +979,7 @@ definitions:
     default: pending
   Template:
     type: object
+    description: The template to categorize workflows.
     required:
       - title
     properties:
@@ -898,6 +992,7 @@ definitions:
         type: string
   Workflow:
     type: object
+    description: The workflow to process approval requests. Each workflow should link with a list of groups, in order to process approval requests.
     required:
       - name
     properties:
@@ -911,10 +1006,7 @@ definitions:
       template_id:
         type: string
         description: Associated template id
-      group_ids:
-        type: array
-        items:
-          type: string
+        readOnly: true
 parameters:
   id:
     name: id
@@ -974,7 +1066,7 @@ parameters:
   state:
     name: state
     in: query
-    description: 'fetch item by given state (pending, skipped, notified, finished)'
+    description: fetch item by given state (pending, skipped, notified, finished)
     required: false
     type: array
     items:
@@ -987,13 +1079,13 @@ parameters:
   decision:
     name: decision
     in: query
-    description: 'fetch item by given decision (unknown, approved, denied)'
+    description: fetch item by given decision (undecided, approved, denied)
     required: false
     type: array
     items:
       type: string
       enum:
-        - unknown
+        - undecided
         - approved
         - denied
   requester:
@@ -1002,6 +1094,19 @@ parameters:
     description: fetch item by given requester
     required: false
     type: string
+responses:
+  400BadRequestResponse:
+    description: 'Bad request'
+  401UnauthorizedResponse:
+    description: 'Caller is not authorized to access the resource.'
+  403ForbiddenResponse:
+    description: 'Caller is forbidden to perform the action.'
+  404NotFoundResponse:
+    description: 'The requested resource is not found.'
+  422UnprocessableEntityResponse:
+    description: 'The required paramters are either invalid or missed.'
+  DefaultUnexpectedResponse:
+    description: 'An unexpected response.'
 externalDocs:
   description: Find out more about Swagger
   url: 'http://swagger.io'

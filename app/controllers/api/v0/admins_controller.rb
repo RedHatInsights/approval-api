@@ -17,13 +17,6 @@ module Api
         json_response(group, :created)
       end
 
-      def add_stage
-        req = Request.find(params[:request_id])
-        stage = req.stages.create!(stage_params)
-
-        json_response(stage, :created)
-      end
-
       def add_template
         template = Template.create!(template_params)
         json_response(template, :created)
@@ -93,16 +86,6 @@ module Api
 
       def remove_group
         Group.find(params[:id]).destroy
-        head :no_content
-      end
-
-      def remove_request
-        Request.find(params[:id]).destroy
-        head :no_content
-      end
-
-      def remove_stage
-        Stage.find(params[:id]).destroy
         head :no_content
       end
 

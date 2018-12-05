@@ -20,8 +20,4 @@ class Stage < ApplicationRecord
 
   validates :state,    :inclusion => { :in => STATES }
   validates :decision, :inclusion => { :in => DECISIONS }
-
-  def as_json(_options = {})
-    super(:include => [:actions])
-  end
 end

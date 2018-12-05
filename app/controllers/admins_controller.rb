@@ -96,16 +96,6 @@ class AdminsController < ApplicationController
     head :no_content
   end
 
-  def remove_request
-    Request.find(params.require(:id)).destroy
-    head :no_content
-  end
-
-  def remove_stage
-    Stage.find(params.require(:id)).destroy
-    head :no_content
-  end
-
   def remove_template
     Template.find(params.require(:id)).destroy
   end

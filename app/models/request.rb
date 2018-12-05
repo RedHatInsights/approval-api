@@ -27,8 +27,4 @@ class Request < ApplicationRecord
   scope :decision,  ->(decision)  { where(:decision => decision) }
   scope :state,     ->(state)     { where(:state => state) }
   scope :requester, ->(requester) { where(:requester => requester) }
-
-  def as_json(_options = {})
-    super(:include => [:stages])
-  end
 end

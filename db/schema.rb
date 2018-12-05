@@ -10,13 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema.define(version: 20181203202110) do
+=======
+ActiveRecord::Schema.define(version: 20181204225350) do
+>>>>>>> Refined swagger yaml file
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "actions", force: :cascade do |t|
     t.string "processed_by"
+<<<<<<< HEAD
+=======
+    t.datetime "actioned_at"
+    t.datetime "notified_at"
+>>>>>>> Refined swagger yaml file
     t.string "operation"
     t.string "comments"
     t.bigint "stage_id"

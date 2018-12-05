@@ -24,20 +24,9 @@ module ApproverOperationsMixin
     json_response(stage)
   end
 
-  def remove_action
-    Action.find(params.require(:id)).destroy
-
-    head :no_content
-  end
-
   def update_action
     Action.find(params.require(:id)).update(action_params)
 
-    head :no_content
-  end
-
-  def update_stage
-    StageUpdateService.new(params.require(:id)).update(stage_params)
     head :no_content
   end
 
