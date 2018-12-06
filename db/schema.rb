@@ -80,10 +80,12 @@ ActiveRecord::Schema.define(version: 20181127152517) do
   end
 
   create_table "tenants", force: :cascade do |t|
-    t.bigint "ref_id"
+    t.bigint "external_tenant"
+    t.string "name"
+    t.string "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["ref_id"], name: "index_tenants_on_ref_id"
+    t.index ["external_tenant"], name: "index_tenants_on_external_tenant"
   end
 
   create_table "workflowgroups", force: :cascade do |t|

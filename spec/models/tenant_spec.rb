@@ -45,10 +45,12 @@ RSpec.describe Tenant, :type => :model do
         ActsAsTenant.current_tenant = tenant
         expect(Template.count).to eq 1
         expect(template.tenant_id).to eq tenant.id
+        expect(Template.first.id).to eq template.id
 
         ActsAsTenant.current_tenant = another_tenant
         expect(Template.count).to eq 1
         expect(template_tenant.tenant_id).to eq another_tenant.id
+        expect(Template.first.id).to eq(template_tenant.id)
       end
     end
   end

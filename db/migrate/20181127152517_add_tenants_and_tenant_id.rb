@@ -1,8 +1,10 @@
 class AddTenantsAndTenantId < ActiveRecord::Migration[5.1]
   def change
     create_table :tenants do |t|
-      t.bigint :ref_id
-      t.index ["ref_id"], :name => "index_tenants_on_ref_id"
+      t.bigint :external_tenant
+      t.index ["external_tenant"], :name => "index_tenants_on_external_tenant"
+      t.string :name
+      t.string :description
 
       t.timestamps
     end

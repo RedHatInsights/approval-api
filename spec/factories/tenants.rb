@@ -2,6 +2,6 @@
 #
 FactoryBot.define do
   factory :tenant do
-    sequence(:ref_id, &:to_s)
+    sequence(:external_tenant, &:to_s)
   end
 end
