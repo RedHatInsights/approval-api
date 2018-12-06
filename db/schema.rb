@@ -89,9 +89,7 @@ ActiveRecord::Schema.define(version: 20181127152517) do
   create_table "workflowgroups", force: :cascade do |t|
     t.bigint "workflow_id"
     t.bigint "group_id"
-    t.bigint "tenant_id"
     t.index ["group_id"], name: "index_workflowgroups_on_group_id"
-    t.index ["tenant_id"], name: "index_workflowgroups_on_tenant_id"
     t.index ["workflow_id"], name: "index_workflowgroups_on_workflow_id"
   end
 

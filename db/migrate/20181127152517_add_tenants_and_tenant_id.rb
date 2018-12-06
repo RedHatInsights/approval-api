@@ -24,8 +24,5 @@ class AddTenantsAndTenantId < ActiveRecord::Migration[5.1]
 
     add_column :workflows, :tenant_id, :bigint
     add_index  :workflows, :tenant_id
-
-    add_column :workflowgroups, :tenant_id, :bigint
-    add_index  :workflowgroups, :tenant_id
   end
 end
