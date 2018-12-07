@@ -8,6 +8,8 @@
 #
 
 class Workflow < ApplicationRecord
+  acts_as_tenant(:tenant)
+
   belongs_to :template
   has_many :requests
   has_many :workflowgroups

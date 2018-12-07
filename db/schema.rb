@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 0) do
+ActiveRecord::Schema.define(version: 20181127152517) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,7 +24,9 @@ ActiveRecord::Schema.define(version: 0) do
     t.bigint "stage_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "tenant_id"
     t.index ["stage_id"], name: "index_actions_on_stage_id"
+    t.index ["tenant_id"], name: "index_actions_on_tenant_id"
   end
 
   create_table "groups", force: :cascade do |t|
@@ -33,6 +35,8 @@ ActiveRecord::Schema.define(version: 0) do
     t.jsonb "contact_setting"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "tenant_id"
+    t.index ["tenant_id"], name: "index_groups_on_tenant_id"
   end
 
   create_table "requests", force: :cascade do |t|
@@ -46,6 +50,8 @@ ActiveRecord::Schema.define(version: 0) do
     t.bigint "workflow_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "tenant_id"
+    t.index ["tenant_id"], name: "index_requests_on_tenant_id"
     t.index ["workflow_id"], name: "index_requests_on_workflow_id"
   end
 
@@ -57,8 +63,10 @@ ActiveRecord::Schema.define(version: 0) do
     t.bigint "request_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "tenant_id"
     t.index ["group_id"], name: "index_stages_on_group_id"
     t.index ["request_id"], name: "index_stages_on_request_id"
+    t.index ["tenant_id"], name: "index_stages_on_tenant_id"
   end
 
   create_table "templates", force: :cascade do |t|
@@ -67,6 +75,17 @@ ActiveRecord::Schema.define(version: 0) do
     t.string "ext_ref"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "tenant_id"
+    t.index ["tenant_id"], name: "index_templates_on_tenant_id"
+  end
+
+  create_table "tenants", force: :cascade do |t|
+    t.bigint "external_tenant"
+    t.string "name"
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["external_tenant"], name: "index_tenants_on_external_tenant"
   end
 
   create_table "workflowgroups", force: :cascade do |t|
@@ -82,7 +101,9 @@ ActiveRecord::Schema.define(version: 0) do
     t.bigint "template_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "tenant_id"
     t.index ["template_id"], name: "index_workflows_on_template_id"
+    t.index ["tenant_id"], name: "index_workflows_on_tenant_id"
   end
 
   add_foreign_key "requests", "workflows"

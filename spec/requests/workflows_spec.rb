@@ -63,7 +63,8 @@ RSpec.describe 'Workflows API' do
     end
 
     context 'when the record does not exist' do
-      let!(:id) { 100 }
+      let!(:id) { 0 }
+
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
       end
