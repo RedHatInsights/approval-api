@@ -15,5 +15,5 @@ class Template < ApplicationRecord
 
   has_many :workflows
 
-  validates_presence_of :title
+  validates :title, :presence => :title
 end

@@ -13,11 +13,12 @@ class Stage < ApplicationRecord
 
   acts_as_tenant(:tenant)
 
-  has_many :actions
+  has_many :actions, :dependent => :destroy
+
   belongs_to :group
   belongs_to :request
 
-  validates :state, :inclusion => { :in => STATES }
+  validates :state,    :inclusion => { :in => STATES }
   validates :decision, :inclusion => { :in => DECISIONS }
 
   def as_json(_options = {})

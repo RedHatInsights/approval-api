@@ -4,14 +4,14 @@ RSpec.describe RequestCreateService do
 
   context 'without auto approval' do
     it 'creates a request' do
-      request = subject.create(:name => 'req1', :requester=>'test', :content => 'test me')
+      request = subject.create(:name => 'req1', :requester => 'test', :content => 'test me')
       request.reload
       expect(request).to have_attributes(
         :name      => 'req1',
         :requester => 'test',
         :content   => 'test me',
         :state     => Request::PENDING_STATE,
-        :decision  => Request::UNKNOWN_STATUS
+        :decision  => Request::UNDECIDED_STATUS
       )
     end
   end
@@ -23,8 +23,13 @@ RSpec.describe RequestCreateService do
       ENV['AUTO_APPROVAL_INTERVAL'] = '0.1'
     end
 
+    after do
+      ENV['AUTO_APPROVAL'] = 'y'
+      ENV['AUTO_APPROVAL_INTERVAL'] = '0.1'
+    end
+
     it 'creates a request and auto approves' do
-      request = subject.create(:name => 'req1', :requester=>'test', :content => 'test me')
+      request = subject.create(:name => 'req1', :requester => 'test', :content => 'test me')
       request.reload
       expect(request).to have_attributes(
         :name      => 'req1',
@@ -37,13 +42,15 @@ RSpec.describe RequestCreateService do
       expect(request.stages.first).to have_attributes(
         :state    => Stage::FINISHED_STATE,
         :decision => Stage::APPROVED_STATUS,
-        :comments => 'ok'
+        :reason   => 'ok'
       )
       expect(request.stages.first.actions.first).to have_attributes(
-        :decision    => Action::APPROVED_STATUS,
-        :comments    => 'ok',
-        :notified_at => an_instance_of(ActiveSupport::TimeWithZone),
-        :actioned_at => an_instance_of(ActiveSupport::TimeWithZone)
+        :operation    => Action::NOTIFY_OPERATION,
+        :processed_by => 'system',
+      )
+      expect(request.stages.first.actions.last).to have_attributes(
+        :operation => Action::APPROVE_OPERATION,
+        :comments  => 'ok'
       )
     end
   end

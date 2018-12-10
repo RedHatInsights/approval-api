@@ -2,7 +2,7 @@
 FactoryBot.define do
   factory :action do
     processed_by { Faker::Lorem.word }
-    decision { :unknown }
+    operation { :memo }
 
     stage
   end

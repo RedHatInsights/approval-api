@@ -10,14 +10,14 @@ class RequestCreateService
       Stage.new(
         :group    => group,
         :state    => Stage::PENDING_STATE,
-        :decision => Stage::UNKNOWN_STATUS,
+        :decision => Stage::UNDECIDED_STATUS,
       )
     end
 
     create_options = options.merge(
       :workflow => workflow,
       :state    => Request::PENDING_STATE,
-      :decision => Request::UNKNOWN_STATUS,
+      :decision => Request::UNDECIDED_STATUS,
       :stages   => stages
     )
     Request.create!(create_options).tap do |request|
@@ -35,37 +35,24 @@ class RequestCreateService
 
   def auto_approve(request)
     sleep_time = ENV['AUTO_APPROVAL_INTERVAL'].to_f
-    sleep(sleep_time)
-    RequestUpdateService.new(request.id).update(:state => Request::NOTIFIED_STATE)
 
     request.stages.each { |stage| group_auto_approve(stage, sleep_time) }
-
-    RequestUpdateService.new(request.id).update(
-      :state    => Request::FINISHED_STATE,
-      :decision => Request::APPROVED_STATUS,
-      :reason   => 'ok'
-    )
   end
 
   def group_auto_approve(stage, sleep_time)
+    acs = ActionCreateService.new(stage.id)
     sleep(sleep_time)
-    StageUpdateService.new(stage.id).update(:state => Stage::NOTIFIED_STATE)
-    stage.actions << Action.new(
-      :notified_at  => Time.now,
-      :processed_by => stage.group.contact_setting
+    acs.create(
+      :operation    => Action::NOTIFY_OPERATION,
+      :processed_by => 'system',
+      :comments     => "email sent to #{stage.group.contact_setting}"
     )
 
     sleep(sleep_time)
-    stage.actions.first.update_attributes(
-      :actioned_at => Time.now,
-      :decision    => Action::APPROVED_STATUS,
-      :comments    => 'ok'
-    )
-
-    StageUpdateService.new(stage.id).update(
-      :state    => Stage::FINISHED_STATE,
-      :decision => Stage::APPROVED_STATUS,
-      :comments => 'ok'
+    acs.create(
+      :operation    => Action::APPROVE_OPERATION,
+      :processed_by => stage.group.contact_setting,
+      :comments     => 'ok'
     )
   end
 end

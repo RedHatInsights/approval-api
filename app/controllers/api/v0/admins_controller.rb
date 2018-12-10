@@ -139,10 +139,6 @@ module Api
 
       private
 
-      def action_params
-        params.permit(:decision, :processed_by, :actioned_at, :notified_at, :comments)
-      end
-
       def group_params
         params.permit(:name, :contact_method, :contact_setting)
       end
@@ -157,10 +153,6 @@ module Api
 
       def workflow_params
         params.permit(:name)
-      end
-
-      def request_params
-        params.permit(:name, :decision, :state, :requester, :content)
       end
     end
   end

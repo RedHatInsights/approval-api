@@ -9,9 +9,10 @@ class RequestUpdateService
     old_state = request.state
     request.update_attributes(options)
     return if old_state == request.state
-    if request.state == Request::NOTIFIED_STATE
+    case request.state
+    when Request::NOTIFIED_STATE
       EventService.new(request).request_started
-    elsif request.state == Request::FINISHED_STATE
+    when Request::FINISHED_STATE
       EventService.new(request).request_finished
     end
   end
