@@ -14,7 +14,9 @@ Rails.application.routes.draw do
 
   def add_swagger_route http_method, path, opts = {}
     prefix = "api"
-    prefix = "#{ENV["PATH_PREFIX"]}/#{ENV["APP_NAME"]}" if ENV["PATH_PREFIX"].present? && ENV["APP_NAME"].present?
+    if ENV["PATH_PREFIX"].present? && ENV["APP_NAME"].present?
+      prefix = File.join(ENV["PATH_PREFIX"], ENV["APP_NAME"]).gsub(/^\/+|\/+$/, "")
+    end
 
     full_path = path.gsub(/{(.*?)}/, ':\1')
     scope :as => :api, :module => "api", :path => prefix do
