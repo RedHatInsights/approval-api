@@ -24,12 +24,6 @@ module ApproverOperationsMixin
     json_response(stage)
   end
 
-  def update_action
-    Action.find(params.require(:id)).update(action_params)
-
-    head :no_content
-  end
-
   private
 
   def action_params

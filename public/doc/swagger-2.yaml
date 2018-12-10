@@ -25,8 +25,8 @@ paths:
       tags:
         - admins
         - approvers
-      summary: Returns list of approver actions
-      description: Returns a list of approver actions
+      summary: Return a list of approver actions
+      description: Return a list of approver actions
       operationId: fetchActions
       produces:
         - application/json
@@ -35,7 +35,7 @@ paths:
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: On success this API return an array of actions.
+          description: Success
           headers:
             X-total-count:
               type: integer
@@ -74,7 +74,7 @@ paths:
             $ref: '#/definitions/Action'
       responses:
         '201':
-          description: On success create an action with a given stage id
+          description: Success
           schema:
             $ref: '#/definitions/Action'
         '400':
@@ -92,46 +92,16 @@ paths:
       tags:
         - admins
         - approvers
-      summary: Find an approver action by id
-      description: Find an approver action by id
+      summary: Return an approver action by id
+      description: Return an approver action by id
       operationId: fetchActionById
       parameters:
         - $ref: '#/parameters/id'
       responses:
         '200':
-          description: On success return an action with given id
+          description: Success
           schema:
             $ref: '#/definitions/Action'
-        '400':
-          $ref: '#/responses/400BadRequestResponse'
-        '401':
-          $ref: '#/responses/401UnauthorizedResponse'
-        '403':
-          $ref: '#/responses/403ForbiddenResponse'
-        '404':
-          $ref: '#/responses/404NotFoundResponse'
-        '422':
-          $ref: '#/responses/422UnprocessableEntityResponse'
-    patch:
-      tags:
-        - admins
-        - approvers
-      summary: Update an existing action
-      description: Update an existing action with given parameters
-      operationId: updateAction
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - $ref: '#/parameters/id'
-        - in: body
-          name: body
-          description: The given parameters to update the action
-          required: true
-          schema:
-            $ref: '#/definitions/Action'
-      responses:
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -146,8 +116,8 @@ paths:
     get:
       tags:
         - admins
-      summary: Returns an array of approver groups
-      description: Returns an array of approver groups
+      summary: Return all approver groups
+      description: Return all approver groups
       operationId: fetchGroups
       produces:
         - application/json
@@ -156,7 +126,7 @@ paths:
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: On success this API returns an array of approver groups
+          description: Success
           headers:
             X-total-count:
               type: integer
@@ -194,7 +164,7 @@ paths:
             $ref: '#/definitions/Group'
       responses:
         '201':
-          description: On success create a group with given parameters
+          description: Success
           schema:
             $ref: '#/definitions/Group'
         '400':
@@ -211,14 +181,14 @@ paths:
     get:
       tags:
         - admins
-      summary: Finds approver group by given id
-      description: Finds approver group by given id
+      summary: Return approver group by given id
+      description: Return approver group by given id
       operationId: fetchGroupById
       parameters:
         - $ref: '#/parameters/id'
       responses:
         '200':
-          description: On success return a group by given id
+          description: Success
           schema:
             $ref: '#/definitions/Group'
         '400':
@@ -300,7 +270,7 @@ paths:
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: On success this API will return a approval group by given id
+          description: Success
           headers:
             X-total-count:
               type: integer
@@ -323,8 +293,8 @@ paths:
     get:
       tags:
         - admins
-      summary: List of all approval requests
-      description: Returns an array of approval requests by a given workflow id
+      summary: Return approval requests by given workflow id
+      description: Return approval requests by given workflow id
       operationId: fetchWorkflowRequests
       produces:
         - application/json
@@ -334,7 +304,7 @@ paths:
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: On success this API returns an array of approval requests
+          description: Success
           headers:
             X-total-count:
               type: integer
@@ -356,8 +326,8 @@ paths:
     post:
       tags:
         - users
-      summary: Add a new approval request
-      description: create a request by given parameters
+      summary: Add an approval request by given parameters
+      description: Add an approval request by given parameters
       operationId: addRequest
       consumes:
         - application/json
@@ -373,7 +343,7 @@ paths:
             $ref: '#/definitions/Request'
       responses:
         '201':
-          description: On success create a request by given parameters
+          description: Success
           schema:
             $ref: '#/definitions/Request'
         '400':
@@ -397,38 +367,9 @@ paths:
         - $ref: '#/parameters/id'
       responses:
         '200':
-          description: On success return an approval request by given id
+          description: Success
           schema:
             $ref: '#/definitions/Request'
-        '400':
-          $ref: '#/responses/400BadRequestResponse'
-        '401':
-          $ref: '#/responses/401UnauthorizedResponse'
-        '403':
-          $ref: '#/responses/403ForbiddenResponse'
-        '404':
-          $ref: '#/responses/404NotFoundResponse'
-        '422':
-          $ref: '#/responses/422UnprocessableEntityResponse'
-    patch:
-      tags:
-        - admins
-      summary: Update the approval request by given id
-      description: Update the approval request by given id 
-      operationId: updateRequest
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - $ref: '#/parameters/id'
-        - in: body
-          name: body
-          description: Parameters to update the request
-          required: true
-          schema:
-            $ref: '#/definitions/Request'
-      responses:
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -443,7 +384,7 @@ paths:
     get:
       tags:
         - admins
-      summary: List of approval stages
+      summary: Return all approval stages
       description: Return all approval stages
       operationId: fetchStages
       parameters:
@@ -451,7 +392,7 @@ paths:
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: On success return an array of approval stages
+          description: Success
           headers:
             X-total-count:
               type: integer
@@ -474,8 +415,8 @@ paths:
     get:
       tags:
         - users
-      summary: Returns an array of stages by given request id
-      description: Returns an array of stages by given request id
+      summary: Return an array of stages by given request id
+      description: Return an array of stages by given request id
       operationId: fetchRequestStages
       produces:
         - application/json
@@ -483,7 +424,7 @@ paths:
         - $ref: '#/parameters/request_id'
       responses:
         '200':
-          description: On success return an array of stages by given request id
+          description: Success
           schema:
             type: array
             items:
@@ -510,7 +451,7 @@ paths:
         - $ref: '#/parameters/id'
       responses:
         '200':
-          description: On success return an approval stage by given id
+          description: Success
           schema:
             $ref: '#/definitions/Stage'
         '400':
@@ -527,8 +468,8 @@ paths:
     get:
       tags:
         - admins
-      summary: Returns list of templates
-      description: Returns an array of templates
+      summary: Return all templates
+      description: Return all templates
       operationId: fetchTemplates
       produces:
         - application/json
@@ -537,7 +478,7 @@ paths:
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: On success return an array of templates
+          description: Success
           headers:
             X-total-count:
               type: integer
@@ -546,38 +487,6 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Template'
-        '400':
-          $ref: '#/responses/400BadRequestResponse'
-        '401':
-          $ref: '#/responses/401UnauthorizedResponse'
-        '403':
-          $ref: '#/responses/403ForbiddenResponse'
-        '404':
-          $ref: '#/responses/404NotFoundResponse'
-        '422':
-          $ref: '#/responses/422UnprocessableEntityResponse'
-    post:
-      tags:
-        - admins
-      summary: Create a new template by given parameters
-      description: Create a new template by given parameters
-      operationId: addTemplate
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          description: Parameters need to create approval template
-          required: true
-          schema:
-            $ref: '#/definitions/Template'
-      responses:
-        '201':
-          description: On success create a template
-          schema:
-            $ref: '#/definitions/Template'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -599,59 +508,9 @@ paths:
         - $ref: '#/parameters/id'
       responses:
         '200':
-          description: On success return a template by given id
+          description: Success
           schema:
             $ref: '#/definitions/Template'
-        '400':
-          $ref: '#/responses/400BadRequestResponse'
-        '401':
-          $ref: '#/responses/401UnauthorizedResponse'
-        '403':
-          $ref: '#/responses/403ForbiddenResponse'
-        '404':
-          $ref: '#/responses/404NotFoundResponse'
-        '422':
-          $ref: '#/responses/422UnprocessableEntityResponse'
-    patch:
-      tags:
-        - admins
-      summary: Update the template by given parameters
-      description: Update the template by given parameters
-      operationId: updateTemplate
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - $ref: '#/parameters/id'
-        - in: body
-          name: body
-          description: Parameters need to update template
-          required: true
-          schema:
-            $ref: '#/definitions/Template'
-      responses:
-        '400':
-          $ref: '#/responses/400BadRequestResponse'
-        '401':
-          $ref: '#/responses/401UnauthorizedResponse'
-        '403':
-          $ref: '#/responses/403ForbiddenResponse'
-        '404':
-          $ref: '#/responses/404NotFoundResponse'
-        '422':
-          $ref: '#/responses/422UnprocessableEntityResponse'
-    delete:
-      tags:
-        - admins
-      summary: Delete the template by given id
-      description: Delete the template by given id
-      operationId: removeTemplate
-      produces:
-        - application/json
-      parameters:
-        - $ref: '#/parameters/id'
-      responses:
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -674,7 +533,7 @@ paths:
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: On success return all workflows
+          description: Success
           headers:
             X-total-count:
               type: integer
@@ -697,8 +556,8 @@ paths:
     get:
       tags:
         - admins
-      summary: Returns an array of workflows by given template id
-      description: Returns an array of workflows by given template id
+      summary: Return an array of workflows by given template id
+      description: Return an array of workflows by given template id
       operationId: fetchTemplateWorkflows
       produces:
         - application/json
@@ -708,7 +567,7 @@ paths:
         - $ref: '#/parameters/offset'
       responses:
         '200':
-          description: On success return an array of workflows by given template id
+          description: Success
           headers:
             X-total-count:
               type: integer
@@ -730,8 +589,8 @@ paths:
     post:
       tags:
         - admins
-      summary: Create a workflow by given template id
-      description: Create a workflow by given template id
+      summary: Add a workflow by given template id
+      description: Add a workflow by given template id
       operationId: addWorkflow
       consumes:
         - application/json
@@ -747,7 +606,7 @@ paths:
             $ref: '#/definitions/Workflow'
       responses:
         '201':
-          description: On success create a workflow by given template id
+          description: Success
           schema:
             $ref: '#/definitions/Workflow'
         '400':
@@ -764,14 +623,14 @@ paths:
     get:
       tags:
         - admins
-      summary: Return an approval workflow by id
-      description: Return a workflow by given id
+      summary: Return an approval workflow by given id
+      description: Return an approval workflow by given id
       operationId: fetchWorkflowById
       parameters:
         - $ref: '#/parameters/id'
       responses:
         '200':
-          description: On success return the workflow by its id
+          description: Success
           schema:
             $ref: '#/definitions/Workflow'
         '400':
@@ -854,21 +713,16 @@ definitions:
       processed_by:
         type: string
         description: Processor info who perform the action
-      actioned_at:
-        type: string
-        format: date-time
-        description: Timestamp of action processed
-        readOnly: true
-      notified_at:
-        type: string
-        format: date-time
-        description: Timestamp of notification if sent
-        readOnly: true
       operation:
         $ref: '#/definitions/Operation'
       comments:
         type: string
         description: Comments for action
+        readOnly: true
+      created_at:
+        type: string
+        format: date-time
+        description: Timestamp of creation
         readOnly: true
   Decision:
     type: string
@@ -902,14 +756,14 @@ definitions:
         description: JSON object with contact Setting
   Operation:
     type: string
-    description: Types of action, may be one of the value (approved, denied, notified, noted, or skipped). The stage will be updated according to the operation.
+    description: Types of action, may be one of the value (approve, deny, notify, memo, or skip). The stage will be updated according to the operation.
     enum:
-      - approved
-      - denied
-      - notified
-      - noted
-      - skipped
-    default: noted
+      - approve
+      - deny
+      - notify
+      - memo
+      - skip
+    default: memo
   Request:
     type: object
     description: Approval request. Each request will associate with a workflow. Corresponding to the groups of the associated workflow, every request will have a list of stages to record the request processing details.
@@ -960,7 +814,7 @@ definitions:
         $ref: '#/definitions/Decision'
       comments:
         type: string
-        description: approval stage
+        description: Approval stage
       group_id:
         type: string
         description: Associated group id
@@ -1011,37 +865,37 @@ parameters:
   id:
     name: id
     in: path
-    description: query by id
+    description: Query by id
     required: true
     type: integer
   template_id:
     name: template_id
     in: path
-    description: id of template
+    description: Id of template
     required: true
     type: integer
   workflow_id:
     name: workflow_id
     in: path
-    description: id of workflow
+    description: Id of workflow
     required: true
     type: integer
   group_id:
     name: group_id
     in: path
-    description: id of group
+    description: Id of group
     required: true
     type: integer
   request_id:
     name: request_id
     in: path
-    description: id of request
+    description: Id of request
     required: true
     type: integer
   stage_id:
     name: stage_id
     in: path
-    description: id of stage
+    description: Id of stage
     required: true
     type: integer
   limit:
@@ -1066,7 +920,7 @@ parameters:
   state:
     name: state
     in: query
-    description: fetch item by given state (pending, skipped, notified, finished)
+    description: Fetch item by given state (pending, skipped, notified, finished)
     required: false
     type: array
     items:
@@ -1079,7 +933,7 @@ parameters:
   decision:
     name: decision
     in: query
-    description: fetch item by given decision (undecided, approved, denied)
+    description: Fetch item by given decision (undecided, approved, denied)
     required: false
     type: array
     items:
@@ -1091,22 +945,22 @@ parameters:
   requester:
     name: requester
     in: query
-    description: fetch item by given requester
+    description: Fetch item by given requester
     required: false
     type: string
 responses:
   400BadRequestResponse:
-    description: 'Bad request'
+    description: Bad request
   401UnauthorizedResponse:
-    description: 'Caller is not authorized to access the resource.'
+    description: Caller is not authorized to access the resource.
   403ForbiddenResponse:
-    description: 'Caller is forbidden to perform the action.'
+    description: Caller is forbidden to perform the action.
   404NotFoundResponse:
-    description: 'The requested resource is not found.'
+    description: The requested resource is not found.
   422UnprocessableEntityResponse:
-    description: 'The required paramters are either invalid or missed.'
+    description: The required paramters are either invalid or missed.
   DefaultUnexpectedResponse:
-    description: 'An unexpected response.'
+    description: An unexpected response.
 externalDocs:
   description: Find out more about Swagger
   url: 'http://swagger.io'
