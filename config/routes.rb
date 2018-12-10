@@ -13,10 +13,14 @@ Rails.application.routes.draw do
   mount SwaggerUiEngine::Engine, :at => '/open-api'
 
   def add_swagger_route http_method, path, opts = {}
+    prefix = "api"
+    if ENV["PATH_PREFIX"].present? && ENV["APP_NAME"].present?
+      prefix = File.join(ENV["PATH_PREFIX"], ENV["APP_NAME"]).gsub(/^\/+|\/+$/, "")
+    end
+
     full_path = path.gsub(/{(.*?)}/, ':\1')
-    namespace :api do
+    scope :as => :api, :module => "api", :path => prefix do
       namespace :v0x0, :path => "v0.0" do
-        full_path = File.join(ENV["BASE_PATH"], full_path) if ENV["BASE_PATH"]
         constraint = opts[:constraint_name].camelize.constantize
         match full_path, :to => "#{opts.fetch(:controller_name)}##{opts[:action_name]}", :constraints => constraint, :via => http_method
       end
