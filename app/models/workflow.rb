@@ -16,8 +16,4 @@ class Workflow < ApplicationRecord
   has_many :groups, -> { order(:id => :asc) }, :through => :workflowgroups
 
   validates :name, :presence => :name
-
-  def as_json(_options = {})
-    super(:methods => [:group_ids])
-  end
 end

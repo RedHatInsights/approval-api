@@ -123,46 +123,4 @@ RSpec.describe 'Requests API' do
       end
     end
   end
-
-  # Test suite for PATCH /requests/:id
-  describe 'PATCH /requests/:id' do
-    let(:valid_attributes) { { :name => 'Mozart' } }
-
-    before do
-      allow(ManageIQ::Messaging::Client).to receive(:open)
-      patch "#{api_version}/requests/#{id}", :params => valid_attributes, :headers => admin_encode_key
-    end
-
-    context 'when item exists' do
-      it 'returns status code 204' do
-        expect(response).to have_http_status(204)
-      end
-
-      it 'updates the item' do
-        updated_item = Request.find(id)
-        expect(updated_item.name).to match(/Mozart/)
-      end
-    end
-
-    context 'when the item does not exist' do
-      let!(:id) { 0 }
-
-      it 'returns status code 404' do
-        expect(response).to have_http_status(404)
-      end
-
-      it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find Request/)
-      end
-    end
-  end
-
-  # Test suite for DELETE /requests/:id
-  describe 'DELETE /requests/:id' do
-    before { delete "#{api_version}/requests/#{id}", :headers => admin_encode_key }
-
-    it 'returns status code 204' do
-      expect(response).to have_http_status(204)
-    end
-  end
 end
