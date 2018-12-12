@@ -964,3 +964,4 @@ responses:
 externalDocs:
   description: Find out more about Swagger
   url: 'http://swagger.io'
+basePath: "/r/insights/platform/approval"
