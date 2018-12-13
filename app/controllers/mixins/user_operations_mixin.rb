@@ -20,7 +20,7 @@ module UserOperationsMixin
   private
 
   def request_params
-    params.permit(:name, :decision, :state, :requester, :content)
+    params.permit(:name, :requester, :content)
   end
 
 end

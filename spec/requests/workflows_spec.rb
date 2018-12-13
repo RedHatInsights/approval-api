@@ -76,7 +76,9 @@ RSpec.describe 'Workflows API' do
 
   # Test suite for POST /templates/:template_id/workflows
   describe 'POST /templates/:template_id/workflows' do
-    let(:valid_attributes) { { :name => 'Visit Narnia', :done => false } }
+    let(:groups) { create_list(:group, 3) }
+
+    let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_ids => groups.map(&:id) } }
 
     context 'when request attributes are valid' do
       before { post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => admin_encode_key }
@@ -86,15 +88,15 @@ RSpec.describe 'Workflows API' do
       end
     end
 
-    context 'when an invalid request' do
-      before { post "#{api_version}/templates/#{template_id}/workflows", :params => {}, :headers => admin_encode_key }
+    context 'when a request with invalid group_ids' do
+      before { post "#{api_version}/templates/#{template_id}/workflows", :params => { :group_ids => [-1, -2, -3]}, :headers => admin_encode_key }
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
       end
 
       it 'returns a failure message' do
-        expect(response.body).to match(/Validation failed: Name can't be blank/)
+        expect(response.body).to match(/Couldn't find all Groups/)
       end
     end
   end
