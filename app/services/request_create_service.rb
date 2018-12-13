@@ -21,15 +21,23 @@ class RequestCreateService
       :stages   => stages
     )
     Request.create!(create_options).tap do |request|
-      start_approval_process(request) if ENV['AUTO_APPROVAL'] && ENV['AUTO_APPROVAL'] != 'n'
+      start_approval_process(request) if default_approve? || auto_approve?
     end
   end
 
   private
 
+  def default_approve?
+    workflow.id == Workflow.default_workflow.try(:id)
+  end
+
+  def auto_approve?
+    ENV['AUTO_APPROVAL'] && ENV['AUTO_APPROVAL'] != 'n'
+  end
+
   def start_approval_process(request)
     Thread.new do
-      auto_approve(request)
+      default_approve? ? default_approve(request) : auto_approve(request)
     end
   end
 
@@ -53,6 +61,25 @@ class RequestCreateService
       :operation    => Action::APPROVE_OPERATION,
       :processed_by => stage.group.contact_setting,
       :comments     => 'ok'
+    )
+  end
+
+  def default_approve(request)
+    request_started(request)
+    request_finished(request)
+  end
+
+  def request_started(request)
+    RequestUpdateService.new(request.id).update(
+      :state    => Request::NOTIFIED_STATE
+    )
+  end
+
+  def request_finished(request)
+    RequestUpdateService.new(request.id).update(
+      :state    => Request::FINISHED_STATE,
+      :decision => Request::APPROVED_STATUS,
+      :reason   => 'System approved'
     )
   end
 end

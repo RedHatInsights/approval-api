@@ -11,8 +11,8 @@ class StageUpdateService
     return if old_state == stage.state
     case stage.state
     when Stage::NOTIFIED_STATE
-      EventService.new(stage.request).approver_group_notified(stage)
       request_started if first_stage?
+      EventService.new(stage.request).approver_group_notified(stage)
     when Stage::FINISHED_STATE
       EventService.new(stage.request).approver_group_finished(stage)
       request_finished(stage.decision, stage.reason) if last_stage?
