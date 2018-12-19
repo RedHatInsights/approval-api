@@ -603,7 +603,7 @@ paths:
           description: Parameters need to create workflow
           required: true
           schema:
-            $ref: '#/definitions/Workflow'
+            $ref: '#/definitions/WorkflowParameters'
       responses:
         '201':
           description: Success
@@ -694,11 +694,15 @@ paths:
         '422':
           $ref: '#/responses/422UnprocessableEntityResponse'
 securityDefinitions:
-  approval_auth:
-    type: basic
-    description: The user id/password is needed when accessing this API externally
+  APIKey_auth:
+    type: apiKey
+    in: header
+    name: x-rh-auth-identity
+    description: >-
+      This is a base64 encoded string of a collection of attributes, that
+      identify a user. This token is needed when accessing the API internally.
 security:
-  - approval_auth: []
+  - APIKey_auth: []
 definitions:
   Action:
     type: object
@@ -861,6 +865,22 @@ definitions:
         type: string
         description: Associated template id
         readOnly: true
+  WorkflowParameters:
+    type: object
+    description: Parameters to create a workflow
+    required:
+      - name
+      - group_ids
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      group_ids:
+        type: array
+        items:
+          type:
+            integer
 parameters:
   id:
     name: id

@@ -18,8 +18,10 @@ module Api
       end
 
       def add_workflow
-        workflow = Template.find(params.require(:template_id)).workflows.create!(workflow_params)
+        workflow = WorkflowCreateService.new(params.require(:template_id)).create(workflow_params)
         json_response(workflow, :created)
+      rescue ActiveRecord::RecordNotFound => e
+        json_response({ :message => e.message }, :unprocessable_entity)
       end
 
       def fetch_group_by_id
@@ -116,11 +118,7 @@ module Api
       end
 
       def workflow_params
-        params.permit(:name, :description)
-      end
-
-      def request_params
-        params.permit(:name, :requester, :content)
+        params.permit(:name, :description, :group_ids => [])
       end
     end
   end
