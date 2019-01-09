@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'acts_as_tenant'
 gem 'jbuilder',           '~> 2.0'
+gem 'manageiq-loggers',   '~> 0.1'
 gem 'manageiq-messaging', '~> 0.1'
 gem 'pg',                 '~> 1.0', :require => false
 gem 'puma',               '~> 3.0'
