@@ -12,6 +12,11 @@ module Api
       include UserOperationsMixin
       include ApproverOperationsMixin
 
+      def add_approver
+        approver = Approver.create!(approver_params)
+        json_response(approver, :created)
+      end
+
       def add_group
         group = Group.create!(group_params)
         json_response(group, :created)
@@ -24,6 +29,26 @@ module Api
         json_response({ :message => e.message }, :unprocessable_entity)
       end
 
+      def add_action_by_request_id
+        # TODO
+      end
+
+      def fetch_approvers_by_group_id
+        group = Group.find(params.require(:group_id))
+        json_response(group.approvers)
+      end
+
+      def fetch_approver_by_id
+        approver = Approver.find(params.require(:id))
+        json_response(approver)
+      end
+
+      def fetch_approvers
+        approvers = Approver.all
+
+        json_response(approvers)
+      end
+
       def fetch_group_by_id
         group = Group.find(params.require(:id))
 
@@ -34,6 +59,20 @@ module Api
         groups = Group.all
 
         json_response(groups)
+      end
+
+      def fetch_groups_by_approver_id
+        approver = Approver.find(params.require(:id))
+        groups = approver.groups
+
+        json_response(groups)
+      end
+
+      def fetch_requests_by_approver_id
+        approver = Approver.find(params.require(:id))
+        requests = approver.requests
+
+        json_response(requests)
       end
 
       def fetch_requests
@@ -81,6 +120,19 @@ module Api
         json_response(workflows)
       end
 
+      def group_operation
+        GroupOperationService.new(params.require(:id)).operate(params.require(:operation), params.require(:parameters))
+
+        head :no_content
+      rescue StandardError => e
+        json_response({ :message => "#{e.message}" }, :forbidden)
+      end
+
+      def remove_approver
+        Approver.find(params.require(:id)).destroy
+        head :no_content
+      end
+
       def remove_group
         Group.find(params.require(:id)).destroy
         head :no_content
@@ -89,6 +141,11 @@ module Api
       def remove_workflow
         Workflow.find(params.require(:id)).destroy
 
+        head :no_content
+      end
+
+      def update_approver
+        Approver.find(params.require(:id)).update(approver_params)
         head :no_content
       end
 
@@ -105,8 +162,12 @@ module Api
 
       private
 
+      def approver_params
+        params.permit(:email, :first_name, :last_name, :group_ids => [])
+      end
+
       def group_params
-        params.permit(:name, :contact_method, :contact_setting)
+        params.permit(:name, :approver_ids => [])
       end
 
       def stage_params

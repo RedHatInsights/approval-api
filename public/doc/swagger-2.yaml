@@ -112,6 +112,209 @@ paths:
           $ref: '#/responses/404NotFoundResponse'
         '422':
           $ref: '#/responses/422UnprocessableEntityResponse'
+  '/approvers':
+    get:
+      tags:
+        - admins
+      summary: Return a list of approvers
+      description: Return a list of approvers
+      operationId: fetchApprovers
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/limit'
+        - $ref: '#/parameters/offset'
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-total-count:
+              type: integer
+              description: Total number of items
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Approver'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
+    post:
+      tags:
+        - admins
+      summary: Add a new approver by given parameters
+      description: Add a new approver by given parameters
+      operationId: addApprover
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Parameters need to create approver
+          required: true
+          schema:
+            $ref: '#/definitions/Approver'
+      responses:
+        '201':
+          description: Success
+          schema:
+            $ref: '#/definitions/Approver'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
+  '/approvers/{id}':
+    get:
+      tags:
+        - admins
+      summary: Return approver by given id
+      description: Return approver by given id
+      operationId: fetchApproverById
+      parameters:
+        - $ref: '#/parameters/id'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/Approver'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
+    patch:
+      tags:
+        - admins
+      summary: Update an approver by given id
+      description: Update an approver by given id
+      operationId: updateApprover
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/id'
+        - in: body
+          name: body
+          description: Approver object that needs to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/Approver'
+      responses:
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
+    delete:
+      tags:
+        - admins
+      summary: Delete approver by given id
+      description: Delete approver by given id
+      operationId: removeApprover
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/id'
+      responses:
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
+  '/approvers/{approver_id}/groups':
+    get:
+      tags:
+        - admins
+      summary: Return associated groups by given approver id
+      description: Return groups by given approver id
+      operationId: fetchGroupsByApproverId
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/approver_id'
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-total-count:
+              type: integer
+              description: Total number of items
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Group'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
+  '/approvers/{approver_id}/requests':
+    get:
+      tags:
+        - admins
+      summary: Return associated requests by given approver id
+      description: Return requests by given approver id
+      operationId: fetchRequestsByApproverId
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/approver_id'
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-total-count:
+              type: integer
+              description: Total number of items
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Request'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/groups':
     get:
       tags:
@@ -230,6 +433,39 @@ paths:
           $ref: '#/responses/404NotFoundResponse'
         '422':
           $ref: '#/responses/422UnprocessableEntityResponse'
+    post:
+      tags:
+        - admins
+      summary: Operation on a list of approvers to a given group
+      description: Approvers join in or withdraw from a given group
+      operationId: groupOperation
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/id'
+        - in: body
+          name: body
+          description: Parameters need to operate approvers
+          required: true
+          schema:
+            $ref: '#/definitions/GroupOperationParameters'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/Approver'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
     delete:
       tags:
         - admins
@@ -241,6 +477,38 @@ paths:
       parameters:
         - $ref: '#/parameters/id'
       responses:
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
+  '/groups/{group_id}/approvers':
+    get:
+      tags:
+        - admins
+      summary: Return associated approvers by given group id
+      description: Return approvers by given group id
+      operationId: fetchApproversByGroupId
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/group_id'
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-total-count:
+              type: integer
+              description: Total number of items
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Approver'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -370,6 +638,38 @@ paths:
           description: Success
           schema:
             $ref: '#/definitions/Request'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
+  '/requests/{request_id}/actions':
+    post:
+      tags:
+        - admins
+      summary: Add an action to a given request
+      description: Add an action to a given request
+      operationId: addActionByRequestId
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/request_id'
+        - in: body
+          name: body
+          description: Action object that will be added
+          required: true
+          schema:
+            $ref: '#/definitions/Action'
+      responses:
+        '201':
+          description: Success
+          schema:
+            $ref: '#/definitions/Action'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -719,6 +1019,10 @@ definitions:
         description: Processor info who perform the action
       operation:
         $ref: '#/definitions/Operation'
+      stage_id:
+        type: string
+        description: Associated stage id
+        readOnly: true
       comments:
         type: string
         description: Comments for action
@@ -728,6 +1032,27 @@ definitions:
         format: date-time
         description: Timestamp of creation
         readOnly: true
+  Approver:
+    type: object
+    description: >-
+      Approver with all personal information.
+    required:
+      - email
+    properties:
+      id:
+        type: string
+        readOnly: true
+      email:
+        type: string
+        description: Email address of the approver
+      first_name:
+        type: string
+      last_name:
+        type: string
+      group_ids:
+        type: array
+        items:
+          type: integer  
   Decision:
     type: string
     description: Final decision, may be one of the value (undecided, approved, or denied)
@@ -742,8 +1067,6 @@ definitions:
       be treated as group response.
     required:
       - name
-      - contact_method
-      - contact_setting
     properties:
       id:
         type: string
@@ -751,13 +1074,28 @@ definitions:
       name:
         type: string
         description: Group name
-      contact_method:
-        type: string
-        description: Contact type. It may be email, slack, team, etc. So far only email is supported.
-        example: email
-      contact_setting:
+      approver_ids:
+        type: array
+        items:
+          type: integer
+  GroupOperationParameters:
+    type: object
+    description: Operation type and parameters to a given group
+    required:
+      - operation
+      - parameters
+    properties:
+      operation:
+        $ref: '#/definitions/GroupOperation'
+      parameters:
         type: object
-        description: JSON object with contact Setting
+        example: { approver_ids: [] }
+  GroupOperation:
+    type: string
+    description: Types of group operation, may be either join_approvers or withdraw_approvers.
+    enum:
+      - join_approvers
+      - withdraw_approvers
   Operation:
     type: string
     description: Types of action, may be one of the value (approve, deny, notify, memo, or skip). The stage will be updated according to the operation.
@@ -886,6 +1224,12 @@ parameters:
     name: id
     in: path
     description: Query by id
+    required: true
+    type: integer
+  approver_id:
+    name: approver_id
+    in: path
+    description: Id of approver
     required: true
     type: integer
   template_id:
