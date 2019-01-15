@@ -6,25 +6,55 @@ class ActionCreateService
   end
 
   def create(options)
-    Action.create!(options.merge(:stage => stage)).tap do |action|
-      case action.operation
-      when Action::NOTIFY_OPERATION
-        StageUpdateService.new(stage.id).update(:state => Stage::NOTIFIED_STATE)
-      when Action::SKIP_OPERATION
-        StageUpdateService.new(stage.id).update(:state => Stage::SKIPPED_STATE)
-      when Action::APPROVE_OPERATION
-        StageUpdateService.new(stage.id).update(
-          :state    => Stage::FINISHED_STATE,
-          :decision => Stage::APPROVED_STATUS,
-          :reason   => action.comments
-        )
-      when Action::DENY_OPERATION
-        StageUpdateService.new(stage.id).update(
-          :state    => Stage::FINISHED_STATE,
-          :decision => Stage::DENIED_STATUS,
-          :reason   => action.comments
-        )
+    stage_options = validate_operation(options)
+    Action.create!(options.merge(:stage => stage)).tap do
+      if stage_options
+        StageUpdateService.new(stage.id).update(stage_options)
+        stage.reload
       end
     end
+  end
+
+  private
+
+  def validate_operation(options)
+    operation = options['operation']
+    raise Exceptions::ApprovalError, "Invalid operation: #{operation}" unless Action::OPERATIONS.include?(operation)
+    send(operation, options['comments'])
+  end
+
+  def memo(_comments)
+    nil
+  end
+
+  def notify(_comments)
+    unless stage.state == Stage::PENDING_STATE
+      raise Exceptions::ApprovalError, "Current stage is not in pending state"
+    end
+    {:state => Stage::NOTIFIED_STATE}
+  end
+
+  def skip(_comments)
+    unless stage.state == Stage::PENDING_STATE
+      raise Exceptions::ApprovalError, "Current stage is not in pending state"
+    end
+    {:state => Stage::SKIPPED_STATE}
+  end
+
+  def approve(comments)
+    unless stage.state == Stage::NOTIFIED_STATE
+      raise Exceptions::ApprovalError, "Current stage is not in notified state"
+    end
+    {:state => Stage::FINISHED_STATE, :decision => Stage::APPROVED_STATUS}.tap do |h|
+      h[:reason] = comments if comments
+    end
+  end
+
+  def deny(comments)
+    unless stage.state == Stage::NOTIFIED_STATE
+      raise Exceptions::ApprovalError, "Current stage is not in notified state"
+    end
+    raise Exception::ApprovalError, "Reason to deny the request is missing" unless comments
+    {:state => Stage::FINISHED_STATE, :decision => Stage::DENIED_STATUS, :reason => comments}
   end
 end

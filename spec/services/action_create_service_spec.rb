@@ -16,7 +16,7 @@ RSpec.describe ActionCreateService do
 
   context 'notify operation' do
     it 'updates stage and request' do
-      action = svc1.create(:operation => Action::NOTIFY_OPERATION, :processed_by => 'system')
+      action = svc1.create('operation' => Action::NOTIFY_OPERATION, 'processed_by' => 'system')
       stage1.reload
       request.reload
       expect(action).to have_attributes(:operation => Action::NOTIFY_OPERATION, :processed_by => 'system')
@@ -27,7 +27,8 @@ RSpec.describe ActionCreateService do
 
   context 'approve/deny operation' do
     it 'updates current stage' do
-      action = svc1.create(:operation => Action::APPROVE_OPERATION, :processed_by => 'man')
+      stage1.update_attributes(:state => Stage::NOTIFIED_STATE)
+      action = svc1.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man')
       stage1.reload
       request.reload
       expect(action).to  have_attributes(:operation => Action::APPROVE_OPERATION, :processed_by => 'man')
@@ -36,7 +37,8 @@ RSpec.describe ActionCreateService do
     end
 
     it 'updates current stage and overall request' do
-      action = svc2.create(:operation => Action::DENY_OPERATION, :processed_by => 'man', :comments => 'bad')
+      stage2.update_attributes(:state => Stage::NOTIFIED_STATE)
+      action = svc2.create('operation' => Action::DENY_OPERATION, 'processed_by' => 'man', 'comments' => 'bad')
       stage2.reload
       request.reload
       expect(action).to  have_attributes(:operation => Action::DENY_OPERATION, :processed_by => 'man', :comments => 'bad')
@@ -47,8 +49,9 @@ RSpec.describe ActionCreateService do
 
   context 'skip operation' do
     it 'updates stage and request' do
-      action1 = svc1.create(:operation => Action::DENY_OPERATION, :processed_by => 'man', :comments => 'bad')
-      action2 = svc2.create(:operation => Action::SKIP_OPERATION, :processed_by => 'sys', :comments => 'nop')
+      stage1.update_attributes(:state => Stage::NOTIFIED_STATE)
+      action1 = svc1.create('operation' => Action::DENY_OPERATION, 'processed_by' => 'man', 'comments' => 'bad')
+      action2 = svc2.create('operation' => Action::SKIP_OPERATION, 'processed_by' => 'sys', 'comments' => 'nop')
       stage1.reload
       stage2.reload
       request.reload
@@ -62,12 +65,37 @@ RSpec.describe ActionCreateService do
 
   context 'memo operation' do
     it 'creates a new action only' do
-      action = svc1.create(:operation => Action::MEMO_OPERATION, :processed_by => 'man', :comments => 'later')
+      action = svc1.create('operation' => Action::MEMO_OPERATION, 'processed_by' => 'man', 'comments' => 'later')
       stage1.reload
       request.reload
       expect(action).to  have_attributes(:operation => Action::MEMO_OPERATION, :processed_by => 'man', :comments => 'later')
       expect(stage1).to  have_attributes(:state => Stage::PENDING_STATE, :decision => Stage::UNDECIDED_STATUS)
       expect(request).to have_attributes(:state => Stage::PENDING_STATE, :decision => Stage::UNDECIDED_STATUS)
+    end
+  end
+
+  context 'invalid operations' do
+    it 'forbids operation not prefined' do
+      expect { svc1.create('operation' => 'strange operation', 'processed_by' => 'man') }.to raise_error(Exceptions::ApprovalError)
+    end
+
+    it 'forbids approve operation from pending stage' do
+      expect { svc1.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::ApprovalError)
+    end
+
+    it 'forbids approve operation from already finished stage' do
+      stage1.update_attributes(:state => Stage::FINISHED_STATE)
+      expect { svc1.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::ApprovalError)
+    end
+
+    it 'forbids approve operation from already skipped stage' do
+      stage1.update_attributes(:state => Stage::SKIPPED_STATE)
+      expect { svc1.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::ApprovalError)
+    end
+
+    it 'allows memo operation from any state' do
+      stage1.update_attributes(:state => Stage::FINISHED_STATE)
+      expect { svc1.create('operation' => Action::MEMO_OPERATION, 'processed_by' => 'man', 'comments' => 'text') }.not_to raise_error
     end
   end
 end
