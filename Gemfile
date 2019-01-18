@@ -8,9 +8,11 @@ gem 'pg',                 '~> 1.0', :require => false
 gem 'prometheus-client',  '~> 0.8.0'
 gem 'puma',               '~> 3.0'
 gem 'rack-cors',          '>= 0.4.1'
-gem 'rails',              '~> 5.1.6.1'
+gem 'rails',              '~> 5.2.2'
 gem 'rest-client',        '>= 1.8.0'
 gem 'swagger_ui_engine'
+
+gem 'manageiq-api-common', :git => 'https://github.com/ManageIQ/manageiq-api-common', :branch => 'master'
 
 group :development, :test do
   gem 'simplecov'
