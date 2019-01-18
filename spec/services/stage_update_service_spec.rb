@@ -1,9 +1,11 @@
 RSpec.describe StageUpdateService do
-  let(:request) { create(:request) }
-  let!(:stage1) { create(:stage, :request => request) }
-  let!(:stage2) { create(:stage, :request => request) }
-  let(:svc1)    { described_class.new(stage1.id) }
-  let(:svc2)    { described_class.new(stage2.id) }
+  let(:template) { create(:template, :process_setting => {'url' => 'url'}) }
+  let(:workflow) { create(:workflow, :template => template) }
+  let(:request)  { create(:request, :workflow => workflow) }
+  let!(:stage1)  { create(:stage, :request => request) }
+  let!(:stage2)  { create(:stage, :request => request) }
+  let(:svc1)     { described_class.new(stage1.id) }
+  let(:svc2)     { described_class.new(stage2.id) }
   let!(:event_service) { EventService.new(request) }
 
   before do
@@ -24,13 +26,42 @@ RSpec.describe StageUpdateService do
   end
 
   context 'state becomes finished' do
-    it 'sends approver_group_finished event and updates request' do
-      expect(event_service).to receive(:approver_group_finished)
-      svc2.update(:state => Stage::FINISHED_STATE)
-      stage2.reload
-      request.reload
-      expect(stage2.state).to eq(Stage::FINISHED_STATE)
-      expect(request.state).to eq(Stage::FINISHED_STATE)
+    describe 'first stage' do
+      context 'with external process' do
+        it 'sends approver_group_finished event' do
+          expect(event_service).to receive(:approver_group_finished)
+          svc1.update(:state => Stage::FINISHED_STATE)
+          stage1.reload
+          stage2.reload
+          expect(stage1.state).to eq(Stage::FINISHED_STATE)
+          expect(stage2.state).to eq(Stage::PENDING_STATE)
+        end
+      end
+
+      context 'without external process' do
+        let(:template) { create(:template) }
+
+        it 'sends approver_group_finished event and moves to next stage' do
+          expect(event_service).to receive(:approver_group_finished)
+          expect(event_service).to receive(:approver_group_notified)
+          svc1.update(:state => Stage::FINISHED_STATE)
+          stage1.reload
+          stage2.reload
+          expect(stage1.state).to eq(Stage::FINISHED_STATE)
+          expect(stage2.state).to eq(Stage::NOTIFIED_STATE)
+        end
+      end
+    end
+
+    describe 'last stage' do
+      it 'sends approver_group_finished event and updates request' do
+        expect(event_service).to receive(:approver_group_finished)
+        svc2.update(:state => Stage::FINISHED_STATE)
+        stage2.reload
+        request.reload
+        expect(stage2.state).to eq(Stage::FINISHED_STATE)
+        expect(request.state).to eq(Stage::FINISHED_STATE)
+      end
     end
   end
 

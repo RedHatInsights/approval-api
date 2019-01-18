@@ -51,12 +51,10 @@ RSpec.describe ActionCreateService do
     it 'updates stage and request' do
       stage1.update_attributes(:state => Stage::NOTIFIED_STATE)
       action1 = svc1.create('operation' => Action::DENY_OPERATION, 'processed_by' => 'man', 'comments' => 'bad')
-      action2 = svc2.create('operation' => Action::SKIP_OPERATION, 'processed_by' => 'sys', 'comments' => 'nop')
       stage1.reload
       stage2.reload
       request.reload
       expect(action1).to  have_attributes(:operation => Action::DENY_OPERATION, :processed_by => 'man', :comments => 'bad')
-      expect(action2).to  have_attributes(:operation => Action::SKIP_OPERATION, :processed_by => 'sys', :comments => 'nop')
       expect(stage1).to  have_attributes(:state => Stage::FINISHED_STATE, :decision => Stage::DENIED_STATUS, :reason => 'bad')
       expect(stage2).to  have_attributes(:state => Stage::SKIPPED_STATE,  :decision => Stage::UNDECIDED_STATUS, :reason => nil)
       expect(request).to have_attributes(:state => Stage::FINISHED_STATE, :decision => Stage::DENIED_STATUS, :reason => 'bad')

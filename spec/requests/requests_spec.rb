@@ -3,7 +3,7 @@
 RSpec.describe 'Requests API' do
   # Initialize the test data
   let!(:template) { create(:template) }
-  let!(:workflow) { create(:workflow, :template_id => template.id) }
+  let!(:workflow) { create(:workflow, :name => 'Always approve') } #:template_id => template.id) }
   let(:workflow_id) { workflow.id }
   let!(:requests) { create_list(:request, 2, :workflow_id => workflow.id) }
   let(:id) { requests.first.id }
@@ -113,7 +113,12 @@ RSpec.describe 'Requests API' do
     let(:valid_attributes) { { :requester => '1234', :name => 'Visit Narnia', :content => JSON.generate(item) } }
 
     context 'when request attributes are valid' do
-      before { post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes }
+      before do
+        ENV['AUTO_APPROVAL'] = 'y'
+        post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes
+      end
+
+      after { ENV['AUTO_APPROVAL'] = nil }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)

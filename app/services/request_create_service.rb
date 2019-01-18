@@ -21,7 +21,11 @@ class RequestCreateService
       :stages   => stages
     )
     Request.create!(create_options).tap do |request|
-      start_approval_process(request) if default_approve? || auto_approve?
+      if default_approve? || auto_approve?
+        start_approval_process(request)
+      elsif !workflow.external_processing?
+        start_first_stage(request)
+      end
     end
   end
 
@@ -80,6 +84,13 @@ class RequestCreateService
       :state    => Request::FINISHED_STATE,
       :decision => Request::APPROVED_STATUS,
       :reason   => 'System approved'
+    )
+  end
+
+  def start_first_stage(request)
+    ActionCreateService.new(request.stages.first.id).create(
+      :operation    => Action::NOTIFY_OPERATION,
+      :processed_by => 'system'
     )
   end
 end

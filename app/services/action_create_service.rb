@@ -18,6 +18,7 @@ class ActionCreateService
   private
 
   def validate_operation(options)
+    options = HashWithIndifferentAccess.new(options)
     operation = options['operation']
     raise Exceptions::ApprovalError, "Invalid operation: #{operation}" unless Action::OPERATIONS.include?(operation)
     send(operation, options['comments'])

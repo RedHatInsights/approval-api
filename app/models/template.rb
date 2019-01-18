@@ -8,8 +8,7 @@ class Template < ApplicationRecord
   def self.seed
     template = find_or_create_by!(:title => 'Basic')
     template.update_attributes(
-      :description => 'A basic approval workflow that supports multi-level approver groups through email notification',
-      :ext_ref     => 'containers/ApprovalService/processes/BasicEmail'
+      :description => 'A basic approval workflow that supports multi-level approver groups through email notification'
     )
   end
 end
