@@ -51,16 +51,16 @@ class RequestCreateService
     acs = ActionCreateService.new(stage.id)
     sleep(sleep_time)
     acs.create(
-      :operation    => Action::NOTIFY_OPERATION,
-      :processed_by => 'system',
-      :comments     => "email sent to #{stage.group.contact_setting}"
+      'operation'    => Action::NOTIFY_OPERATION,
+      'processed_by' => 'system',
+      'comments'     => "email sent to #{stage.group.contact_setting}"
     )
 
     sleep(sleep_time)
     acs.create(
-      :operation    => Action::APPROVE_OPERATION,
-      :processed_by => stage.group.contact_setting,
-      :comments     => 'ok'
+      'operation'    => Action::APPROVE_OPERATION,
+      'processed_by' => stage.group.contact_setting,
+      'comments'     => 'ok'
     )
   end
 
