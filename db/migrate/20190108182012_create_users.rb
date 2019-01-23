@@ -1,6 +1,6 @@
-class CreateApprovers < ActiveRecord::Migration[5.1]
+class CreateUsers < ActiveRecord::Migration[5.1]
   def change
-    create_table :approvers do |t|
+    create_table :users do |t|
       t.bigint :tenant_id
       t.string :email
       t.string :first_name
@@ -9,8 +9,8 @@ class CreateApprovers < ActiveRecord::Migration[5.1]
       t.timestamps
     end
 
-    create_table :approvergroups do |t|
-      t.references :approver, :foreign_key => true
+    create_table :usergroups do |t|
+      t.references :user, :foreign_key => true
       t.references :group, :foreign_key => true
     end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190108182012) do
+ActiveRecord::Schema.define(version: 2019_01_08_182012) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,14 +27,14 @@ ActiveRecord::Schema.define(version: 20190108182012) do
     t.index ["tenant_id"], name: "index_actions_on_tenant_id"
   end
 
-  create_table "approvergroups", force: :cascade do |t|
-    t.bigint "approver_id"
+  create_table "usergroups", force: :cascade do |t|
+    t.bigint "user_id"
     t.bigint "group_id"
-    t.index ["approver_id"], name: "index_approvergroups_on_approver_id"
-    t.index ["group_id"], name: "index_approvergroups_on_group_id"
+    t.index ["user_id"], name: "index_usergroups_on_user_id"
+    t.index ["group_id"], name: "index_usergroups_on_group_id"
   end
 
-  create_table "approvers", force: :cascade do |t|
+  create_table "users", force: :cascade do |t|
     t.bigint "tenant_id"
     t.string "email"
     t.string "first_name"
@@ -118,8 +118,8 @@ ActiveRecord::Schema.define(version: 20190108182012) do
     t.index ["tenant_id"], name: "index_workflows_on_tenant_id"
   end
 
-  add_foreign_key "approvergroups", "approvers"
-  add_foreign_key "approvergroups", "groups"
+  add_foreign_key "usergroups", "users"
+  add_foreign_key "usergroups", "groups"
   add_foreign_key "requests", "workflows"
   add_foreign_key "stages", "groups"
   add_foreign_key "stages", "requests"

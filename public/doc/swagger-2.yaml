@@ -12,10 +12,10 @@ host: 'localhost:3000'
 tags:
   - name: admins
     description: Admin-only APIs
-  - name: approvers
-    description: Approvers APIs
   - name: users
-    description: Regular users APIs
+    description: Users APIs
+  - name: requesters
+    description: Regular requesters APIs
 schemes:
   - http
 paths:
@@ -24,9 +24,9 @@ paths:
     get:
       tags:
         - admins
-        - approvers
-      summary: Return a list of approver actions
-      description: Return a list of approver actions
+        - users
+      summary: Return a list of user actions
+      description: Return a list of user actions
       operationId: fetchActions
       produces:
         - application/json
@@ -58,7 +58,7 @@ paths:
     post:
       tags:
         - admins
-        - approvers
+        - users
       summary: Add an action to a given stage
       description: Add an action to a given stage
       operationId: addAction
@@ -91,9 +91,9 @@ paths:
     get:
       tags:
         - admins
-        - approvers
-      summary: Return an approver action by id
-      description: Return an approver action by id
+        - users
+      summary: Return an user action by id
+      description: Return an user action by id
       operationId: fetchActionById
       parameters:
         - $ref: '#/parameters/id'
@@ -112,13 +112,13 @@ paths:
           $ref: '#/responses/404NotFoundResponse'
         '422':
           $ref: '#/responses/422UnprocessableEntityResponse'
-  '/approvers':
+  '/users':
     get:
       tags:
         - admins
-      summary: Return a list of approvers
-      description: Return a list of approvers
-      operationId: fetchApprovers
+      summary: Return a list of users
+      description: Return a list of users
+      operationId: fetchUsers
       produces:
         - application/json
       parameters:
@@ -134,7 +134,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Approver'
+              $ref: '#/definitions/User'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -148,9 +148,9 @@ paths:
     post:
       tags:
         - admins
-      summary: Add a new approver by given parameters
-      description: Add a new approver by given parameters
-      operationId: addApprover
+      summary: Add a new user by given parameters
+      description: Add a new user by given parameters
+      operationId: addUser
       consumes:
         - application/json
       produces:
@@ -158,15 +158,15 @@ paths:
       parameters:
         - in: body
           name: body
-          description: Parameters need to create approver
+          description: Parameters need to create user
           required: true
           schema:
-            $ref: '#/definitions/Approver'
+            $ref: '#/definitions/User'
       responses:
         '201':
           description: Success
           schema:
-            $ref: '#/definitions/Approver'
+            $ref: '#/definitions/User'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -177,20 +177,20 @@ paths:
           $ref: '#/responses/404NotFoundResponse'
         '422':
           $ref: '#/responses/422UnprocessableEntityResponse'
-  '/approvers/{id}':
+  '/users/{id}':
     get:
       tags:
         - admins
-      summary: Return approver by given id
-      description: Return approver by given id
-      operationId: fetchApproverById
+      summary: Return user by given id
+      description: Return user by given id
+      operationId: fetchUserById
       parameters:
         - $ref: '#/parameters/id'
       responses:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/Approver'
+            $ref: '#/definitions/User'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -204,9 +204,9 @@ paths:
     patch:
       tags:
         - admins
-      summary: Update an approver by given id
-      description: Update an approver by given id
-      operationId: updateApprover
+      summary: Update an user by given id
+      description: Update an user by given id
+      operationId: updateUser
       consumes:
         - application/json
       produces:
@@ -215,10 +215,10 @@ paths:
         - $ref: '#/parameters/id'
         - in: body
           name: body
-          description: Approver object that needs to be updated
+          description: User object that needs to be updated
           required: true
           schema:
-            $ref: '#/definitions/Approver'
+            $ref: '#/definitions/User'
       responses:
         '400':
           $ref: '#/responses/400BadRequestResponse'
@@ -233,9 +233,9 @@ paths:
     delete:
       tags:
         - admins
-      summary: Delete approver by given id
-      description: Delete approver by given id
-      operationId: removeApprover
+      summary: Delete user by given id
+      description: Delete user by given id
+      operationId: removeUser
       produces:
         - application/json
       parameters:
@@ -251,17 +251,17 @@ paths:
           $ref: '#/responses/404NotFoundResponse'
         '422':
           $ref: '#/responses/422UnprocessableEntityResponse'
-  '/approvers/{approver_id}/groups':
+  '/users/{user_id}/groups':
     get:
       tags:
         - admins
-      summary: Return associated groups by given approver id
-      description: Return groups by given approver id
-      operationId: fetchGroupsByApproverId
+      summary: Return associated groups by given user id
+      description: Return groups by given user id
+      operationId: fetchGroupsByUserId
       produces:
         - application/json
       parameters:
-        - $ref: '#/parameters/approver_id'
+        - $ref: '#/parameters/user_id'
       responses:
         '200':
           description: Success
@@ -283,17 +283,17 @@ paths:
           $ref: '#/responses/404NotFoundResponse'
         '422':
           $ref: '#/responses/422UnprocessableEntityResponse'
-  '/approvers/{approver_id}/requests':
+  '/users/{user_id}/requests':
     get:
       tags:
         - admins
-      summary: Return associated requests by given approver id
-      description: Return requests by given approver id
-      operationId: fetchRequestsByApproverId
+      summary: Return associated requests by given user id
+      description: Return requests by given user id
+      operationId: fetchRequestsByUserId
       produces:
         - application/json
       parameters:
-        - $ref: '#/parameters/approver_id'
+        - $ref: '#/parameters/user_id'
       responses:
         '200':
           description: Success
@@ -319,8 +319,8 @@ paths:
     get:
       tags:
         - admins
-      summary: Return all approver groups
-      description: Return all approver groups
+      summary: Return all user groups
+      description: Return all user groups
       operationId: fetchGroups
       produces:
         - application/json
@@ -351,8 +351,8 @@ paths:
     post:
       tags:
         - admins
-      summary: Add a new approver group by given parameters
-      description: Add a new approver group by given parameters
+      summary: Add a new user group by given parameters
+      description: Add a new user group by given parameters
       operationId: addGroup
       consumes:
         - application/json
@@ -361,7 +361,7 @@ paths:
       parameters:
         - in: body
           name: body
-          description: Parameters need to create approver group
+          description: Parameters need to create user group
           required: true
           schema:
             $ref: '#/definitions/Group'
@@ -384,8 +384,8 @@ paths:
     get:
       tags:
         - admins
-      summary: Return approver group by given id
-      description: Return approver group by given id
+      summary: Return user group by given id
+      description: Return user group by given id
       operationId: fetchGroupById
       parameters:
         - $ref: '#/parameters/id'
@@ -407,8 +407,8 @@ paths:
     patch:
       tags:
         - admins
-      summary: Update an approver group by given id
-      description: Update an approver group by given id
+      summary: Update an user group by given id
+      description: Update an user group by given id
       operationId: updateGroup
       consumes:
         - application/json
@@ -418,7 +418,7 @@ paths:
         - $ref: '#/parameters/id'
         - in: body
           name: body
-          description: Approver group object that needs to be updated
+          description: User group object that needs to be updated
           required: true
           schema:
             $ref: '#/definitions/Group'
@@ -436,8 +436,8 @@ paths:
     post:
       tags:
         - admins
-      summary: Operation on a list of approvers to a given group
-      description: Approvers join in or withdraw from a given group
+      summary: Operation on a list of users to a given group
+      description: Users join in or withdraw from a given group
       operationId: groupOperation
       consumes:
         - application/json
@@ -447,7 +447,7 @@ paths:
         - $ref: '#/parameters/id'
         - in: body
           name: body
-          description: Parameters need to operate approvers
+          description: Parameters need to operate groups
           required: true
           schema:
             $ref: '#/definitions/GroupOperationParameters'
@@ -455,7 +455,7 @@ paths:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/Approver'
+            $ref: '#/definitions/User'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -469,7 +469,7 @@ paths:
     delete:
       tags:
         - admins
-      summary: Delete approver group by given id
+      summary: Delete user group by given id
       description: Delete group by given id
       operationId: removeGroup
       produces:
@@ -487,13 +487,13 @@ paths:
           $ref: '#/responses/404NotFoundResponse'
         '422':
           $ref: '#/responses/422UnprocessableEntityResponse'
-  '/groups/{group_id}/approvers':
+  '/groups/{group_id}/users':
     get:
       tags:
         - admins
-      summary: Return associated approvers by given group id
-      description: Return approvers by given group id
-      operationId: fetchApproversByGroupId
+      summary: Return associated users by given group id
+      description: Return users by given group id
+      operationId: fetchUsersByGroupId
       produces:
         - application/json
       parameters:
@@ -508,7 +508,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Approver'
+              $ref: '#/definitions/User'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -593,7 +593,7 @@ paths:
           $ref: '#/responses/422UnprocessableEntityResponse'
     post:
       tags:
-        - users
+        - requesters
       summary: Add an approval request by given parameters
       description: Add an approval request by given parameters
       operationId: addRequest
@@ -627,7 +627,7 @@ paths:
   '/requests/{id}':
     get:
       tags:
-        - users
+        - requesters
       summary: Return an approval request by given id
       description: Return an approval request by given id
       operationId: fetchRequestById
@@ -714,7 +714,7 @@ paths:
   '/requests/{request_id}/stages':
     get:
       tags:
-        - users
+        - requesters
       summary: Return an array of stages by given request id
       description: Return an array of stages by given request id
       operationId: fetchRequestStages
@@ -743,7 +743,7 @@ paths:
     get:
       tags:
         - admins
-        - approvers
+        - requesters
       summary: Return an approval stage by given id
       description: Return an approval stage by given id
       operationId: fetchStageById
@@ -960,7 +960,7 @@ paths:
           description: Parameters need to update approval workflow
           required: true
           schema:
-            $ref: '#/definitions/Workflow'
+            $ref: '#/definitions/WorkflowParameters'
       responses:
         '400':
           $ref: '#/responses/400BadRequestResponse'
@@ -1018,7 +1018,17 @@ definitions:
         type: string
         description: Processor info who perform the action
       operation:
-        $ref: '#/definitions/Operation'
+        type: string
+        description: >-
+          Types of action, may be one of the value (approve, deny, notify, memo, or
+          skip). The stage will be updated according to the operation.
+        enum:
+          - approve
+          - deny
+          - notify
+          - memo
+          - skip
+        default: memo
       stage_id:
         type: string
         description: Associated stage id
@@ -1032,10 +1042,10 @@ definitions:
         format: date-time
         description: Timestamp of creation
         readOnly: true
-  Approver:
+  User:
     type: object
     description: >-
-      Approver with all personal information.
+      User with all personal information.
     required:
       - email
     properties:
@@ -1044,7 +1054,7 @@ definitions:
         readOnly: true
       email:
         type: string
-        description: Email address of the approver
+        description: Email address of the user
       first_name:
         type: string
       last_name:
@@ -1052,18 +1062,10 @@ definitions:
       group_ids:
         type: array
         items:
-          type: integer  
-  Decision:
-    type: string
-    description: Final decision, may be one of the value (undecided, approved, or denied)
-    enum:
-      - undecided
-      - approved
-      - denied
-    default: undecided
+          type: integer
   Group:
     type: object
-    description: Approver groups. Each group may have one or many approvers. The first response from any approver will
+    description: User groups. Each group may have one or many users. The first response from any user will
       be treated as group response.
     required:
       - name
@@ -1074,10 +1076,10 @@ definitions:
       name:
         type: string
         description: Group name
-      approver_ids:
+      user_ids:
         type: array
         items:
-          type: integer
+          type: string
   GroupOperationParameters:
     type: object
     description: Operation type and parameters to a given group
@@ -1086,26 +1088,18 @@ definitions:
       - parameters
     properties:
       operation:
-        $ref: '#/definitions/GroupOperation'
+        type: string
+        description: 'Types of group operation, may be either join_users or withdraw_users.'
+        enum:
+          - join_users
+          - withdraw_users
       parameters:
         type: object
-        example: { approver_ids: [] }
-  GroupOperation:
-    type: string
-    description: Types of group operation, may be either join_approvers or withdraw_approvers.
-    enum:
-      - join_approvers
-      - withdraw_approvers
-  Operation:
-    type: string
-    description: Types of action, may be one of the value (approve, deny, notify, memo, or skip). The stage will be updated according to the operation.
-    enum:
-      - approve
-      - deny
-      - notify
-      - memo
-      - skip
-    default: memo
+        description: ID of users in the group
+        example:
+          user_ids:
+            - 1
+            - 2
   Request:
     type: object
     description: Approval request. Each request will associate with a workflow. Corresponding to the groups of the associated workflow, every request will have a list of stages to record the request processing details.
@@ -1127,9 +1121,26 @@ definitions:
         type: string
         description: Request description
       state:
-        $ref: '#/definitions/State'
+        type: string
+        description: >-
+          The state of stage or request. It may be one of values (pending,
+          skipped, notified or finished)
+        enum:
+          - pending
+          - skipped
+          - notified
+          - finished
+        default: pending
       decision:
-        $ref: '#/definitions/Decision'
+        type: string
+        description: >-
+          Final decision, may be one of the value (undecided, approved, or
+          denied)
+        enum:
+          - undecided
+          - approved
+          - denied
+        default: undecided
       reason:
         type: string
         description: Comments for requests
@@ -1151,9 +1162,26 @@ definitions:
         type: string
         readOnly: true
       state:
-        $ref: '#/definitions/State'
+        type: string
+        description: >-
+          The state of stage or request. It may be one of values (pending,
+          skipped, notified or finished)
+        enum:
+          - pending
+          - skipped
+          - notified
+          - finished
+        default: pending
       decision:
-        $ref: '#/definitions/Decision'
+        type: string
+        description: >-
+          Final decision, may be one of the value (undecided, approved, or
+          denied)
+        enum:
+          - undecided
+          - approved
+          - denied
+        default: undecided
       comments:
         type: string
         description: Approval stage
@@ -1164,15 +1192,6 @@ definitions:
         type: string
         description: Associated request id
         readOnly: true
-  State:
-    type: string
-    description: The state of stage or request. It may be one of values (pending, skipped, notified or finished)
-    enum:
-      - pending
-      - skipped
-      - notified
-      - finished
-    default: pending
   Template:
     type: object
     description: The template to categorize workflows.
@@ -1212,13 +1231,15 @@ definitions:
     properties:
       name:
         type: string
+        description: Workflow name
       description:
         type: string
+        description: Description of workflow
       group_ids:
         type: array
+        description: Group ids associated with workflow
         items:
-          type:
-            integer
+          type: string
 parameters:
   id:
     name: id
@@ -1226,10 +1247,10 @@ parameters:
     description: Query by id
     required: true
     type: integer
-  approver_id:
-    name: approver_id
+  user_id:
+    name: user_id
     in: path
-    description: Id of approver
+    description: Id of user
     required: true
     type: integer
   template_id:

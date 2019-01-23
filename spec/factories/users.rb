@@ -1,6 +1,6 @@
-# spec/factories/approvers.rb
+# spec/factories/users.rb
 FactoryBot.define do
-  factory :approver do
+  factory :user do
     email      { Faker::Internet.email }
     first_name { Faker::Lorem.word }
     last_name  { Faker::Lorem.word }

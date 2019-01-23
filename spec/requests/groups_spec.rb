@@ -2,9 +2,9 @@
 
 RSpec.describe 'Groups API' do
   # Initialize the test data
-  let!(:approvers) { create_list(:approver, 3) }
-  let!(:other_approvers) { create_list(:approver, 3) }
-  let!(:groups) { create_list(:group, 5, :approvers => approvers) }
+  let!(:users) { create_list(:user, 3) }
+  let!(:other_users) { create_list(:user, 3) }
+  let!(:groups) { create_list(:group, 5, :users => users) }
   let(:id) { groups.first.id }
 
   # Test suite for GET /groups
@@ -24,7 +24,7 @@ RSpec.describe 'Groups API' do
   # Test suite for POST /groups
   describe 'POST /groups' do
     let(:valid_attributes) do
-      { :name => 'Visit Narnia', :approver_ids => approvers.map(&:id) }
+      { :name => 'Visit Narnia', :user_ids => users.map(&:id) }
     end
 
     context 'when request attributes are valid' do
@@ -32,7 +32,7 @@ RSpec.describe 'Groups API' do
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
-        expect(Group.last.approvers.count).to eq(3)
+        expect(Group.last.users.count).to eq(3)
       end
     end
 
@@ -51,7 +51,7 @@ RSpec.describe 'Groups API' do
 
   # Test suite for patch /groups/:id
   describe 'patch /groups/:id' do
-    let(:valid_attributes) { { :name => 'Mozart', :approver_ids => [approvers.first.id, approvers.last.id] } }
+    let(:valid_attributes) { { :name => 'Mozart', :user_ids => [users.first.id, users.last.id] } }
 
     before { patch "#{api_version}/groups/#{id}", :params => valid_attributes }
 
@@ -64,9 +64,9 @@ RSpec.describe 'Groups API' do
         updated_item = Group.find(id)
         expect(updated_item.name).to match(/Mozart/)
 
-        expect(updated_item.approvers.count).to eq(2)
-        expect(updated_item.approvers.first.id).to eq(approvers.first.id)
-        expect(updated_item.approvers.last.id).to eq(approvers.last.id)
+        expect(updated_item.users.count).to eq(2)
+        expect(updated_item.users.first.id).to eq(users.first.id)
+        expect(updated_item.users.last.id).to eq(users.last.id)
       end
     end
 
@@ -92,89 +92,89 @@ RSpec.describe 'Groups API' do
     end
   end
 
-  describe 'get /groups/:id/approvers' do
-    before { get "#{api_version}/groups/#{id}/approvers", :headers => admin_encode_key }
+  describe 'get /groups/:id/users' do
+    before { get "#{api_version}/groups/#{id}/users" }
 
     it 'returns status code 200' do
       expect(response).to have_http_status(200)
     end
 
-    it 'returns number of approvers' do
+    it 'returns number of users' do
       group = Group.find(id)
-      expect(group.approvers.count).to eq(3)
+      expect(group.users.count).to eq(3)
     end
   end
 
   describe 'post /groups/:id' do
-    before { post "#{api_version}/groups/#{id}", :params => attributes, :headers => admin_encode_key }
+    before { post "#{api_version}/groups/#{id}", :params => attributes }
 
-    context 'when new approvers join in group' do
-      let(:attributes) { { :operation => 'join_approvers', :parameters => { :approver_ids => [other_approvers.first.id, other_approvers.last.id] } } }
+    context 'when new users join in group' do
+      let(:attributes) { { :operation => 'join_users', :parameters => { :user_ids => [other_users.first.id, other_users.last.id] } } }
 
-      it 'new approvers join in' do
+      it 'new users join in' do
         group = Group.find(id)
-        expect(group.approvers.count).to eq(5)
+        expect(group.users.count).to eq(5)
       end
     end
 
-    context 'when some exsiting approvers join in group' do
-      let(:attributes) { { :operation => 'join_approvers', :parameters => { :approver_ids => [approvers.first.id, other_approvers.last.id] } } }
+    context 'when some exsiting users join in group' do
+      let(:attributes) { { :operation => 'join_users', :parameters => { :user_ids => [users.first.id, other_users.last.id] } } }
 
-      it 'new approvers join in' do
+      it 'new users join in' do
         group = Group.find(id)
-        expect(group.approvers.count).to eq(4)
-        expect(group.approvers.last.id).to eq(other_approvers.last.id)
+        expect(group.users.count).to eq(4)
+        expect(group.users.last.id).to eq(other_users.last.id)
       end
     end
 
-    context 'when exsiting approvers join in group' do
-      let(:attributes) { { :operation => 'join_approvers', :parameters => { :approver_ids => [approvers.first.id, approvers.last.id] } } }
+    context 'when exsiting users join in group' do
+      let(:attributes) { { :operation => 'join_users', :parameters => { :user_ids => [users.first.id, users.last.id] } } }
 
-      it 'new approvers join in' do
+      it 'new users join in' do
         group = Group.find(id)
-        expect(group.approvers.count).to eq(3)
-        expect(group.approvers.map(&:id)).to eq(approvers.map(&:id))
+        expect(group.users.count).to eq(3)
+        expect(group.users.map(&:id)).to eq(users.map(&:id))
       end
     end
 
-    context 'when exsiting approvers withdraw from group' do
-      let(:attributes) { { :operation => 'withdraw_approvers', :parameters => { :approver_ids => [approvers.first.id, approvers.last.id] } } }
+    context 'when exsiting users withdraw from group' do
+      let(:attributes) { { :operation => 'withdraw_users', :parameters => { :user_ids => [users.first.id, users.last.id] } } }
 
-      it 'exsiting approvers withdraw from group' do
+      it 'exsiting users withdraw from group' do
         group = Group.find(id)
-        expect(group.approvers.count).to eq(1)
-        expect(approvers.first.groups.count).to eq(4)
-        expect(approvers.second.groups.count).to eq(5)
-        expect(approvers.last.groups.count).to eq(4)
+        expect(group.users.count).to eq(1)
+        expect(users.first.groups.count).to eq(4)
+        expect(users.second.groups.count).to eq(5)
+        expect(users.last.groups.count).to eq(4)
       end
     end
 
-    context 'when some exsiting approvers withdraw from group' do
-      let(:attributes) { { :operation => 'withdraw_approvers', :parameters => { :approver_ids => [approvers.first.id, other_approvers.last.id] } } }
+    context 'when some exsiting users withdraw from group' do
+      let(:attributes) { { :operation => 'withdraw_users', :parameters => { :user_ids => [users.first.id, other_users.last.id] } } }
 
-      it 'some exsiting approvers withdraw from group' do
+      it 'some exsiting users withdraw from group' do
         group = Group.find(id)
-        expect(group.approvers.count).to eq(2)
-        expect(approvers.first.groups.count).to eq(4)
-        expect(approvers.second.groups.count).to eq(5)
-        expect(approvers.last.groups.count).to eq(5)
+        expect(group.users.count).to eq(2)
+        expect(users.first.groups.count).to eq(4)
+        expect(users.second.groups.count).to eq(5)
+        expect(users.last.groups.count).to eq(5)
       end
     end
 
-    context 'when non-exsiting approvers withdraw from group' do
-      let(:attributes) { { :operation => 'withdraw_approvers', :parameters => { :approver_ids => [other_approvers.first.id, other_approvers.last.id] } } }
+    context 'when non-exsiting users withdraw from group' do
+      let(:attributes) { { :operation => 'withdraw_users', :parameters => { :user_ids => [other_users.first.id, other_users.last.id] } } }
 
-      it 'non-exsiting approvers withdraw from group' do
+      it 'non-exsiting users withdraw from group' do
         group = Group.find(id)
-        expect(group.approvers.count).to eq(3)
-        expect(approvers.first.groups.count).to eq(5)
-        expect(approvers.second.groups.count).to eq(5)
-        expect(approvers.last.groups.count).to eq(5)
+        expect(group.users.count).to eq(3)
+        expect(users.first.groups.count).to eq(5)
+        expect(users.second.groups.count).to eq(5)
+        expect(users.last.groups.count).to eq(5)
       end
     end
 
     context 'when invalid operation request in' do
-      let(:attributes) { { :operation => 'bad_op', :parameters => { :approver_ids => [approvers.first.id, approvers.last.id] } } }
+      let(:attributes) { { :operation => 'bad_op', :parameters => { :user_ids => [users.first.id, users.last.id] } } }
 
       it 'bad operation comes in' do
         expect(response).to have_http_status(403)
@@ -183,7 +183,7 @@ RSpec.describe 'Groups API' do
     end
 
     context 'when invalid parameters request in' do
-      let(:attributes) { { :operation => 'join_approvers', :parameters => { :bad_ids => [approvers.first.id, approvers.last.id] } } }
+      let(:attributes) { { :operation => 'join_users', :parameters => { :bad_ids => [users.first.id, users.last.id] } } }
 
       it 'bad operation comes in' do
         expect(response).to have_http_status(403)

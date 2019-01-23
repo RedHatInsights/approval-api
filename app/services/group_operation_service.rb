@@ -1,8 +1,8 @@
 class GroupOperationService
   attr_accessor :group
 
-  JOIN     = "join_approvers".freeze
-  WITHDRAW = "withdraw_approvers".freeze
+  JOIN     = "join_users".freeze
+  WITHDRAW = "withdraw_users".freeze
 
   GROUP_OPERATIONS = [JOIN, WITHDRAW].freeze
 
@@ -12,8 +12,8 @@ class GroupOperationService
 
   def operate(operation, params)
     raise StandardError, "Invalid group operation: #{operation}" unless GROUP_OPERATIONS.include?(operation)
-    raise StandardError, "Invalid group operation params: #{params}" unless params[:approver_ids]
+    raise StandardError, "Invalid group operation params: #{params}" unless params[:user_ids]
 
-    group.send(operation, params[:approver_ids])
+    group.send(operation, params[:user_ids])
   end
 end

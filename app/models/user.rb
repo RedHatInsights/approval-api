@@ -1,8 +1,8 @@
-class Approver < ApplicationRecord
+class User < ApplicationRecord
   acts_as_tenant(:tenant)
 
-  has_many :approvergroups, :dependent => :destroy
-  has_many :groups, -> { order(:id => :asc) }, :through => :approvergroups
+  has_many :usergroups, :dependent => :destroy
+  has_many :groups, -> { order(:id => :asc) }, :through => :usergroups
   validates :email, :presence => true
 
   def stages

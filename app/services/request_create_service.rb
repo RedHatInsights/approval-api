@@ -53,7 +53,7 @@ class RequestCreateService
     acs.create(
       'operation'    => Action::NOTIFY_OPERATION,
       'processed_by' => 'system',
-      'comments'     => "email sent to #{stage.group.approvers.map(&:email)}"
+      'comments'     => "email sent to #{stage.group.users.map(&:email)}"
     )
 
     sleep(sleep_time)
