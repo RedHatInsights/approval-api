@@ -5,13 +5,10 @@ RSpec.describe 'Templates API', :type => :request do
   let!(:templates) { create_list(:template, 10) }
   let(:template_id) { templates.first.id }
 
-  let(:admin_encode_key) { { :'x-rh-auth-identity' => 'eyJpZGVudGl0eSI6eyJpc19vcmdfYWRtaW4iOnRydWV9fQ==\n' } }
-  let(:user_encode_key) { { :'x-rh-auth-identity' => 'eyJpZGVudGl0eSI6eyJpc19vcmdfYWRtaW4iOmZhbHNlfX0=\n' } }
-
   # Test suite for GET /templates
   describe 'GET /templates' do
     # make HTTP get request before each example
-    before { get "#{api_version}/templates", :headers => admin_encode_key }
+    before { get "#{api_version}/templates" }
 
     it 'returns templates' do
       # Note `json` is a custom helper to parse JSON responses
@@ -26,7 +23,7 @@ RSpec.describe 'Templates API', :type => :request do
 
   # Test suite for GET /templates/:id
   describe 'GET /templates/:id' do
-    before { get "#{api_version}/templates/#{template_id}", :headers => admin_encode_key }
+    before { get "#{api_version}/templates/#{template_id}" }
 
     context 'when the record exists' do
       it 'returns the template' do

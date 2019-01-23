@@ -9,12 +9,9 @@ RSpec.describe 'Actions API' do
   let!(:actions) { create_list(:action, 10, :stage_id => stage.id) }
   let(:id) { actions.first.id }
 
-  let(:user_encode_key) { { :'x-rh-auth-identity' => 'eyJpZGVudGl0eSI6eyJpc19vcmdfYWRtaW4iOmZhbHNlfX0=\n' } }
-  let(:admin_encode_key) { { :'x-rh-auth-identity' => 'eyJpZGVudGl0eSI6eyJpc19vcmdfYWRtaW4iOnRydWV9fQ==\n' } }
-
   # Test suite for GET /actions
   describe 'GET /actions' do
-    before { get "#{api_version}/actions", :headers => admin_encode_key }
+    before { get "#{api_version}/actions" }
 
     it 'returns actions' do
       # Note `json` is a custom helper to parse JSON responses
@@ -29,7 +26,7 @@ RSpec.describe 'Actions API' do
 
   # Test suite for GET /actions/:id
   describe 'GET /actions/:id' do
-    before { get "#{api_version}/actions/#{id}", :headers => admin_encode_key }
+    before { get "#{api_version}/actions/#{id}" }
 
     context 'when the record exists' do
       it 'returns the action' do
@@ -60,7 +57,7 @@ RSpec.describe 'Actions API' do
     let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
 
     context 'when request attributes are valid' do
-      before { post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => admin_encode_key }
+      before { post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
