@@ -10,12 +10,9 @@ RSpec.describe 'Requests API' do
   let!(:requests_with_same_state) { create_list(:request, 2, :state => 'notified', :workflow_id => workflow.id) }
   let!(:requests_with_same_decision) { create_list(:request, 2, :decision => 'approved', :workflow_id => workflow.id) }
 
-  let(:user_encode_key) { { :'x-rh-auth-identity' => 'eyJpZGVudGl0eSI6eyJpc19vcmdfYWRtaW4iOmZhbHNlfX0=\n' } }
-  let(:admin_encode_key) { { :'x-rh-auth-identity' => 'eyJpZGVudGl0eSI6eyJpc19vcmdfYWRtaW4iOnRydWV9fQ==\n' } }
-
   # Test suite for GET /workflows/:workflow_id/requests
   describe 'GET /workflows/:workflow_id/requests' do
-    before { get "#{api_version}/workflows/#{workflow_id}/requests", :headers => admin_encode_key }
+    before { get "#{api_version}/workflows/#{workflow_id}/requests" }
 
     context 'when workflow exists' do
       it 'returns status code 200' do
@@ -42,7 +39,7 @@ RSpec.describe 'Requests API' do
 
   # Test suite for GET /requests
   describe 'GET /requests' do
-    before { get "#{api_version}/requests", :headers => admin_encode_key }
+    before { get "#{api_version}/requests" }
 
     it 'returns requests' do
       expect(json).not_to be_empty
@@ -56,7 +53,7 @@ RSpec.describe 'Requests API' do
 
   # Test suite for GET /requests?state=
   describe 'GET /requests?state=notified' do
-    before { get "#{api_version}/requests?state=notified", :headers => admin_encode_key }
+    before { get "#{api_version}/requests?state=notified" }
 
     it 'returns requests' do
       expect(json).not_to be_empty
@@ -70,7 +67,7 @@ RSpec.describe 'Requests API' do
 
   # Test suite for GET /requests?decision=
   describe 'GET /requests?decision=approved' do
-    before { get "#{api_version}/requests?decision=approved", :headers => admin_encode_key }
+    before { get "#{api_version}/requests?decision=approved" }
 
     it 'returns requests' do
       expect(json).not_to be_empty

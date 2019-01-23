@@ -10,10 +10,8 @@ RSpec.describe 'Stages API' do
   let!(:stages) { create_list(:stage, 5, :group_id => group.id, :request_id => request.id) }
   let(:id) { stages.first.id }
 
-  let(:admin_encode_key) { { :'x-rh-auth-identity' => 'eyJpZGVudGl0eSI6eyJpc19vcmdfYWRtaW4iOnRydWV9fQ==\n' } }
-
   describe 'GET /stages' do
-    before { get "#{api_version}/stages", :headers => admin_encode_key }
+    before { get "#{api_version}/stages" }
 
     it 'returns stages' do
       expect(response).to have_http_status(200)
@@ -23,7 +21,7 @@ RSpec.describe 'Stages API' do
 
   # Test suite for GET /stages/:id
   describe 'GET /stages/:id' do
-    before { get "#{api_version}/stages/#{id}", :headers => admin_encode_key }
+    before { get "#{api_version}/stages/#{id}" }
 
     context 'when the record exists' do
       it 'returns the stage' do
