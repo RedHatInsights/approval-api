@@ -8,8 +8,8 @@
 #
 module Api
   module V0
-    class ApproversController < ApplicationController
-      include ApproverOperationsMixin
+    class RequestersController < ApplicationController
+      include RequesterOperationsMixin
     end
   end
 end

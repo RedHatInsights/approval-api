@@ -53,13 +53,13 @@ class RequestCreateService
     acs.create(
       'operation'    => Action::NOTIFY_OPERATION,
       'processed_by' => 'system',
-      'comments'     => "email sent to #{stage.group.contact_setting}"
+      'comments'     => "email sent to #{stage.group.users.map(&:email)}"
     )
 
     sleep(sleep_time)
     acs.create(
       'operation'    => Action::APPROVE_OPERATION,
-      'processed_by' => stage.group.contact_setting,
+      'processed_by' => 'system',
       'comments'     => 'ok'
     )
   end

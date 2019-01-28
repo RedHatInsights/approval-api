@@ -9,8 +9,13 @@
 module Api
   module V0
     class AdminsController < ApplicationController
+      include RequesterOperationsMixin
       include UserOperationsMixin
-      include ApproverOperationsMixin
+
+      def add_user
+        user = User.create!(user_params)
+        json_response(user, :created)
+      end
 
       def add_group
         group = Group.create!(group_params)
@@ -24,6 +29,22 @@ module Api
         json_response({ :message => e.message }, :unprocessable_entity)
       end
 
+      def fetch_users_by_group_id
+        group = Group.find(params.require(:group_id))
+        json_response(group.users)
+      end
+
+      def fetch_user_by_id
+        user = User.find(params.require(:id))
+        json_response(user)
+      end
+
+      def fetch_users
+        users = User.all
+
+        json_response(users)
+      end
+
       def fetch_group_by_id
         group = Group.find(params.require(:id))
 
@@ -34,6 +55,20 @@ module Api
         groups = Group.all
 
         json_response(groups)
+      end
+
+      def fetch_groups_by_user_id
+        user = User.find(params.require(:id))
+        groups = user.groups
+
+        json_response(groups)
+      end
+
+      def fetch_requests_by_user_id
+        user = User.find(params.require(:id))
+        requests = user.requests
+
+        json_response(requests)
       end
 
       def fetch_requests
@@ -81,6 +116,19 @@ module Api
         json_response(workflows)
       end
 
+      def group_operation
+        GroupOperationService.new(params.require(:id)).operate(params.require(:operation), params.require(:parameters))
+
+        head :no_content
+      rescue StandardError => e
+        json_response({ :message => "#{e.message}" }, :forbidden)
+      end
+
+      def remove_user
+        User.find(params.require(:id)).destroy
+        head :no_content
+      end
+
       def remove_group
         Group.find(params.require(:id)).destroy
         head :no_content
@@ -89,6 +137,11 @@ module Api
       def remove_workflow
         Workflow.find(params.require(:id)).destroy
 
+        head :no_content
+      end
+
+      def update_user
+        User.find(params.require(:id)).update(user_params)
         head :no_content
       end
 
@@ -105,8 +158,12 @@ module Api
 
       private
 
+      def user_params
+        params.permit(:email, :first_name, :last_name, :group_ids => [])
+      end
+
       def group_params
-        params.permit(:name, :contact_method, :contact_setting)
+        params.permit(:name, :user_ids => [])
       end
 
       def stage_params

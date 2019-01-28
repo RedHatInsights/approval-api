@@ -1,26 +1,32 @@
 module UserOperationsMixin
   extend ActiveSupport::Concern
 
-  def add_request
-    req = RequestCreateService.new(params.require(:workflow_id)).create(request_params)
-    json_response(req, :created)
+  def add_action
+    action = ActionCreateService.new(params.require(:stage_id)).create(action_params)
+    json_response(action, :created)
   end
 
-  def fetch_request_by_id
-    req = Request.find(params.require(:id))
-    json_response(req)
+  def fetch_action_by_id
+    action = Action.find(params.require(:id))
+
+    json_response(action)
   end
 
-  def fetch_request_stages
-    req = Request.find(params.require(:request_id))
+  def fetch_actions
+    actions = Action.all
 
-    json_response(req.stages)
+    json_response(actions)
+  end
+
+  def fetch_stage_by_id
+    stage = Stage.find(params.require(:id))
+
+    json_response(stage)
   end
 
   private
 
-  def request_params
-    params.permit(:name, :requester, :content)
+  def action_params
+    params.permit(:operation, :processed_by, :comments)
   end
-
 end
