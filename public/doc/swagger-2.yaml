@@ -43,7 +43,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Action'
+              $ref: '#/definitions/ActionOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -71,12 +71,12 @@ paths:
           description: Action object that will be added
           required: true
           schema:
-            $ref: '#/definitions/Action'
+            $ref: '#/definitions/ActionIn'
       responses:
         '201':
           description: Success
           schema:
-            $ref: '#/definitions/Action'
+            $ref: '#/definitions/ActionOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -101,7 +101,7 @@ paths:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/Action'
+            $ref: '#/definitions/ActionOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -134,7 +134,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/User'
+              $ref: '#/definitions/UserOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -161,12 +161,12 @@ paths:
           description: Parameters need to create user
           required: true
           schema:
-            $ref: '#/definitions/User'
+            $ref: '#/definitions/UserIn'
       responses:
         '201':
           description: Success
           schema:
-            $ref: '#/definitions/User'
+            $ref: '#/definitions/UserOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -190,7 +190,7 @@ paths:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/User'
+            $ref: '#/definitions/UserOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -218,7 +218,7 @@ paths:
           description: User object that needs to be updated
           required: true
           schema:
-            $ref: '#/definitions/User'
+            $ref: '#/definitions/UserIn'
       responses:
         '400':
           $ref: '#/responses/400BadRequestResponse'
@@ -272,7 +272,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Group'
+              $ref: '#/definitions/GroupOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -304,7 +304,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Request'
+              $ref: '#/definitions/RequestOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -337,7 +337,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Group'
+              $ref: '#/definitions/GroupOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -364,12 +364,12 @@ paths:
           description: Parameters need to create user group
           required: true
           schema:
-            $ref: '#/definitions/Group'
+            $ref: '#/definitions/GroupIn'
       responses:
         '201':
           description: Success
           schema:
-            $ref: '#/definitions/Group'
+            $ref: '#/definitions/GroupOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -393,7 +393,7 @@ paths:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/Group'
+            $ref: '#/definitions/GroupOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -421,7 +421,7 @@ paths:
           description: User group object that needs to be updated
           required: true
           schema:
-            $ref: '#/definitions/Group'
+            $ref: '#/definitions/GroupIn'
       responses:
         '400':
           $ref: '#/responses/400BadRequestResponse'
@@ -450,12 +450,12 @@ paths:
           description: Parameters need to operate groups
           required: true
           schema:
-            $ref: '#/definitions/GroupOperationParameters'
+            $ref: '#/definitions/GroupOperationIn'
       responses:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/User'
+            $ref: '#/definitions/GroupOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -508,7 +508,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/User'
+              $ref: '#/definitions/UserOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -546,7 +546,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Request'
+              $ref: '#/definitions/RequestOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -580,7 +580,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Request'
+              $ref: '#/definitions/RequestOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -608,12 +608,12 @@ paths:
           description: Parameters need to create a request
           required: true
           schema:
-            $ref: '#/definitions/Request'
+            $ref: '#/definitions/RequestIn'
       responses:
         '201':
           description: Success
           schema:
-            $ref: '#/definitions/Request'
+            $ref: '#/definitions/RequestOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -637,7 +637,7 @@ paths:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/Request'
+            $ref: '#/definitions/RequestOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -664,12 +664,12 @@ paths:
           description: Action object that will be added
           required: true
           schema:
-            $ref: '#/definitions/Action'
+            $ref: '#/definitions/ActionIn'
       responses:
         '201':
           description: Success
           schema:
-            $ref: '#/definitions/Action'
+            $ref: '#/definitions/ActionOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -700,7 +700,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Stage'
+              $ref: '#/definitions/StageOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -728,7 +728,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Stage'
+              $ref: '#/definitions/StageOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -753,7 +753,7 @@ paths:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/Stage'
+            $ref: '#/definitions/StageOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -786,7 +786,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Template'
+              $ref: '#/definitions/TemplateOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -810,7 +810,7 @@ paths:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/Template'
+            $ref: '#/definitions/TemplateOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -841,7 +841,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Workflow'
+              $ref: '#/definitions/WorkflowOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -875,7 +875,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Workflow'
+              $ref: '#/definitions/WorkflowOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -903,12 +903,12 @@ paths:
           description: Parameters need to create workflow
           required: true
           schema:
-            $ref: '#/definitions/WorkflowParameters'
+            $ref: '#/definitions/WorkflowIn'
       responses:
         '201':
           description: Success
           schema:
-            $ref: '#/definitions/Workflow'
+            $ref: '#/definitions/WorkflowOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -932,7 +932,7 @@ paths:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/Workflow'
+            $ref: '#/definitions/WorkflowOut'
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -960,7 +960,7 @@ paths:
           description: Parameters need to update approval workflow
           required: true
           schema:
-            $ref: '#/definitions/WorkflowParameters'
+            $ref: '#/definitions/WorkflowIn'
       responses:
         '400':
           $ref: '#/responses/400BadRequestResponse'
@@ -1004,16 +1004,13 @@ securityDefinitions:
 security:
   - APIKey_auth: []
 definitions:
-  Action:
+  ActionIn:
     type: object
-    description: Action is kind of like processing record. Each stage may have many actions before final decision.
+    description: Input parameters for Action object
     required:
       - processed_by
-      - stage
+      - operation
     properties:
-      id:
-        type: string
-        readOnly: true
       processed_by:
         type: string
         description: Processor info who perform the action
@@ -1029,9 +1026,12 @@ definitions:
           - memo
           - skip
         default: memo
-      stage_id:
+  ActionOut:
+    allOf:
+      - $ref: '#/definitions/ActionIn'
+    properties:
+      id:
         type: string
-        description: Associated stage id
         readOnly: true
       comments:
         type: string
@@ -1042,19 +1042,26 @@ definitions:
         format: date-time
         description: Timestamp of creation
         readOnly: true
-  User:
+      stage_id:
+        type: string
+        description: Associated stage id
+  UserIn:
     type: object
     description: >-
-      User with all personal information.
+      Input parameters for User object
     required:
       - email
+    properties:
+      email:
+        type: string
+        description: Email address of the user
+  UserOut:
+    allOf:
+      - $ref: '#/definitions/UserIn'
     properties:
       id:
         type: string
         readOnly: true
-      email:
-        type: string
-        description: Email address of the user
       first_name:
         type: string
       last_name:
@@ -1063,24 +1070,29 @@ definitions:
         type: array
         items:
           type: integer
-  Group:
+  GroupIn:
     type: object
-    description: User groups. Each group may have one or many users. The first response from any user will
-      be treated as group response.
+    description: Input parameters for Group object
     required:
       - name
+    properties:
+      name:
+        type: string
+        description: Group name
+  GroupOut:
+    type: object
+    description: User groups.
+    allOf:
+      - $ref: '#/definitions/GroupIn'
     properties:
       id:
         type: string
         readOnly: true
-      name:
-        type: string
-        description: Group name
       user_ids:
         type: array
         items:
           type: string
-  GroupOperationParameters:
+  GroupOperationIn:
     type: object
     description: Operation type and parameters to a given group
     required:
@@ -1100,20 +1112,32 @@ definitions:
           user_ids:
             - 1
             - 2
-  Request:
+  RequestIn:
+    type: object
+    description: Input parameters for approval request object.
+    required:
+      - requester
+      - content
+    properties:
+      requester:
+        type: string
+        description: Requester info
+      content:
+        type: object
+        description: JSON object with request content
+  RequestOut:
     type: object
     description: Approval request. Each request will associate with a workflow. Corresponding to the groups of the associated workflow, every request will have a list of stages to record the request processing details.
     required:
-      - requester
       - name
-      - content
+      - state
+      - decision
+    allOf:
+      - $ref: '#/definitions/RequestIn'
     properties:
       id:
         type: string
         readOnly: true
-      requester:
-        type: string
-        description: Requester info
       name:
         type: string
         description: Request name
@@ -1145,22 +1169,21 @@ definitions:
         type: string
         description: Comments for requests
         readOnly: true
-      content:
-        type: object
-        description: JSON object with request content
       workflow_id:
         type: string
         description: Associate workflow id
         readOnly: true
-  Stage:
+  StageIn:
     type: object
-    description: The stage of approval request.
+    description: Input parameters for stage object
     required:
       - group_id
+      - state
+      - decision
     properties:
-      id:
+      group_id:
         type: string
-        readOnly: true
+        description: Associated group id
       state:
         type: string
         description: >-
@@ -1182,56 +1205,72 @@ definitions:
           - approved
           - denied
         default: undecided
+  StageOut:
+    type: object
+    description: The stage of approval request.
+    allOf:
+      - $ref: '#/definitions/StageIn'
+    properties:
+      id:
+        type: string
+        readOnly: true
       comments:
         type: string
         description: Approval stage
-      group_id:
-        type: string
-        description: Associated group id
       request_id:
         type: string
         description: Associated request id
         readOnly: true
-  Template:
+  TemplateIn:
     type: object
-    description: The template to categorize workflows.
+    description: Input parameters for template object
     required:
       - title
+    properties:
+      title:
+        type: string
+  TemplateOut:
+    type: object
+    description: The template to categorize workflows.
+    allOf:
+      - $ref: '#/definitions/TemplateIn'
     properties:
       id:
         type: string
         readOnly: true
-      title:
-        type: string
       description:
         type: string
   Workflow:
     type: object
-    description: The workflow to process approval requests. Each workflow should link with a list of groups, in order to process approval requests.
+    description: Input parameters for workflow object
     required:
       - name
+    properties:
+      name:
+        type: string
+  WorkflowOut:
+    type: object
+    description: The workflow to process approval requests. Each workflow should link with a list of groups, in order to process approval requests.
+    allOf:
+      - $ref: '#/definitions/Workflow'
     properties:
       id:
         type: string
         readOnly: true
-      name:
-        type: string
       description:
         type: string
       template_id:
         type: string
         description: Associated template id
         readOnly: true
-  WorkflowParameters:
+  WorkflowIn:
     type: object
     description: Parameters to create a workflow
     required:
-      - name
       - group_ids
+    allOf:
+      - $ref: '#/definitions/Workflow'
     properties:
-      name:
-        type: string
-        description: Workflow name
       description:
         type: string
         description: Description of workflow
