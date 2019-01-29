@@ -1986,7 +1986,8 @@
                         "default": "undecided"
                     },
                     "notified_at": {
-                        "type": "date-time",
+                        "type": "string",
+                        "format": "date-time",
                         "description": "the time approvers in the stage are notified"
                     }
                 }
