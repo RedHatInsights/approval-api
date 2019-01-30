@@ -6,16 +6,15 @@ module UserOperationsMixin
     json_response(action, :created)
   end
 
+  def fetch_actions_by_stage_id
+    stage = Stage.find(params.require(:stage_id))
+    json_response(stage.actions)
+  end
+
   def fetch_action_by_id
     action = Action.find(params.require(:id))
 
     json_response(action)
-  end
-
-  def fetch_actions
-    actions = Action.all
-
-    json_response(actions)
   end
 
   def fetch_stage_by_id

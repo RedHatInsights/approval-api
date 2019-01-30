@@ -21,6 +21,37 @@ RSpec.describe 'Groups API' do
     end
   end
 
+  # Test suite for GET /workflows/:workflow_id/groups
+  describe 'GET /workflows/:workflow_id/groups' do
+    before { get "#{api_version}/workflows/#{workflow_id}/groups" }
+
+    context 'when workflow exists' do
+      let!(:template) { create(:template) }
+      let!(:workflow) { create(:workflow, :template => template, :groups => groups) }
+      let!(:workflow_id) { workflow.id }
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
+
+      it 'returns all groups in the workflow' do
+        expect(json.size).to eq(5)
+      end
+    end
+
+    context 'when workflow does not exist' do
+      let!(:workflow_id) { 0 }
+
+      it 'returns status code 404' do
+        expect(response).to have_http_status(404)
+      end
+
+      it 'returns a not found message' do
+        expect(response.body).to match(/Couldn't find Workflow/)
+      end
+    end
+  end
+
   # Test suite for POST /groups
   describe 'POST /groups' do
     let(:valid_attributes) do

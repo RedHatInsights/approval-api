@@ -77,12 +77,6 @@ module Api
         json_response(reqs)
       end
 
-      def fetch_stages
-        stages = Stage.all
-
-        json_response(stages)
-      end
-
       def fetch_template_by_id
         template = Template.find(params.require(:id))
         json_response(template)
@@ -114,6 +108,11 @@ module Api
         workflows = Workflow.all
 
         json_response(workflows)
+      end
+
+      def fetch_groups_by_workflow_id
+        workflow = Workflow.find(params.require(:workflow_id))
+        json_response(workflow.groups)
       end
 
       def group_operation
