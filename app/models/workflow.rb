@@ -23,4 +23,8 @@ class Workflow < ApplicationRecord
     { :name => 'Always approve', :template => nil }
   end
   private_class_method :default_workflow_query
+
+  def external_processing?
+    template.process_setting.present?
+  end
 end

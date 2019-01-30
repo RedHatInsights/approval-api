@@ -1,18 +1,37 @@
 RSpec.describe RequestCreateService do
-  let(:workflow) { create(:workflow, :groups => [create(:group)]) }
+  let(:template) { create(:template) }
+  let(:workflow) { create(:workflow, :groups => [create(:group)], :template => template) }
   subject { described_class.new(workflow.id) }
 
   context 'without auto approval' do
-    it 'creates a request' do
-      request = subject.create(:name => 'req1', :requester => 'test', :content => 'test me')
-      request.reload
-      expect(request).to have_attributes(
-        :name      => 'req1',
-        :requester => 'test',
-        :content   => 'test me',
-        :state     => Request::PENDING_STATE,
-        :decision  => Request::UNDECIDED_STATUS
-      )
+    context 'template has external process' do
+      let(:template) { create(:template, :process_setting => {'url' => 'url'}) }
+
+      it 'creates a request in pending state' do
+        request = subject.create(:name => 'req1', :requester => 'test', :content => 'test me')
+        request.reload
+        expect(request).to have_attributes(
+          :name      => 'req1',
+          :requester => 'test',
+          :content   => 'test me',
+          :state     => Request::PENDING_STATE,
+          :decision  => Request::UNDECIDED_STATUS
+        )
+      end
+    end
+
+    context 'template has no external process' do
+      it 'creates a request in notified state' do
+        request = subject.create(:name => 'req1', :requester => 'test', :content => 'test me')
+        request.reload
+        expect(request).to have_attributes(
+          :name      => 'req1',
+          :requester => 'test',
+          :content   => 'test me',
+          :state     => Request::NOTIFIED_STATE,
+          :decision  => Request::UNDECIDED_STATUS
+        )
+      end
     end
   end
 
