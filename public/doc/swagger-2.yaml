@@ -19,45 +19,9 @@ tags:
 schemes:
   - http
 paths:
-  # Endpoints for actions
-  '/actions':
-    get:
-      tags:
-        - admins
-        - users
-      summary: Return a list of user actions
-      description: Return a list of user actions
-      operationId: fetchActions
-      produces:
-        - application/json
-      parameters:
-        - $ref: '#/parameters/limit'
-        - $ref: '#/parameters/offset'
-      responses:
-        '200':
-          description: Success
-          headers:
-            X-total-count:
-              type: integer
-              description: Total number of items
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/ActionOut'
-        '400':
-          $ref: '#/responses/400BadRequestResponse'
-        '401':
-          $ref: '#/responses/401UnauthorizedResponse'
-        '403':
-          $ref: '#/responses/403ForbiddenResponse'
-        '404':
-          $ref: '#/responses/404NotFoundResponse'
-        '422':
-          $ref: '#/responses/422UnprocessableEntityResponse'
   '/stages/{stage_id}/actions':
     post:
       tags:
-        - admins
         - users
       summary: Add an action to a given stage
       description: Add an action to a given stage
@@ -87,10 +51,41 @@ paths:
           $ref: '#/responses/404NotFoundResponse'
         '422':
           $ref: '#/responses/422UnprocessableEntityResponse'
+    get:
+      tags:
+        - users
+        - requesters
+      summary: Return actions in a given stage
+      description: List all actions of a stage
+      operationId: fetchActionsByStageId
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/stage_id'
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-total-count:
+              type: integer
+              description: Total number of items
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ActionOut'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
   '/actions/{id}':
     get:
       tags:
-        - admins
         - users
       summary: Return an user action by id
       description: Return an user action by id
@@ -220,6 +215,8 @@ paths:
           schema:
             $ref: '#/definitions/UserIn'
       responses:
+        '204':
+          description: Success
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -241,6 +238,8 @@ paths:
       parameters:
         - $ref: '#/parameters/id'
       responses:
+        '204':
+          description: Success
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -423,6 +422,8 @@ paths:
           schema:
             $ref: '#/definitions/GroupIn'
       responses:
+        '204':
+          description: Success
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -436,8 +437,8 @@ paths:
     post:
       tags:
         - admins
-      summary: Operation on a list of users to a given group
-      description: Users join in or withdraw from a given group
+      summary: Update users in a given group
+      description: Add or remove some users from a given group. It does not replace all users.
       operationId: groupOperation
       consumes:
         - application/json
@@ -477,6 +478,8 @@ paths:
       parameters:
         - $ref: '#/parameters/id'
       responses:
+        '204':
+          description: Success
         '400':
           $ref: '#/responses/400BadRequestResponse'
         '401':
@@ -522,7 +525,8 @@ paths:
   '/requests':
     get:
       tags:
-        - admins
+        - requesters
+        - users
       summary: Return an array of approval requests
       description: Return an array of requests
       operationId: fetchRequests
@@ -628,6 +632,7 @@ paths:
     get:
       tags:
         - requesters
+        - users
       summary: Return an approval request by given id
       description: Return an approval request by given id
       operationId: fetchRequestById
@@ -648,73 +653,11 @@ paths:
           $ref: '#/responses/404NotFoundResponse'
         '422':
           $ref: '#/responses/422UnprocessableEntityResponse'
-  '/requests/{request_id}/actions':
-    post:
-      tags:
-        - admins
-      summary: Add an action to a given request
-      description: Add an action to a given request
-      operationId: addActionByRequestId
-      produces:
-        - application/json
-      parameters:
-        - $ref: '#/parameters/request_id'
-        - in: body
-          name: body
-          description: Action object that will be added
-          required: true
-          schema:
-            $ref: '#/definitions/ActionIn'
-      responses:
-        '201':
-          description: Success
-          schema:
-            $ref: '#/definitions/ActionOut'
-        '400':
-          $ref: '#/responses/400BadRequestResponse'
-        '401':
-          $ref: '#/responses/401UnauthorizedResponse'
-        '403':
-          $ref: '#/responses/403ForbiddenResponse'
-        '404':
-          $ref: '#/responses/404NotFoundResponse'
-        '422':
-          $ref: '#/responses/422UnprocessableEntityResponse'
-  '/stages':
-    get:
-      tags:
-        - admins
-      summary: Return all approval stages
-      description: Return all approval stages
-      operationId: fetchStages
-      parameters:
-        - $ref: '#/parameters/limit'
-        - $ref: '#/parameters/offset'
-      responses:
-        '200':
-          description: Success
-          headers:
-            X-total-count:
-              type: integer
-              description: Total number of items
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/StageOut'
-        '400':
-          $ref: '#/responses/400BadRequestResponse'
-        '401':
-          $ref: '#/responses/401UnauthorizedResponse'
-        '403':
-          $ref: '#/responses/403ForbiddenResponse'
-        '404':
-          $ref: '#/responses/404NotFoundResponse'
-        '422':
-          $ref: '#/responses/422UnprocessableEntityResponse'
   '/requests/{request_id}/stages':
     get:
       tags:
         - requesters
+        - users
       summary: Return an array of stages by given request id
       description: Return an array of stages by given request id
       operationId: fetchRequestStages
@@ -993,6 +936,38 @@ paths:
           $ref: '#/responses/404NotFoundResponse'
         '422':
           $ref: '#/responses/422UnprocessableEntityResponse'
+  '/workflows/{workflow_id}/groups':
+    get:
+      tags:
+        - admins
+      summary: Return an array of groups for the workflow
+      description: Return an array of groups for the workflow
+      operationId: fetchGroupsByWorkflowId
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/workflow_id'
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-total-count:
+              type: integer
+              description: Total number of items
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/WorkflowOut'
+        '400':
+          $ref: '#/responses/400BadRequestResponse'
+        '401':
+          $ref: '#/responses/401UnauthorizedResponse'
+        '403':
+          $ref: '#/responses/403ForbiddenResponse'
+        '404':
+          $ref: '#/responses/404NotFoundResponse'
+        '422':
+          $ref: '#/responses/422UnprocessableEntityResponse'
 securityDefinitions:
   APIKey_auth:
     type: apiKey
@@ -1008,12 +983,11 @@ definitions:
     type: object
     description: Input parameters for Action object
     required:
-      - processed_by
       - operation
     properties:
       processed_by:
         type: string
-        description: Processor info who perform the action
+        description: The person who performs the action
       operation:
         type: string
         description: >-
@@ -1026,22 +1000,20 @@ definitions:
           - memo
           - skip
         default: memo
+      comments:
+        type: string
+        description: Comments for action
+        readOnly: true
   ActionOut:
     allOf:
       - $ref: '#/definitions/ActionIn'
     properties:
       id:
         type: string
-        readOnly: true
-      comments:
-        type: string
-        description: Comments for action
-        readOnly: true
       created_at:
         type: string
         format: date-time
         description: Timestamp of creation
-        readOnly: true
       stage_id:
         type: string
         description: Associated stage id
@@ -1055,21 +1027,16 @@ definitions:
       email:
         type: string
         description: Email address of the user
+      first_name:
+        type: string
+      last_name:
+        type: string
   UserOut:
     allOf:
       - $ref: '#/definitions/UserIn'
     properties:
       id:
         type: string
-        readOnly: true
-      first_name:
-        type: string
-      last_name:
-        type: string
-      group_ids:
-        type: array
-        items:
-          type: integer
   GroupIn:
     type: object
     description: Input parameters for Group object
@@ -1087,11 +1054,6 @@ definitions:
     properties:
       id:
         type: string
-        readOnly: true
-      user_ids:
-        type: array
-        items:
-          type: string
   GroupOperationIn:
     type: object
     description: Operation type and parameters to a given group
@@ -1101,13 +1063,13 @@ definitions:
     properties:
       operation:
         type: string
-        description: 'Types of group operation, may be either join_users or withdraw_users.'
+        description: Types of group operation, may be either join_users or withdraw_users.
         enum:
           - join_users
           - withdraw_users
       parameters:
         type: object
-        description: ID of users in the group
+        description: JSON object. Currently user ids in the group
         example:
           user_ids:
             - 1
@@ -1116,34 +1078,29 @@ definitions:
     type: object
     description: Input parameters for approval request object.
     required:
-      - requester
+      - name
       - content
     properties:
       requester:
         type: string
-        description: Requester info
-      content:
-        type: object
-        description: JSON object with request content
-  RequestOut:
-    type: object
-    description: Approval request. Each request will associate with a workflow. Corresponding to the groups of the associated workflow, every request will have a list of stages to record the request processing details.
-    required:
-      - name
-      - state
-      - decision
-    allOf:
-      - $ref: '#/definitions/RequestIn'
-    properties:
-      id:
-        type: string
-        readOnly: true
+        description: Requester id
       name:
         type: string
         description: Request name
       description:
         type: string
         description: Request description
+      content:
+        type: object
+        description: JSON object with request content
+  RequestOut:
+    type: object
+    description: Approval request. Each request will associate with a workflow. Corresponding to the groups of the associated workflow, every request will have a list of stages to record the request processing details.
+    allOf:
+      - $ref: '#/definitions/RequestIn'
+    properties:
+      id:
+        type: string
       state:
         type: string
         description: >-
@@ -1168,19 +1125,18 @@ definitions:
       reason:
         type: string
         description: Comments for requests
-        readOnly: true
       workflow_id:
         type: string
         description: Associate workflow id
-        readOnly: true
-  StageIn:
+  StageOut:
     type: object
-    description: Input parameters for stage object
-    required:
-      - group_id
-      - state
-      - decision
+    description: A stage of an approval request.
     properties:
+      id:
+        type: string
+      name:
+        type: string
+        description: name of the group that processes the stage
       group_id:
         type: string
         description: Associated group id
@@ -1205,64 +1161,39 @@ definitions:
           - approved
           - denied
         default: undecided
-  StageOut:
-    type: object
-    description: The stage of approval request.
-    allOf:
-      - $ref: '#/definitions/StageIn'
-    properties:
-      id:
-        type: string
-        readOnly: true
-      comments:
-        type: string
-        description: Approval stage
-      request_id:
-        type: string
-        description: Associated request id
-        readOnly: true
-  TemplateIn:
-    type: object
-    description: Input parameters for template object
-    required:
-      - title
-    properties:
-      title:
-        type: string
+      notified_at:
+        type: date-time
+        description: the time approvers in the stage are notified
   TemplateOut:
     type: object
     description: The template to categorize workflows.
-    allOf:
-      - $ref: '#/definitions/TemplateIn'
     properties:
       id:
         type: string
-        readOnly: true
+      title:
+        type: string
       description:
         type: string
   Workflow:
     type: object
-    description: Input parameters for workflow object
     required:
       - name
     properties:
       name:
         type: string
+      description:
+        type: string
   WorkflowOut:
     type: object
-    description: The workflow to process approval requests. Each workflow should link with a list of groups, in order to process approval requests.
+    description: The workflow to process approval requests. Each workflow is linked to multiple groups of approvals.
     allOf:
       - $ref: '#/definitions/Workflow'
     properties:
       id:
         type: string
-        readOnly: true
-      description:
-        type: string
       template_id:
         type: string
         description: Associated template id
-        readOnly: true
   WorkflowIn:
     type: object
     description: Parameters to create a workflow
@@ -1271,9 +1202,6 @@ definitions:
     allOf:
       - $ref: '#/definitions/Workflow'
     properties:
-      description:
-        type: string
-        description: Description of workflow
       group_ids:
         type: array
         description: Group ids associated with workflow
