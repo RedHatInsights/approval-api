@@ -2,6 +2,6 @@
 
 SwaggerUiEngine.configure do |config|
   config.swagger_url = {
-    v1: '/doc/swagger-2.yaml',
+    v0_0_1: '/approval/v0.0.1/openapi.json',
   }
 end
