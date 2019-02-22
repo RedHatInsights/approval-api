@@ -222,4 +222,13 @@ RSpec.describe 'Groups API' do
       end
     end
   end
+
+  describe 'GET /groups with major version specified' do
+    before { get "/api/v0/groups" }
+
+    it 'returns redirect status' do
+      expect(response).to have_http_status(301)
+      expect(response.headers["Location"]).to eq "#{api_version}/groups"
+    end
+  end
 end
