@@ -10,6 +10,8 @@ RSpec.describe 'Requests API' do
   let!(:requests_with_same_state) { create_list(:request, 2, :state => 'notified', :workflow_id => workflow.id) }
   let!(:requests_with_same_decision) { create_list(:request, 2, :decision => 'approved', :workflow_id => workflow.id) }
 
+  let(:api_version) { version }
+
   # Test suite for GET /workflows/:workflow_id/requests
   describe 'GET /workflows/:workflow_id/requests' do
     before { get "#{api_version}/workflows/#{workflow_id}/requests" }

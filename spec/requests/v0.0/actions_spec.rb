@@ -9,6 +9,8 @@ RSpec.describe 'Actions API' do
   let!(:actions) { create_list(:action, 10, :stage_id => stage.id) }
   let(:id) { actions.first.id }
 
+  let(:api_version) { version }
+
   # Test suite for GET /actions/:id
   describe 'GET /actions/:id' do
     before { get "#{api_version}/actions/#{id}" }

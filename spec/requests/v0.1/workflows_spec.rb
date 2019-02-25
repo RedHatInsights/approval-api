@@ -7,6 +7,8 @@ RSpec.describe 'Workflows API' do
   let!(:workflows) { create_list(:workflow, 20, :template_id => template.id) }
   let(:id) { workflows.first.id }
 
+  let(:api_version) { version('v0.1') }
+
   describe 'GET /templates/:template_id/workflows' do
     before { get "#{api_version}/templates/#{template_id}/workflows" }
 
