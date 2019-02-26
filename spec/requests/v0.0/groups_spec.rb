@@ -7,6 +7,8 @@ RSpec.describe 'Groups API' do
   let!(:groups) { create_list(:group, 5, :users => users) }
   let(:id) { groups.first.id }
 
+  let(:api_version) { version }
+
   # Test suite for GET /groups
   describe 'GET /groups' do
     before { get "#{api_version}/groups" }
@@ -220,15 +222,6 @@ RSpec.describe 'Groups API' do
         expect(response).to have_http_status(403)
         expect(response.body).to match(/Invalid group operation params:/)
       end
-    end
-  end
-
-  describe 'GET /groups with major version specified' do
-    before { get "/api/v0/groups" }
-
-    it 'returns redirect status' do
-      expect(response).to have_http_status(301)
-      expect(response.headers["Location"]).to eq "#{api_version}/groups"
     end
   end
 end

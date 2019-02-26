@@ -12,6 +12,8 @@ RSpec.describe 'Users API' do
   end
   let!(:request) { RequestCreateService.new(workflow.id).create(attribute) }
 
+  let(:api_version) { version('v0.1') }
+
   # Test suite for GET /users
   describe 'GET /users' do
     before { get "#{api_version}/users" }

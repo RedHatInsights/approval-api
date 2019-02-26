@@ -5,6 +5,8 @@ RSpec.describe 'Templates API', :type => :request do
   let!(:templates) { create_list(:template, 10) }
   let(:template_id) { templates.first.id }
 
+  let(:api_version) { version }
+
   # Test suite for GET /templates
   describe 'GET /templates' do
     # make HTTP get request before each example
