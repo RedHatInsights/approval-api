@@ -14,43 +14,27 @@
     },
     "tags": [
         {
-            "name": "Action",
-            "description": "Operations about actions"
+            "name": "admins",
+            "description": "Admin-only APIs"
         },
         {
-            "name": "Group",
-            "description": "Operations about groups"
+            "name": "users",
+            "description": "Users APIs"
         },
         {
-            "name": "Request",
-            "description": "Operations about requests"
-        },
-        {
-            "name": "Stage",
-            "description": "Operations about stages"
-        },
-        {
-            "name": "Template",
-            "description": "Operations about templates"
-        },
-        {
-            "name": "User",
-            "description": "Operations about users"
-        },
-        {
-            "name": "Workflow",
-            "description": "Operations about workflows"
+            "name": "requesters",
+            "description": "Regular requesters APIs"
         }
     ],
     "paths": {
         "/stages/{stage_id}/actions": {
             "post": {
                 "tags": [
-                  "Action"
+                    "users"
                 ],
                 "summary": "Add an action to a given stage",
                 "description": "Add an action to a given stage",
-                "operationId": "create",
+                "operationId": "addAction",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/stage_id"
@@ -97,11 +81,12 @@
             },
             "get": {
                 "tags": [
-                  "Action"
+                    "users",
+                    "requesters"
                 ],
                 "summary": "Return actions in a given stage",
                 "description": "List all actions of a stage",
-                "operationId": "index",
+                "operationId": "fetchActionsByStageId",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/stage_id"
@@ -121,7 +106,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ActionOutCollection"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ActionOut"
+                                    }
                                 }
                             }
                         }
@@ -147,11 +135,11 @@
         "/actions/{id}": {
             "get": {
                 "tags": [
-                  "Action"
+                    "users"
                 ],
                 "summary": "Return an user action by id",
                 "description": "Return an user action by id",
-                "operationId": "show",
+                "operationId": "fetchActionById",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -186,651 +174,15 @@
                 }
             }
         },
-        "/users": {
-            "get": {
-                "tags": [
-                  "User"
-                ],
-                "summary": "Return a list of users",
-                "description": "Return a list of users",
-                "operationId": "index",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/limit"
-                    },
-                    {
-                        "$ref": "#/components/parameters/offset"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "headers": {
-                            "X-total-count": {
-                                "description": "Total number of items",
-                                "schema": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserOutCollection"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                  "User"
-                ],
-                "summary": "Add a new user by given parameters",
-                "description": "Add a new user by given parameters",
-                "operationId": "create",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UserIn"
-                            }
-                        }
-                    },
-                    "description": "Parameters need to create user",
-                    "required": true
-                },
-                "responses": {
-                    "201": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserOut"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            }
-        },
-        "/users/{id}": {
-            "get": {
-                "tags": [
-                  "User"
-                ],
-                "summary": "Return user by given id",
-                "description": "Return user by given id",
-                "operationId": "show",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/id"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserOut"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            },
-            "patch": {
-                "tags": [
-                  "User"
-                ],
-                "summary": "Update an user by given id",
-                "description": "Update an user by given id",
-                "operationId": "update",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/id"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UserIn"
-                            }
-                        }
-                    },
-                    "description": "User object that needs to be updated",
-                    "required": true
-                },
-                "responses": {
-                    "204": {
-                        "description": "Success"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                  "User"
-                ],
-                "summary": "Delete user by given id",
-                "description": "Delete user by given id",
-                "operationId": "destroy",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/id"
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "Success"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            }
-        },
-        "/users/{user_id}/groups": {
-            "get": {
-                "tags": [
-                  "Group"
-                ],
-                "summary": "Return associated groups by given user id",
-                "description": "Return groups by given user id",
-                "operationId": "index",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/user_id"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "headers": {
-                            "X-total-count": {
-                                "description": "Total number of items",
-                                "schema": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GroupOutCollection"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            }
-        },
-        "/users/{user_id}/requests": {
-            "get": {
-                "tags": [
-                  "Request"
-                ],
-                "summary": "Return associated requests by given user id",
-                "description": "Return requests by given user id",
-                "operationId": "index",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/user_id"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "headers": {
-                            "X-total-count": {
-                                "description": "Total number of items",
-                                "schema": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RequestOutCollection"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            }
-        },
-        "/groups": {
-            "get": {
-                "tags": [
-                  "Group"
-                ],
-                "summary": "Return all user groups",
-                "description": "Return all user groups",
-                "operationId": "index",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/limit"
-                    },
-                    {
-                        "$ref": "#/components/parameters/offset"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "headers": {
-                            "X-total-count": {
-                                "description": "Total number of items",
-                                "schema": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GroupOutCollection"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                  "Group"
-                ],
-                "summary": "Add a new user group by given parameters",
-                "description": "Add a new user group by given parameters",
-                "operationId": "create",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/GroupIn"
-                            }
-                        }
-                    },
-                    "description": "Parameters need to create user group",
-                    "required": true
-                },
-                "responses": {
-                    "201": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GroupOut"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            }
-        },
-        "/groups/{id}": {
-            "get": {
-                "tags": [
-                  "Group"
-                ],
-                "summary": "Return user group by given id",
-                "description": "Return user group by given id",
-                "operationId": "show",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/id"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GroupOut"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            },
-            "patch": {
-                "tags": [
-                  "Group"
-                ],
-                "summary": "Update an user group by given id",
-                "description": "Update an user group by given id",
-                "operationId": "update",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/id"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/GroupIn"
-                            }
-                        }
-                    },
-                    "description": "User group object that needs to be updated",
-                    "required": true
-                },
-                "responses": {
-                    "204": {
-                        "description": "Success"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                  "Group"
-                ],
-                "summary": "Update users in a given group",
-                "description": "Add or remove some users from a given group. It does not replace all users.",
-                "operationId": "groupOperation",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/id"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/GroupOperationIn"
-                            }
-                        }
-                    },
-                    "description": "Parameters need to operate groups",
-                    "required": true
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GroupOut"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                  "Group"
-                ],
-                "summary": "Delete user group by given id",
-                "description": "Delete group by given id",
-                "operationId": "destroy",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/id"
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "Success"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            }
-        },
-        "/groups/{group_id}/users": {
-            "get": {
-                "tags": [
-                  "User"
-                ],
-                "summary": "Return associated users by given group id",
-                "description": "Return users by given group id",
-                "operationId": "index",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/group_id"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "headers": {
-                            "X-total-count": {
-                                "description": "Total number of items",
-                                "schema": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserOutCollection"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            }
-        },
         "/requests": {
             "get": {
                 "tags": [
-                  "Request"
+                    "requesters",
+                    "users"
                 ],
                 "summary": "Return an array of approval requests",
                 "description": "Return an array of requests",
-                "operationId": "index",
+                "operationId": "fetchRequests",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/decision"
@@ -862,7 +214,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/RequestOutCollection"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/RequestOut"
+                                    }
                                 }
                             }
                         }
@@ -888,11 +243,11 @@
         "/workflows/{workflow_id}/requests": {
             "get": {
                 "tags": [
-                  "Request"
+                    "admins"
                 ],
                 "summary": "Return approval requests by given workflow id",
                 "description": "Return approval requests by given workflow id",
-                "operationId": "index",
+                "operationId": "fetchWorkflowRequests",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/workflow_id"
@@ -918,7 +273,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/RequestOutCollection"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/RequestOut"
+                                    }
                                 }
                             }
                         }
@@ -942,11 +300,11 @@
             },
             "post": {
                 "tags": [
-                  "Request"
+                    "requesters"
                 ],
                 "summary": "Add an approval request by given parameters",
                 "description": "Add an approval request by given parameters",
-                "operationId": "create",
+                "operationId": "addRequest",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/workflow_id"
@@ -995,11 +353,12 @@
         "/requests/{id}": {
             "get": {
                 "tags": [
-                  "Request"
+                    "requesters",
+                    "users"
                 ],
                 "summary": "Return an approval request by given id",
                 "description": "Return an approval request by given id",
-                "operationId": "show",
+                "operationId": "fetchRequestById",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -1037,11 +396,12 @@
         "/requests/{request_id}/stages": {
             "get": {
                 "tags": [
-                  "Stage"
+                    "requesters",
+                    "users"
                 ],
                 "summary": "Return an array of stages by given request id",
                 "description": "Return an array of stages by given request id",
-                "operationId": "index",
+                "operationId": "fetchRequestStages",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/request_id"
@@ -1053,7 +413,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/StageOutCollection"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/StageOut"
+                                    }
                                 }
                             }
                         }
@@ -1079,11 +442,12 @@
         "/stages/{id}": {
             "get": {
                 "tags": [
-                  "Stage"
+                    "admins",
+                    "requesters"
                 ],
                 "summary": "Return an approval stage by given id",
                 "description": "Return an approval stage by given id",
-                "operationId": "show",
+                "operationId": "fetchStageById",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -1121,11 +485,11 @@
         "/templates": {
             "get": {
                 "tags": [
-                  "Template"
+                    "admins"
                 ],
                 "summary": "Return all templates",
                 "description": "Return all templates",
-                "operationId": "index",
+                "operationId": "fetchTemplates",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/limit"
@@ -1148,7 +512,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/TemplateOutCollection"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TemplateOut"
+                                    }
                                 }
                             }
                         }
@@ -1174,11 +541,11 @@
         "/templates/{id}": {
             "get": {
                 "tags": [
-                  "Template"
+                    "admins"
                 ],
                 "summary": "Return a template by given id",
                 "description": "Return a template by given id",
-                "operationId": "show",
+                "operationId": "fetchTemplateById",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -1216,11 +583,11 @@
         "/workflows": {
             "get": {
                 "tags": [
-                  "Workflow"
+                    "admins"
                 ],
                 "summary": "Return all approval workflows",
                 "description": "Return all approval workflows",
-                "operationId": "index",
+                "operationId": "fetchWorkflows",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/limit"
@@ -1243,7 +610,10 @@
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WorkflowOutCollection"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/WorkflowOut"
+                                    }
                                 }
                             }
                         }
@@ -1269,11 +639,11 @@
         "/templates/{template_id}/workflows": {
             "get": {
                 "tags": [
-                  "Workflow"
+                    "admins"
                 ],
                 "summary": "Return an array of workflows by given template id",
                 "description": "Return an array of workflows by given template id",
-                "operationId": "index",
+                "operationId": "fetchTemplateWorkflows",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/template_id"
@@ -1299,7 +669,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WorkflowOutCollection"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/WorkflowOut"
+                                    }
                                 }
                             }
                         }
@@ -1323,11 +696,11 @@
             },
             "post": {
                 "tags": [
-                  "Workflow"
+                    "admins"
                 ],
                 "summary": "Add a workflow by given template id",
                 "description": "Add a workflow by given template id",
-                "operationId": "create",
+                "operationId": "addWorkflow",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/template_id"
@@ -1376,11 +749,11 @@
         "/workflows/{id}": {
             "get": {
                 "tags": [
-                  "Workflow"
+                    "admins"
                 ],
                 "summary": "Return an approval workflow by given id",
                 "description": "Return an approval workflow by given id",
-                "operationId": "show",
+                "operationId": "fetchWorkflowById",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -1416,11 +789,11 @@
             },
             "patch": {
                 "tags": [
-                  "Workflow"
+                    "admins"
                 ],
                 "summary": "Update an approval workflow by given id",
                 "description": "Update an approval workflow by given id",
-                "operationId": "update",
+                "operationId": "updateWorkflow",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -1457,67 +830,17 @@
             },
             "delete": {
                 "tags": [
-                  "Workflow"
+                    "admins"
                 ],
                 "summary": "Delete approval workflow by given id",
                 "description": "Delete approval workflow by given id",
-                "operationId": "destroy",
+                "operationId": "removeWorkflow",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
                     }
                 ],
                 "responses": {
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            }
-        },
-        "/workflows/{workflow_id}/groups": {
-            "get": {
-                "tags": [
-                  "Group"
-                ],
-                "summary": "Return an array of groups for the workflow",
-                "description": "Return an array of groups for the workflow",
-                "operationId": "index",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/workflow_id"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "headers": {
-                            "X-total-count": {
-                                "description": "Total number of items",
-                                "schema": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GroupOutCollection"
-                                }
-                            }
-                        }
-                    },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
@@ -1562,16 +885,7 @@
                     "type": "integer"
                 }
             },
-            "user_id": {
-                "name": "user_id",
-                "in": "path",
-                "description": "Id of user",
-                "required": true,
-                "schema": {
-                    "type": "integer"
-                }
-            },
-            "template_id": {
+           "template_id": {
                 "name": "template_id",
                 "in": "path",
                 "description": "Id of template",
@@ -1584,15 +898,6 @@
                 "name": "workflow_id",
                 "in": "path",
                 "description": "Id of workflow",
-                "required": true,
-                "schema": {
-                    "type": "integer"
-                }
-            },
-            "group_id": {
-                "name": "group_id",
-                "in": "path",
-                "description": "Id of group",
                 "required": true,
                 "schema": {
                     "type": "integer"
@@ -1746,16 +1051,13 @@
                 }
             },
             "ActionOut": {
+                "description": "Output parameters for Action object",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/ActionIn"
                     },
                     {
                         "type": "object",
-                        "required": [
-                            "id",
-                            "stage_id"
-                        ],
                         "properties": {
                             "id": {
                                 "type": "string"
@@ -1773,98 +1075,7 @@
                     }
                 ]
             },
-            "UserIn": {
-                "type": "object",
-                "description": "Input parameters for User object",
-                "required": [
-                    "email"
-                ],
-                "properties": {
-                    "email": {
-                        "type": "string",
-                        "description": "Email address of the user"
-                    },
-                    "first_name": {
-                        "type": "string"
-                    },
-                    "last_name": {
-                        "type": "string"
-                    }
-                }
-            },
-            "UserOut": {
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/UserIn"
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "id": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                ]
-            },
-            "GroupIn": {
-                "type": "object",
-                "description": "Input parameters for Group object",
-                "required": [
-                    "name"
-                ],
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "description": "Group name"
-                    }
-                }
-            },
-            "GroupOut": {
-                "description": "User groups.",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/GroupIn"
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "id": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                ]
-            },
-            "GroupOperationIn": {
-                "type": "object",
-                "description": "Operation type and parameters to a given group",
-                "required": [
-                    "operation",
-                    "parameters"
-                ],
-                "properties": {
-                    "operation": {
-                        "type": "string",
-                        "description": "Types of group operation, may be either join_users or withdraw_users.",
-                        "enum": [
-                            "join_users",
-                            "withdraw_users"
-                        ]
-                    },
-                    "parameters": {
-                        "type": "object",
-                        "description": "JSON object. Currently user ids in the group",
-                        "example": {
-                            "user_ids": [
-                                1,
-                                2
-                            ]
-                        }
-                    }
-                }
-            },
-            "RequestIn": {
+          "RequestIn": {
                 "type": "object",
                 "description": "Input parameters for approval request object.",
                 "required": [
@@ -1946,9 +1157,9 @@
                         "type": "string",
                         "description": "name of the group that processes the stage"
                     },
-                    "group_id": {
+                    "group_ref": {
                         "type": "string",
-                        "description": "Associated group id"
+                        "description": "Associated group reference"
                     },
                     "state": {
                         "type": "string",
@@ -2010,7 +1221,7 @@
                 "description": "The workflow to process approval requests. Each workflow is linked to multiple groups of approvals.",
                 "allOf": [
                     {
-                        "$ref": "#/components/schemas/Workflow"
+                        "$ref": "#/components/schemas/WorkflowIn"
                     },
                     {
                         "type": "object",
@@ -2025,183 +1236,6 @@
                         }
                     }
                 ]
-            },
-            "WorkflowIn": {
-                "description": "Parameters to create a workflow",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/Workflow"
-                    },
-                    {
-                        "type": "object",
-                        "required": [
-                            "group_ids"
-                        ],
-                        "properties": {
-                            "group_ids": {
-                                "type": "array",
-                                "description": "Group ids associated with workflow",
-                                "items": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
-                ]
-            },
-            "ActionOutCollection": {
-                "type": "object",
-                "properties": {
-                    "meta": {
-                        "$ref": "#/components/schemas/CollectionMetadata"
-                    },
-                    "links": {
-                        "$ref": "#/components/schemas/CollectionLinks"
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/components/schemas/ActionOut"
-                        }
-                    }
-                }
-            },
-            "GroupOutCollection": {
-                "type": "object",
-                "properties": {
-                    "meta": {
-                        "$ref": "#/components/schemas/CollectionMetadata"
-                    },
-                    "links": {
-                        "$ref": "#/components/schemas/CollectionLinks"
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/components/schemas/GroupOut"
-                        }
-                    }
-                }
-            },
-            "UserOutCollection": {
-                "type": "object",
-                "properties": {
-                    "meta": {
-                        "$ref": "#/components/schemas/CollectionMetadata"
-                    },
-                    "links": {
-                        "$ref": "#/components/schemas/CollectionLinks"
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/components/schemas/UserOut"
-                        }
-                    }
-                }
-            },
-            "RequestOutCollection": {
-                "type": "object",
-                "properties": {
-                    "meta": {
-                        "$ref": "#/components/schemas/CollectionMetadata"
-                    },
-                    "links": {
-                        "$ref": "#/components/schemas/CollectionLinks"
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/components/schemas/RequestOut"
-                        }
-                    }
-                }
-            },
-            "StageOutCollection": {
-                "type": "object",
-                "properties": {
-                    "meta": {
-                        "$ref": "#/components/schemas/CollectionMetadata"
-                    },
-                    "links": {
-                        "$ref": "#/components/schemas/CollectionLinks"
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/components/schemas/StageOut"
-                        }
-                    }
-                }
-            },
-            "TemplateOutCollection": {
-                "type": "object",
-                "properties": {
-                    "meta": {
-                        "$ref": "#/components/schemas/CollectionMetadata"
-                    },
-                    "links": {
-                        "$ref": "#/components/schemas/CollectionLinks"
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/components/schemas/TemplateOut"
-                        }
-                    }
-                }
-            },
-            "WorkflowOutCollection": {
-                "type": "object",
-                "properties": {
-                    "meta": {
-                        "$ref": "#/components/schemas/CollectionMetadata"
-                    },
-                    "links": {
-                        "$ref": "#/components/schemas/CollectionLinks"
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/components/schemas/WorkflowOut"
-                        }
-                    }
-                }
-            },
-            "CollectionLinks": {
-                "type": "object",
-                "properties": {
-                    "first": {
-                        "type": "string",
-                        "title": "First Link",
-                        "description": "The link to fetch the first group of items in the result set"
-                    },
-                    "last": {
-                        "type": "string",
-                        "title": "Last Link",
-                        "description": "The link to fetch the last group of items in the result set"
-                    },
-                    "prev": {
-                        "type": "string",
-                        "title": "Previous Link",
-                        "description": "The link to fetch the previous group of items in the result set"
-                    },
-                    "next": {
-                        "type": "string",
-                        "title": "Next Link",
-                        "description": "The link to fetch the next group of items in the result set"
-                    }
-                }
-            },
-            "CollectionMetadata": {
-                "type": "object",
-                "properties": {
-                    "count": {
-                        "type": "integer",
-                        "title": "Total number of items in the result set",
-                        "description": "This is the total number of items in the result set, of which only a subset is returned defined by the QueryLimit parameter"
-                    }
-                }
             }
         }
     }
