@@ -3,8 +3,6 @@ class Workflow < ApplicationRecord
 
   belongs_to :template
   has_many :requests, -> { order(:id => :asc) }, :inverse_of => :workflow
-  has_many :workflowgroups, :dependent => :destroy
-  has_many :groups, -> { order(:id => :asc) }, :through => :workflowgroups
 
   validates :name, :presence => :name
 

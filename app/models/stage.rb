@@ -6,7 +6,6 @@ class Stage < ApplicationRecord
 
   has_many :actions, -> { order(:id => :asc) }, :dependent => :destroy, :inverse_of => :stage
 
-  belongs_to :group, :inverse_of => :stages
   belongs_to :request, :inverse_of => :stages
 
   validates :state,    :inclusion => { :in => STATES }
