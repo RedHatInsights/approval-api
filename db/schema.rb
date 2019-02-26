@@ -27,28 +27,11 @@ ActiveRecord::Schema.define(version: 2019_01_18_184631) do
     t.index ["tenant_id"], name: "index_actions_on_tenant_id"
   end
 
-  create_table "usergroups", force: :cascade do |t|
-    t.bigint "user_id"
-    t.bigint "group_id"
-    t.index ["user_id"], name: "index_usergroups_on_user_id"
-    t.index ["group_id"], name: "index_usergroups_on_group_id"
-  end
-
-  create_table "users", force: :cascade do |t|
-    t.bigint "tenant_id"
-    t.string "email"
-    t.string "first_name"
-    t.string "last_name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "groups", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "tenant_id"
-    t.index ["tenant_id"], name: "index_groups_on_tenant_id"
   end
 
   create_table "requests", force: :cascade do |t|
@@ -71,12 +54,11 @@ ActiveRecord::Schema.define(version: 2019_01_18_184631) do
     t.string "state"
     t.string "decision"
     t.string "reason"
-    t.bigint "group_id"
     t.bigint "request_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "tenant_id"
-    t.index ["group_id"], name: "index_stages_on_group_id"
+    t.bigint "group_id"
     t.index ["request_id"], name: "index_stages_on_request_id"
     t.index ["tenant_id"], name: "index_stages_on_tenant_id"
   end
@@ -101,11 +83,25 @@ ActiveRecord::Schema.define(version: 2019_01_18_184631) do
     t.index ["external_tenant"], name: "index_tenants_on_external_tenant"
   end
 
+  create_table "usergroups", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "group_id"
+    t.index ["group_id"], name: "index_usergroups_on_group_id"
+    t.index ["user_id"], name: "index_usergroups_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.bigint "tenant_id"
+    t.string "email"
+    t.string "first_name"
+    t.string "last_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "workflowgroups", force: :cascade do |t|
     t.bigint "workflow_id"
     t.bigint "group_id"
-    t.index ["group_id"], name: "index_workflowgroups_on_group_id"
-    t.index ["workflow_id"], name: "index_workflowgroups_on_workflow_id"
   end
 
   create_table "workflows", force: :cascade do |t|
@@ -119,12 +115,9 @@ ActiveRecord::Schema.define(version: 2019_01_18_184631) do
     t.index ["tenant_id"], name: "index_workflows_on_tenant_id"
   end
 
-  add_foreign_key "usergroups", "users"
-  add_foreign_key "usergroups", "groups"
   add_foreign_key "requests", "workflows"
-  add_foreign_key "stages", "groups"
   add_foreign_key "stages", "requests"
-  add_foreign_key "workflowgroups", "groups"
-  add_foreign_key "workflowgroups", "workflows"
+  add_foreign_key "usergroups", "groups"
+  add_foreign_key "usergroups", "users"
   add_foreign_key "workflows", "templates"
 end
