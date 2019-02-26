@@ -11,6 +11,5 @@
 /log/*.log
 /pkg/
 /spec/reports/
-.idea/*
 /tmp/
 bundler.d/*
