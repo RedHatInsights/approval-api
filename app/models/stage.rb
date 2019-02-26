@@ -15,8 +15,9 @@ class Stage < ApplicationRecord
     actions.where(:operation => Action::NOTIFY_OPERATION).pluck(:created_at).first
   end
 
+  #TODO: return real name using RBAC
   def name
-    group.try(:name)
+    group_ref.try(:name)
   end
 
   def attributes

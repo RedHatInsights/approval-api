@@ -14,27 +14,35 @@
     },
     "tags": [
         {
-            "name": "admins",
-            "description": "Admin-only APIs"
+            "name": "Action",
+            "description": "Operations about actions"
+        },
+       {
+            "name": "Request",
+            "description": "Operations about requests"
         },
         {
-            "name": "users",
-            "description": "Users APIs"
+            "name": "Stage",
+            "description": "Operations about stages"
         },
         {
-            "name": "requesters",
-            "description": "Regular requesters APIs"
+            "name": "Template",
+            "description": "Operations about templates"
+        },
+       {
+            "name": "Workflow",
+            "description": "Operations about workflows"
         }
     ],
     "paths": {
         "/stages/{stage_id}/actions": {
             "post": {
                 "tags": [
-                    "users"
+                  "Action"
                 ],
                 "summary": "Add an action to a given stage",
                 "description": "Add an action to a given stage",
-                "operationId": "addAction",
+                "operationId": "create",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/stage_id"
@@ -81,12 +89,11 @@
             },
             "get": {
                 "tags": [
-                    "users",
-                    "requesters"
+                  "Action"
                 ],
                 "summary": "Return actions in a given stage",
                 "description": "List all actions of a stage",
-                "operationId": "fetchActionsByStageId",
+                "operationId": "index",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/stage_id"
@@ -135,11 +142,11 @@
         "/actions/{id}": {
             "get": {
                 "tags": [
-                    "users"
+                  "Action"
                 ],
-                "summary": "Return an user action by id",
-                "description": "Return an user action by id",
-                "operationId": "fetchActionById",
+                "summary": "Return an action by id",
+                "description": "Return an action by id",
+                "operationId": "show",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -177,12 +184,11 @@
         "/requests": {
             "get": {
                 "tags": [
-                    "requesters",
-                    "users"
+                  "Request"
                 ],
                 "summary": "Return an array of approval requests",
                 "description": "Return an array of requests",
-                "operationId": "fetchRequests",
+                "operationId": "index",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/decision"
@@ -243,11 +249,11 @@
         "/workflows/{workflow_id}/requests": {
             "get": {
                 "tags": [
-                    "admins"
+                  "Request"
                 ],
                 "summary": "Return approval requests by given workflow id",
                 "description": "Return approval requests by given workflow id",
-                "operationId": "fetchWorkflowRequests",
+                "operationId": "index",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/workflow_id"
@@ -300,11 +306,11 @@
             },
             "post": {
                 "tags": [
-                    "requesters"
+                  "Request"
                 ],
                 "summary": "Add an approval request by given parameters",
                 "description": "Add an approval request by given parameters",
-                "operationId": "addRequest",
+                "operationId": "create",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/workflow_id"
@@ -353,12 +359,11 @@
         "/requests/{id}": {
             "get": {
                 "tags": [
-                    "requesters",
-                    "users"
+                  "Request"
                 ],
                 "summary": "Return an approval request by given id",
                 "description": "Return an approval request by given id",
-                "operationId": "fetchRequestById",
+                "operationId": "show",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -396,12 +401,11 @@
         "/requests/{request_id}/stages": {
             "get": {
                 "tags": [
-                    "requesters",
-                    "users"
+                  "Stage"
                 ],
                 "summary": "Return an array of stages by given request id",
                 "description": "Return an array of stages by given request id",
-                "operationId": "fetchRequestStages",
+                "operationId": "index",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/request_id"
@@ -442,12 +446,11 @@
         "/stages/{id}": {
             "get": {
                 "tags": [
-                    "admins",
-                    "requesters"
+                  "Stage"
                 ],
                 "summary": "Return an approval stage by given id",
                 "description": "Return an approval stage by given id",
-                "operationId": "fetchStageById",
+                "operationId": "show",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -485,11 +488,11 @@
         "/templates": {
             "get": {
                 "tags": [
-                    "admins"
+                  "Template"
                 ],
                 "summary": "Return all templates",
                 "description": "Return all templates",
-                "operationId": "fetchTemplates",
+                "operationId": "index",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/limit"
@@ -541,11 +544,11 @@
         "/templates/{id}": {
             "get": {
                 "tags": [
-                    "admins"
+                  "Template"
                 ],
                 "summary": "Return a template by given id",
                 "description": "Return a template by given id",
-                "operationId": "fetchTemplateById",
+                "operationId": "show",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -583,11 +586,11 @@
         "/workflows": {
             "get": {
                 "tags": [
-                    "admins"
+                  "Workflow"
                 ],
                 "summary": "Return all approval workflows",
                 "description": "Return all approval workflows",
-                "operationId": "fetchWorkflows",
+                "operationId": "index",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/limit"
@@ -639,11 +642,11 @@
         "/templates/{template_id}/workflows": {
             "get": {
                 "tags": [
-                    "admins"
+                  "Workflow"
                 ],
                 "summary": "Return an array of workflows by given template id",
                 "description": "Return an array of workflows by given template id",
-                "operationId": "fetchTemplateWorkflows",
+                "operationId": "index",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/template_id"
@@ -696,11 +699,11 @@
             },
             "post": {
                 "tags": [
-                    "admins"
+                  "Workflow"
                 ],
                 "summary": "Add a workflow by given template id",
                 "description": "Add a workflow by given template id",
-                "operationId": "addWorkflow",
+                "operationId": "create",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/template_id"
@@ -749,11 +752,11 @@
         "/workflows/{id}": {
             "get": {
                 "tags": [
-                    "admins"
+                  "Workflow"
                 ],
                 "summary": "Return an approval workflow by given id",
                 "description": "Return an approval workflow by given id",
-                "operationId": "fetchWorkflowById",
+                "operationId": "show",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -789,11 +792,11 @@
             },
             "patch": {
                 "tags": [
-                    "admins"
+                  "Workflow"
                 ],
                 "summary": "Update an approval workflow by given id",
                 "description": "Update an approval workflow by given id",
-                "operationId": "updateWorkflow",
+                "operationId": "update",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -830,11 +833,11 @@
             },
             "delete": {
                 "tags": [
-                    "admins"
+                  "Workflow"
                 ],
                 "summary": "Delete approval workflow by given id",
                 "description": "Delete approval workflow by given id",
-                "operationId": "removeWorkflow",
+                "operationId": "destroy",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -903,7 +906,7 @@
                     "type": "integer"
                 }
             },
-            "request_id": {
+           "request_id": {
                 "name": "request_id",
                 "in": "path",
                 "description": "Id of request",
@@ -1051,13 +1054,16 @@
                 }
             },
             "ActionOut": {
-                "description": "Output parameters for Action object",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/ActionIn"
                     },
                     {
                         "type": "object",
+                        "required": [
+                            "id",
+                            "stage_id"
+                        ],
                         "properties": {
                             "id": {
                                 "type": "string"
@@ -1075,7 +1081,7 @@
                     }
                 ]
             },
-          "RequestIn": {
+            "RequestIn": {
                 "type": "object",
                 "description": "Input parameters for approval request object.",
                 "required": [
@@ -1221,7 +1227,17 @@
                 "description": "The workflow to process approval requests. Each workflow is linked to multiple groups of approvals.",
                 "allOf": [
                     {
+<<<<<<< HEAD
+
                         "$ref": "#/components/schemas/WorkflowIn"
+=======
+                        "$ref": "#/components/schemas/Workflow"
+                    }
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+>>>>>>> Changed controllers/models/spec to remove users/groups
                     },
                     {
                         "type": "object",
@@ -1235,7 +1251,32 @@
                             }
                         }
                     }
+<<<<<<< HEAD
                 ]
+=======
+                }
+            },
+            "WorkflowIn": {
+                "type": "object",
+                "description": "Parameters to create a workflow",
+                "required": [
+                    "group_refs"
+                ],
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Workflow"
+                    }
+                ],
+                "properties": {
+                    "group_refs": {
+                        "type": "array",
+                        "description": "Group references associated with workflow",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+>>>>>>> Changed controllers/models/spec to remove users/groups
             }
         }
     }

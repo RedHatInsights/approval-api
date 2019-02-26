@@ -21,6 +21,7 @@ class ActionCreateService
     options = HashWithIndifferentAccess.new(options)
     operation = options['operation']
     raise Exceptions::ApprovalError, "Invalid operation: #{operation}" unless Action::OPERATIONS.include?(operation)
+
     send(operation, options['comments'])
   end
 
@@ -32,6 +33,7 @@ class ActionCreateService
     unless stage.state == Stage::PENDING_STATE
       raise Exceptions::ApprovalError, "Current stage is not in pending state"
     end
+
     {:state => Stage::NOTIFIED_STATE}
   end
 
@@ -39,6 +41,7 @@ class ActionCreateService
     unless stage.state == Stage::PENDING_STATE
       raise Exceptions::ApprovalError, "Current stage is not in pending state"
     end
+
     {:state => Stage::SKIPPED_STATE}
   end
 
@@ -46,6 +49,7 @@ class ActionCreateService
     unless stage.state == Stage::NOTIFIED_STATE
       raise Exceptions::ApprovalError, "Current stage is not in notified state"
     end
+
     {:state => Stage::FINISHED_STATE, :decision => Stage::APPROVED_STATUS}.tap do |h|
       h[:reason] = comments if comments
     end
@@ -56,6 +60,7 @@ class ActionCreateService
       raise Exceptions::ApprovalError, "Current stage is not in notified state"
     end
     raise Exception::ApprovalError, "Reason to deny the request is missing" unless comments
+
     {:state => Stage::FINISHED_STATE, :decision => Stage::DENIED_STATUS, :reason => comments}
   end
 end

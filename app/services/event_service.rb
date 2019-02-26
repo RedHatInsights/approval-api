@@ -15,18 +15,18 @@ class EventService
 
   def approver_group_notified(stage)
     send_event(EVENT_APPROVER_GROUP_NOTIFIED,
-      :request_id => request.id,
-      :group_name => stage.group.name
-    )
+               :request_id => request.id,
+               # TODO: replace with group name
+               :group_name => stage.group_ref)
   end
 
   def approver_group_finished(stage)
     send_event(EVENT_APPROVER_GROUP_FINISHED,
-      :request_id => request.id,
-      :group_name => stage.group.name,
-      :decision   => stage.decision,
-      :reason     => stage.reason
-    )
+               :request_id => request.id,
+               # TODO: replace with group name
+               :group_name => stage.group_ref,
+               :decision   => stage.decision,
+               :reason     => stage.reason)
   end
 
   def request_started
@@ -35,10 +35,9 @@ class EventService
 
   def request_finished
     send_event(EVENT_REQUEST_FINISHED,
-      :request_id => request.id,
-      :decision   => request.decision,
-      :reason     => request.reason || ''
-    )
+               :request_id => request.id,
+               :decision   => request.decision,
+               :reason     => request.reason || '')
   end
 
   private

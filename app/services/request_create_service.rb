@@ -6,11 +6,11 @@ class RequestCreateService
   end
 
   def create(options)
-    stages = workflow.groups.collect do |group|
+    stages = workflow.group_refs.collect do |group_ref|
       Stage.new(
-        :group    => group,
-        :state    => Stage::PENDING_STATE,
-        :decision => Stage::UNDECIDED_STATUS,
+        :group_ref => group_ref,
+        :state     => Stage::PENDING_STATE,
+        :decision  => Stage::UNDECIDED_STATUS,
       )
     end
 
@@ -57,7 +57,8 @@ class RequestCreateService
     acs.create(
       'operation'    => Action::NOTIFY_OPERATION,
       'processed_by' => 'system',
-      'comments'     => "email sent to #{stage.group.users.map(&:email)}"
+      # TODO: Get user's email from RBAC
+      'comments'     => "email sent to ###"
     )
 
     sleep(sleep_time)

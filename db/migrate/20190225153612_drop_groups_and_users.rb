@@ -4,7 +4,7 @@ class DropGroupsAndUsers < ActiveRecord::Migration[5.1]
     add_column    :stages, :group_ref, :string
     add_index     :stages, :group_ref
 
-    add_column    :workflows, :group_refs, :jsonb
+    add_column    :workflows, :group_refs, :jsonb, :array => true, :default => []
 
     drop_table    :workflowgroups
     drop_table    :usergroups
@@ -24,8 +24,8 @@ class DropGroupsAndUsers < ActiveRecord::Migration[5.1]
 
     create_table :groups do |t|
       t.string "name"
-      t.datetime "created_at", null: false
-      t.datetime "updated_at", null: false
+      t.datetime "created_at", :null => false
+      t.datetime "updated_at", :null => false
       t.bigint "tenant_id"
     end
 

@@ -1,6 +1,7 @@
 RSpec.describe RequestCreateService do
   let(:template) { create(:template) }
-  let(:workflow) { create(:workflow, :groups => [create(:group)], :template => template) }
+  let(:group_refs)   { ["991"] }
+  let(:workflow) { create(:workflow, :group_refs => group_refs, :template => template) }
   subject { described_class.new(workflow.id) }
 
   context 'without auto approval' do
