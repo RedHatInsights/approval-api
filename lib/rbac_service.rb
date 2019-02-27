@@ -11,8 +11,8 @@ class RBACService
   def self.paginate(obj, method, pagination_options, *method_args)
     Enumerator.new do |enum|
       opts = {
-        page_size: 10, # Integer | Parameter for selecting the amount of data in a page.
-        page: 1 # Integer | Parameter for selecting the page of data.
+        :page_size => 10, # Integer | Parameter for selecting the amount of data in a page.
+        :page      => 1 # Integer | Parameter for selecting the page of data.
       }.merge(pagination_options)
       count = nil
       fetched = 0
@@ -29,7 +29,7 @@ class RBACService
           break if count == fetched || result.data.empty?
         end
       rescue StandardError => e
-        puts "Exception when calling pagination on #{method} #{e}"
+        Rails.logger.error("Exception when calling pagination on #{method} #{e}")
         raise
       end
     end

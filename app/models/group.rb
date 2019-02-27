@@ -34,6 +34,4 @@ class Group
       group.users = raw_group.try(:principals)
     end
   end
-
-  #sample uuid: "64507cf7-b160-48d2-8cc7-648f71305d74"
 end

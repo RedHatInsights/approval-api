@@ -79,7 +79,7 @@ RSpec.describe 'Workflows API' do
 
   # Test suite for POST /templates/:template_id/workflows
   describe 'POST /templates/:template_id/workflows' do
-    let(:group_refs) { ["990", "991", "992"] }
+    let(:group_refs) { %w(990 991 992") }
 
     let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
 

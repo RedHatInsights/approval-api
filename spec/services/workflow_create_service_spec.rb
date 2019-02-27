@@ -1,6 +1,6 @@
 RSpec.describe WorkflowCreateService do
   let(:template) { create(:template) }
-  let(:group_refs)   { ["991", "992", "993"] }
+  let(:group_refs) { %w(991 992 993) }
   subject { described_class.new(template.id) }
 
   context 'create workflow' do

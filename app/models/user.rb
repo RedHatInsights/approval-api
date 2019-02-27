@@ -6,7 +6,7 @@ class User
   attr_accessor :is_org_admin
   attr_writer   :users
 
-  def is_org_admin?
+  def org_admin?
     !!is_org_admin
   end
 
