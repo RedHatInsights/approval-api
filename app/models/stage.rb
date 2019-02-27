@@ -15,12 +15,15 @@ class Stage < ApplicationRecord
     actions.where(:operation => Action::NOTIFY_OPERATION).pluck(:created_at).first
   end
 
-  #TODO: return real name using RBAC
   def name
-    group_ref.try(:name)
+    group.try(:name)
   end
 
   def attributes
     super.merge('name' => name, 'notified_at' => notified_at)
+  end
+
+  def group
+    @group ||= Group.find(group_ref)
   end
 end

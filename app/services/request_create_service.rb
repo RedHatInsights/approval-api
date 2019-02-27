@@ -57,8 +57,7 @@ class RequestCreateService
     acs.create(
       'operation'    => Action::NOTIFY_OPERATION,
       'processed_by' => 'system',
-      # TODO: Get user's email from RBAC
-      'comments'     => "email sent to ###"
+      'comments'     => "Simulate notification to group(#{stage.name})"
     )
 
     sleep(sleep_time)
