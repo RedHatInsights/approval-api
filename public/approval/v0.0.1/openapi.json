@@ -1774,25 +1774,29 @@
                 }
             },
             "ActionOut": {
+                "description": "Output parameters for Action object",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/ActionIn"
-                    }
-                ],
-                "properties": {
-                    "id": {
-                        "type": "string"
                     },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Timestamp of creation"
-                    },
-                    "stage_id": {
-                        "type": "string",
-                        "description": "Associated stage id"
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "Timestamp of creation"
+                            },
+                            "stage_id": {
+                                "type": "string",
+                                "description": "Associated stage id"
+                            }
+                        }
                     }
-                }
+                ]
             },
             "UserIn": {
                 "type": "object",
@@ -1814,16 +1818,20 @@
                 }
             },
             "UserOut": {
+                "description": "Output parameters for User object",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/UserIn"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            }
+                        }
                     }
-                ],
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    }
-                }
+                ]
             },
             "GroupIn": {
                 "type": "object",
@@ -1839,18 +1847,20 @@
                 }
             },
             "GroupOut": {
-                "type": "object",
                 "description": "User groups.",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/GroupIn"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            }
+                        }
                     }
-                ],
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    }
-                }
+                ]
             },
             "GroupOperationIn": {
                 "type": "object",
@@ -1907,47 +1917,49 @@
                 }
             },
             "RequestOut": {
-                "type": "object",
                 "description": "Approval request. Each request will associate with a workflow. Corresponding to the groups of the associated workflow, every request will have a list of stages to record the request processing details.",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/RequestIn"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "state": {
+                                "type": "string",
+                                "description": "The state of stage or request. It may be one of values (pending, skipped, notified or finished)",
+                                "enum": [
+                                    "pending",
+                                    "skipped",
+                                    "notified",
+                                    "finished"
+                                ],
+                                "default": "pending"
+                            },
+                            "decision": {
+                                "type": "string",
+                                "description": "Final decision, may be one of the value (undecided, approved, or denied)",
+                                "enum": [
+                                    "undecided",
+                                    "approved",
+                                    "denied"
+                                ],
+                                "default": "undecided"
+                            },
+                            "reason": {
+                                "type": "string",
+                                "description": "Comments for requests"
+                            },
+                            "workflow_id": {
+                                "type": "string",
+                                "description": "Associate workflow id"
+                            }
+                        }
                     }
-                ],
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "state": {
-                        "type": "string",
-                        "description": "The state of stage or request. It may be one of values (pending, skipped, notified or finished)",
-                        "enum": [
-                            "pending",
-                            "skipped",
-                            "notified",
-                            "finished"
-                        ],
-                        "default": "pending"
-                    },
-                    "decision": {
-                        "type": "string",
-                        "description": "Final decision, may be one of the value (undecided, approved, or denied)",
-                        "enum": [
-                            "undecided",
-                            "approved",
-                            "denied"
-                        ],
-                        "default": "undecided"
-                    },
-                    "reason": {
-                        "type": "string",
-                        "description": "Comments for requests"
-                    },
-                    "workflow_id": {
-                        "type": "string",
-                        "description": "Associate workflow id"
-                    }
-                }
+                ]
             },
             "StageOut": {
                 "type": "object",
@@ -1986,8 +1998,7 @@
                         "default": "undecided"
                     },
                     "notified_at": {
-                        "type": "string",
-                        "format": "date-time",
+                        "type": "date-time",
                         "description": "the time approvers in the stage are notified"
                     }
                 }
@@ -2022,43 +2033,47 @@
                 }
             },
             "WorkflowOut": {
-                "type": "object",
                 "description": "The workflow to process approval requests. Each workflow is linked to multiple groups of approvals.",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/Workflow"
-                    }
-                ],
-                "properties": {
-                    "id": {
-                        "type": "string"
                     },
-                    "template_id": {
-                        "type": "string",
-                        "description": "Associated template id"
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "template_id": {
+                                "type": "string",
+                                "description": "Associated template id"
+                            }
+                        }
                     }
-                }
+                ]
             },
             "WorkflowIn": {
-                "type": "object",
                 "description": "Parameters to create a workflow",
-                "required": [
-                    "group_ids"
-                ],
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/Workflow"
-                    }
-                ],
-                "properties": {
-                    "group_ids": {
-                        "type": "array",
-                        "description": "Group ids associated with workflow",
-                        "items": {
-                            "type": "string"
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "group_ids"
+                        ],
+                        "properties": {
+                            "group_ids": {
+                                "type": "array",
+                                "description": "Group ids associated with workflow",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
                         }
                     }
-                }
+                ]
             }
         }
     }
