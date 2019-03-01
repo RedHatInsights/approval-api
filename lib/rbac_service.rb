@@ -5,7 +5,7 @@ class RBACService
     yield init(klass)
   rescue RBACApiClient::ApiError => err
     Rails.logger.error("RBACApiClient::ApiError #{err.message} ")
-    raise ServiceCatalog::RBACError, err.message
+    raise Exceptions::RBACError, err.message
   end
 
   def self.paginate(obj, method, pagination_options, *method_args)
@@ -37,18 +37,13 @@ class RBACService
 
   private_class_method def self.setup
     RBACApiClient.configure do |config|
-      # TODO: Remove this before we merge
-      config.username = 'mkanoor@redhat.com'
-      config.password = 'redhat'
-      config.base_path = 'r/insights/platform/rbac/v1/'
       config.host   = ENV['RBAC_URL'] || 'localhost'
       config.scheme = URI.parse(ENV['RBAC_URL']).try(:scheme) || 'http'
     end
   end
 
   private_class_method def self.init(klass)
-    # TODO: Get headers from request
-    headers = {}
+    headers = ManageIQ::API::Common::Headers.current_forwardable
     klass.new.tap do |api|
       api.api_client.default_headers = api.api_client.default_headers.merge(headers)
     end
