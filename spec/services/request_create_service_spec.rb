@@ -4,7 +4,7 @@ RSpec.describe RequestCreateService do
   let(:workflow) { create(:workflow, :group_refs => group_refs, :template => template) }
   subject { described_class.new(workflow.id) }
 
-  before { allow_any_instance_of(Stage).to receive(:group) }
+  before { allow(Group).to receive(:find) }
 
   context 'without auto approval' do
     context 'template has external process' do

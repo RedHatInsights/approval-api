@@ -48,7 +48,10 @@ RSpec.describe 'Actions API' do
     let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
 
     context 'when request attributes are valid' do
-      before { post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => request_header }
+      before do
+        allow(Group).to receive(:find)
+        post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => request_header
+      end
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)

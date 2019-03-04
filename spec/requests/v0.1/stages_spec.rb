@@ -21,7 +21,7 @@ RSpec.describe 'Stages API' do
 
   let(:api_version) { version('v0.1') }
 
-  before { allow_any_instance_of(Stage).to receive(:group) }
+  before { allow(Group).to receive(:find) }
 
   # Test suite for GET /stages/:id
   describe 'GET /stages/:id' do

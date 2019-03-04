@@ -3,7 +3,7 @@ RSpec.describe EventService do
   let(:stage)   { create(:stage, :request => request) }
   subject { described_class.new(request) }
 
-  before { allow_any_instance_of(Stage).to receive(:group) }
+  before { allow(Group).to receive(:find) }
 
   it 'sends request_started event' do
     expect(subject).to receive(:send_event).with(described_class::EVENT_REQUEST_STARTED, hash_including(:request_id))
