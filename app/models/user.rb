@@ -4,7 +4,6 @@ class User
   attr_accessor :first_name
   attr_accessor :last_name
   attr_accessor :is_org_admin
-  attr_writer   :users
 
   def org_admin?
     !!is_org_admin
@@ -29,8 +28,7 @@ class User
   end
 
   def groups
-    # TODO: wait for API available
-    []
+    @groups ||= Group.all(username)
   end
 
   private_class_method def self.from_raw(raw_user)
@@ -40,7 +38,6 @@ class User
       user.first_name = raw_user.first_name
       user.last_name = raw_user.last_name
       user.is_org_admin = raw_user.is_org_admin
-      # TODO: user.groups
     end
   end
 end

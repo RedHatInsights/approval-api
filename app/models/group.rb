@@ -12,10 +12,10 @@ class Group
     group
   end
 
-  def self.all
+  def self.all(username = nil)
     groups = []
     RBACService.call(RBACApiClient::GroupApi) do |api|
-      RBACService.paginate(api, :list_groups, {}).each do |item|
+      RBACService.paginate(api, :list_groups, :username => username).each do |item|
         groups << from_raw(item)
       end
     end
