@@ -14,7 +14,7 @@ RSpec.describe 'Requests API' do
 
   # Test suite for GET /workflows/:workflow_id/requests
   describe 'GET /workflows/:workflow_id/requests' do
-    before { get "#{api_version}/workflows/#{workflow_id}/requests" }
+    before { get "#{api_version}/workflows/#{workflow_id}/requests", :params => { :limit => 5, :offset => 0 } }
 
     context 'when workflow exists' do
       it 'returns status code 200' do
@@ -22,7 +22,10 @@ RSpec.describe 'Requests API' do
       end
 
       it 'returns all workflow requests' do
-        expect(json.size).to eq(6)
+        expect(json['links']).not_to be_empty
+        expect(json['links']['first']).to match(/limit=5&offset=0/)
+        expect(json['links']['last']).to match(/limit=5&offset=5/)
+        expect(json['data'].size).to eq(5)
       end
     end
 
@@ -41,11 +44,13 @@ RSpec.describe 'Requests API' do
 
   # Test suite for GET /requests
   describe 'GET /requests' do
-    before { get "#{api_version}/requests" }
+    before { get "#{api_version}/requests", :params => { :limit => 5, :offset => 0 } }
 
     it 'returns requests' do
-      expect(json).not_to be_empty
-      expect(json.size).to eq(6)
+      expect(json['links']).not_to be_empty
+      expect(json['links']['first']).to match(/limit=5&offset=0/)
+      expect(json['links']['last']).to match(/limit=5&offset=5/)
+      expect(json['data'].size).to eq(5)
     end
 
     it 'returns status code 200' do
@@ -58,8 +63,9 @@ RSpec.describe 'Requests API' do
     before { get "#{api_version}/requests?state=notified" }
 
     it 'returns requests' do
-      expect(json).not_to be_empty
-      expect(json.size).to eq(2)
+      expect(json['links']).not_to be_empty
+      expect(json['links']['first']).to match(/offset=0/)
+      expect(json['data'].size).to eq(2)
     end
 
     it 'returns status code 200' do
@@ -72,8 +78,9 @@ RSpec.describe 'Requests API' do
     before { get "#{api_version}/requests?decision=approved" }
 
     it 'returns requests' do
-      expect(json).not_to be_empty
-      expect(json.size).to eq(2)
+      expect(json['links']).not_to be_empty
+      expect(json['links']['first']).to match(/offset=0/)
+      expect(json['data'].size).to eq(2)
     end
 
     it 'returns status code 200' do

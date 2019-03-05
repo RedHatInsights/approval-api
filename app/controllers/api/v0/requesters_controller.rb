@@ -9,7 +9,7 @@
 module Api
   module V0
     class RequestersController < ApplicationController
-      include RequesterOperationsMixin
+      include Mixins::RequesterOperationsMixin
     end
   end
 end

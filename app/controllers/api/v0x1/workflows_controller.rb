@@ -1,6 +1,8 @@
 module Api
   module V0x1
     class WorkflowsController < ApplicationController
+      include Mixins::IndexMixin
+
       def create
         workflow = WorkflowCreateService.new(params.require(:template_id)).create(workflow_params)
         json_response(workflow, :created)
@@ -17,10 +19,10 @@ module Api
       def index
         if params[:template_id]
           template = Template.find(params.require(:template_id))
-          json_response(template.workflows)
+          collection(template.workflows)
         else
           workflows = Workflow.all
-          json_response(workflows)
+          collection(workflows)
         end
       end
 
@@ -39,7 +41,7 @@ module Api
       private
 
       def workflow_params
-        params.permit(:name, :description, :group_ids => [])
+        params.permit(:name, :description, :limit, :offset, :group_ids => [])
       end
     end
   end

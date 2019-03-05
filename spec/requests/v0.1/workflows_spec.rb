@@ -10,7 +10,7 @@ RSpec.describe 'Workflows API' do
   let(:api_version) { version('v0.1') }
 
   describe 'GET /templates/:template_id/workflows' do
-    before { get "#{api_version}/templates/#{template_id}/workflows" }
+    before { get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 } }
 
     context 'when template exists' do
       it 'returns status code 200' do
@@ -18,7 +18,10 @@ RSpec.describe 'Workflows API' do
       end
 
       it 'returns all template workflows' do
-        expect(json.size).to eq(20)
+        expect(json['links']).not_to be_empty
+        expect(json['links']['first']).to match(/limit=5&offset=0/)
+        expect(json['links']['last']).to match(/limit=5&offset=15/)
+        expect(json['data'].size).to eq(5)
       end
     end
 
@@ -36,7 +39,7 @@ RSpec.describe 'Workflows API' do
   end
 
   describe 'GET /workflows' do
-    before { get "#{api_version}/workflows" }
+    before { get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 } }
 
     context 'when no relate wiht template'
     it 'returns status code 200' do
@@ -44,7 +47,10 @@ RSpec.describe 'Workflows API' do
     end
 
     it 'returns all template workflows' do
-      expect(json.size).to eq(20)
+      expect(json['links']).not_to be_empty
+      expect(json['links']['first']).to match(/limit=5&offset=0/)
+      expect(json['links']['last']).to match(/limit=5&offset=15/)
+      expect(json['data'].size).to eq(5)
     end
   end
 

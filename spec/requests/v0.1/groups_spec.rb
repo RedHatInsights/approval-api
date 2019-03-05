@@ -18,8 +18,9 @@ RSpec.describe 'Groups API' do
     end
 
     it 'returns all groups' do
-      expect(json).not_to be_empty
-      expect(json.size).to eq(5)
+      expect(json['links']).not_to be_nil
+      expect(json['links']['first']).to match(/offset=0/)
+      expect(json['data'].size).to eq(5)
     end
   end
 
@@ -37,7 +38,9 @@ RSpec.describe 'Groups API' do
       end
 
       it 'returns all groups in the workflow' do
-        expect(json.size).to eq(5)
+        expect(json['links']).not_to be_empty
+        expect(json['links']['first']).to match(/offset=0/)
+        expect(json['data'].size).to eq(5)
       end
     end
 

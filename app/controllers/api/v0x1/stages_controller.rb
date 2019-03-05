@@ -1,6 +1,8 @@
 module Api
   module V0x1
     class StagesController < ApplicationController
+      include Mixins::IndexMixin
+
       def show
         stage = Stage.find(params.require(:id))
         json_response(stage)
@@ -8,7 +10,7 @@ module Api
 
       def index
         req = Request.find(params.require(:request_id))
-        json_response(req.stages)
+        collection(req.stages)
       end
     end
   end

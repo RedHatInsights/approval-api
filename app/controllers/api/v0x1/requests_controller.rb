@@ -1,6 +1,8 @@
 module Api
   module V0x1
     class RequestsController < ApplicationController
+      include Mixins::IndexMixin
+
       def create
         req = RequestCreateService.new(params.require(:workflow_id)).create(request_params)
         json_response(req, :created)
@@ -14,20 +16,20 @@ module Api
       def index
         if params[:workflow_id]
           workflow = Workflow.find(params.require(:workflow_id))
-          json_response(workflow.requests)
+          collection(workflow.requests)
         elsif params[:user_id]
           user = Workflow.find(params.require(:user_id))
-          json_response(user.requests)
+          collection(user.requests)
         else
           reqs = Request.filter(params.slice(:requester, :decision, :state))
-          json_response(reqs)
+          collection(reqs)
         end
       end
 
       private
 
       def request_params
-        params.permit(:name, :requester, :content)
+        params.permit(:name, :requester, :content, :limit, :offset)
       end
     end
   end
