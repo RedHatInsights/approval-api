@@ -2,16 +2,20 @@
 
 RSpec.describe 'Groups API' do
   # Initialize the test data
-  let!(:users) { create_list(:user, 3) }
-  let!(:other_users) { create_list(:user, 3) }
-  let!(:groups) { create_list(:group, 5, :users => users) }
+  let(:encoded_user) { encoded_user_hash }
+  let(:request_header) { { 'x-rh-identity' => encoded_user } }
+  let(:tenant) { create(:tenant, :external_tenant => 369_233) }
+
+  let!(:users) { create_list(:user, 3, :tenant_id => tenant.id) }
+  let!(:other_users) { create_list(:user, 3, :tenant_id => tenant.id) }
+  let!(:groups) { create_list(:group, 5, :users => users, :tenant_id => tenant.id) }
   let(:id) { groups.first.id }
 
   let(:api_version) { version('v0.1') }
 
   # Test suite for GET /groups
   describe 'GET /groups' do
-    before { get "#{api_version}/groups" }
+    before { get "#{api_version}/groups", :headers => request_header }
 
     it 'returns status code 200' do
       expect(response).to have_http_status(200)
@@ -25,7 +29,7 @@ RSpec.describe 'Groups API' do
 
   # Test suite for GET /workflows/:workflow_id/groups
   describe 'GET /workflows/:workflow_id/groups' do
-    before { get "#{api_version}/workflows/#{workflow_id}/groups" }
+    before { get "#{api_version}/workflows/#{workflow_id}/groups", :headers => request_header }
 
     context 'when workflow exists' do
       let!(:template) { create(:template) }
@@ -61,7 +65,7 @@ RSpec.describe 'Groups API' do
     end
 
     context 'when request attributes are valid' do
-      before { post "#{api_version}/groups", :params => valid_attributes }
+      before { post "#{api_version}/groups", :params => valid_attributes, :headers => request_header }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
@@ -70,7 +74,7 @@ RSpec.describe 'Groups API' do
     end
 
     context 'when an invalid request' do
-      before { post "#{api_version}/groups", :params => {} }
+      before { post "#{api_version}/groups", :params => {}, :headers => request_header }
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
@@ -86,7 +90,7 @@ RSpec.describe 'Groups API' do
   describe 'patch /groups/:id' do
     let(:valid_attributes) { { :name => 'Mozart', :user_ids => [users.first.id, users.last.id] } }
 
-    before { patch "#{api_version}/groups/#{id}", :params => valid_attributes }
+    before { patch "#{api_version}/groups/#{id}", :params => valid_attributes, :headers => request_header }
 
     context 'when item exists' do
       it 'returns status code 204' do
@@ -118,7 +122,7 @@ RSpec.describe 'Groups API' do
 
   # Test suite for DELETE /groups/:id
   describe 'DELETE /groups/:id' do
-    before { delete "#{api_version}/groups/#{id}" }
+    before { delete "#{api_version}/groups/#{id}", :headers => request_header }
 
     it 'returns status code 204' do
       expect(response).to have_http_status(204)
@@ -126,7 +130,7 @@ RSpec.describe 'Groups API' do
   end
 
   describe 'get /groups/:id/users' do
-    before { get "#{api_version}/groups/#{id}/users" }
+    before { get "#{api_version}/groups/#{id}/users", :headers => request_header }
 
     it 'returns status code 200' do
       expect(response).to have_http_status(200)
@@ -139,7 +143,7 @@ RSpec.describe 'Groups API' do
   end
 
   describe 'post /groups/:id' do
-    before { post "#{api_version}/groups/#{id}", :params => attributes }
+    before { post "#{api_version}/groups/#{id}", :params => attributes, :headers => request_header }
 
     context 'when new users join in group' do
       let(:attributes) { { :operation => 'join_users', :parameters => { :user_ids => [other_users.first.id, other_users.last.id] } } }

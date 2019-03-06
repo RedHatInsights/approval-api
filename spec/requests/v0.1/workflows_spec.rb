@@ -2,6 +2,10 @@
 
 RSpec.describe 'Workflows API' do
   # Initialize the test data
+  let(:encoded_user) { encoded_user_hash }
+  let(:request_header) { { 'x-rh-identity' => encoded_user } }
+  let(:tenant) { create(:tenant, :external_tenant => 369_233) }
+
   let!(:template) { create(:template) }
   let(:template_id) { template.id }
   let!(:workflows) { create_list(:workflow, 20, :template_id => template.id) }
@@ -10,7 +14,7 @@ RSpec.describe 'Workflows API' do
   let(:api_version) { version('v0.1') }
 
   describe 'GET /templates/:template_id/workflows' do
-    before { get "#{api_version}/templates/#{template_id}/workflows" }
+    before { get "#{api_version}/templates/#{template_id}/workflows", :headers => request_header }
 
     context 'when template exists' do
       it 'returns status code 200' do
@@ -36,7 +40,7 @@ RSpec.describe 'Workflows API' do
   end
 
   describe 'GET /workflows' do
-    before { get "#{api_version}/workflows" }
+    before { get "#{api_version}/workflows", :headers => request_header }
 
     context 'when no relate wiht template'
     it 'returns status code 200' do
@@ -49,7 +53,7 @@ RSpec.describe 'Workflows API' do
   end
 
   describe 'GET /workflows/:id' do
-    before { get "#{api_version}/workflows/#{id}" }
+    before { get "#{api_version}/workflows/#{id}", :headers => request_header }
 
     context 'when the record exists' do
       it 'returns the workflow' do
@@ -75,12 +79,12 @@ RSpec.describe 'Workflows API' do
 
   # Test suite for POST /templates/:template_id/workflows
   describe 'POST /templates/:template_id/workflows' do
-    let(:groups) { create_list(:group, 3) }
+    let(:groups) { create_list(:group, 3, :tenant_id => tenant.id) }
 
     let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_ids => groups.map(&:id) } }
 
     context 'when request attributes are valid' do
-      before { post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes }
+      before { post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => request_header }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
@@ -88,7 +92,7 @@ RSpec.describe 'Workflows API' do
     end
 
     context 'when a request with invalid group_ids' do
-      before { post "#{api_version}/templates/#{template_id}/workflows", :params => { :group_ids => [-1, -2, -3]} }
+      before { post "#{api_version}/templates/#{template_id}/workflows", :params => { :group_ids => [-1, -2, -3]}, :headers => request_header }
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
@@ -104,7 +108,7 @@ RSpec.describe 'Workflows API' do
   describe 'PATCH /workflows/:id' do
     let(:valid_attributes) { { :name => 'Mozart' } }
 
-    before { patch "#{api_version}/workflows/#{id}", :params => valid_attributes }
+    before { patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => request_header }
 
     context 'when item exists' do
       it 'returns status code 204' do
@@ -132,7 +136,7 @@ RSpec.describe 'Workflows API' do
 
   # Test suite for DELETE /workflows/:id
   describe 'DELETE /workflows/:id' do
-    before { delete "#{api_version}/workflows/#{id}" }
+    before { delete "#{api_version}/workflows/#{id}", :headers => request_header }
 
     it 'returns status code 204' do
       expect(response).to have_http_status(204)

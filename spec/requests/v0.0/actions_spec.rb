@@ -1,19 +1,24 @@
 # spec/requests/actions_spec.rb
 
 RSpec.describe 'Actions API' do
-  let!(:group) { create(:group) }
+  let(:encoded_user) { encoded_user_hash }
+  let(:request_header) { { 'x-rh-identity' => encoded_user } }
+  let(:tenant) { create(:tenant, :external_tenant => 369_233) }
+
+  let!(:group) { create(:group, :tenant_id => tenant.id) }
   let(:group_id) { group.id }
-  let!(:stage) { create(:stage, :group_id => group.id) }
+  let(:request) { create(:request, :tenant_id => tenant.id) }
+  let!(:stage) { create(:stage, :group_id => group.id, :request => request, :tenant_id => tenant.id) }
   let(:stage_id) { stage.id }
 
-  let!(:actions) { create_list(:action, 10, :stage_id => stage.id) }
+  let!(:actions) { create_list(:action, 10, :stage_id => stage.id, :tenant_id => tenant.id) }
   let(:id) { actions.first.id }
 
   let(:api_version) { version }
 
   # Test suite for GET /actions/:id
   describe 'GET /actions/:id' do
-    before { get "#{api_version}/actions/#{id}" }
+    before { get "#{api_version}/actions/#{id}", :headers => request_header }
 
     context 'when the record exists' do
       it 'returns the action' do
@@ -44,7 +49,7 @@ RSpec.describe 'Actions API' do
     let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
 
     context 'when request attributes are valid' do
-      before { post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes }
+      before { post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => request_header }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)

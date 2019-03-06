@@ -2,6 +2,9 @@
 
 RSpec.describe 'Templates API', :type => :request do
   # initialize test data
+  let(:encoded_user) { encoded_user_hash }
+  let(:request_header) { { 'x-rh-identity' => encoded_user } }
+
   let!(:templates) { create_list(:template, 10) }
   let(:template_id) { templates.first.id }
 
@@ -10,7 +13,7 @@ RSpec.describe 'Templates API', :type => :request do
   # Test suite for GET /templates
   describe 'GET /templates' do
     # make HTTP get request before each example
-    before { get "#{api_version}/templates" }
+    before { get "#{api_version}/templates", :headers => request_header }
 
     it 'returns templates' do
       # Note `json` is a custom helper to parse JSON responses
@@ -25,7 +28,7 @@ RSpec.describe 'Templates API', :type => :request do
 
   # Test suite for GET /templates/:id
   describe 'GET /templates/:id' do
-    before { get "#{api_version}/templates/#{template_id}" }
+    before { get "#{api_version}/templates/#{template_id}", :headers => request_header }
 
     context 'when the record exists' do
       it 'returns the template' do
