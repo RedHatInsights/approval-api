@@ -2,5 +2,5 @@
 
 export RAILS_ENV=production
 
-bundle exec rake db:create db:migrate db:seed
+bundle exec rake db:migrate db:seed
 bundle exec rails server
