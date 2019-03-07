@@ -1,2 +1,2 @@
 require 'exceptions'
-require 'rbac_service'
+require 'rbac/service'
