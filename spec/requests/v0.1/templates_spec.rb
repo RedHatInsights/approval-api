@@ -10,12 +10,14 @@ RSpec.describe 'Templates API', :type => :request do
   # Test suite for GET /templates
   describe 'GET /templates' do
     # make HTTP get request before each example
-    before { get "#{api_version}/templates" }
+    before { get "#{api_version}/templates", :params => { :limit => 5, :offset => 0 } }
 
     it 'returns templates' do
       # Note `json` is a custom helper to parse JSON responses
-      expect(json).not_to be_empty
-      expect(json.size).to eq(10)
+      expect(json['links']).not_to be_empty
+      expect(json['links']['first']).to match(/limit=5&offset=0/)
+      expect(json['links']['last']).to match(/limit=5&offset=5/)
+      expect(json['data'].size).to eq(5)
     end
 
     it 'returns status code 200' do

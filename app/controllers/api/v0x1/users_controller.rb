@@ -1,6 +1,8 @@
 module Api
   module V0x1
     class UsersController < ApplicationController
+      include Mixins::IndexMixin
+
       def create
         user = User.create!(user_params)
         json_response(user, :created)
@@ -14,10 +16,10 @@ module Api
       def index
         if params[:group_id]
           group = Group.find(params.require(:group_id))
-          json_response(group.users)
+          collection(group.users)
         else
           users = User.all
-          json_response(users)
+          collection(users)
         end
       end
 
@@ -34,7 +36,7 @@ module Api
       private
 
       def user_params
-        params.permit(:email, :first_name, :last_name, :group_ids => [])
+        params.permit(:email, :first_name, :last_name, :limit, :offset, :group_ids => [])
       end
     end
   end

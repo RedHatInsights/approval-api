@@ -121,10 +121,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/ActionOut"
-                                    }
+                                    "$ref": "#/components/schemas/ActionOutCollection"
                                 }
                             }
                         }
@@ -219,10 +216,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/UserOut"
-                                    }
+                                    "$ref": "#/components/schemas/UserOutCollection"
                                 }
                             }
                         }
@@ -437,10 +431,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/GroupOut"
-                                    }
+                                    "$ref": "#/components/schemas/GroupOutCollection"
                                 }
                             }
                         }
@@ -490,10 +481,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/RequestOut"
-                                    }
+                                    "$ref": "#/components/schemas/RequestOutCollection"
                                 }
                             }
                         }
@@ -546,10 +534,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/GroupOut"
-                                    }
+                                    "$ref": "#/components/schemas/GroupOutCollection"
                                 }
                             }
                         }
@@ -815,10 +800,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/UserOut"
-                                    }
+                                    "$ref": "#/components/schemas/UserOutCollection"
                                 }
                             }
                         }
@@ -880,10 +862,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/RequestOut"
-                                    }
+                                    "$ref": "#/components/schemas/RequestOutCollection"
                                 }
                             }
                         }
@@ -939,10 +918,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/RequestOut"
-                                    }
+                                    "$ref": "#/components/schemas/RequestOutCollection"
                                 }
                             }
                         }
@@ -1077,10 +1053,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/StageOut"
-                                    }
+                                    "$ref": "#/components/schemas/StageOutCollection"
                                 }
                             }
                         }
@@ -1175,10 +1148,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/TemplateOut"
-                                    }
+                                    "$ref": "#/components/schemas/TemplateOutCollection"
                                 }
                             }
                         }
@@ -1273,10 +1243,7 @@
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/WorkflowOut"
-                                    }
+                                    "$ref": "#/components/schemas/WorkflowOutCollection"
                                 }
                             }
                         }
@@ -1332,10 +1299,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/WorkflowOut"
-                                    }
+                                    "$ref": "#/components/schemas/WorkflowOutCollection"
                                 }
                             }
                         }
@@ -1549,10 +1513,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/WorkflowOut"
-                                    }
+                                    "$ref": "#/components/schemas/GroupOutCollection"
                                 }
                             }
                         }
@@ -2087,6 +2048,160 @@
                         }
                     }
                 ]
+            },
+            "ActionOutCollection": {
+                "type": "object",
+                "properties": {
+                    "meta": {
+                        "$ref": "#/components/schemas/CollectionMetadata"
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/CollectionLinks"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/ActionOut"
+                        }
+                    }
+                }
+            },
+            "GroupOutCollection": {
+                "type": "object",
+                "properties": {
+                    "meta": {
+                        "$ref": "#/components/schemas/CollectionMetadata"
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/CollectionLinks"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/GroupOut"
+                        }
+                    }
+                }
+            },
+            "UserOutCollection": {
+                "type": "object",
+                "properties": {
+                    "meta": {
+                        "$ref": "#/components/schemas/CollectionMetadata"
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/CollectionLinks"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/UserOut"
+                        }
+                    }
+                }
+            },
+            "RequestOutCollection": {
+                "type": "object",
+                "properties": {
+                    "meta": {
+                        "$ref": "#/components/schemas/CollectionMetadata"
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/CollectionLinks"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/RequestOut"
+                        }
+                    }
+                }
+            },
+            "StageOutCollection": {
+                "type": "object",
+                "properties": {
+                    "meta": {
+                        "$ref": "#/components/schemas/CollectionMetadata"
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/CollectionLinks"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/StageOut"
+                        }
+                    }
+                }
+            },
+            "TemplateOutCollection": {
+                "type": "object",
+                "properties": {
+                    "meta": {
+                        "$ref": "#/components/schemas/CollectionMetadata"
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/CollectionLinks"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/TemplateOut"
+                        }
+                    }
+                }
+            },
+            "WorkflowOutCollection": {
+                "type": "object",
+                "properties": {
+                    "meta": {
+                        "$ref": "#/components/schemas/CollectionMetadata"
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/CollectionLinks"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/WorkflowOut"
+                        }
+                    }
+                }
+            },
+            "CollectionLinks": {
+                "type": "object",
+                "properties": {
+                    "first": {
+                        "type": "string",
+                        "title": "First Link",
+                        "description": "The link to fetch the first group of items in the result set"
+                    },
+                    "last": {
+                        "type": "string",
+                        "title": "Last Link",
+                        "description": "The link to fetch the last group of items in the result set"
+                    },
+                    "prev": {
+                        "type": "string",
+                        "title": "Previous Link",
+                        "description": "The link to fetch the previous group of items in the result set"
+                    },
+                    "next": {
+                        "type": "string",
+                        "title": "Next Link",
+                        "description": "The link to fetch the next group of items in the result set"
+                    }
+                }
+            },
+            "CollectionMetadata": {
+                "type": "object",
+                "properties": {
+                    "count": {
+                        "type": "integer",
+                        "title": "Total number of items in the result set",
+                        "description": "This is the total number of items in the result set, of which only a subset is returned defined by the QueryLimit parameter"
+                    }
+                }
             }
         }
     }

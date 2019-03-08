@@ -1,6 +1,8 @@
 module Api
   module V0x1
     class TemplatesController < ApplicationController
+      include Mixins::IndexMixin
+
       def show
         template = Template.find(params.require(:id))
         json_response(template)
@@ -8,7 +10,7 @@ module Api
 
       def index
         templates = Template.all
-        json_response(templates)
+        collection(templates)
       end
     end
   end

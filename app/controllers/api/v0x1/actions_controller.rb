@@ -1,9 +1,10 @@
 module Api
   module V0x1
     class ActionsController < ApplicationController
+      include Mixins::IndexMixin
       def index
         stage = Stage.find(params.require(:stage_id))
-        json_response(stage.actions)
+        collection(stage.actions)
       end
 
       def show
@@ -20,7 +21,7 @@ module Api
       private
 
       def action_params
-        params.permit(:operation, :processed_by, :comments)
+        params.permit(:operation, :processed_by, :comments, :limit, :offset)
       end
     end
   end
