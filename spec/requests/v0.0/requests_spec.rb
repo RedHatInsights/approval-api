@@ -2,19 +2,23 @@
 
 RSpec.describe 'Requests API' do
   # Initialize the test data
+  let(:encoded_user) { encoded_user_hash }
+  let(:request_header) { { 'x-rh-identity' => encoded_user } }
+  let(:tenant) { create(:tenant, :external_tenant => 369_233) }
+
   let!(:template) { create(:template) }
   let!(:workflow) { create(:workflow, :name => 'Always approve') } #:template_id => template.id) }
   let(:workflow_id) { workflow.id }
-  let!(:requests) { create_list(:request, 2, :workflow_id => workflow.id) }
+  let!(:requests) { create_list(:request, 2, :workflow_id => workflow.id, :tenant_id => tenant.id) }
   let(:id) { requests.first.id }
-  let!(:requests_with_same_state) { create_list(:request, 2, :state => 'notified', :workflow_id => workflow.id) }
-  let!(:requests_with_same_decision) { create_list(:request, 2, :decision => 'approved', :workflow_id => workflow.id) }
+  let!(:requests_with_same_state) { create_list(:request, 2, :state => 'notified', :workflow_id => workflow.id, :tenant_id => tenant.id) }
+  let!(:requests_with_same_decision) { create_list(:request, 2, :decision => 'approved', :workflow_id => workflow.id, :tenant_id => tenant.id) }
 
   let(:api_version) { version }
 
   # Test suite for GET /workflows/:workflow_id/requests
   describe 'GET /workflows/:workflow_id/requests' do
-    before { get "#{api_version}/workflows/#{workflow_id}/requests" }
+    before { get "#{api_version}/workflows/#{workflow_id}/requests", :headers => request_header }
 
     context 'when workflow exists' do
       it 'returns status code 200' do
@@ -41,7 +45,7 @@ RSpec.describe 'Requests API' do
 
   # Test suite for GET /requests
   describe 'GET /requests' do
-    before { get "#{api_version}/requests" }
+    before { get "#{api_version}/requests", :headers => request_header }
 
     it 'returns requests' do
       expect(json).not_to be_empty
@@ -55,7 +59,7 @@ RSpec.describe 'Requests API' do
 
   # Test suite for GET /requests?state=
   describe 'GET /requests?state=notified' do
-    before { get "#{api_version}/requests?state=notified" }
+    before { get "#{api_version}/requests?state=notified", :headers => request_header }
 
     it 'returns requests' do
       expect(json).not_to be_empty
@@ -69,7 +73,7 @@ RSpec.describe 'Requests API' do
 
   # Test suite for GET /requests?decision=
   describe 'GET /requests?decision=approved' do
-    before { get "#{api_version}/requests?decision=approved" }
+    before { get "#{api_version}/requests?decision=approved", :headers => request_header }
 
     it 'returns requests' do
       expect(json).not_to be_empty
@@ -83,7 +87,7 @@ RSpec.describe 'Requests API' do
 
   # Test suite for GET /requests/:id
   describe 'GET /requests/:id' do
-    before { get "#{api_version}/requests/#{id}" }
+    before { get "#{api_version}/requests/#{id}", :headers => request_header }
 
     context 'when the record exist' do
       it 'returns the request' do
@@ -117,7 +121,7 @@ RSpec.describe 'Requests API' do
     context 'when request attributes are valid' do
       before do
         ENV['AUTO_APPROVAL'] = 'y'
-        post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes
+        post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => request_header
       end
 
       after { ENV['AUTO_APPROVAL'] = nil }

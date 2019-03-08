@@ -1,20 +1,24 @@
 # spec/requests/stages_spec.rb
 
 RSpec.describe 'Stages API' do
+  let(:encoded_user) { encoded_user_hash }
+  let(:request_header) { { 'x-rh-identity' => encoded_user } }
+  let(:tenant) { create(:tenant, :external_tenant => 369_233) }
+
   let!(:template) { create(:template) }
   let!(:workflow) { create(:workflow, :template_id => template.id) }
-  let!(:request) { create(:request, :workflow_id => workflow.id) }
+  let!(:request) { create(:request, :workflow_id => workflow.id, :tenant_id => tenant.id) }
   let(:request_id) { request.id }
 
-  let!(:group) { create(:group) }
-  let!(:stages) { create_list(:stage, 5, :group_id => group.id, :request_id => request.id) }
+  let!(:group) { create(:group, :tenant_id => tenant.id) }
+  let!(:stages) { create_list(:stage, 5, :group_id => group.id, :request_id => request.id, :tenant_id => tenant.id) }
   let(:id) { stages.first.id }
 
   let(:api_version) { version('v0.1') }
 
   # Test suite for GET /stages/:id
   describe 'GET /stages/:id' do
-    before { get "#{api_version}/stages/#{id}" }
+    before { get "#{api_version}/stages/#{id}", :headers => request_header }
 
     context 'when the record exists' do
       it 'returns the stage' do
@@ -42,7 +46,7 @@ RSpec.describe 'Stages API' do
 
   # Test suite for GET /requests/:request_id/stages
   describe 'GET /requests/:request_id/stages' do
-    before { get "#{api_version}/requests/#{request_id}/stages" }
+    before { get "#{api_version}/requests/#{request_id}/stages", :headers => request_header }
 
     context 'when the record exists' do
       it 'returns the stages' do
