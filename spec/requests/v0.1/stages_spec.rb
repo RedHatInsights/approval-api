@@ -14,7 +14,7 @@ RSpec.describe 'Stages API' do
   let!(:stages) { create_list(:stage, 5, :group_id => group.id, :request_id => request.id, :tenant_id => tenant.id) }
   let(:id) { stages.first.id }
 
-  let(:api_version) { version }
+  let(:api_version) { version('v0.1') }
 
   # Test suite for GET /stages/:id
   describe 'GET /stages/:id' do
@@ -50,8 +50,9 @@ RSpec.describe 'Stages API' do
 
     context 'when the record exists' do
       it 'returns the stages' do
-        expect(json).not_to be_empty
-        expect(json.size).to eq(5)
+        expect(json['links']).not_to be_nil
+        expect(json['links']['first']).to match(/offset=0/)
+        expect(json['data'].size).to eq(5)
       end
 
       it 'returns status code 200' do

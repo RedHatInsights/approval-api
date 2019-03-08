@@ -9,8 +9,8 @@
 module Api
   module V0
     class AdminsController < ApplicationController
-      include RequesterOperationsMixin
-      include UserOperationsMixin
+      include Mixins::RequesterOperationsMixin
+      include Mixins::UserOperationsMixin
 
       def add_user
         user = User.create!(user_params)

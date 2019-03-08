@@ -1,6 +1,7 @@
 module Api
   module V0x1
     class GroupsController < ApplicationController
+      include Mixins::IndexMixin
       def create
         group = Group.create!(group_params)
         json_response(group, :created)
@@ -21,13 +22,13 @@ module Api
       def index
         if params[:workflow_id]
           workflow = Workflow.find(params.require(:workflow_id))
-          json_response(workflow.groups)
+          collection(workflow.groups)
         elsif params[:user_id]
           user = User.find(params.require(:user_id))
-          json_response(user.groups)
+          collection(user.groups)
         else
           groups = Group.all
-          json_response(groups)
+          collection(groups)
         end
       end
 
@@ -44,7 +45,7 @@ module Api
       private
 
       def group_params
-        params.permit(:name, :user_ids => [])
+        params.permit(:name, :limit, :offset, :user_ids => [])
       end
     end
   end

@@ -9,7 +9,7 @@
 module Api
   module V0
     class UsersController < ApplicationController
-      include UserOperationsMixin
+      include Mixins::UserOperationsMixin
     end
   end
 end

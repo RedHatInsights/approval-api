@@ -27,8 +27,9 @@ RSpec.describe 'Users API' do
     end
 
     it 'returns all users' do
-      expect(json).not_to be_empty
-      expect(json.size).to eq(5)
+      expect(json['links']).not_to be_empty
+      expect(json['links']['first']).to match(/offset=0/)
+      expect(json['data'].size).to eq(5)
     end
   end
 
