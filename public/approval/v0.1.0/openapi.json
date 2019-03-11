@@ -17,7 +17,7 @@
             "name": "Action",
             "description": "Operations about actions"
         },
-       {
+        {
             "name": "Request",
             "description": "Operations about requests"
         },
@@ -29,7 +29,7 @@
             "name": "Template",
             "description": "Operations about templates"
         },
-       {
+        {
             "name": "Workflow",
             "description": "Operations about workflows"
         }
@@ -113,10 +113,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/ActionOut"
-                                    }
+                                    "$ref": "#/components/schemas/ActionOutCollection"
                                 }
                             }
                         }
@@ -144,8 +141,8 @@
                 "tags": [
                   "Action"
                 ],
-                "summary": "Return an action by id",
-                "description": "Return an action by id",
+                "summary": "Return an user action by id",
+                "description": "Return an user action by id",
                 "operationId": "show",
                 "parameters": [
                     {
@@ -220,10 +217,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/RequestOut"
-                                    }
+                                    "$ref": "#/components/schemas/RequestOutCollection"
                                 }
                             }
                         }
@@ -279,10 +273,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/RequestOut"
-                                    }
+                                    "$ref": "#/components/schemas/RequestOutCollection"
                                 }
                             }
                         }
@@ -417,10 +408,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/StageOut"
-                                    }
+                                    "$ref": "#/components/schemas/StageOutCollection"
                                 }
                             }
                         }
@@ -515,10 +503,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/TemplateOut"
-                                    }
+                                    "$ref": "#/components/schemas/TemplateOutCollection"
                                 }
                             }
                         }
@@ -613,10 +598,7 @@
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/WorkflowOut"
-                                    }
+                                    "$ref": "#/components/schemas/WorkflowOutCollection"
                                 }
                             }
                         }
@@ -672,10 +654,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/WorkflowOut"
-                                    }
+                                    "$ref": "#/components/schemas/WorkflowOutCollection"
                                 }
                             }
                         }
@@ -888,7 +867,7 @@
                     "type": "integer"
                 }
             },
-           "template_id": {
+            "template_id": {
                 "name": "template_id",
                 "in": "path",
                 "description": "Id of template",
@@ -906,7 +885,7 @@
                     "type": "integer"
                 }
             },
-           "request_id": {
+            "request_id": {
                 "name": "request_id",
                 "in": "path",
                 "description": "Id of request",
@@ -1165,7 +1144,7 @@
                     },
                     "group_ref": {
                         "type": "string",
-                        "description": "Associated group reference"
+                        "description": "Associated group reference id"
                     },
                     "state": {
                         "type": "string",
@@ -1209,10 +1188,11 @@
                     }
                 }
             },
-            "Workflow": {
+            "WorkflowIn": {
                 "type": "object",
                 "required": [
-                    "name"
+                    "name",
+                    "group_refs"
                 ],
                 "properties": {
                     "name": {
@@ -1220,6 +1200,13 @@
                     },
                     "description": {
                         "type": "string"
+                    },
+                    "group_refs": {
+                        "type": "array",
+                        "description": "Group reference ids associated with workflow",
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 }
             },
@@ -1227,17 +1214,7 @@
                 "description": "The workflow to process approval requests. Each workflow is linked to multiple groups of approvals.",
                 "allOf": [
                     {
-<<<<<<< HEAD
-
                         "$ref": "#/components/schemas/WorkflowIn"
-=======
-                        "$ref": "#/components/schemas/Workflow"
-                    }
-                ],
-                "properties": {
-                    "id": {
-                        "type": "string"
->>>>>>> Changed controllers/models/spec to remove users/groups
                     },
                     {
                         "type": "object",
@@ -1251,32 +1228,127 @@
                             }
                         }
                     }
-<<<<<<< HEAD
                 ]
-=======
-                }
             },
-            "WorkflowIn": {
+            "ActionOutCollection": {
                 "type": "object",
-                "description": "Parameters to create a workflow",
-                "required": [
-                    "group_refs"
-                ],
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/Workflow"
-                    }
-                ],
                 "properties": {
-                    "group_refs": {
+                    "meta": {
+                        "$ref": "#/components/schemas/CollectionMetadata"
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/CollectionLinks"
+                    },
+                    "data": {
                         "type": "array",
-                        "description": "Group references associated with workflow",
                         "items": {
-                            "type": "string"
+                          "$ref": "#/components/schemas/ActionOut"
                         }
                     }
                 }
->>>>>>> Changed controllers/models/spec to remove users/groups
+            },
+            "RequestOutCollection": {
+                "type": "object",
+                "properties": {
+                    "meta": {
+                        "$ref": "#/components/schemas/CollectionMetadata"
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/CollectionLinks"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/RequestOut"
+                        }
+                    }
+                }
+            },
+            "StageOutCollection": {
+                "type": "object",
+                "properties": {
+                    "meta": {
+                        "$ref": "#/components/schemas/CollectionMetadata"
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/CollectionLinks"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/StageOut"
+                        }
+                    }
+                }
+            },
+            "TemplateOutCollection": {
+                "type": "object",
+                "properties": {
+                    "meta": {
+                        "$ref": "#/components/schemas/CollectionMetadata"
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/CollectionLinks"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/TemplateOut"
+                        }
+                    }
+                }
+            },
+            "WorkflowOutCollection": {
+                "type": "object",
+                "properties": {
+                    "meta": {
+                        "$ref": "#/components/schemas/CollectionMetadata"
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/CollectionLinks"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/WorkflowOut"
+                        }
+                    }
+                }
+            },
+            "CollectionLinks": {
+                "type": "object",
+                "properties": {
+                    "first": {
+                        "type": "string",
+                        "title": "First Link",
+                        "description": "The link to fetch the first group of items in the result set"
+                    },
+                    "last": {
+                        "type": "string",
+                        "title": "Last Link",
+                        "description": "The link to fetch the last group of items in the result set"
+                    },
+                    "prev": {
+                        "type": "string",
+                        "title": "Previous Link",
+                        "description": "The link to fetch the previous group of items in the result set"
+                    },
+                    "next": {
+                        "type": "string",
+                        "title": "Next Link",
+                        "description": "The link to fetch the next group of items in the result set"
+                    }
+                }
+            },
+            "CollectionMetadata": {
+                "type": "object",
+                "properties": {
+                    "count": {
+                        "type": "integer",
+                        "title": "Total number of items in the result set",
+                        "description": "This is the total number of items in the result set, of which only a subset is returned defined by the QueryLimit parameter"
+                    }
+                }
             }
         }
     }
