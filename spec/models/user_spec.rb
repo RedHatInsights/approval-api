@@ -1,43 +1,32 @@
-RSpec.describe User, :type => :model do
-  let!(:groups_a) { create_list(:group, 2) }
-  let!(:groups_b) { create_list(:group, 3) }
-  let!(:workflow_a) { create(:workflow, :groups => groups_a) }
-  let!(:workflow_b) { create(:workflow, :groups => groups_b) }
-  let(:attribute_a) do
-    { :requester => '1234', :name => 'Visit Narnia',
-      :content => JSON.generate('{ "disk" => "100GB" }') }
-  end
-  let(:attribute_b) do
-    { :requester => 'abcd', :name => 'Narnia Mary',
-      :content => JSON.generate('{ "memory" => "10GB" }') }
-  end
-  let!(:request_a) { RequestCreateService.new(workflow_a.id).create(attribute_a) }
-  let!(:request_b) { RequestCreateService.new(workflow_b.id).create(attribute_b) }
-  let!(:adam) { create(:user, :group_ids => [groups_a.first.id, groups_b.first.id, groups_b.last.id]) }
-  let!(:fred) { create(:user, :group_ids => [groups_a.first.id, groups_b.second.id]) }
-  let!(:john) { create(:user, :group_ids => [groups_a.last.id, groups_b.last.id]) }
-
-  it { should have_many(:usergroups) }
-  it { should have_many(:groups).through(:usergroups) }
-  it { should validate_presence_of(:email) }
-
-  context 'all associations' do
-    it 'when list groups by users' do
-      expect(adam.groups.count).to eq(3)
-      expect(fred.groups.count).to eq(2)
-      expect(john.groups.count).to eq(2)
+RSpec.describe User do
+  describe '.find_by_username' do
+    before do
+      raw_user = double(:raw_user, :username => 'myname', :email => 'a@b', :first_name => 'First', :last_name => 'Last', :is_org_admin => true)
+      user_api = double(:user_api)
+      expect(user_api).to receive(:get_principal).with('myname').and_return(raw_user)
+      expect(RBAC::Service).to receive(:call).with(RBACApiClient::PrincipalApi).and_yield(user_api)
     end
 
-    it 'when list stages by users' do
-      expect(adam.stages.count).to eq(3)
-      expect(fred.stages.count).to eq(2)
-      expect(john.stages.count).to eq(2)
+    it 'fetches a group with details from rbac service' do
+      expect(described_class.find_by_username('myname')).to have_attributes(
+        :username     => 'myname',
+        :email        => 'a@b',
+        :first_name   => 'First',
+        :last_name    => 'Last',
+        :'org_admin?' => true
+      )
+    end
+  end
+
+  describe '#groups' do
+    before do
+      expect(Group).to receive(:all).with('myname').and_return([double(:group1), double(:group2)])
     end
 
-    it 'when list requests by users' do
-      expect(adam.requests.count).to eq(2)
-      expect(fred.requests.count).to eq(2)
-      expect(john.requests.count).to eq(2)
+    it 'list all groups' do
+      user = User.new
+      user.username = 'myname'
+      expect(user.groups.size).to eq(2)
     end
   end
 end

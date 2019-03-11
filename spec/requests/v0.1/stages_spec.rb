@@ -10,11 +10,13 @@ RSpec.describe 'Stages API' do
   let!(:request) { create(:request, :workflow_id => workflow.id, :tenant_id => tenant.id) }
   let(:request_id) { request.id }
 
-  let!(:group) { create(:group, :tenant_id => tenant.id) }
-  let!(:stages) { create_list(:stage, 5, :group_id => group.id, :request_id => request.id, :tenant_id => tenant.id) }
+  let!(:group_ref) { "990" }
+  let!(:stages) { create_list(:stage, 5, :group_ref => group_ref, :request_id => request.id, :tenant_id => tenant.id) }
   let(:id) { stages.first.id }
 
   let(:api_version) { version('v0.1') }
+
+  before { allow(Group).to receive(:find) }
 
   # Test suite for GET /stages/:id
   describe 'GET /stages/:id' do

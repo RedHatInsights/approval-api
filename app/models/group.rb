@@ -1,21 +1,37 @@
-class Group < ApplicationRecord
-  acts_as_tenant(:tenant)
+class Group
+  attr_accessor :name
+  attr_accessor :description
+  attr_accessor :uuid
+  attr_writer   :users
 
-  validates :name, :presence => true
-
-  has_many :usergroups, :dependent => :destroy
-  has_many :users, -> { order(:id => :asc) }, :through => :usergroups
-  has_many :stages, -> { order(:id => :asc) }, :dependent => :destroy, :inverse_of => :group
-  has_many :workflowgroups, :dependent => :destroy
-  has_many :workflows, -> { order(:id => :asc) }, :through => :workflowgroups, :inverse_of => :group
-
-  def join_users(ids)
-    candidates = User.find(ids)
-    self.users |= candidates
+  def self.find(uuid)
+    group = nil
+    RBAC::Service.call(RBACApiClient::GroupApi) do |api|
+      group = from_raw(api.get_group(uuid))
+    end
+    group
   end
 
-  def withdraw_users(ids)
-    candidates = User.find(ids)
-    self.users = self.users.reject { |a| candidates.include?(a) }
+  def self.all(username = nil)
+    groups = []
+    RBAC::Service.call(RBACApiClient::GroupApi) do |api|
+      RBAC::Service.paginate(api, :list_groups, :username => username).each do |item|
+        groups << from_raw(item)
+      end
+    end
+    groups
+  end
+
+  def users
+    @users ||= Group.find(uuid).users
+  end
+
+  private_class_method def self.from_raw(raw_group)
+    new.tap do |group|
+      group.uuid = raw_group.uuid
+      group.name = raw_group.name
+      group.description = raw_group.description
+      group.users = raw_group.try(:principals)
+    end
   end
 end

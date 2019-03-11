@@ -85,9 +85,9 @@ RSpec.describe 'Workflows API' do
 
   # Test suite for POST /templates/:template_id/workflows
   describe 'POST /templates/:template_id/workflows' do
-    let(:groups) { create_list(:group, 3, :tenant_id => tenant.id) }
+    let(:group_refs) { %w[990 991 992] }
 
-    let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_ids => groups.map(&:id) } }
+    let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
 
     context 'when request attributes are valid' do
       before { post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => request_header }
@@ -97,15 +97,15 @@ RSpec.describe 'Workflows API' do
       end
     end
 
-    context 'when a request with invalid group_ids' do
-      before { post "#{api_version}/templates/#{template_id}/workflows", :params => { :group_ids => [-1, -2, -3]}, :headers => request_header }
+    context 'when a request with invalid group_refs' do
+      before { post "#{api_version}/templates/#{template_id}/workflows", :params => { :group_refs => [-1, -2, -3] }, :headers => request_header }
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
       end
 
       it 'returns a failure message' do
-        expect(response.body).to match(/Couldn't find all Groups/)
+        expect(response.body).to match(/Validation failed:/)
       end
     end
   end

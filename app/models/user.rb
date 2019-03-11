@@ -1,15 +1,43 @@
-class User < ApplicationRecord
-  acts_as_tenant(:tenant)
+class User
+  attr_accessor :username
+  attr_accessor :email
+  attr_accessor :first_name
+  attr_accessor :last_name
+  attr_accessor :is_org_admin
 
-  has_many :usergroups, :dependent => :destroy
-  has_many :groups, -> { order(:id => :asc) }, :through => :usergroups
-  validates :email, :presence => true
-
-  def stages
-    groups.collect(&:stages).compact.flatten.uniq.sort_by(&:id)
+  def org_admin?
+    !!is_org_admin
   end
 
-  def requests
-    Request.find(stages.map(&:request_id)).sort_by(&:id)
+  def self.find_by_username(username)
+    user = nil
+    RBAC::Service.call(RBACApiClient::PrincipalApi) do |api|
+      user = from_raw(api.get_principal(username))
+    end
+    user
+  end
+
+  def self.all
+    users = []
+    RBAC::Service.call(RBACApiClient::PrincipalApi) do |api|
+      RBAC::Service.paginate(api, :list_principals, {}).each do |item|
+        users << from_raw(item)
+      end
+    end
+    users
+  end
+
+  def groups
+    @groups ||= Group.all(username)
+  end
+
+  private_class_method def self.from_raw(raw_user)
+    new.tap do |user|
+      user.username = raw_user.username
+      user.email = raw_user.email
+      user.first_name = raw_user.first_name
+      user.last_name = raw_user.last_name
+      user.is_org_admin = raw_user.is_org_admin
+    end
   end
 end

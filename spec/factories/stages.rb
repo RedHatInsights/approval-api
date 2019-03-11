@@ -5,6 +5,5 @@ FactoryBot.define do
     decision { :undecided }
 
     request
-    group
   end
 end
