@@ -1,7 +1,7 @@
 RSpec.describe Group do
   describe '.find' do
     before do
-      raw_group = double(:raw_group, :uuid => 'uuid', :description => 'desc', :name => 'gname', :principals => %w(u1 u2))
+      raw_group = double(:raw_group, :uuid => 'uuid', :description => 'desc', :name => 'gname', :principals => %w[u1 u2])
       group_api = double(:group_api)
       expect(group_api).to receive(:get_group).with('uuid').and_return(raw_group)
       expect(RBAC::Service).to receive(:call).with(RBACApiClient::GroupApi).and_yield(group_api)
@@ -12,7 +12,7 @@ RSpec.describe Group do
         :name        => 'gname',
         :description => 'desc',
         :uuid        => 'uuid',
-        :users       => %w(u1 u2)
+        :users       => %w[u1 u2]
       )
     end
   end

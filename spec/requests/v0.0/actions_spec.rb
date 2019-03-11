@@ -7,7 +7,7 @@ RSpec.describe 'Actions API' do
 
   let(:request) { create(:request, :tenant_id => tenant.id) }
   let!(:group_ref) { "990" }
-  let!(:stage) { create(:stage, :group_ref => group_ref,:request => request, :tenant_id => tenant.id) }
+  let!(:stage) { create(:stage, :group_ref => group_ref, :request => request, :tenant_id => tenant.id) }
   let(:stage_id) { stage.id }
 
   let!(:actions) { create_list(:action, 10, :stage_id => stage.id, :tenant_id => tenant.id) }
