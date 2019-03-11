@@ -11,7 +11,7 @@ module RBAC
 
     def self.paginate(obj, method, pagination_options, *method_args)
       Enumerator.new do |enum|
-        opts = {'limit' => 10, 'offset' => 0}.merge(pagination_options)
+        opts = {:limit => 10, :offset => 0}.merge(pagination_options)
         count = nil
         fetched = 0
         begin
@@ -19,7 +19,7 @@ module RBAC
             args = [method_args, opts].flatten.compact
             result = obj.send(method, *args)
             count ||= result.meta.count
-            opts['offset'] = opts['offset'] + result.data.count
+            opts[:offset] = opts[:offset] + result.data.count
             result.data.each do |element|
               enum.yield element
             end
@@ -37,6 +37,7 @@ module RBAC
       RBACApiClient.configure do |config|
         config.host   = ENV['RBAC_URL'] || 'localhost'
         config.scheme = URI.parse(ENV['RBAC_URL']).try(:scheme) || 'http'
+        dev_credentials(config)
       end
     end
 
@@ -44,6 +45,14 @@ module RBAC
       headers = ManageIQ::API::Common::Request.current_forwardable
       klass.new.tap do |api|
         api.api_client.default_headers = api.api_client.default_headers.merge(headers)
+      end
+    end
+
+    private_class_method def self.dev_credentials(config)
+      # Set up user/pass for basic auth if we're in dev and they exist.
+      if Rails.env.development?
+        config.username = ENV['DEV_USERNAME'] || raise("Empty ENV variable: DEV_USERNAME")
+        config.password = ENV['DEV_PASSWORD'] || raise("Empty ENV variable: DEV_PASSWORD")
       end
     end
   end
