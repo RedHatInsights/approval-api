@@ -27,6 +27,9 @@ module ServiceApproval
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    # Disabling eagerload in production in favor of autoload
+    config.autoload_paths += config.eager_load_paths
+
     config.autoload_paths << Rails.root.join("app", "controllers", "mixins").to_s
 
     ManageIQ::API::Common::Logging.activate(config)
