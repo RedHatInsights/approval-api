@@ -1,6 +1,7 @@
 class Stage < ApplicationRecord
   include ApprovalStates
   include ApprovalDecisions
+  include Convertable
 
   acts_as_tenant(:tenant)
 
@@ -10,9 +11,6 @@ class Stage < ApplicationRecord
 
   validates :state,    :inclusion => { :in => STATES }
   validates :decision, :inclusion => { :in => DECISIONS }
-
-  DATE_ATTRIBUTES     = %w[created_at updated_at].freeze
-  NON_DATE_ATTRIBUTES = %w[state decision reason request_id group_ref].freeze
 
   def notified_at
     actions.where(:operation => Action::NOTIFY_OPERATION).pluck(:created_at).first
@@ -31,10 +29,6 @@ class Stage < ApplicationRecord
   end
 
   def as_json(_options = {})
-    attributes.slice(*NON_DATE_ATTRIBUTES).tap do |hash|
-      DATE_ATTRIBUTES.each do |attr|
-        hash[attr] = send(attr.to_sym).iso8601 if send(attr.to_sym)
-      end
-    end.merge(:id => id.to_s)
+    convert_date_id(attributes)
   end
 end
