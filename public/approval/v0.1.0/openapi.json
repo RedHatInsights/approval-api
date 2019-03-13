@@ -42,10 +42,13 @@
                 ],
                 "summary": "Add an action to a given stage",
                 "description": "Add an action to a given stage",
-                "operationId": "create",
+                "operationId": "createAction",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/stage_id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "requestBody": {
@@ -93,10 +96,13 @@
                 ],
                 "summary": "Return actions in a given stage",
                 "description": "List all actions of a stage",
-                "operationId": "index",
+                "operationId": "listActionsByStage",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/stage_id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -143,10 +149,13 @@
                 ],
                 "summary": "Return an user action by id",
                 "description": "Return an user action by id",
-                "operationId": "show",
+                "operationId": "showAction",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -185,7 +194,7 @@
                 ],
                 "summary": "Return an array of approval requests",
                 "description": "Return an array of requests",
-                "operationId": "index",
+                "operationId": "listRequests",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/decision"
@@ -201,6 +210,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/offset"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -247,7 +259,7 @@
                 ],
                 "summary": "Return approval requests by given workflow id",
                 "description": "Return approval requests by given workflow id",
-                "operationId": "index",
+                "operationId": "listRequestsByWorkflow",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/workflow_id"
@@ -257,6 +269,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/offset"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -301,10 +316,13 @@
                 ],
                 "summary": "Add an approval request by given parameters",
                 "description": "Add an approval request by given parameters",
-                "operationId": "create",
+                "operationId": "createRequest",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/workflow_id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "requestBody": {
@@ -354,10 +372,13 @@
                 ],
                 "summary": "Return an approval request by given id",
                 "description": "Return an approval request by given id",
-                "operationId": "show",
+                "operationId": "showRequest",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -396,10 +417,13 @@
                 ],
                 "summary": "Return an array of stages by given request id",
                 "description": "Return an array of stages by given request id",
-                "operationId": "index",
+                "operationId": "listStagesByRequest",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/request_id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -438,10 +462,13 @@
                 ],
                 "summary": "Return an approval stage by given id",
                 "description": "Return an approval stage by given id",
-                "operationId": "show",
+                "operationId": "showStage",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -480,13 +507,16 @@
                 ],
                 "summary": "Return all templates",
                 "description": "Return all templates",
-                "operationId": "index",
+                "operationId": "listTemplates",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/limit"
                     },
                     {
                         "$ref": "#/components/parameters/offset"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -533,10 +563,13 @@
                 ],
                 "summary": "Return a template by given id",
                 "description": "Return a template by given id",
-                "operationId": "show",
+                "operationId": "showTemplate",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -575,13 +608,16 @@
                 ],
                 "summary": "Return all approval workflows",
                 "description": "Return all approval workflows",
-                "operationId": "index",
+                "operationId": "listWorkflows",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/limit"
                     },
                     {
                         "$ref": "#/components/parameters/offset"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -628,7 +664,7 @@
                 ],
                 "summary": "Return an array of workflows by given template id",
                 "description": "Return an array of workflows by given template id",
-                "operationId": "index",
+                "operationId": "listWorkflowsByTemplate",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/template_id"
@@ -638,6 +674,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/offset"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -682,10 +721,13 @@
                 ],
                 "summary": "Add a workflow by given template id",
                 "description": "Add a workflow by given template id",
-                "operationId": "create",
+                "operationId": "addWorkflowToTemplate",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/template_id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "requestBody": {
@@ -735,10 +777,13 @@
                 ],
                 "summary": "Return an approval workflow by given id",
                 "description": "Return an approval workflow by given id",
-                "operationId": "show",
+                "operationId": "showWorkflow",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -775,10 +820,13 @@
                 ],
                 "summary": "Update an approval workflow by given id",
                 "description": "Update an approval workflow by given id",
-                "operationId": "update",
+                "operationId": "updateWorkflow",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "requestBody": {
@@ -793,6 +841,16 @@
                     "required": true
                 },
                 "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkflowOut"
+                                }
+                            }
+                        }
+                    },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
@@ -816,13 +874,19 @@
                 ],
                 "summary": "Delete approval workflow by given id",
                 "description": "Delete approval workflow by given id",
-                "operationId": "destroy",
+                "operationId": "destroyWorkflow",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
+                    "204": {
+                        "description": "Workflow Deleted"
+                    },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
@@ -967,6 +1031,15 @@
                 "name": "requester",
                 "in": "query",
                 "description": "Fetch item by given requester",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "identity": {
+                "name": "x-rh-identity",
+                "in": "header",
+                "description": "redhat header info",
                 "required": false,
                 "schema": {
                     "type": "string"
@@ -1168,7 +1241,7 @@
                         "default": "undecided"
                     },
                     "notified_at": {
-                        "type": "date-time",
+                        "type": "string",
                         "description": "the time approvers in the stage are notified"
                     }
                 }
