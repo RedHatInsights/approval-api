@@ -46,9 +46,6 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/stage_id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "requestBody": {
@@ -100,9 +97,6 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/stage_id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -153,9 +147,6 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -210,9 +201,6 @@
                     },
                     {
                         "$ref": "#/components/parameters/offset"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -269,9 +257,6 @@
                     },
                     {
                         "$ref": "#/components/parameters/offset"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -320,9 +305,6 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/workflow_id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "requestBody": {
@@ -376,9 +358,6 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -421,9 +400,6 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/request_id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -466,9 +442,6 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -514,9 +487,6 @@
                     },
                     {
                         "$ref": "#/components/parameters/offset"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -567,9 +537,6 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -615,9 +582,6 @@
                     },
                     {
                         "$ref": "#/components/parameters/offset"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -674,9 +638,6 @@
                     },
                     {
                         "$ref": "#/components/parameters/offset"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -725,9 +686,6 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/template_id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "requestBody": {
@@ -781,9 +739,6 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -824,9 +779,6 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "requestBody": {
@@ -878,9 +830,6 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/identity"
                     }
                 ],
                 "responses": {
@@ -1031,15 +980,6 @@
                 "name": "requester",
                 "in": "query",
                 "description": "Fetch item by given requester",
-                "required": false,
-                "schema": {
-                    "type": "string"
-                }
-            },
-            "identity": {
-                "name": "x-rh-identity",
-                "in": "header",
-                "description": "redhat header info",
                 "required": false,
                 "schema": {
                     "type": "string"
