@@ -25,10 +25,12 @@ RUN source /opt/rh/rh-postgresql10/enable && \
 
 COPY . $WORKDIR
 COPY docker-assets/entrypoint /usr/bin
+COPY docker-assets/run_rails_server /usr/bin
 
 RUN chgrp -R 0 $WORKDIR && \
     chmod -R g=u $WORKDIR
 
 EXPOSE 3000
 
-CMD ["entrypoint"]
+ENTRYPOINT ["entrypoint"]
+CMD ["run_rails_server"]
