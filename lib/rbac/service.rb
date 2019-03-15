@@ -51,8 +51,8 @@ module RBAC
     private_class_method def self.dev_credentials(config)
       # Set up user/pass for basic auth if we're in dev and they exist.
       if Rails.env.development?
-        config.username = ENV['DEV_USERNAME'] || raise("Empty ENV variable: DEV_USERNAME")
-        config.password = ENV['DEV_PASSWORD'] || raise("Empty ENV variable: DEV_PASSWORD")
+        config.username = ENV['RBAC_USERNAME'] || raise("Empty ENV variable: RBAC_USERNAME")
+        config.password = ENV['RBAC_PASSWORD'] || raise("Empty ENV variable: RBAC_PASSWORD")
       end
     end
   end

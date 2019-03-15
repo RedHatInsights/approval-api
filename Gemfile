@@ -17,6 +17,7 @@ gem 'swagger_ui_engine'
 
 gem 'manageiq-api-common', :git => 'https://github.com/ManageIQ/manageiq-api-common', :branch => 'master'
 gem 'rbac-api-client', :git => "https://github.com/mkanoor/rbac_api_client", :branch => "master"
+gem 'kie_client', :git => "https://github.com/bzwei/kie_client", :branch => "master"
 
 group :development, :test do
   gem 'simplecov'
