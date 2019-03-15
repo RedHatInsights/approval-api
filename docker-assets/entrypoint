@@ -1,6 +1,13 @@
 #!/bin/bash
 
-export RAILS_ENV=production
+function urlescape() {
+  PAYLOAD="$1" ruby -rcgi -e "puts CGI.escape(ENV['PAYLOAD'])"
+}
 
-bundle exec rake db:migrate db:seed
-bundle exec rails server
+safeuser=$(urlescape ${DATABASE_USER})
+safepass=$(urlescape ${DATABASE_PASSWORD})
+
+export RAILS_ENV=production
+export DATABASE_URL="postgresql://${safeuser}:${safepass}@${DATABASE_HOST}:${DATABASE_PORT}/approval_production?encoding=utf8&pool=5&wait_timeout=5"
+
+exec ${@}
