@@ -1,6 +1,5 @@
 class Request < ApplicationRecord
   include Filterable
-  include Convertable
   include ApprovalStates
   include ApprovalDecisions
 
@@ -19,8 +18,4 @@ class Request < ApplicationRecord
   scope :decision,  ->(decision)  { where(:decision => decision) }
   scope :state,     ->(state)     { where(:state => state) }
   scope :requester, ->(requester) { where(:requester => requester) }
-
-  def as_json(_options = {})
-    convert_date_id(attributes)
-  end
 end

@@ -1,6 +1,4 @@
 class Action < ApplicationRecord
-  include Convertable
-
   acts_as_tenant(:tenant)
 
   NOTIFY_OPERATION  = 'notify'.freeze
@@ -13,8 +11,4 @@ class Action < ApplicationRecord
   validates :operation,    :inclusion => { :in => OPERATIONS }
   validates :processed_by, :presence  => true
   belongs_to :stage, :inverse_of => :actions
-
-  def as_json(_options = {})
-    convert_date_id(attributes)
-  end
 end

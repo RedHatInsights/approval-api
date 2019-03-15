@@ -1,7 +1,6 @@
 class Stage < ApplicationRecord
   include ApprovalStates
   include ApprovalDecisions
-  include Convertable
 
   acts_as_tenant(:tenant)
 
@@ -26,9 +25,5 @@ class Stage < ApplicationRecord
 
   def group
     @group ||= Group.find(group_ref)
-  end
-
-  def as_json(_options = {})
-    convert_date_id(attributes)
   end
 end
