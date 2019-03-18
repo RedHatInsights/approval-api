@@ -63,8 +63,11 @@ RSpec.describe 'Workflows API' do
 
     context 'when the record exists' do
       it 'returns the workflow' do
+        workflow = workflows.first
+
         expect(json).not_to be_empty
-        expect(json['id']).to eq(id)
+        expect(json['id']).to eq(workflow.id.to_s)
+        expect(json['created_at']).to eq(workflow.created_at.iso8601)
       end
       it 'returns status code 200' do
         expect(response).to have_http_status(200)

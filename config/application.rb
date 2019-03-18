@@ -31,6 +31,7 @@ module ServiceApproval
     config.autoload_paths += config.eager_load_paths
 
     config.autoload_paths << Rails.root.join("app", "controllers", "mixins").to_s
+    config.autoload_paths << Rails.root.join('lib').to_s
 
     ManageIQ::API::Common::Logging.activate(config)
     ManageIQ::API::Common::Metrics.activate(config, "approval_api")
