@@ -24,8 +24,11 @@ RSpec.describe 'Stages API' do
 
     context 'when the record exists' do
       it 'returns the stage' do
+        stage = stages.first
+
         expect(json).not_to be_empty
-        expect(json['id']).to eq(id.to_s)
+        expect(json['id']).to eq(stage.id.to_s)
+        expect(json['created_at']).to eq(stage.created_at.iso8601)
       end
 
       it 'returns status code 200' do

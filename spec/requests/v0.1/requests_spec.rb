@@ -98,8 +98,11 @@ RSpec.describe 'Requests API' do
 
     context 'when the record exist' do
       it 'returns the request' do
+        request = requests.first
+
         expect(json).not_to be_empty
-        expect(json['id']).to eq(id.to_s)
+        expect(json['id']).to eq(request.id.to_s)
+        expect(json['created_at']).to eq(request.created_at.iso8601)
       end
 
       it 'returns status code 200' do

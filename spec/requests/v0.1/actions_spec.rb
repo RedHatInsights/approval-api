@@ -21,8 +21,11 @@ RSpec.describe 'Actions API' do
 
     context 'when the record exists' do
       it 'returns the action' do
+        action = actions.first
+
         expect(json).not_to be_empty
-        expect(json['id']).to eq(id.to_s)
+        expect(json['id']).to eq(action.id.to_s)
+        expect(json['created_at']).to eq(action.created_at.iso8601)
       end
 
       it 'returns status code 200' do

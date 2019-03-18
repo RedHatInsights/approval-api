@@ -34,8 +34,11 @@ RSpec.describe 'Templates API', :type => :request do
 
     context 'when the record exists' do
       it 'returns the template' do
+        template = templates.first
+
         expect(json).not_to be_empty
-        expect(json['id']).to eq(template_id.to_s)
+        expect(json['id']).to eq(template.id.to_s)
+        expect(json['created_at']).to eq(template.created_at.iso8601)
       end
 
       it 'returns status code 200' do
