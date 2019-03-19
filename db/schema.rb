@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_02_25_153612) do
+ActiveRecord::Schema.define(version: 2019_03_15_153513) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,6 +39,7 @@ ActiveRecord::Schema.define(version: 2019_02_25_153612) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "tenant_id"
+    t.string "process_ref"
     t.index ["tenant_id"], name: "index_requests_on_tenant_id"
     t.index ["workflow_id"], name: "index_requests_on_workflow_id"
   end
