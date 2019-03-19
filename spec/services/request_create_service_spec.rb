@@ -8,17 +8,19 @@ RSpec.describe RequestCreateService do
 
   context 'without auto approval' do
     context 'template has external process' do
-      let(:template) { create(:template, :process_setting => {'url' => 'url'}) }
+      let(:template) { create(:template, :process_setting => {'processor_type' => 'jbpm', 'url' => 'url'}) }
 
-      it 'creates a request in pending state' do
+      it 'creates a request and immediately starts' do
+        expect(JbpmProcessService).to receive(:new).and_return(double(:jbpm, :start => 100))
         request = subject.create(:name => 'req1', :requester => 'test', :content => 'test me')
         request.reload
         expect(request).to have_attributes(
-          :name      => 'req1',
-          :requester => 'test',
-          :content   => 'test me',
-          :state     => Request::PENDING_STATE,
-          :decision  => Request::UNDECIDED_STATUS
+          :name        => 'req1',
+          :requester   => 'test',
+          :content     => 'test me',
+          :process_ref => '100',
+          :state       => Request::NOTIFIED_STATE,
+          :decision    => Request::UNDECIDED_STATUS
         )
       end
     end

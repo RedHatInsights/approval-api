@@ -25,4 +25,8 @@ class Workflow < ApplicationRecord
   def external_processing?
     template.process_setting.present?
   end
+
+  def external_signal?
+    template.signal_setting.present?
+  end
 end

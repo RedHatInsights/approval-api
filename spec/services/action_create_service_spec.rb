@@ -21,7 +21,6 @@ RSpec.describe ActionCreateService do
       request.reload
       expect(action).to have_attributes(:operation => Action::NOTIFY_OPERATION, :processed_by => 'system')
       expect(stage1.state).to  eq(Stage::NOTIFIED_STATE)
-      expect(request.state).to eq(Request::NOTIFIED_STATE)
     end
   end
 
