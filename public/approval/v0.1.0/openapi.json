@@ -857,6 +857,9 @@
     },
     "security": [
         {
+            "Basic_auth": []
+        },
+        {
             "APIKey_auth": []
         }
     ],
@@ -866,7 +869,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost:3000"
+            "url": "http://localhost/api/approval"
         }
     ],
     "components": {
@@ -1007,6 +1010,11 @@
             }
         },
         "securitySchemes": {
+            "Basic_auth": {
+                "type": "http",
+                "description": "The userid/password is needed when accessing this API externally",
+                "scheme": "basic"
+            },
             "APIKey_auth": {
                 "type": "apiKey",
                 "in": "header",
