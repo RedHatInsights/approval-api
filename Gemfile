@@ -16,7 +16,7 @@ gem 'rest-client',        '>= 1.8.0'
 gem 'swagger_ui_engine'
 
 gem 'manageiq-api-common', :git => 'https://github.com/ManageIQ/manageiq-api-common', :branch => 'master'
-gem 'rbac-api-client', :git => "https://github.com/mkanoor/rbac_api_client", :branch => "master"
+gem 'rbac-api-client', :git => 'https://github.com/RedHatInsights/insights-rbac-api-client-ruby.git', :branch => "master"
 
 group :development, :test do
   gem 'simplecov'
