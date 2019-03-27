@@ -15,6 +15,7 @@ gem 'rails',              '>= 5.2.2.1', '~> 5.2.2'
 gem 'rest-client',        '>= 1.8.0'
 gem 'swagger_ui_engine'
 
+gem 'kie_client', :git => "https://github.com/ManageIQ/kie-api-client-ruby", :branch => "master"
 gem 'manageiq-api-common', :git => 'https://github.com/ManageIQ/manageiq-api-common', :branch => 'master'
 gem 'rbac-api-client', :git => 'https://github.com/RedHatInsights/insights-rbac-api-client-ruby.git', :branch => "master"
 

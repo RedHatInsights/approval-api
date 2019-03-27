@@ -1,5 +1,5 @@
 RSpec.describe StageUpdateService do
-  let(:template) { create(:template, :process_setting => {'url' => 'url'}) }
+  let(:template) { create(:template, :signal_setting => {'processor_type' => 'jbpm', 'url' => 'url'}) }
   let(:workflow) { create(:workflow, :template => template) }
   let(:request)  { create(:request, :workflow => workflow) }
   let!(:stage1)  { create(:stage, :request => request) }
@@ -19,16 +19,18 @@ RSpec.describe StageUpdateService do
       expect(event_service).to receive(:approver_group_notified)
       svc1.update(:state => Stage::NOTIFIED_STATE)
       stage1.reload
-      request.reload
       expect(stage1.state).to eq(Stage::NOTIFIED_STATE)
-      expect(request.state).to eq(Request::NOTIFIED_STATE)
     end
   end
 
   context 'state becomes finished' do
+    let(:jbpm) { double(:jbpm) }
+    before { allow(JbpmProcessService).to receive(:new).and_return(jbpm) }
+
     describe 'first stage' do
       context 'with external process' do
-        it 'sends approver_group_finished event' do
+        it 'sends approver_group_finished event and signals the external process' do
+          expect(jbpm).to receive(:signal).with(anything)
           expect(event_service).to receive(:approver_group_finished)
           svc1.update(:state => Stage::FINISHED_STATE)
           stage1.reload
@@ -55,6 +57,7 @@ RSpec.describe StageUpdateService do
 
     describe 'last stage' do
       it 'sends approver_group_finished event and updates request' do
+        expect(jbpm).to receive(:signal).with(anything)
         expect(event_service).to receive(:approver_group_finished)
         svc2.update(:state => Stage::FINISHED_STATE)
         stage2.reload

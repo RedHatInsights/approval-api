@@ -22,9 +22,11 @@ class RequestCreateService
     )
     Request.create!(create_options).tap do |request|
       if default_approve? || auto_approve?
-        start_approval_process(request)
+        start_internal_approval_process(request)
       elsif !workflow.external_processing?
         start_first_stage(request)
+      else
+        start_external_approval_process(request)
       end
     end
   end
@@ -39,7 +41,7 @@ class RequestCreateService
     ENV['AUTO_APPROVAL'] && ENV['AUTO_APPROVAL'] != 'n'
   end
 
-  def start_approval_process(request)
+  def start_internal_approval_process(request)
     Thread.new do
       default_approve? ? default_approve(request) : auto_approve(request)
     end
@@ -48,6 +50,7 @@ class RequestCreateService
   def auto_approve(request)
     sleep_time = ENV['AUTO_APPROVAL_INTERVAL'].to_f
 
+    request_started(request)
     request.stages.each { |stage| group_auto_approve(stage, sleep_time) }
   end
 
@@ -88,9 +91,18 @@ class RequestCreateService
   end
 
   def start_first_stage(request)
+    request_started(request)
     ActionCreateService.new(request.stages.first.id).create(
       :operation    => Action::NOTIFY_OPERATION,
       :processed_by => 'system'
     )
+  end
+
+  def start_external_approval_process(request)
+    template = request.workflow.template
+    processor_class = "#{template.process_setting['processor_type']}_process_service".classify.constantize
+    ref = processor_class.new(request).start
+    request.update_attributes(:process_ref => ref)
+    request_started(request)
   end
 end
