@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_03_15_153513) do
+ActiveRecord::Schema.define(version: 2019_03_29_151023) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -53,8 +53,10 @@ ActiveRecord::Schema.define(version: 2019_03_15_153513) do
     t.datetime "updated_at", null: false
     t.bigint "tenant_id"
     t.string "group_ref"
+    t.string "random_access_key"
     t.index ["group_ref"], name: "index_stages_on_group_ref"
     t.index ["request_id"], name: "index_stages_on_request_id"
+    t.index ["random_access_key"], name: "index_stages_on_random_access_key"
     t.index ["tenant_id"], name: "index_stages_on_tenant_id"
   end
 
