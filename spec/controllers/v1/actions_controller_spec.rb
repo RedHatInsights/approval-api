@@ -1,2 +1,2 @@
-RSpec.describe Api::V0x1::ActionsController, :type => :controller do
+RSpec.describe Api::V1x0::ActionsController, :type => :controller do
 end

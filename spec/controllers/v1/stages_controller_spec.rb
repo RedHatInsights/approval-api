@@ -1,2 +1,2 @@
-RSpec.describe Api::V0x1::StagesController, :type => :controller do
+RSpec.describe Api::V1x0::StagesController, :type => :controller do
 end

@@ -9,8 +9,8 @@ Rails.application.routes.draw do
   end
 
   scope :as => :api, :module => "api", :path => prefix do
-    match "/v0/*path", :via => %i(delete get patch post), :to => redirect(:path => "/#{prefix}/v0.1/%{path}", :only_path => true)
-    namespace :v0x1, :path => "v0.1" do
+    match "/v1/*path", :via => %i(delete get patch post), :to => redirect(:path => "/#{prefix}/v1.0/%{path}", :only_path => true)
+    namespace :v1x0, :path => "v1.0" do
       resources :actions, :only => [:show]
 
       resources :stages, :only => [:show] do
