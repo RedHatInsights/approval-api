@@ -8,7 +8,6 @@ class Request < ApplicationRecord
   belongs_to :workflow
   has_many :stages, -> { order(:id => :asc) }, :inverse_of => :request, :dependent => :destroy
 
-  validates :requester, :presence => true
   validates :name,      :presence => true
   validates :content,   :presence => true
 
