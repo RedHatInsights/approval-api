@@ -5,7 +5,7 @@ module RequestSpecHelper
     JSON.parse(response.body)
   end
 
-  def version(ver = 'v0.0')
+  def version(ver = 'v1.0')
     "/api/#{ver}"
   end
 

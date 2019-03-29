@@ -14,7 +14,7 @@ RSpec.describe 'Stages API' do
   let!(:stages) { create_list(:stage, 5, :group_ref => group_ref, :request_id => request.id, :tenant_id => tenant.id) }
   let(:id) { stages.first.id }
 
-  let(:api_version) { version('v1.0') }
+  let(:api_version) { version }
 
   before { allow(Group).to receive(:find) }
 
