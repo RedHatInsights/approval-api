@@ -55,6 +55,7 @@ class StageUpdateService
   end
 
   def stage_finished(decision)
+    stage.update_attributes(:random_access_key => nil)
     if external_signal?
       signal_external_approval_process(decision)
     else

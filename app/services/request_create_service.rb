@@ -1,4 +1,6 @@
 class RequestCreateService
+  require 'securerandom'
+
   attr_accessor :workflow
 
   def initialize(workflow_id)
@@ -8,9 +10,10 @@ class RequestCreateService
   def create(options)
     stages = workflow.group_refs.collect do |group_ref|
       Stage.new(
-        :group_ref => group_ref,
-        :state     => Stage::PENDING_STATE,
-        :decision  => Stage::UNDECIDED_STATUS,
+        :group_ref         => group_ref,
+        :state             => Stage::PENDING_STATE,
+        :decision          => Stage::UNDECIDED_STATUS,
+        :random_access_key => SecureRandom.hex(16)
       )
     end
 
@@ -50,21 +53,13 @@ class RequestCreateService
   def auto_approve(request)
     sleep_time = ENV['AUTO_APPROVAL_INTERVAL'].to_f
 
-    request_started(request)
+    start_first_stage(request)
     request.stages.each { |stage| group_auto_approve(stage, sleep_time) }
   end
 
   def group_auto_approve(stage, sleep_time)
-    acs = ActionCreateService.new(stage.id)
     sleep(sleep_time)
-    acs.create(
-      'operation'    => Action::NOTIFY_OPERATION,
-      'processed_by' => 'system',
-      'comments'     => "Simulate notification to group(#{stage.name})"
-    )
-
-    sleep(sleep_time)
-    acs.create(
+    ActionCreateService.new(stage.id).create(
       'operation'    => Action::APPROVE_OPERATION,
       'processed_by' => 'system',
       'comments'     => 'ok'

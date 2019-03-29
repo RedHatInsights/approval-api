@@ -1,6 +1,6 @@
 RSpec.describe RequestCreateService do
   let(:template) { create(:template) }
-  let(:group_refs) { ["991"] }
+  let(:group_refs) { %w[991 992] }
   let(:workflow) { create(:workflow, :group_refs => group_refs, :template => template) }
   subject { described_class.new(workflow.id) }
 
@@ -22,6 +22,15 @@ RSpec.describe RequestCreateService do
           :state       => Request::NOTIFIED_STATE,
           :decision    => Request::UNDECIDED_STATUS
         )
+        [0, 1].each do |index|
+          stage = request.stages[index]
+          expect(stage).to have_attributes(
+            :state             => Stage::PENDING_STATE,
+            :decision          => Stage::UNDECIDED_STATUS,
+            :reason            => nil,
+            :random_access_key => be_kind_of(String)
+          )
+        end
       end
     end
 
@@ -63,19 +72,23 @@ RSpec.describe RequestCreateService do
         :decision  => Request::APPROVED_STATUS,
         :reason    => 'ok'
       )
-      expect(request.stages.first).to have_attributes(
-        :state    => Stage::FINISHED_STATE,
-        :decision => Stage::APPROVED_STATUS,
-        :reason   => 'ok'
-      )
-      expect(request.stages.first.actions.first).to have_attributes(
-        :operation    => Action::NOTIFY_OPERATION,
-        :processed_by => 'system',
-      )
-      expect(request.stages.first.actions.last).to have_attributes(
-        :operation => Action::APPROVE_OPERATION,
-        :comments  => 'ok'
-      )
+      [0, 1].each do |index|
+        stage = request.stages[index]
+        expect(stage).to have_attributes(
+          :state             => Stage::FINISHED_STATE,
+          :decision          => Stage::APPROVED_STATUS,
+          :reason            => 'ok',
+          :random_access_key => nil
+        )
+        expect(stage.actions.first).to have_attributes(
+          :operation    => Action::NOTIFY_OPERATION,
+          :processed_by => 'system',
+        )
+        expect(stage.actions.last).to have_attributes(
+          :operation => Action::APPROVE_OPERATION,
+          :comments  => 'ok'
+        )
+      end
     end
   end
 
