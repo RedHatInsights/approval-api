@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   scope :as => :api, :module => "api", :path => prefix do
     match "/v1/*path", :via => %i(delete get patch post), :to => redirect(:path => "/#{prefix}/v1.0/%{path}", :only_path => true)
     namespace :v1x0, :path => "v1.0" do
+      get "/openapi.json", :to => "root#openapi"
       resources :actions, :only => [:show]
 
       resources :stages, :only => [:show] do
