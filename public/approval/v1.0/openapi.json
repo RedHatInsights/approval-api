@@ -858,9 +858,6 @@
     "security": [
         {
             "Basic_auth": []
-        },
-        {
-            "APIKey_auth": []
         }
     ],
     "externalDocs": {
@@ -1014,12 +1011,6 @@
                 "type": "http",
                 "description": "The userid/password is needed when accessing this API externally",
                 "scheme": "basic"
-            },
-            "APIKey_auth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-rh-identity",
-                "description": "This is a base64 encoded string of a collection of attributes, that identify a user. This token is needed when accessing the API internally."
             }
         },
         "schemas": {
