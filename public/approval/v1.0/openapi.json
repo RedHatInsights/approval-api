@@ -869,7 +869,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost/api/approval"
+            "url": "http://localhost/api/approval/v1.0"
         }
     ],
     "components": {
