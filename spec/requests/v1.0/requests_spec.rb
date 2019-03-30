@@ -126,7 +126,7 @@ RSpec.describe 'Requests API' do
   # Test suite for POST /workflows/:workflow_id/requests
   describe 'POST /workflows/:workflow_id/requests' do
     let(:item) { { 'disk' => '100GB' } }
-    let(:valid_attributes) { { :requester => '1234', :name => 'Visit Narnia', :content => JSON.generate(item) } }
+    let(:valid_attributes) { { :requester => '1234', :name => 'Visit Narnia', :content => item } }
 
     context 'when request attributes are valid' do
       before do
