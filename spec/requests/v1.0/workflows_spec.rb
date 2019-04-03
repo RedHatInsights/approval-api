@@ -100,8 +100,8 @@ RSpec.describe 'Workflows API' do
       end
     end
 
-    context 'when a request with invalid group_refs' do
-      before { post "#{api_version}/templates/#{template_id}/workflows", :params => { :group_refs => [-1, -2, -3] }, :headers => request_header }
+    context 'when a request with missing parameter' do
+      before { post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => request_header }
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
