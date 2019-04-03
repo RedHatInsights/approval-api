@@ -57,6 +57,24 @@ RSpec.describe 'Requests API' do
       expect(json['data'].size).to eq(5)
     end
 
+    it 'sets the context' do
+      expect(json['data'].first['context'].keys).to eq %w[headers original_url]
+      expect(json['data'].first['context']['headers']['x-rh-identity']).to eq encoded_user
+    end
+
+    it 'can recreate the request from context' do
+      req = nil
+      ManageIQ::API::Common::Request.with_request(:headers => request_header, :original_url => "approval.com/approval") do
+        req = create(:request)
+      end
+
+      new_request = req.context.transform_keys(&:to_sym)
+      ManageIQ::API::Common::Request.with_request(new_request) do
+        expect(ManageIQ::API::Common::Request.current.user.username).to eq "jdoe"
+        expect(ManageIQ::API::Common::Request.current.user.email).to eq "jdoe@acme.com"
+      end
+    end
+
     it 'returns status code 200' do
       expect(response).to have_http_status(200)
     end

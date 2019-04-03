@@ -17,4 +17,12 @@ class Request < ApplicationRecord
   scope :decision,  ->(decision)  { where(:decision => decision) }
   scope :state,     ->(state)     { where(:state => state) }
   scope :requester, ->(requester) { where(:requester => requester) }
+
+  after_initialize :set_context
+
+  private
+
+  def set_context
+    self.context = ManageIQ::API::Common::Request.current.to_h
+  end
 end
