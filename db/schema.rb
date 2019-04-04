@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_04_02_165411) do
+ActiveRecord::Schema.define(version: 2019_04_03_173445) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -25,6 +25,13 @@ ActiveRecord::Schema.define(version: 2019_04_02_165411) do
     t.bigint "tenant_id"
     t.index ["stage_id"], name: "index_actions_on_stage_id"
     t.index ["tenant_id"], name: "index_actions_on_tenant_id"
+  end
+
+  create_table "encryptions", force: :cascade do |t|
+    t.bigint "tenant_id"
+    t.string "secret"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "requests", force: :cascade do |t|
@@ -56,8 +63,8 @@ ActiveRecord::Schema.define(version: 2019_04_02_165411) do
     t.string "group_ref"
     t.string "random_access_key"
     t.index ["group_ref"], name: "index_stages_on_group_ref"
-    t.index ["request_id"], name: "index_stages_on_request_id"
     t.index ["random_access_key"], name: "index_stages_on_random_access_key"
+    t.index ["request_id"], name: "index_stages_on_request_id"
     t.index ["tenant_id"], name: "index_stages_on_tenant_id"
   end
 
