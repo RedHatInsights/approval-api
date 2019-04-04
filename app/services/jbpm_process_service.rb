@@ -6,14 +6,14 @@ class JbpmProcessService
   end
 
   def start
-    options = template.process_setting
+    options = substitute_password(template.process_setting)
     Kie::Service.call(KieClient::ProcessInstancesBPMApi, options) do |bpm|
       bpm.start_process(options['container_id'], options['process_id'], :body => process_options)
     end
   end
 
   def signal(decision)
-    options = template.signal_setting
+    options = substitute_password(template.signal_setting)
     Kie::Service.call(KieClient::ProcessInstancesBPMApi, options) do |bpm|
       bpm.signal_process_instance(options['container_id'], request.process_ref, options['signal_name'], :body => signal_options(decision))
     end
@@ -33,5 +33,11 @@ class JbpmProcessService
   def signal_options(decision)
     # TODO: more options
     {'decision' => decision}
+  end
+
+  def substitute_password(options)
+    secret_id = options['password']
+    options['password'] = Encryption.find(secret_id).secret
+    options
   end
 end
