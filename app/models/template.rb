@@ -50,9 +50,9 @@ class Template < ApplicationRecord
 
   def delete_passwords
     process_password_id = process_setting.try(:[], 'password')
-    Encryption.delete(process_password_id) if process_password_id
+    Encryption.destroy(process_password_id) if process_password_id
 
     signal_password_id = signal_setting.try(:[], 'password')
-    Encryption.delete(signal_password_id) if signal_password_id
+    Encryption.destroy(signal_password_id) if signal_password_id
   end
 end

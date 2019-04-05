@@ -10,10 +10,6 @@ RSpec.describe Template, type: :model do
       ENV['KIE_CONTAINER_ID']    = 'approval_1.0.0'
       ENV['BPM_BML_PROCESS_ID']  = 'com.redhat.management.approval.MultiStageEmails'
       ENV['BPM_BML_SIGNAL_NAME'] = 'nextGroup'
-
-      #require 'manageiq/password'
-
-      #allow(ManageIQ::Password).to receive(:encrypt).and_return('xyz')
     end
 
     after do
@@ -29,8 +25,7 @@ RSpec.describe Template, type: :model do
       described_class.seed
       expect(described_class.count).to eq(1)
 
-      template = described_class.first
-      expect(template.title).to eq('Basic')
+      template = described_class.find_by(:title => 'Basic')
       expect(template.process_setting).to include(
         'host'         => 'localhost:8080',
         'username'     => 'executionUser',
@@ -46,12 +41,21 @@ RSpec.describe Template, type: :model do
         'signal_name'  => 'nextGroup',
       )
     end
+
+    it 'skips already seeded record' do
+      described_class.seed
+      template_first_round = described_class.find_by(:title => 'Basic')
+
+      described_class.seed
+      tempalte_second_round = described_class.find_by(:title => 'Basic')
+      expect(template_first_round.attributes).to eq(tempalte_second_round.attributes)
+    end
   end
 
   describe '#destroy' do
-    let (:password_id1) { Encryption.create!.id }
-    let (:password_id2) { Encryption.create!.id }
-    let (:template) { FactoryBot.create(:template, :process_setting => {'password' => password_id1}, :signal_setting => {'password' => password_id2})}
+    let(:password_id1) { Encryption.create!.id }
+    let(:password_id2) { Encryption.create!.id }
+    let(:template) { FactoryBot.create(:template, :process_setting => {'password' => password_id1}, :signal_setting => {'password' => password_id2}) }
 
     it 'deletes encrypted passwords' do
       expect(Encryption.where(:id => password_id1)).to exist

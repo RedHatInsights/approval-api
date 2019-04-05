@@ -1,14 +1,22 @@
 RSpec.describe JbpmProcessService do
-  let(:common_setting) do
-    {'processor_type' => 'jbpm', 'host' => 'http://url', 'username' => 'u', 'password' => 'p', 'container_id' => 'can'}
-  end
-
   let(:template) do
-    create(
-      :template,
-      :process_setting => common_setting.merge('process_id' => 'proc'),
-      :signal_setting  => common_setting.merge('signal_name'  => 'sig'),
-    )
+    ENV['KIE_SERVER_HOST']     = 'localhost:8080'
+    ENV['KIE_SERVER_USERNAME'] = 'executionUser'
+    ENV['KIE_SERVER_PASSWORD'] = 'password'
+    ENV['KIE_CONTAINER_ID']    = 'can'
+    ENV['BPM_BML_PROCESS_ID']  = 'proc'
+    ENV['BPM_BML_SIGNAL_NAME'] = 'sig'
+
+    Template.seed
+
+    ENV['KIE_SERVER_HOST']     = nil
+    ENV['KIE_SERVER_USERNAME'] = nil
+    ENV['KIE_SERVER_PASSWORD'] = nil
+    ENV['KIE_CONTAINER_ID']    = nil
+    ENV['BPM_BML_PROCESS_ID']  = nil
+    ENV['BPM_BML_SIGNAL_NAME'] = nil
+
+    Template.find_by(:title => 'Basic')
   end
 
   let(:workflow) { create(:workflow, :template => template) }
