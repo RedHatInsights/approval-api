@@ -1,0 +1,39 @@
+<html>
+    <style>
+      table {
+        border-collapse: collapse;
+      }
+      td {
+        vertical-align: bottom;
+      }
+      th, td {
+        padding: 3px;
+        text-align: left;
+      }
+    </style>
+    <body>
+        <%= image_tag("/Red_Hat_logo_RedHat.png", :size => '300x100') %>
+        <font face="verdana"><br>
+            <font size="22" color="red"><b>Hybrid Cloud Manager</font><hr>
+            <% if response.status != 200 %>
+            <h1 font size="24">Your request failed to complete: </h1>
+            <p><strong>Reason	:</strong> <%= response.body %></p>
+            <% else %>
+            <h1 font size="24">Your request has been processed successfully</h1>
+            <% end %>
+            
+            <% if @order %>
+            <p><strong>Request details [<%= params[:commit] %>]:</strong></p>
+            <table>
+              <tr><td><strong>Ordered By	:</strong></td>	<td><%= @order[:orderer] %></td></tr>
+              <tr><td><strong>Product	:</strong></td>	<td><%= @order[:product] %></td></tr>
+              <tr><td><strong>Portfolio	:</strong></td>	<td><%= @order[:portfolio] %></td></tr>
+              <tr><td><strong>Platform	:</strong></td>	<td><%= @order[:platform] %></td></tr>
+              <tr><td><strong>Ordered ID	:</strong></td>	<td><%= @order[:order_id] %></td></tr>
+              <tr><td><strong>Ordered Date	:</strong></td>	<td><%= @order[:order_date] %></td></tr>
+              <tr><td><strong>Ordered Time	:</strong></td>	<td><%= @order[:order_time] %></td></tr>
+            </table>
+            <% end %>
+        </font>
+    </body>
+</html>

@@ -1,0 +1,116 @@
+<p id="notice"><%= notice %></p>
+<html>
+    <style>
+        textarea {
+            width: 90%;
+            height: 150;
+            margin: 20; /* don't want to add to container size */
+            border: 1; /* don't want to add to container size */
+            font-size: 22px;
+        }
+        button, input[type=submit] {
+          width: 90%;
+          height: 60;
+          padding: 12px 10px;
+          margin: 20;
+          box-sizing: border-box;
+          font-size: 30px;
+          font-weight: bold;
+          background-color: darkgrey;
+        }
+        #details {
+          width: 100%;
+          padding: 50px 0;
+          text-align: center;
+          background-color: #E5E7E9;
+          margin-top: 20px;
+        }
+    </style>
+    <body>
+        <%= image_tag("/Red_Hat_logo_RedHat.png", :size => '300x100') %>
+        <font face="verdana"><br>
+            <font size="22" color="red"><b>Hybrid Cloud Manager</font><hr>
+            <h1><font size="24">Catalog Request</h1>
+            <table>
+                <tr>
+                    <td><b><font size="14">Ordered By</b></td>
+                    <td>:</td>
+                    <td><font size="14"><%= @order[:orderer] %></td>
+                </tr>
+                <tr>
+                    <td><b><font size="14">Product</b></td>
+                    <td>:</td>
+                    <td><font size="14"><%= @order[:product] %></td>
+                    
+                </tr>
+                <tr>
+                    <td><b><font size="14">Portfolio</b></td>
+                    <td>:</td>
+                    <td><font size="14"><%= @order[:portfolio] %></td>
+                    
+                </tr>
+                <tr>
+                    <td><b><font size="14">Platform</b></td>
+                    <td>:</td>
+                    <td><font size="14"><%= @order[:platform] %></td>
+                    
+                </tr>
+                <tr>
+                    <td><b><font size="14">Order ID</b></td>
+                    <td>:</td>
+                    <td><font size="14"><%= @order[:order_id] %></td>
+                    
+                </tr>
+                <tr>
+                    <td><b><font size="14">Order Date</b></td>
+                    <td>:</td>
+                    <td><font size="14"><%= @order[:order_date] %></td>
+                    
+                </tr>
+                <tr>
+                    <td><b><font size="14">Order Time</b></td>
+                    <td>:</td>
+                    <td><font size="14"><%= @order[:order_time] %></td>
+                    
+                </tr>
+                </tr>
+                
+            </table>
+
+            <div id="details" style="display:none;">
+                <table>
+                  <% @order[:order_content].each do |k, v| %>
+                    <tr>
+                      <td><b><font size="14"><%= k %></b></td>
+                        <td>:</td>
+                        <td><font size="14"><%= v %></td>
+                    </tr>
+                <% end %>
+                </table>
+            </div>
+
+            <br>
+            Reason/Memo
+            <%= form_with method: :patch do |form| %>
+              <%= form.text_area :message %>
+              <%= form.hidden_field :approver, value: @approver %>
+              <%= form.submit 'Memo', style: "background-color: #E5E7E9" %>
+              <%= form.submit 'Approve', style: "background-color: #229954" %>
+              <%= form.submit 'Deny', style: "background-color: #E74C3C" %>
+            <% end %>
+            <button onclick="showDetails()">Detail</button>
+
+            <script>
+                function showDetails() {
+                    var x = document.getElementById("details");
+                    if (x.style.display === "none") {
+                      x.style.display = "block";
+                    } else {
+                      x.style.display = "none";
+                    }
+                }
+            </script>
+        </font>
+   </body>
+</html>
+

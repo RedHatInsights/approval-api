@@ -26,12 +26,14 @@ class JbpmProcessService
   end
 
   def process_options
-    # TODO: more options
-    request.content
+    groups = request.workflow.group_refs.map { |ref| Group.find(ref) }
+
+    { :request => request.as_json,
+      :groups  => groups.as_json,
+      :stages  => request.stages.as_json }
   end
 
   def signal_options(decision)
-    # TODO: more options
     {'decision' => decision}
   end
 end
