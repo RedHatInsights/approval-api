@@ -10,5 +10,12 @@ RSpec.describe "root", :type => :request do
       expect(response.content_type).to eq("application/json")
       expect(response).to have_http_status(:ok)
     end
+
+    it "redirects properly" do
+      get "#{api_version.split('.').first}/openapi.json", :headers => request_header
+
+      expect(response.status).to eq(302)
+      expect(response.headers["Location"]).to eq("#{api_version}/openapi.json")
+    end
   end
 end
