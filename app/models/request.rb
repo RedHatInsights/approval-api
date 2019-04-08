@@ -18,7 +18,7 @@ class Request < ApplicationRecord
   scope :state,     ->(state)     { where(:state => state) }
   scope :requester, ->(requester) { where(:requester => requester) }
 
-  after_initialize :set_context
+  before_create :set_context
 
   private
 
