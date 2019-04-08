@@ -27,63 +27,27 @@
         }
     </style>
     <body>
-        <%= image_tag("/Red_Hat_logo_RedHat.png", :size => '300x100') %>
+      <%= image_tag(@resources[:approval_web_logo], :size => '300x150') %>
         <font face="verdana"><br>
-            <font size="22" color="red"><b>Hybrid Cloud Manager</font><hr>
+          <font size="22" color="red"><b><%= @resources[:approval_web_product] %></font><hr>
             <h1><font size="24">Catalog Request</h1>
             <table>
-                <tr>
-                    <td><b><font size="14">Ordered By</b></td>
-                    <td>:</td>
-                    <td><font size="14"><%= @order[:orderer] %></td>
-                </tr>
-                <tr>
-                    <td><b><font size="14">Product</b></td>
-                    <td>:</td>
-                    <td><font size="14"><%= @order[:product] %></td>
-                    
-                </tr>
-                <tr>
-                    <td><b><font size="14">Portfolio</b></td>
-                    <td>:</td>
-                    <td><font size="14"><%= @order[:portfolio] %></td>
-                    
-                </tr>
-                <tr>
-                    <td><b><font size="14">Platform</b></td>
-                    <td>:</td>
-                    <td><font size="14"><%= @order[:platform] %></td>
-                    
-                </tr>
-                <tr>
-                    <td><b><font size="14">Order ID</b></td>
-                    <td>:</td>
-                    <td><font size="14"><%= @order[:order_id] %></td>
-                    
-                </tr>
-                <tr>
-                    <td><b><font size="14">Order Date</b></td>
-                    <td>:</td>
-                    <td><font size="14"><%= @order[:order_date] %></td>
-                    
-                </tr>
-                <tr>
-                    <td><b><font size="14">Order Time</b></td>
-                    <td>:</td>
-                    <td><font size="14"><%= @order[:order_time] %></td>
-                    
-                </tr>
-                </tr>
-                
+              <tr><td><b><font size="14">Ordered By</b></td><td><font size="14"> :<%= @order[:orderer] %></td></tr>
+              <tr><td><b><font size="14">Product</b></td><td><font size="14"> :<%= @order[:product] %></td></tr>
+              <tr><td><b><font size="14">Portfolio</b></td><td><font size="14"> :<%= @order[:portfolio] %></td></tr>
+              <tr><td><b><font size="14">Platform</b></td><td><font size="14"> :<%= @order[:platform] %></td></tr>
+              <tr><td><b><font size="14">Ordered ID</b></td><td><font size="14"> :<%= @order[:order_id] %></td></tr>
+              <tr><td><b><font size="14">Ordered Date</b></td><td><font size="14"> :<%= @order[:order_date] %></td></tr>
+              <tr><td><b><font size="14">Ordered Time</b></td><td><font size="14"> :<%= @order[:order_time] %></td></tr>
             </table>
 
             <div id="details" style="display:none;">
+              <font size="24">Order details
                 <table>
                   <% @order[:order_content].each do |k, v| %>
                     <tr>
-                      <td><b><font size="14"><%= k %></b></td>
-                        <td>:</td>
-                        <td><font size="14"><%= v %></td>
+                      <td><b><font size="10"><%= k %></b></td>
+                        <td><font size="10">: <%= v %></td>
                     </tr>
                 <% end %>
                 </table>

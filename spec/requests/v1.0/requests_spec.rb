@@ -9,7 +9,11 @@ RSpec.describe 'Requests API' do
   let!(:template) { create(:template) }
   let!(:workflow) { create(:workflow, :name => 'Always approve') } #:template_id => template.id) }
   let(:workflow_id) { workflow.id }
- let!(:requests) { create_list(:request, 2, :workflow_id => workflow.id, :tenant_id => tenant.id, :context => { 'headers' => request_header, 'original_url' => "approval.com/approval" }) }
+  let!(:requests) do
+    ManageIQ::API::Common::Request.with_request(:headers => request_header, :original_url => "localhost/approval") do
+      create_list(:request, 2, :workflow_id => workflow.id, :tenant_id => tenant.id)
+    end
+  end
   let(:id) { requests.first.id }
   let!(:requests_with_same_state) { create_list(:request, 2, :state => 'notified', :workflow_id => workflow.id, :tenant_id => tenant.id) }
   let!(:requests_with_same_decision) { create_list(:request, 2, :decision => 'approved', :workflow_id => workflow.id, :tenant_id => tenant.id) }

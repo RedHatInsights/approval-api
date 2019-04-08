@@ -4,7 +4,7 @@ module Api
       include Response
       include ExceptionHandler
 
-      rescue_from Exceptions::RBACError, Exceptions::ApprovalError, URI::InvalidURIError do |e|
+      rescue_from Exceptions::RBACError, Exceptions::ApprovalError, URI::InvalidURIError, ArgumentError do |e|
         response.body = e.message
         render :status => :internal_server_error, :action => :result
       end
@@ -29,11 +29,13 @@ module Api
         end
 
         ManageIQ::API::Common::Request.with_request(@stage.request.context.transform_keys(&:to_sym)) do
-          ActionCreateService.new(@stage.id).create(
-            'operation'    => operation.downcase,
-            'processed_by' => @approver,
-            'comments'     => comments
-          )
+          ActsAsTenant.with_tenant(Tenant.find(@stage.tenant_id)) do
+            ActionCreateService.new(@stage.id).create(
+              'operation'    => operation.downcase,
+              'processed_by' => @approver,
+              'comments'     => comments
+            )
+          end
         end
 
         render :result
@@ -43,6 +45,7 @@ module Api
 
       def set_stage
         set_view_path
+        set_resources
 
         @approver = params.require(:approver)
         @stage = Stage.find_by(:random_access_key => params.require(:id))
@@ -50,7 +53,7 @@ module Api
         if @stage
           @order = set_order
         else
-          response.body = "Your request [#{params[:id]}] is either expired or already been processed!"
+          response.body = "Your request [#{params[:id]}] is either expired or has been processed!"
           render :status => :internal_server_error, :action => :result
         end
       end
@@ -71,6 +74,11 @@ module Api
 
       def set_view_path
         prepend_view_path(Rails.root.join('app', 'controllers'))
+      end
+
+      def set_resources
+        @resources = { :approval_web_logo    => ENV['APPROVAL_WEB_LOGO'],
+                       :approval_web_product => ENV['APPROVAL_WEB_PRODUCT'] }
       end
     end
   end
