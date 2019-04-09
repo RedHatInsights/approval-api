@@ -1139,6 +1139,24 @@
                                 "type": "string",
                                 "description": "Associate workflow id"
                             }
+                            "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "Timestamp of creation"
+                            },
+                            "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "Timestamp of last update"
+                            },
+                            "active_stage": {
+                                "type": "integer",
+                                "description": "Current (or last) active stage. For regular approver this number is always 0"
+                            },
+                            "total_stages": {
+                                "type": "integer",
+                                "description": "Total number of stages. For regular approver this number is always 0."
+                            }
                         }
                     }
                 ]
