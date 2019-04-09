@@ -21,7 +21,7 @@ module Api
       private
 
       def action_params
-        params.permit(:operation, :processed_by, :comments, :limit, :offset)
+        params.permit(:operation, :processed_by, :comments)
       end
     end
   end

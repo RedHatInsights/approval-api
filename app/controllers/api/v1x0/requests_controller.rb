@@ -17,9 +17,6 @@ module Api
         if params[:workflow_id]
           workflow = Workflow.find(params.require(:workflow_id))
           collection(workflow.requests)
-        elsif params[:user_id]
-          user = Workflow.find(params.require(:user_id))
-          collection(user.requests)
         else
           reqs = Request.filter(params.slice(:requester, :decision, :state))
           collection(reqs)
@@ -29,7 +26,7 @@ module Api
       private
 
       def request_params
-        params.permit(:name, :requester, :limit, :offset, :content => {})
+        params.permit(:name, :requester, :content => {})
       end
     end
   end
