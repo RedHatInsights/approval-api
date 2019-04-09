@@ -41,7 +41,7 @@ module Api
       private
 
       def workflow_params
-        params.permit(:name, :description, :limit, :offset, :group_refs => [])
+        params.permit(:name, :description, :group_refs => [])
       end
     end
   end
