@@ -13,3 +13,4 @@
 /spec/reports/
 /tmp/
 bundler.d/*
+/v2_key
