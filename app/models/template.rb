@@ -17,12 +17,12 @@ class Template < ApplicationRecord
   end
 
   private_class_method def self.seed_process_setting(old_setting)
-    return nil unless ENV['KIE_SERVER_HOST']
+    return nil unless ENV['APPROVAL_PAM_SERVICE_HOST']
     seed_bpm_setting(old_setting).merge('process_id' => ENV['BPM_BML_PROCESS_ID'])
   end
 
   private_class_method def self.seed_signal_setting(old_setting)
-    return nil unless ENV['KIE_SERVER_HOST']
+    return nil unless ENV['APPROVAL_PAM_SERVICE_HOST']
     seed_bpm_setting(old_setting).merge('signal_name' => ENV['BPM_BML_SIGNAL_NAME'])
   end
 
@@ -42,7 +42,7 @@ class Template < ApplicationRecord
       'container_id' => ENV['KIE_CONTAINER_ID'],
       'password'     => new_password_id,
       'username'     => ENV['KIE_SERVER_USERNAME'],
-      'host'         => ENV['KIE_SERVER_HOST']
+      'host'         => "#{ENV['APPROVAL_PAM_SERVICE_HOST']}:#{ENV['APPROVAL_PAM_SERVICE_PORT']}"
     }
   end
 
