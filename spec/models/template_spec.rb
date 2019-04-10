@@ -4,21 +4,23 @@ RSpec.describe Template, type: :model do
 
   describe '.seed' do
     before do
-      ENV['KIE_SERVER_HOST']     = 'localhost:8080'
-      ENV['KIE_SERVER_USERNAME'] = 'executionUser'
-      ENV['KIE_SERVER_PASSWORD'] = 'password'
-      ENV['KIE_CONTAINER_ID']    = 'approval_1.0.0'
-      ENV['BPM_BML_PROCESS_ID']  = 'com.redhat.management.approval.MultiStageEmails'
-      ENV['BPM_BML_SIGNAL_NAME'] = 'nextGroup'
+      ENV['APPROVAL_PAM_SERVICE_HOST'] = 'localhost'
+      ENV['APPROVAL_PAM_SERVICE_PORT'] = '8080'
+      ENV['KIE_SERVER_USERNAME']       = 'executionUser'
+      ENV['KIE_SERVER_PASSWORD']       = 'password'
+      ENV['KIE_CONTAINER_ID']          = 'approval_1.0.0'
+      ENV['BPM_BML_PROCESS_ID']        = 'com.redhat.management.approval.MultiStageEmails'
+      ENV['BPM_BML_SIGNAL_NAME']       = 'nextGroup'
     end
 
     after do
-      ENV['KIE_SERVER_HOST']     = nil
-      ENV['KIE_SERVER_USERNAME'] = nil
-      ENV['KIE_SERVER_PASSWORD'] = nil
-      ENV['KIE_CONTAINER_ID']    = nil
-      ENV['BPM_BML_PROCESS_ID']  = nil
-      ENV['BPM_BML_SIGNAL_NAME'] = nil
+      ENV['APPROVAL_PAM_SERVICE_HOST'] = nil
+      ENV['APPROVAL_PAM_SERVICE_PORT'] = nil
+      ENV['KIE_SERVER_USERNAME']       = nil
+      ENV['KIE_SERVER_PASSWORD']       = nil
+      ENV['KIE_CONTAINER_ID']          = nil
+      ENV['BPM_BML_PROCESS_ID']        = nil
+      ENV['BPM_BML_SIGNAL_NAME']       = nil
     end
 
     it 'creates a default template' do
