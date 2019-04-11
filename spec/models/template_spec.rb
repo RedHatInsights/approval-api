@@ -8,9 +8,6 @@ RSpec.describe Template, type: :model do
       ENV['APPROVAL_PAM_SERVICE_PORT'] = '8080'
       ENV['KIE_SERVER_USERNAME']       = 'executionUser'
       ENV['KIE_SERVER_PASSWORD']       = 'password'
-      ENV['KIE_CONTAINER_ID']          = 'approval_1.0.0'
-      ENV['BPM_BML_PROCESS_ID']        = 'com.redhat.management.approval.MultiStageEmails'
-      ENV['BPM_BML_SIGNAL_NAME']       = 'nextGroup'
     end
 
     after do
@@ -18,9 +15,6 @@ RSpec.describe Template, type: :model do
       ENV['APPROVAL_PAM_SERVICE_PORT'] = nil
       ENV['KIE_SERVER_USERNAME']       = nil
       ENV['KIE_SERVER_PASSWORD']       = nil
-      ENV['KIE_CONTAINER_ID']          = nil
-      ENV['BPM_BML_PROCESS_ID']        = nil
-      ENV['BPM_BML_SIGNAL_NAME']       = nil
     end
 
     it 'creates a default template' do
@@ -32,14 +26,14 @@ RSpec.describe Template, type: :model do
         'host'         => 'localhost:8080',
         'username'     => 'executionUser',
         'password'     => a_kind_of(Integer),
-        'container_id' => 'approval_1.0.0',
-        'process_id'   => 'com.redhat.management.approval.MultiStageEmails'
+        'container_id' => 'approval',
+        'process_id'   => 'MultiStageEmails'
       )
       expect(template.signal_setting).to include(
         'host'         => 'localhost:8080',
         'username'     => 'executionUser',
         'password'     => a_kind_of(Integer),
-        'container_id' => 'approval_1.0.0',
+        'container_id' => 'approval',
         'signal_name'  => 'nextGroup',
       )
     end
