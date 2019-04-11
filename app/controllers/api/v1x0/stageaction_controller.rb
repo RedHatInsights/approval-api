@@ -47,7 +47,7 @@ module Api
         set_view_path
         set_resources
 
-        @approver = params.require(:approver)
+        @approver = Base64.decode64(params.require(:approver))
         @stage = Stage.find_by(:random_access_key => params.require(:id))
 
         if @stage
