@@ -31,7 +31,7 @@ class ActionCreateService
 
   def notify(_comments)
     unless stage.state == Stage::PENDING_STATE
-      raise Exceptions::ApprovalError, "Current stage is not in pending state"
+      raise Exceptions::InvalidStateTransitionError, "Current stage is not in pending state"
     end
 
     {:state => Stage::NOTIFIED_STATE}
@@ -39,7 +39,7 @@ class ActionCreateService
 
   def skip(_comments)
     unless stage.state == Stage::PENDING_STATE
-      raise Exceptions::ApprovalError, "Current stage is not in pending state"
+      raise Exceptions::InvalidStateTransitionError, "Current stage is not in pending state"
     end
 
     {:state => Stage::SKIPPED_STATE}
@@ -47,7 +47,7 @@ class ActionCreateService
 
   def approve(comments)
     unless stage.state == Stage::NOTIFIED_STATE
-      raise Exceptions::ApprovalError, "Current stage is not in notified state"
+      raise Exceptions::InvalidStateTransitionError, "Current stage is not in notified state"
     end
 
     {:state => Stage::FINISHED_STATE, :decision => Stage::APPROVED_STATUS}.tap do |h|
@@ -57,7 +57,7 @@ class ActionCreateService
 
   def deny(comments)
     unless stage.state == Stage::NOTIFIED_STATE
-      raise Exceptions::ApprovalError, "Current stage is not in notified state"
+      raise Exceptions::InvalidStateTransitionError, "Current stage is not in notified state"
     end
     raise Exception::ApprovalError, "Reason to deny the request is missing" unless comments
 

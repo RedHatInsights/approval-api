@@ -14,6 +14,8 @@ Rails.application.routes.draw do
     routing_helper.redirect_major_version("v1.0", prefix)
 
     namespace :v1x0, :path => "v1.0" do
+      resources :stageaction, :only => %i(show update)
+
       get "/openapi.json", :to => "root#openapi"
       resources :actions, :only => [:show]
 

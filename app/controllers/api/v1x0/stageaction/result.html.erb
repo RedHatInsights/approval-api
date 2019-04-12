@@ -1,0 +1,39 @@
+<html>
+    <style>
+      table {
+        border-collapse: collapse;
+      }
+      td {
+        vertical-align: bottom;
+      }
+      th, td {
+        padding: 3px;
+        text-align: left;
+      }
+    </style>
+    <body>
+      <%= image_tag(@resources[:approval_web_logo], :size => '300x150') %>
+        <font face="verdana"><br>
+          <font size="22" color="red"><b><%= @resources[:approval_web_product] %></font><hr>
+            <% if response.status != 200 %>
+            <h1 font size="24">Your request failed to complete: </h1>
+            <p><strong>Reason:</strong><%= response.body %></p>
+            <% else %>
+            <h1 font size="24">Your action has been executed successfully</h1>
+            <% end %>
+            
+            <% if @order %>
+            <p><strong>Catalog Request:</strong></p>
+            <table>
+              <tr><td><strong>Ordered By</strong></td><td>:</td><td><%= @order[:orderer] %></td></tr>
+              <tr><td><strong>Product</strong></td><td>:</td><td><%= @order[:product] %></td></tr>
+              <tr><td><strong>Portfolio</strong></td><td>:</td><td><%= @order[:portfolio] %></td></tr>
+              <tr><td><strong>Platform</strong></td><td>:</td><td><%= @order[:platform] %></td></tr>
+              <tr><td><strong>Ordered ID</strong></td><td>:</td><td><%= @order[:order_id] %></td></tr>
+              <tr><td><strong>Ordered Date</strong></td><td>:</td><td><%= @order[:order_date] %></td></tr>
+              <tr><td><strong>Ordered Time</strong></td><td>:</td><td><%= @order[:order_time] %></td></tr>
+            </table>
+            <% end %>
+        </font>
+    </body>
+</html>

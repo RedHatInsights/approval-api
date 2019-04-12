@@ -1,0 +1,80 @@
+<p id="notice"><%= notice %></p>
+<html>
+    <style>
+        textarea {
+            width: 90%;
+            height: 150;
+            margin: 20; /* don't want to add to container size */
+            border: 1; /* don't want to add to container size */
+            font-size: 22px;
+        }
+        input[type=submit] {
+          width: 90%;
+          height: 60;
+          padding: 12px 10px;
+          margin: 20;
+          box-sizing: border-box;
+          font-size: 30px;
+          font-weight: bold;
+          background-color: darkgrey;
+        }
+        #details {
+          width: 100%;
+          padding: 50px 0;
+          text-align: center;
+          background-color: #E5E7E9;
+          margin-top: 20px;
+        }
+    </style>
+    <body>
+      <%= image_tag(@resources[:approval_web_logo], :size => '300x150') %>
+        <font face="verdana"><br>
+          <font size="22" color="red"><b><%= @resources[:approval_web_product] %></font><hr>
+            <h1><font size="24">Catalog Request </font><a href="#" onclick="showDetails()">(Detail)</a></h1>
+            <p>
+            <table>
+              <tr><td><b><font size="14">Ordered By</b></td><td><font size="14"> :<%= @order[:orderer] %></td></tr>
+              <tr><td><b><font size="14">Product</b></td><td><font size="14"> :<%= @order[:product] %></td></tr>
+              <tr><td><b><font size="14">Portfolio</b></td><td><font size="14"> :<%= @order[:portfolio] %></td></tr>
+              <tr><td><b><font size="14">Platform</b></td><td><font size="14"> :<%= @order[:platform] %></td></tr>
+              <tr><td><b><font size="14">Ordered ID</b></td><td><font size="14"> :<%= @order[:order_id] %></td></tr>
+              <tr><td><b><font size="14">Ordered Date</b></td><td><font size="14"> :<%= @order[:order_date] %></td></tr>
+              <tr><td><b><font size="14">Ordered Time</b></td><td><font size="14"> :<%= @order[:order_time] %></td></tr>
+            </table>
+
+            <div id="details" style="display:none;">
+              <font size="20">Order details</font>
+                <table>
+                  <% @order[:order_content].each do |k, v| %>
+                    <tr>
+                      <td><b><font size="10"><%= k %></b></td>
+                        <td><font size="10">: <%= v %></td>
+                    </tr>
+                <% end %>
+                </table>
+            </div>
+
+            <br>
+            <font size="20">Reason/Memo
+            <%= form_with method: :patch do |form| %>
+              <%= form.text_area :message %>
+              <%= form.hidden_field :approver, value: Base64.encode64(@approver) %>
+              <%= form.submit 'Memo', style: "background-color: #E5E7E9" %>
+              <%= form.submit 'Approve', style: "background-color: #229954" %>
+              <%= form.submit 'Deny', style: "background-color: #E74C3C" %>
+            <% end %>
+
+            <script>
+                function showDetails() {
+                    var x = document.getElementById("details");
+                    if (x.style.display === "none") {
+                      x.style.display = "block";
+                    } else {
+                      x.style.display = "none";
+                    }
+                }
+            </script>
+        </font>
+   </body>
+</html>
+

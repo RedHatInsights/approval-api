@@ -77,17 +77,17 @@ RSpec.describe ActionCreateService do
     end
 
     it 'forbids approve operation from pending stage' do
-      expect { svc1.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::ApprovalError)
+      expect { svc1.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
     end
 
     it 'forbids approve operation from already finished stage' do
       stage1.update_attributes(:state => Stage::FINISHED_STATE)
-      expect { svc1.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::ApprovalError)
+      expect { svc1.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
     end
 
     it 'forbids approve operation from already skipped stage' do
       stage1.update_attributes(:state => Stage::SKIPPED_STATE)
-      expect { svc1.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::ApprovalError)
+      expect { svc1.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
     end
 
     it 'allows memo operation from any state' do
