@@ -4,6 +4,8 @@ module Api
       include Response
       include ExceptionHandler
 
+      protect_from_forgery with: :exception, prepend: true
+
       rescue_from Exceptions::RBACError, Exceptions::ApprovalError, URI::InvalidURIError, ArgumentError do |e|
         response.body = e.message
         render :status => :internal_server_error, :action => :result
