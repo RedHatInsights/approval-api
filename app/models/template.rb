@@ -39,10 +39,11 @@ class Template < ApplicationRecord
       end
 
     {
-      'container_id' => 'approval',
-      'password'     => new_password_id,
-      'username'     => ENV['KIE_SERVER_USERNAME'],
-      'host'         => "#{ENV['APPROVAL_PAM_SERVICE_HOST']}:#{ENV['APPROVAL_PAM_SERVICE_PORT']}"
+      'processor_type' => 'jbpm',
+      'container_id'   => 'approval',
+      'password'       => new_password_id,
+      'username'       => ENV['KIE_SERVER_USERNAME'],
+      'host'           => "#{ENV['APPROVAL_PAM_SERVICE_HOST']}:#{ENV['APPROVAL_PAM_SERVICE_PORT']}"
     }
   end
 

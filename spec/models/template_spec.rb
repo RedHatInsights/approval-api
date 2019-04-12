@@ -23,18 +23,20 @@ RSpec.describe Template, type: :model do
 
       template = described_class.find_by(:title => 'Basic')
       expect(template.process_setting).to include(
-        'host'         => 'localhost:8080',
-        'username'     => 'executionUser',
-        'password'     => a_kind_of(Integer),
-        'container_id' => 'approval',
-        'process_id'   => 'MultiStageEmails'
+        'processor_type' => 'jbpm',
+        'host'           => 'localhost:8080',
+        'username'       => 'executionUser',
+        'password'       => a_kind_of(Integer),
+        'container_id'   => 'approval',
+        'process_id'     => 'MultiStageEmails'
       )
       expect(template.signal_setting).to include(
-        'host'         => 'localhost:8080',
-        'username'     => 'executionUser',
-        'password'     => a_kind_of(Integer),
-        'container_id' => 'approval',
-        'signal_name'  => 'nextGroup',
+        'processor_type' => 'jbpm',
+        'host'           => 'localhost:8080',
+        'username'       => 'executionUser',
+        'password'       => a_kind_of(Integer),
+        'container_id'   => 'approval',
+        'signal_name'    => 'nextGroup',
       )
     end
 
