@@ -62,8 +62,12 @@ RSpec.describe 'Requests API' do
     end
 
     it 'sets the context' do
-      expect(json['data'].first['context'].keys).to eq %w[headers original_url]
-      expect(json['data'].first['context']['headers']['x-rh-identity']).to eq encoded_user
+      expect(requests.first.context.keys).to eq %w[headers original_url]
+      expect(requests.first.context['headers']['x-rh-identity']).to eq encoded_user
+    end
+
+    it 'does not include context in the response' do
+      expect(json.key?("context")).to be_falsey
     end
 
     it 'can recreate the request from context' do
