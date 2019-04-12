@@ -4,7 +4,7 @@ module Api
       include Response
       include ExceptionHandler
 
-      protect_from_forgery with: :exception, prepend: true
+      protect_from_forgery :with => :exception, :prepend => true
 
       rescue_from Exceptions::RBACError, Exceptions::ApprovalError, URI::InvalidURIError, ArgumentError do |e|
         response.body = e.message
@@ -13,6 +13,11 @@ module Api
 
       rescue_from ActionController::ParameterMissing do |e|
         response.body = e.message
+        render :status => :unprocessable_entity, :action => :result
+      end
+
+      rescue_from Exceptions::InvalidStateTransitionError do |_e|
+        response.body = "Your action cannot be executed. Somebody else may have approved/denied this request at the mean time."
         render :status => :unprocessable_entity, :action => :result
       end
 

@@ -3,4 +3,5 @@ module Exceptions
   class NoTenantError < StandardError; end
   class RBACError < StandardError; end
   class KieError < StandardError; end
+  class InvalidStateTransitionError < StandardError; end
 end
