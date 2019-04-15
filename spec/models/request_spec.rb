@@ -17,11 +17,9 @@ RSpec.describe Request, type: :model do
     end
 
     context 'without context' do
-      it 'sets current tenant' do
+      it 'raises an error' do
         request = FactoryBot.create(:request, :with_tenant)
-        request.switch_context do
-          expect(ActsAsTenant.current_tenant).to eq(request.tenant)
-        end
+        expect { request.switch_context}.to raise_error(ArgumentError)
       end
     end
   end

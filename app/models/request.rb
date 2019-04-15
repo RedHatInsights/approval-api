@@ -21,11 +21,7 @@ class Request < ApplicationRecord
   before_create :set_context
 
   def switch_context
-    if context.present?
-      ManageIQ::API::Common::Request.with_request(context.transform_keys(&:to_sym)) do
-        ActsAsTenant.with_tenant(tenant) { yield }
-      end
-    else
+    ManageIQ::API::Common::Request.with_request(context.transform_keys(&:to_sym)) do
       ActsAsTenant.with_tenant(tenant) { yield }
     end
   end
