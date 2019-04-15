@@ -19,7 +19,7 @@ RSpec.describe Request, type: :model do
     context 'without context' do
       it 'raises an error' do
         request = FactoryBot.create(:request, :with_tenant)
-        expect { request.switch_context}.to raise_error(ArgumentError)
+        expect { request.switch_context }.to raise_error(ArgumentError)
       end
     end
   end

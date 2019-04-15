@@ -1,6 +1,6 @@
 # spec/support/request_spec_helper
 module RequestSpecHelper
-  extend self
+  module_function
 
   # Parse JSON response to ruby hash
   def json
