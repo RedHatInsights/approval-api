@@ -1,5 +1,7 @@
 # spec/support/request_spec_helper
 module RequestSpecHelper
+  module_function
+
   # Parse JSON response to ruby hash
   def json
     JSON.parse(response.body)
@@ -46,5 +48,13 @@ module RequestSpecHelper
 
   def default_user_hash
     Marshal.load(Marshal.dump(DEFAULT_USER))
+  end
+
+  def default_headers
+    {'x-rh-identity' => encoded_user_hash, 'x-rh-insights-request-id' => 'gobbledygook'}
+  end
+
+  def default_request_hash
+    {:headers => default_headers, :original_url => 'https://xyz.com/api/requests'}
   end
 end

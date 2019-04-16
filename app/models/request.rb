@@ -20,6 +20,12 @@ class Request < ApplicationRecord
 
   before_create :set_context
 
+  def switch_context
+    ManageIQ::API::Common::Request.with_request(context.transform_keys(&:to_sym)) do
+      ActsAsTenant.with_tenant(tenant) { yield }
+    end
+  end
+
   private
 
   def set_context

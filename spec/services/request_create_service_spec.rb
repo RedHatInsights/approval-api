@@ -62,6 +62,7 @@ RSpec.describe RequestCreateService do
     end
 
     it 'creates a request and auto approves' do
+      expect_any_instance_of(Request).to receive(:switch_context).and_yield
       request = subject.create(:name => 'req1', :requester => 'test', :content => 'test me')
       request.reload
       expect(request).to have_attributes(
@@ -101,6 +102,7 @@ RSpec.describe RequestCreateService do
     before { allow(Thread).to receive(:new).and_yield }
 
     it 'creates a request and auto approves' do
+      expect_any_instance_of(Request).to receive(:switch_context).and_yield
       request = subject.create(:name => 'req2', :requester => 'test2', :content => 'test me')
       request.reload
       expect(request).to have_attributes(
