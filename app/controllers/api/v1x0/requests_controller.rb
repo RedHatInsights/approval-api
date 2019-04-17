@@ -14,13 +14,9 @@ module Api
       end
 
       def index
-        if params[:workflow_id]
-          workflow = Workflow.find(params.require(:workflow_id))
-          collection(workflow.requests)
-        else
-          reqs = Request.filter(params.slice(:requester, :decision, :state))
-          collection(reqs)
-        end
+        Workflow.find(params.require(:workflow_id)) if params[:workflow_id] # to validate the workflow exists
+        reqs = Request.includes(:stages).filter(params.slice(:requester, :decision, :state, :workflow_id))
+        collection(reqs)
       end
 
       private

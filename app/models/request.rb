@@ -26,7 +26,28 @@ class Request < ApplicationRecord
     end
   end
 
+  def as_json(options = {})
+    super(options.merge(:methods => [:total_stages, :active_stage]))
+  end
+
   private
+
+  def total_stages
+    stages.size
+  end
+
+  def active_stage
+    return 0 if total_stages.zero?
+
+    # return 1-based active stage
+    active_stage = stages.find_index { |st| st.state == Stage::NOTIFIED_STATE || st.state == Stage::PENDING_STATE }
+    if active_stage.nil?
+      # no stage in active, must have completed
+      stages.size
+    else
+      active_stage + 1
+    end
+  end
 
   def set_context
     self.context = ManageIQ::API::Common::Request.current.to_h
