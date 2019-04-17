@@ -5,7 +5,7 @@ RSpec.describe 'Actions API' do
   let(:request_header) { { 'x-rh-identity' => encoded_user } }
   let(:tenant) { create(:tenant, :external_tenant => 369_233) }
 
-  let(:request) { create(:request, :tenant_id => tenant.id) }
+  let(:request) { create(:request, :with_context, :tenant_id => tenant.id) }
   let!(:group_ref) { "990" }
   let!(:stage) { create(:stage, :group_ref => group_ref, :request => request, :tenant_id => tenant.id) }
   let(:stage_id) { stage.id }

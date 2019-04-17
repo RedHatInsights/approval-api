@@ -16,7 +16,7 @@ RSpec.describe JbpmProcessService do
   end
 
   let(:workflow) { create(:workflow, :template => template) }
-  let(:request)  { create(:request, :workflow => workflow) }
+  let(:request)  { create(:request, :with_context, :workflow => workflow) }
   subject { described_class.new(request) }
 
   let(:jbpm) { double(:jbpm, :api_client => double(:default_headers => {})) }

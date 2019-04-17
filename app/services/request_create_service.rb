@@ -46,7 +46,7 @@ class RequestCreateService
 
   def start_internal_approval_process(request)
     Thread.new do
-      request.switch_context do
+      ContextService.new(request.context).with_context do
         default_approve? ? default_approve(request) : auto_approve(request)
       end
     end

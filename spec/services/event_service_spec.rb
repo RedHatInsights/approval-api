@@ -1,5 +1,5 @@
 RSpec.describe EventService do
-  let(:request) { create(:request) }
+  let(:request) { create(:request, :with_context) }
   let(:stage)   { create(:stage, :request => request) }
   subject { described_class.new(request) }
 
