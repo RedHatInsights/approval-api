@@ -1138,7 +1138,7 @@
                             "workflow_id": {
                                 "type": "string",
                                 "description": "Associate workflow id"
-                            }
+                            },
                             "created_at": {
                                 "type": "string",
                                 "format": "date-time",
