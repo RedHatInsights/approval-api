@@ -6,8 +6,6 @@ module Api
       def create
         workflow = WorkflowCreateService.new(params.require(:template_id)).create(workflow_params)
         json_response(workflow, :created)
-      rescue ActiveRecord::RecordNotFound => e
-        json_response({ :message => e.message }, :unprocessable_entity)
       end
 
       def show
