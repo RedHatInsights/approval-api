@@ -877,7 +877,7 @@
                 "description": "Query by id",
                 "required": true,
                 "schema": {
-                    "type": "integer"
+                    "type": "string"
                 }
             },
             "template_id": {
@@ -886,7 +886,7 @@
                 "description": "Id of template",
                 "required": true,
                 "schema": {
-                    "type": "integer"
+                    "type": "string"
                 }
             },
             "workflow_id": {
@@ -895,7 +895,7 @@
                 "description": "Id of workflow",
                 "required": true,
                 "schema": {
-                    "type": "integer"
+                    "type": "string"
                 }
             },
             "request_id": {
@@ -904,7 +904,7 @@
                 "description": "Id of request",
                 "required": true,
                 "schema": {
-                    "type": "integer"
+                    "type": "string"
                 }
             },
             "stage_id": {
@@ -913,7 +913,7 @@
                 "description": "Id of stage",
                 "required": true,
                 "schema": {
-                    "type": "integer"
+                    "type": "string"
                 }
             },
             "limit": {
