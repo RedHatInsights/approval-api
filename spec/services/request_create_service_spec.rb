@@ -6,6 +6,12 @@ RSpec.describe RequestCreateService do
 
   before { allow(Group).to receive(:find) }
 
+  around do |example|
+    ManageIQ::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+      example.call
+    end
+  end
+
   context 'without auto approval' do
     context 'template has external process' do
       let(:template) { create(:template, :process_setting => {'processor_type' => 'jbpm', 'url' => 'url'}) }
@@ -62,7 +68,6 @@ RSpec.describe RequestCreateService do
     end
 
     it 'creates a request and auto approves' do
-      expect_any_instance_of(Request).to receive(:switch_context).and_yield
       request = subject.create(:name => 'req1', :requester => 'test', :content => 'test me')
       request.reload
       expect(request).to have_attributes(
@@ -98,11 +103,14 @@ RSpec.describe RequestCreateService do
       Workflow.seed
       Workflow.first
     end
+    let(:context_service) { double(:conext_service) }
 
     before { allow(Thread).to receive(:new).and_yield }
 
     it 'creates a request and auto approves' do
-      expect_any_instance_of(Request).to receive(:switch_context).and_yield
+      expect(ContextService).to receive(:new).and_return(context_service)
+      expect(context_service).to receive(:with_context).and_yield
+
       request = subject.create(:name => 'req2', :requester => 'test2', :content => 'test me')
       request.reload
       expect(request).to have_attributes(

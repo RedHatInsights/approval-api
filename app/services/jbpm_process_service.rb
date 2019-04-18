@@ -26,7 +26,10 @@ class JbpmProcessService
   end
 
   def process_options
-    groups = request.workflow.group_refs.map { |ref| Group.find(ref) }
+    groups =
+      ContextService.new(request.context).as_org_admin do
+        request.workflow.group_refs.map { |ref| Group.find(ref) }
+      end
 
     { 'request' => request.as_json,
       'groups'  => groups.as_json,
