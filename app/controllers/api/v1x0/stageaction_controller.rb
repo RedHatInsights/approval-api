@@ -12,7 +12,7 @@ module Api
       end
 
       rescue_from ActionController::ParameterMissing do |_e|
-        response.body = "The Reason/Memo is a required field for Deny/Memo actions"
+        response.body = "The Reason/Memo field is required for [Deny/Memo] actions"
         render :status => :unprocessable_entity, :action => :result
       end
 
