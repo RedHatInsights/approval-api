@@ -11,8 +11,8 @@ module Api
         render :status => :internal_server_error, :action => :result
       end
 
-      rescue_from ActionController::ParameterMissing do |e|
-        response.body = e.message
+      rescue_from ActionController::ParameterMissing do |_e|
+        response.body = "The Reason/Memo field is required for [Deny/Memo] actions"
         render :status => :unprocessable_entity, :action => :result
       end
 
