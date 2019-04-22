@@ -5,6 +5,7 @@ class Workflow < ApplicationRecord
   has_many :requests, -> { order(:id => :asc) }, :inverse_of => :workflow
 
   validates :name, :presence => :name
+  validates :name, :uniqueness => { :scope => :tenant_id }
 
   def self.seed
     workflow = find_or_create_by!(default_workflow_query)
