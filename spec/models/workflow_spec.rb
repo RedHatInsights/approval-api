@@ -13,6 +13,11 @@ RSpec.describe Workflow, :type => :model do
       expect(described_class.count).to be(1)
       expect(described_class.first.template).to be_nil
     end
+
+    it 'cannot be destroyed' do
+      described_class.seed
+      expect { described_class.default_workflow.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
+    end
   end
 
   context "with same name in different tenants" do

@@ -7,6 +7,8 @@ class Workflow < ApplicationRecord
   validates :name, :presence => true
   validate :unique_with_same_or_no_tenant
 
+  before_destroy :not_to_delete_default
+
   def self.seed
     workflow = find_or_create_by!(default_workflow_query)
     workflow.update_attributes!(
@@ -35,5 +37,11 @@ class Workflow < ApplicationRecord
 
   def external_signal?
     template.signal_setting.present?
+  end
+
+  private
+
+  def not_to_delete_default
+    throw :abort if {:name => name, :template => template} == self.class.send(:default_workflow_query)
   end
 end
