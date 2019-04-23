@@ -42,6 +42,6 @@ class Workflow < ApplicationRecord
   private
 
   def not_to_delete_default
-    throw :abort if {:name => name, :template => template} == self.class.send(:default_workflow_query)
+    throw :abort if self.class.send(:default_workflow_query) == {:name => name, :template => template}
   end
 end
