@@ -58,6 +58,17 @@ RSpec.describe 'Workflows API' do
     end
   end
 
+  describe "GET /workflows with filter" do
+    before do
+      get "#{api_version}/workflows?filter[id]=#{id}", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+    end
+
+    it 'returns only the filtered result' do
+      expect(json["meta"]["count"]).to eq 1
+      expect(json["data"].first["id"]).to eq id.to_s
+    end
+  end
+
   describe 'GET /workflows/:id' do
     before { get "#{api_version}/workflows/#{id}", :headers => request_header }
 
