@@ -17,6 +17,7 @@ class Request < ApplicationRecord
   scope :decision,  ->(decision)  { where(:decision => decision) }
   scope :state,     ->(state)     { where(:state => state) }
   scope :requester, ->(requester) { where(:requester => requester) }
+  default_scope { order(:created_at => :desc) }
 
   before_create :set_context
 
