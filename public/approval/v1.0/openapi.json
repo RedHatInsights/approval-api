@@ -197,6 +197,9 @@
                         "$ref": "#/components/parameters/requester"
                     },
                     {
+                        "$ref": "#/components/parameters/approver"
+                    },
+                    {
                         "$ref": "#/components/parameters/limit"
                     },
                     {
@@ -1002,6 +1005,15 @@
                 "name": "requester",
                 "in": "query",
                 "description": "Fetch item by given requester",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "approver": {
+                "name": "approver",
+                "in": "query",
+                "description": "Fetch requests by given approver username",
                 "required": false,
                 "schema": {
                     "type": "string"
