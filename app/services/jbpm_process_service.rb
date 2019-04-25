@@ -26,14 +26,17 @@ class JbpmProcessService
   end
 
   def process_options
-    groups =
-      ContextService.new(request.context).as_org_admin do
-        request.workflow.group_refs.map { |ref| Group.find(ref) }
-      end
+    options = nil
+    ContextService.new(request.context).as_org_admin do
+      groups = request.workflow.group_refs.map { |ref| Group.find(ref) }
 
-    { 'request' => request.as_json,
-      'groups'  => groups.as_json,
-      'stages'  => request.stages.as_json }
+      options = {
+        'request' => request.as_json,
+        'groups'  => groups.as_json,
+        'stages'  => request.stages.as_json
+      }
+    end
+    options
   end
 
   def signal_options(decision)
