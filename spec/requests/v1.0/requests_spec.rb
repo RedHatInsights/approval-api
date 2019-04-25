@@ -7,7 +7,7 @@ RSpec.describe 'Requests API' do
   let(:tenant) { create(:tenant, :external_tenant => 369_233) }
 
   let!(:template) { create(:template) }
-  let!(:workflow) { create(:workflow, :name => 'Always approve') } #:template_id => template.id) }
+  let!(:workflow) { create(:workflow, :name => 'Test always approve') } #:template_id => template.id) }
   let(:workflow_id) { workflow.id }
   let!(:requests) do
     ManageIQ::API::Common::Request.with_request(:headers => request_header, :original_url => "localhost/approval") do
