@@ -201,6 +201,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/offset"
+                    },
+                    {
+                        "$ref": "#/components/parameters/filter"
                     }
                 ],
                 "responses": {
@@ -257,6 +260,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/offset"
+                    },
+                    {
+                        "$ref": "#/components/parameters/filter"
                     }
                 ],
                 "responses": {
@@ -487,6 +493,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/offset"
+                    },
+                    {
+                        "$ref": "#/components/parameters/filter"
                     }
                 ],
                 "responses": {
@@ -582,6 +591,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/offset"
+                    },
+                    {
+                        "$ref": "#/components/parameters/filter"
                     }
                 ],
                 "responses": {
@@ -638,6 +650,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/offset"
+                    },
+                    {
+                        "$ref": "#/components/parameters/filter"
                     }
                 ],
                 "responses": {
@@ -941,6 +956,17 @@
                     "default": 0
                 }
             },
+            "filter": {
+                "in": "query",
+                "name": "filter",
+                "description": "Filter for querying collections.",
+                "required": false,
+                "style": "deepObject",
+                "explode": true,
+                "schema": {
+                    "type": "object"
+                }
+            },
             "state": {
                 "name": "state",
                 "in": "query",
@@ -1050,27 +1076,27 @@
                         "$ref": "#/components/schemas/ActionIn"
                     },
                     {
-                        "type": "object",
-                        "required": [
-                            "id",
-                            "stage_id"
-                        ],
-                        "properties": {
-                            "id": {
-                                "type": "string"
-                            },
-                            "created_at": {
-                                "type": "string",
-                                "format": "date-time",
-                                "description": "Timestamp of creation"
-                            },
-                            "stage_id": {
-                                "type": "string",
-                                "description": "Associated stage id"
-                            }
-                        }
+                        "type": "object"
                     }
-                ]
+                ],
+                "required": [
+                    "id",
+                    "stage_id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of creation"
+                    },
+                    "stage_id": {
+                        "type": "string",
+                        "description": "Associated stage id"
+                    }
+                }
             },
             "RequestIn": {
                 "type": "object",
@@ -1105,61 +1131,61 @@
                         "$ref": "#/components/schemas/RequestIn"
                     },
                     {
-                        "type": "object",
-                        "properties": {
-                            "id": {
-                                "type": "string"
-                            },
-                            "state": {
-                                "type": "string",
-                                "description": "The state of stage or request. It may be one of values (pending, skipped, notified or finished)",
-                                "enum": [
-                                    "pending",
-                                    "skipped",
-                                    "notified",
-                                    "finished"
-                                ],
-                                "default": "pending"
-                            },
-                            "decision": {
-                                "type": "string",
-                                "description": "Final decision, may be one of the value (undecided, approved, or denied)",
-                                "enum": [
-                                    "undecided",
-                                    "approved",
-                                    "denied"
-                                ],
-                                "default": "undecided"
-                            },
-                            "reason": {
-                                "type": "string",
-                                "description": "Comments for requests"
-                            },
-                            "workflow_id": {
-                                "type": "string",
-                                "description": "Associate workflow id"
-                            },
-                            "created_at": {
-                                "type": "string",
-                                "format": "date-time",
-                                "description": "Timestamp of creation"
-                            },
-                            "updated_at": {
-                                "type": "string",
-                                "format": "date-time",
-                                "description": "Timestamp of last update"
-                            },
-                            "active_stage": {
-                                "type": "integer",
-                                "description": "Current (or last) active stage. For regular approver this number is always 0"
-                            },
-                            "total_stages": {
-                                "type": "integer",
-                                "description": "Total number of stages. For regular approver this number is always 0."
-                            }
-                        }
+                        "type": "object"
                     }
-                ]
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "state": {
+                        "type": "string",
+                        "description": "The state of stage or request. It may be one of values (pending, skipped, notified or finished)",
+                        "enum": [
+                            "pending",
+                            "skipped",
+                            "notified",
+                            "finished"
+                        ],
+                        "default": "pending"
+                    },
+                    "decision": {
+                        "type": "string",
+                        "description": "Final decision, may be one of the value (undecided, approved, or denied)",
+                        "enum": [
+                            "undecided",
+                            "approved",
+                            "denied"
+                        ],
+                        "default": "undecided"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "description": "Comments for requests"
+                    },
+                    "workflow_id": {
+                        "type": "string",
+                        "description": "Associate workflow id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of creation"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of last update"
+                    },
+                    "active_stage": {
+                        "type": "integer",
+                        "description": "Current (or last) active stage. For regular approver this number is always 0"
+                    },
+                    "total_stages": {
+                        "type": "integer",
+                        "description": "Total number of stages. For regular approver this number is always 0."
+                    }
+                }
             },
             "StageOut": {
                 "type": "object",
@@ -1247,18 +1273,18 @@
                         "$ref": "#/components/schemas/WorkflowIn"
                     },
                     {
-                        "type": "object",
-                        "properties": {
-                            "id": {
-                                "type": "string"
-                            },
-                            "template_id": {
-                                "type": "string",
-                                "description": "Associated template id"
-                            }
-                        }
+                      "type": "object"
                     }
-                ]
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "template_id": {
+                        "type": "string",
+                        "description": "Associated template id"
+                    }
+                }
             },
             "ActionOutCollection": {
                 "type": "object",
