@@ -1,11 +1,11 @@
-# Swagger for Rails 5
+# OpenAPI for Rails 5
 
 [![Build Status](https://travis-ci.org/ManageIQ/approval-api.svg)](https://travis-ci.org/ManageIQ/approval-api)
 [![Maintainability](https://api.codeclimate.com/v1/badges/01ea4517f71f0df102d2/maintainability)](https://codeclimate.com/github/ManageIQ/approval-api/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/01ea4517f71f0df102d2/test_coverage)](https://codeclimate.com/github/ManageIQ/approval-api/test_coverage)
 [![Security](https://hakiri.io/github/ManageIQ/approval-api/master.svg)](https://hakiri.io/github/ManageIQ/approval-api/master)
 
-This is a project to provide Swagger support inside the [Ruby on Rails](http://rubyonrails.org/) framework.
+This is a project to provide OpenAPI support inside the [Ruby on Rails](http://rubyonrails.org/) framework.
 
 ## Prerequisites
 You need to install ruby >= 2.2.2 and run:
@@ -27,8 +27,6 @@ export MANAGEIQ_PASSWORD=smartvm
 export MANAGEIQ_HOST=localhost
 export MANAGEIQ_PORT=3000
 ```
-
-This sample was generated with the [swagger-codegen](https://github.com/swagger-api/swagger-codegen) project.
 
 ```
 bin/rake db:create db:migrate

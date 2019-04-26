@@ -860,10 +860,6 @@
             "Basic_auth": []
         }
     ],
-    "externalDocs": {
-        "description": "Find out more about Swagger",
-        "url": "http://swagger.io"
-    },
     "servers": [
         {
             "url": "http://localhost/api/approval/v1.0"
