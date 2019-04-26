@@ -14,27 +14,15 @@ module Api
       end
 
       def index
-        if params[:approver]
-          return index_by_approver
-        end
+        reqs = if params[:workflow_id]
+                 Request.includes(:stages).where(:workflow_id => params.require(:workflow_id))
+               elsif params[:approver]
+                 RequestListByApproverService.new(params.require(:approver)).list
+               else
+                 Request.includes(:stages)
+               end
 
-        Workflow.find(params.require(:workflow_id)) if params[:workflow_id] # to validate the workflow exists
-        reqs = Request.includes(:stages).filter(params.slice(:requester, :decision, :state, :workflow_id))
         collection(reqs)
-      end
-
-      def index_by_approver
-        username = params.require(:approver)
-        group_refs = Group.all(username).map(&:uuid)
-
-        reqs = []
-        group_refs.each do |group_ref|
-          reqs |= Request.all.select do |req|
-            req.workflow.group_refs.include?(group_ref)
-          end
-        end
-
-        collection(Request.includes(:stages).where(:id => reqs.pluck(:id)))
       end
 
       private

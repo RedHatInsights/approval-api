@@ -1,5 +1,4 @@
 class Request < ApplicationRecord
-  include Filterable
   include ApprovalStates
   include ApprovalDecisions
 
