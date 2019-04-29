@@ -8,7 +8,7 @@ class Action < ApplicationRecord
   DENY_OPERATION    = 'deny'.freeze
   OPERATIONS = [NOTIFY_OPERATION, SKIP_OPERATION, MEMO_OPERATION, APPROVE_OPERATION, DENY_OPERATION].freeze
 
-  validates :operation,    :inclusion => { :in => OPERATIONS }
+  validates :operation, :inclusion => { :in => OPERATIONS }
   validates :processed_by, :presence  => true
   belongs_to :stage, :inverse_of => :actions
 end

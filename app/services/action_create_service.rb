@@ -7,6 +7,13 @@ class ActionCreateService
 
   def create(options)
     stage_options = validate_operation(options)
+
+    options = options.transform_keys(&:to_sym)
+    unless options[:processed_by]
+      requester = ManageIQ::API::Common::Request.current.user
+      options[:processed_by] = requester.username
+    end
+
     Action.create!(options.merge(:stage => stage)).tap do
       if stage_options
         StageUpdateService.new(stage.id).update(stage_options)

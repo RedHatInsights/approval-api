@@ -12,6 +12,21 @@ RSpec.describe RequestCreateService do
     end
   end
 
+  context 'with auto fill requester' do
+    it 'auto fill requester if it is nil' do
+      request = subject.create(:name => 'req1', :content => 'test me')
+      request.reload
+      expect(request.requester).to include(ManageIQ::API::Common::Request.current.user.last_name)
+      expect(request.requester).to include(ManageIQ::API::Common::Request.current.user.first_name)
+    end
+
+    it 'skips auto filling if requester is set' do
+      request = subject.create(:name => 'req1', :requester => 'test', :content => 'test me')
+      request.reload
+      expect(request.requester).to eq("test")
+    end
+  end
+
   context 'without auto approval' do
     context 'template has external process' do
       let(:template) { create(:template, :process_setting => {'processor_type' => 'jbpm', 'url' => 'url'}) }
