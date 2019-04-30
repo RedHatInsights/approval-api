@@ -17,12 +17,19 @@ class RequestCreateService
       )
     end
 
+    options = options.transform_keys(&:to_sym)
     create_options = options.merge(
       :workflow => workflow,
       :state    => Request::PENDING_STATE,
       :decision => Request::UNDECIDED_STATUS,
       :stages   => stages
     )
+
+    unless options[:requester]
+      requester = ManageIQ::API::Common::Request.current.user
+      create_options[:requester] = "#{requester.first_name} #{requester.last_name}"
+    end
+
     Request.create!(create_options).tap do |request|
       if default_approve? || auto_approve?
         start_internal_approval_process(request)
@@ -62,9 +69,9 @@ class RequestCreateService
   def group_auto_approve(stage, sleep_time)
     sleep(sleep_time)
     ActionCreateService.new(stage.id).create(
-      'operation'    => Action::APPROVE_OPERATION,
-      'processed_by' => 'system',
-      'comments'     => 'ok'
+      :operation    => Action::APPROVE_OPERATION,
+      :processed_by => 'system',
+      :comments     => 'ok'
     )
   end
 

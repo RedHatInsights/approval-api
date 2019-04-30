@@ -14,6 +14,12 @@ RSpec.describe StageUpdateService do
     allow(event_service).to receive(:request_finished)
   end
 
+  around do |example|
+    ManageIQ::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+      example.call
+    end
+  end
+
   context 'state becomes notified' do
     it 'sends approver_group_notified event and updates request' do
       expect(event_service).to receive(:approver_group_notified)

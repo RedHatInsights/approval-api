@@ -6,6 +6,8 @@ class StageUpdateService
   end
 
   def update(options)
+    options = options.transform_keys(&:to_sym)
+
     old_state = stage.state
     stage.update_attributes(options)
     return if old_state == stage.state
