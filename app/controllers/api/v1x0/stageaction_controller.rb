@@ -71,7 +71,6 @@ module Api
           :orderer       => request.requester,
           :product       => request.content["product"],
           :portfolio     => request.content["portfolio"],
-          :platform      => request.content["platform"],
           :order_id      => request.content["order_id"],
           :order_date    => Time.zone.parse(request.created_at.to_s).strftime("%m/%d/%Y"),
           :order_time    => Time.zone.parse(request.created_at.to_s).strftime("%I:%M %p"),
