@@ -16,8 +16,12 @@
         <font face="verdana"><br>
           <font size="22" color="red"><b><%= @resources[:approval_web_product] %></font><hr>
             <% if response.status != 200 %>
-              <h1 font size="24">Unable to complete action [<%= params[:commit] %>]</h1>
-            <p><strong>Reason:</strong><%= response.body %></p>
+              <% if params[:commit] %>
+                <h1 font size="24">Unable to complete action [<%= params[:commit] %>]</h1>
+              <% else %>
+                <h1 font size="24">Unable to complete the action</h1>
+              <% end %>
+              <p><strong>Reason: </strong><%= response.body %></p>
             <% else %>
               <h1 font size="24">Your action [<%= params[:commit] %>] has been recorded.</h1>
             <% end %>
