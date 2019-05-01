@@ -1067,14 +1067,7 @@
                 }
             },
             "ActionOut": {
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/ActionIn"
-                    },
-                    {
-                        "type": "object"
-                    }
-                ],
+                "type": "object",
                 "required": [
                     "id",
                     "stage_id"
@@ -1091,6 +1084,27 @@
                     "stage_id": {
                         "type": "string",
                         "description": "Associated stage id"
+                    },
+                    "processed_by": {
+                        "type": "string",
+                        "description": "The person who performs the action"
+                    },
+                    "operation": {
+                        "type": "string",
+                        "description": "Types of action, may be one of the value (approve, deny, notify, memo, or skip). The stage will be updated according to the operation.",
+                        "enum": [
+                            "approve",
+                            "deny",
+                            "notify",
+                            "memo",
+                            "skip"
+                        ],
+                        "default": "memo"
+                    },
+                    "comments": {
+                        "type": "string",
+                        "description": "Comments for action",
+                        "readOnly": true
                     }
                 }
             },
@@ -1122,14 +1136,7 @@
             },
             "RequestOut": {
                 "description": "Approval request. Each request will associate with a workflow. Corresponding to the groups of the associated workflow, every request will have a list of stages to record the request processing details.",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/RequestIn"
-                    },
-                    {
-                        "type": "object"
-                    }
-                ],
+                "type": "object",
                 "properties": {
                     "id": {
                         "type": "string"
@@ -1180,6 +1187,22 @@
                     "total_stages": {
                         "type": "integer",
                         "description": "Total number of stages. For regular approver this number is always 0."
+                    },
+                    "requester": {
+                        "type": "string",
+                        "description": "Requester id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Request name"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Request description"
+                    },
+                    "content": {
+                        "type": "object",
+                        "description": "JSON object with request content"
                     }
                 }
             },
@@ -1264,14 +1287,7 @@
             },
             "WorkflowOut": {
                 "description": "The workflow to process approval requests. Each workflow is linked to multiple groups of approvals.",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/WorkflowIn"
-                    },
-                    {
-                      "type": "object"
-                    }
-                ],
+                "type": "object",
                 "properties": {
                     "id": {
                         "type": "string"
@@ -1279,6 +1295,19 @@
                     "template_id": {
                         "type": "string",
                         "description": "Associated template id"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "group_refs": {
+                        "type": "array",
+                        "description": "Group reference ids associated with workflow",
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 }
             },
