@@ -4,7 +4,8 @@ class Workflow < ApplicationRecord
   belongs_to :template
   has_many :requests, -> { order(:id => :asc) }, :inverse_of => :workflow
 
-  validates :name, :presence => :name
+  validates :name, :presence => true
+  validate :unique_with_same_or_no_tenant
 
   def self.seed
     workflow = find_or_create_by!(default_workflow_query)
@@ -21,6 +22,12 @@ class Workflow < ApplicationRecord
     { :name => 'Always approve', :template => nil }
   end
   private_class_method :default_workflow_query
+
+  def unique_with_same_or_no_tenant
+    if name_changed? && Workflow.exists?(:name => name)
+      errors.add(:name, "has already been taken")
+    end
+  end
 
   def external_processing?
     template.process_setting.present?
