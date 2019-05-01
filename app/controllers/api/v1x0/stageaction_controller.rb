@@ -38,9 +38,9 @@ module Api
         ManageIQ::API::Common::Request.with_request(@stage.request.context.transform_keys(&:to_sym)) do
           ActsAsTenant.with_tenant(Tenant.find(@stage.tenant_id)) do
             ActionCreateService.new(@stage.id).create(
-              'operation'    => operation.downcase,
-              'processed_by' => @approver,
-              'comments'     => comments
+              :operation    => operation.downcase,
+              :processed_by => @approver,
+              :comments     => comments
             )
           end
         end
@@ -60,9 +60,12 @@ module Api
         if @stage
           @order = set_order
         else
-          response.body = "Your request [#{params[:id]}] is either expired or has been processed!"
+          response.body = "Your request is either expired or has been processed!"
           render :status => :internal_server_error, :action => :result
         end
+      rescue ActionController::ParameterMissing => e
+        response.body = e.message
+        render :status => :internal_server_error, :action => :result
       end
 
       def set_order
