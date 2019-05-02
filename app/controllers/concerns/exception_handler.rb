@@ -14,5 +14,9 @@ module ExceptionHandler
     rescue_from ActionController::ParameterMissing do |e|
       json_response({ :message => e.message }, :unprocessable_entity)
     end
+
+    rescue_from ManageIQ::API::Common::EntitlementError do |e|
+      json_response({ :message => e.message }, :forbidden)
+    end
   end
 end
