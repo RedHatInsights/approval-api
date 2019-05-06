@@ -162,4 +162,13 @@ RSpec.describe 'Workflows API' do
       expect(response).to have_http_status(204)
     end
   end
+
+  describe 'DELETE /workflows/:id with associated request' do
+    let!(:request) { create(:request, :workflow => workflows.first) }
+    before { delete "#{api_version}/workflows/#{id}", :headers => request_header }
+
+    it 'returns status code 403' do
+      expect(response).to have_http_status(403)
+    end
+  end
 end
