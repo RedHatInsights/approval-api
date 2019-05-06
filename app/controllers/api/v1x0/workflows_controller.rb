@@ -28,6 +28,8 @@ module Api
         Workflow.find(params.require(:id)).destroy
 
         head :no_content
+      rescue ActiveRecord::InvalidForeignKey => e
+        json_response({ :message => e.message }, :forbidden)
       end
 
       def update
