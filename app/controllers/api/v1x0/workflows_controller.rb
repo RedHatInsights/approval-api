@@ -31,9 +31,10 @@ module Api
       end
 
       def update
-        Workflow.find(params.require(:id)).update(workflow_params)
+        workflow = Workflow.find(params.require(:id))
+        workflow.update(workflow_params)
 
-        head :no_content
+        json_response(workflow)
       end
 
       private
