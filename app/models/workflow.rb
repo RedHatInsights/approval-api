@@ -7,7 +7,7 @@ class Workflow < ApplicationRecord
   validates :name, :presence => true
   validate :unique_with_same_or_no_tenant
 
-  before_destroy :not_to_delete_default
+  before_destroy :protect_default
 
   def self.seed
     workflow = find_or_create_by!(default_workflow_query)
@@ -41,7 +41,7 @@ class Workflow < ApplicationRecord
 
   private
 
-  def not_to_delete_default
+  def protect_default
     throw :abort if self.class.send(:default_workflow_query) == {:name => name, :template => template}
   end
 end
