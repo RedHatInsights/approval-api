@@ -1,4 +1,4 @@
-RSpec.describe "root", :type => :request do
+RSpec.describe Api::V1x0::RootController, :type => :request do
   let(:encoded_user) { encoded_user_hash }
   let(:request_header) { { 'x-rh-identity' => encoded_user } }
   let(:api_version) { version }
