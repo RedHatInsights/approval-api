@@ -8,10 +8,17 @@ RSpec.describe Workflow, :type => :model do
   it { should validate_presence_of(:name) }
 
   describe '.seed' do
+    after { Workflow.instance_variable_set(:@default_workflow, nil) }
+
     it 'creates a default workflow' do
       described_class.seed
       expect(described_class.count).to be(1)
       expect(described_class.first.template).to be_nil
+    end
+
+    it 'cannot be destroyed' do
+      described_class.seed
+      expect { described_class.default_workflow.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
     end
   end
 

@@ -121,6 +121,7 @@ RSpec.describe RequestCreateService do
     let(:context_service) { double(:conext_service) }
 
     before { allow(Thread).to receive(:new).and_yield }
+    after  { Workflow.instance_variable_set(:@default_workflow, nil) }
 
     it 'creates a request and auto approves' do
       expect(ContextService).to receive(:new).and_return(context_service)
