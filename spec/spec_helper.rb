@@ -96,6 +96,6 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 =end
 
-  config.include RequestSpecHelper, type: :request
   config.include FactoryBot::Syntax::Methods
+  config.include RequestSpecHelper
 end

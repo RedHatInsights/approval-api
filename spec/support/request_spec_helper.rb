@@ -12,6 +12,20 @@ module RequestSpecHelper
   end
 
   DEFAULT_USER = {
+    "entitlements" => {
+      "hybrid_cloud"     => {
+        "is_entitled" => true
+      },
+      "insights"         => {
+        "is_entitled" => true
+      },
+      "openshift"        => {
+        "is_entitled" => true
+      },
+      "smart_management" => {
+        "is_entitled" => true
+      }
+    },
     "identity" => {
       "account_number" => "0369233",
       "type"           => "User",
