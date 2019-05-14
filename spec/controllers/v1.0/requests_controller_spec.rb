@@ -16,6 +16,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let!(:requests_with_same_state) { create_list(:request, 2, :state => 'notified', :workflow_id => workflow.id, :tenant_id => tenant.id) }
   let!(:requests_with_same_decision) { create_list(:request, 2, :decision => 'approved', :workflow_id => workflow.id, :tenant_id => tenant.id) }
 
+  let(:username_1) { "joe@acme.com" }
+  let(:group1) { double(:name => 'group1', :uuid => "123") }
+  let!(:workflow_2) { create(:workflow, :name => 'workflow_2', :group_refs => [group1.uuid]) }
+  let!(:user_requests) { create_list(:request, 2, :decision => 'denied', :workflow_id => workflow_2.id, :tenant_id => tenant.id) }
+  let!(:list_service) { RequestListByApproverService.new(username_1) }
+
   let(:api_version) { version }
 
   # Test suite for GET /workflows/:workflow_id/requests
@@ -32,18 +38,6 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         expect(json['links']['first']).to match(/limit=5&offset=0/)
         expect(json['links']['last']).to match(/limit=5&offset=5/)
         expect(json['data'].size).to eq(5)
-      end
-    end
-
-    context 'when workflow does not exist' do
-      let!(:workflow_id) { 0 }
-
-      it 'returns status code 404' do
-        expect(response).to have_http_status(404)
-      end
-
-      it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find Workflow/)
       end
     end
   end
@@ -88,7 +82,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
   # Test suite for GET /requests?state=
   describe 'GET /requests?state=notified' do
-    before { get "#{api_version}/requests?state=notified", :headers => request_header }
+    before { get "#{api_version}/requests?filter[state]=notified", :headers => request_header }
 
     it 'returns requests' do
       expect(json['links']).not_to be_empty
@@ -103,7 +97,27 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
   # Test suite for GET /requests?decision=
   describe 'GET /requests?decision=approved' do
-    before { get "#{api_version}/requests?decision=approved", :headers => request_header }
+    before { get "#{api_version}/requests?filter[decision]=approved", :headers => request_header }
+
+    it 'returns requests' do
+      expect(json['links']).not_to be_empty
+      expect(json['links']['first']).to match(/offset=0/)
+      expect(json['data'].size).to eq(2)
+    end
+
+    it 'returns status code 200' do
+      expect(response).to have_http_status(200)
+    end
+  end
+
+  # Test suite for GET /requests?decision=
+  describe 'GET /requests?approver=joe@acme.com' do
+    before do
+      relation = Request.where(:id => user_requests.pluck(:id))
+      allow(RequestListByApproverService).to receive(:new).with(username_1).and_return(list_service)
+      allow(list_service).to receive(:list).and_return(relation)
+      get "#{api_version}/requests?approver=joe@acme.com", :headers => request_header
+    end
 
     it 'returns requests' do
       expect(json['links']).not_to be_empty
