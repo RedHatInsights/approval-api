@@ -6,15 +6,12 @@ class RequestListByApproverService
   end
 
   def list
-    reqs = []
     group_refs = Group.all(username).map(&:uuid)
 
-    group_refs.each do |group_ref|
-      reqs |= Request.all.select do |req|
-        req.workflow.group_refs.include?(group_ref)
-      end
+    workflows = Workflow.all.select do |flow|
+      (flow.group_refs & group_refs).any?
     end
 
-    Request.includes(:stages).where(:id => reqs.pluck(:id))
+    Request.includes(:stages).where(:workflow_id => workflows.pluck(:id))
   end
 end
