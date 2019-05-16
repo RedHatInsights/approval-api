@@ -25,11 +25,15 @@ module Api
       end
 
       def destroy
-        Workflow.find(params.require(:id)).destroy
-
+        workflow = Workflow.find(params.require(:id))
+        workflow.destroy!
         head :no_content
       rescue ActiveRecord::InvalidForeignKey => e
         json_response({ :message => e.message }, :forbidden)
+      rescue ActiveRecord::RecordNotDestroyed
+        raise unless workflow.errors[:base].include?(Workflow::MSG_PROTECTED_RECORD)
+
+        json_response({ :message => Workflow::MSG_PROTECTED_RECORD }, :forbidden)
       end
 
       def update

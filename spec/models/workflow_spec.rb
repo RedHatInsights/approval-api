@@ -18,7 +18,9 @@ RSpec.describe Workflow, :type => :model do
 
     it 'cannot be destroyed' do
       described_class.seed
-      expect { described_class.default_workflow.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
+      default_workflow = described_class.default_workflow
+      expect { default_workflow.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
+      expect(default_workflow.errors[:base]).to include(described_class::MSG_PROTECTED_RECORD)
     end
   end
 
