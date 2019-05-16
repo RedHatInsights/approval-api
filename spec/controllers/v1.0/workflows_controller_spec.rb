@@ -170,6 +170,19 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
   end
 
+  describe 'DELETE /workflows/:id of default workflow' do
+    before do
+      Workflow.seed
+      delete "#{api_version}/workflows/#{Workflow.default_workflow.id}", :headers => request_header
+    end
+
+    after { Workflow.instance_variable_set(:@default_workflow, nil) }
+
+    it 'returns status code 403' do
+      expect(response).to have_http_status(403)
+    end
+  end
+
   describe 'Entitlement enforcement' do
     let(:false_hash) do
       false_hash = default_user_hash

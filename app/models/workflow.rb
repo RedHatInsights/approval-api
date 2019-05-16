@@ -9,6 +9,8 @@ class Workflow < ApplicationRecord
 
   before_destroy :protect_default
 
+  MSG_PROTECTED_RECORD = "This workflow is protected from being deleted".freeze
+
   def self.seed
     workflow = find_or_create_by!(default_workflow_query)
     workflow.update_attributes!(
@@ -42,6 +44,9 @@ class Workflow < ApplicationRecord
   private
 
   def protect_default
-    throw :abort if self.class.send(:default_workflow_query) == {:name => name, :template => template}
+    if self.class.send(:default_workflow_query) == {:name => name, :template => template}
+      errors.add(:base, MSG_PROTECTED_RECORD)
+      throw :abort
+    end
   end
 end
