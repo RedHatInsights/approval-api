@@ -880,7 +880,25 @@
     ],
     "servers": [
         {
-            "url": "http://localhost/api/approval/v1.0"
+            "url": "https://cloud.redhat.com/{basePath}",
+            "description": "Production Server",
+            "variables": {
+                "basePath": {
+                    "default": "/api/approval/v1.0"
+                }
+            }
+        },
+        {
+            "url": "http://localhost:{port}/{basePath}",
+            "description": "Development Server",
+            "variables": {
+                "port": {
+                    "default": "3000"
+                },
+                "basePath": {
+                    "default": "/api/approval/v1.0"
+                }
+            }
         }
     ],
     "components": {
