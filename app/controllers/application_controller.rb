@@ -8,12 +8,16 @@ class ApplicationController < ActionController::API
 
   def with_current_request
     ManageIQ::API::Common::Request.with_request(request) do |current|
-      raise ManageIQ::API::Common::EntitlementError, "User not Entitled" unless check_entitled(current.entitlement)
+      if current.required_auth?
+        raise ManageIQ::API::Common::EntitlementError, "User not Entitled" unless check_entitled(current.entitlement)
 
-      begin
-        ActsAsTenant.with_tenant(current_tenant(current.user)) { yield }
-      rescue Exceptions::NoTenantError
-        json_response({ :message => 'Unauthorized' }, :unauthorized)
+        begin
+          ActsAsTenant.with_tenant(current_tenant(current.user)) { yield }
+        rescue Exceptions::NoTenantError
+          json_response({ :message => 'Unauthorized' }, :unauthorized)
+        end
+      else
+        ActsAsTenant.without_tenant { yield }
       end
     end
   end
