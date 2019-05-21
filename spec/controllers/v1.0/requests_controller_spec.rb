@@ -95,6 +95,14 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
   end
 
+  describe 'GET /requests?state=invalid' do
+    before { get "#{api_version}/requests?filter[state]=invalid", :headers => request_header }
+
+    it 'returns status code 422' do
+      expect(response).to have_http_status(422)
+    end
+  end
+
   # Test suite for GET /requests?decision=
   describe 'GET /requests?decision=approved' do
     before { get "#{api_version}/requests?filter[decision]=approved", :headers => request_header }
@@ -110,7 +118,15 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
   end
 
-  # Test suite for GET /requests?decision=
+  describe 'GET /requests?decision=invalid' do
+    before { get "#{api_version}/requests?filter[decision]=invalid", :headers => request_header }
+
+    it 'returns status code 422' do
+      expect(response).to have_http_status(422)
+    end
+  end
+
+  # Test suite for GET /requests?approver=
   describe 'GET /requests?approver=joe@acme.com' do
     before do
       relation = Request.where(:id => user_requests.pluck(:id))
