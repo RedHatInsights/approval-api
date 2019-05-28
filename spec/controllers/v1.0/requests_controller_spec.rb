@@ -110,7 +110,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
   end
 
-  # Test suite for GET /requests?decision=
+  # Test suite for GET /requests?approver=
   describe 'GET /requests?approver=joe@acme.com' do
     before do
       relation = Request.where(:id => user_requests.pluck(:id))

@@ -188,15 +188,6 @@
                 "operationId": "listRequests",
                 "parameters": [
                     {
-                        "$ref": "#/components/parameters/decision"
-                    },
-                    {
-                        "$ref": "#/components/parameters/state"
-                    },
-                    {
-                        "$ref": "#/components/parameters/requester"
-                    },
-                    {
                         "$ref": "#/components/parameters/approver"
                     },
                     {
@@ -982,50 +973,6 @@
                 "explode": true,
                 "schema": {
                     "type": "object"
-                }
-            },
-            "state": {
-                "name": "state",
-                "in": "query",
-                "description": "Fetch item by given state (pending, skipped, notified, finished)",
-                "required": false,
-                "schema": {
-                    "type": "array",
-                    "items": {
-                        "type": "string",
-                        "enum": [
-                            "pending",
-                            "skipped",
-                            "notified",
-                            "finished"
-                        ]
-                    }
-                }
-            },
-            "decision": {
-                "name": "decision",
-                "in": "query",
-                "description": "Fetch item by given decision (undecided, approved, denied)",
-                "required": false,
-                "schema": {
-                    "type": "array",
-                    "items": {
-                        "type": "string",
-                        "enum": [
-                            "undecided",
-                            "approved",
-                            "denied"
-                        ]
-                    }
-                }
-            },
-            "requester": {
-                "name": "requester",
-                "in": "query",
-                "description": "Fetch item by given requester",
-                "required": false,
-                "schema": {
-                    "type": "string"
                 }
             },
             "approver": {
