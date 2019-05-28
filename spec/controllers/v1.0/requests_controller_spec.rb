@@ -81,7 +81,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   end
 
   # Test suite for GET /requests?state=
-  describe 'GET /requests?state=notified' do
+  describe 'GET /requests?filter[state]=notified' do
     before { get "#{api_version}/requests?filter[state]=notified", :headers => request_header }
 
     it 'returns requests' do
@@ -96,7 +96,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   end
 
   # Test suite for GET /requests?decision=
-  describe 'GET /requests?decision=approved' do
+  describe 'GET /requests?filter[decision]=approved' do
     before { get "#{api_version}/requests?filter[decision]=approved", :headers => request_header }
 
     it 'returns requests' do
@@ -164,7 +164,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   # Test suite for POST /workflows/:workflow_id/requests
   describe 'POST /workflows/:workflow_id/requests' do
     let(:item) { { 'disk' => '100GB' } }
-    let(:valid_attributes) { { :requester => '1234', :name => 'Visit Narnia', :content => item } }
+    let(:valid_attributes) { { :requester => '1234', :name => 'Visit Narnia', :content => item, :description => 'desc' } }
 
     context 'when request attributes are valid' do
       before do
@@ -176,6 +176,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
+        expect(json).to include('requester' => '1234', 'name' => 'Visit Narnia', 'content' => item, 'description' => 'desc')
       end
     end
   end
