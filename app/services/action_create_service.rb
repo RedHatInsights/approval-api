@@ -66,7 +66,7 @@ class ActionCreateService
     unless stage.state == Stage::NOTIFIED_STATE
       raise Exceptions::InvalidStateTransitionError, "Current stage is not in notified state"
     end
-    raise Exception::ApprovalError, "Reason to deny the request is missing" unless comments
+    raise Exceptions::ApprovalError, "Reason to deny the request is missing" unless comments
 
     {:state => Stage::FINISHED_STATE, :decision => Stage::DENIED_STATUS, :reason => comments}
   end
