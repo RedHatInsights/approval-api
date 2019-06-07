@@ -12,6 +12,7 @@ RSpec.describe StageUpdateService do
     allow(EventService).to  receive(:new).with(request).and_return(event_service)
     allow(event_service).to receive(:request_started)
     allow(event_service).to receive(:request_finished)
+    allow(event_service).to receive(:request_canceled)
   end
 
   around do |example|
@@ -36,9 +37,9 @@ RSpec.describe StageUpdateService do
     describe 'first stage' do
       context 'with external process' do
         it 'sends approver_group_finished event and signals the external process' do
-          expect(jbpm).to receive(:signal).with(anything)
+          expect(jbpm).to receive(:signal).with('denied')
           expect(event_service).to receive(:approver_group_finished)
-          svc1.update(:state => Stage::FINISHED_STATE)
+          svc1.update(:state => Stage::FINISHED_STATE, :decision => 'denied')
           stage1.reload
           stage2.reload
           expect(stage1.state).to eq(Stage::FINISHED_STATE)
@@ -63,13 +64,56 @@ RSpec.describe StageUpdateService do
 
     describe 'last stage' do
       it 'sends approver_group_finished event and updates request' do
-        expect(jbpm).to receive(:signal).with(anything)
+        expect(jbpm).to receive(:signal).with('approved')
         expect(event_service).to receive(:approver_group_finished)
-        svc2.update(:state => Stage::FINISHED_STATE)
+        svc2.update(:state => Stage::FINISHED_STATE, :decision => 'approved')
         stage2.reload
         request.reload
         expect(stage2.state).to eq(Stage::FINISHED_STATE)
-        expect(request.state).to eq(Stage::FINISHED_STATE)
+        expect(request.state).to eq(Request::FINISHED_STATE)
+      end
+    end
+  end
+
+  context 'state becomes canceled' do
+    let(:jbpm) { double(:jbpm) }
+    before { allow(JbpmProcessService).to receive(:new).and_return(jbpm) }
+
+    describe 'first stage' do
+      context 'with external process' do
+        it 'signals the external process' do
+          expect(jbpm).to receive(:signal).with('canceled')
+          svc1.update(:state => Stage::CANCELED_STATE)
+          stage1.reload
+          stage2.reload
+          expect(stage1.state).to eq(Stage::CANCELED_STATE)
+          expect(stage2.state).to eq(Stage::PENDING_STATE)
+        end
+      end
+
+      context 'without external process' do
+        let(:template) { create(:template) }
+
+        it 'skips the rest stages and cancels the request' do
+          svc1.update(:state => Stage::CANCELED_STATE)
+          stage1.reload
+          stage2.reload
+          request.reload
+          expect(stage1.state).to eq(Stage::CANCELED_STATE)
+          expect(stage2.state).to eq(Stage::SKIPPED_STATE)
+          expect(request.state).to eq(Request::CANCELED_STATE)
+        end
+      end
+    end
+
+    describe 'last stage' do
+      it 'cancels request' do
+        expect(jbpm).to receive(:signal).with('canceled')
+        svc2.update(:state => Stage::CANCELED_STATE)
+        stage2.reload
+        request.reload
+        expect(stage2.state).to eq(Stage::CANCELED_STATE)
+        expect(request.state).to eq(Request::CANCELED_STATE)
       end
     end
   end

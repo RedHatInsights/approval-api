@@ -3,5 +3,6 @@ module ApprovalStates
   SKIPPED_STATE  = 'skipped'.freeze
   NOTIFIED_STATE = 'notified'.freeze
   FINISHED_STATE = 'finished'.freeze
-  STATES = [PENDING_STATE, SKIPPED_STATE, NOTIFIED_STATE, FINISHED_STATE].freeze
+  CANCELED_STATE = 'canceled'.freeze
+  STATES = [PENDING_STATE, SKIPPED_STATE, NOTIFIED_STATE, FINISHED_STATE, CANCELED_STATE].freeze
 end

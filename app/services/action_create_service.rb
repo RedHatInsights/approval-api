@@ -70,4 +70,14 @@ class ActionCreateService
 
     {:state => Stage::FINISHED_STATE, :decision => Stage::DENIED_STATUS, :reason => comments}
   end
+
+  def cancel(comments)
+    unless [Stage::PENDING_STATE, Stage::NOTIFIED_STATE].include?(stage.state)
+      raise Exceptions::InvalidStateTransitionError, "Current stage has already finished"
+    end
+
+    {:state => Stage::CANCELED_STATE}.tap do |h|
+      h[:reason] = comments if comments
+    end
+  end
 end

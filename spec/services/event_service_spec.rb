@@ -15,6 +15,11 @@ RSpec.describe EventService do
     subject.request_finished
   end
 
+  it 'sends request_canceled event' do
+    expect(subject).to receive(:send_event).with(described_class::EVENT_REQUEST_CANCELED, hash_including(:request_id, :reason))
+    subject.request_canceled
+  end
+
   it 'sends approver_group_notified event' do
     expect(subject).to receive(:send_event).with(described_class::EVENT_APPROVER_GROUP_NOTIFIED, hash_including(:request_id, :group_name))
     subject.approver_group_notified(stage)

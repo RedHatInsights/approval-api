@@ -14,6 +14,8 @@ class RequestUpdateService
       EventService.new(request).request_started
     when Request::FINISHED_STATE
       EventService.new(request).request_finished
+    when Request::CANCELED_STATE
+      EventService.new(request).request_canceled
     end
   end
 end

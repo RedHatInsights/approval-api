@@ -10,6 +10,7 @@ RSpec.describe ActionCreateService do
     allow(EventService).to  receive(:new).with(request).and_return(event_service)
     allow(event_service).to receive(:request_started)
     allow(event_service).to receive(:request_finished)
+    allow(event_service).to receive(:request_canceled)
     allow(event_service).to receive(:approver_group_notified)
     allow(event_service).to receive(:approver_group_finished)
   end
@@ -37,8 +38,8 @@ RSpec.describe ActionCreateService do
       stage1.reload
       request.reload
       expect(action).to  have_attributes(:operation => Action::APPROVE_OPERATION, :processed_by => 'man')
-      expect(stage1).to  have_attributes(:state => Stage::FINISHED_STATE, :decision => Stage::APPROVED_STATUS)
-      expect(request).to have_attributes(:state => Stage::PENDING_STATE,  :decision => Stage::UNDECIDED_STATUS)
+      expect(stage1).to  have_attributes(:state => Stage::FINISHED_STATE,  :decision => Stage::APPROVED_STATUS)
+      expect(request).to have_attributes(:state => Request::PENDING_STATE, :decision => Request::UNDECIDED_STATUS)
     end
 
     it 'updates current stage and overall request' do
@@ -47,8 +48,8 @@ RSpec.describe ActionCreateService do
       stage2.reload
       request.reload
       expect(action).to  have_attributes(:operation => Action::DENY_OPERATION, :processed_by => 'man', :comments => 'bad')
-      expect(stage2).to  have_attributes(:state => Stage::FINISHED_STATE, :decision => Stage::DENIED_STATUS, :reason => 'bad')
-      expect(request).to have_attributes(:state => Stage::FINISHED_STATE, :decision => Stage::DENIED_STATUS, :reason => 'bad')
+      expect(stage2).to  have_attributes(:state => Stage::FINISHED_STATE,   :decision => Stage::DENIED_STATUS, :reason => 'bad')
+      expect(request).to have_attributes(:state => Request::FINISHED_STATE, :decision => Request::DENIED_STATUS, :reason => 'bad')
     end
   end
 
@@ -60,9 +61,23 @@ RSpec.describe ActionCreateService do
       stage2.reload
       request.reload
       expect(action1).to have_attributes(:operation => Action::DENY_OPERATION, :processed_by => 'man', :comments => 'bad')
-      expect(stage1).to  have_attributes(:state => Stage::FINISHED_STATE, :decision => Stage::DENIED_STATUS, :reason => 'bad')
-      expect(stage2).to  have_attributes(:state => Stage::SKIPPED_STATE,  :decision => Stage::UNDECIDED_STATUS, :reason => nil)
-      expect(request).to have_attributes(:state => Stage::FINISHED_STATE, :decision => Stage::DENIED_STATUS, :reason => 'bad')
+      expect(stage1).to  have_attributes(:state => Stage::FINISHED_STATE,   :decision => Stage::DENIED_STATUS, :reason => 'bad')
+      expect(stage2).to  have_attributes(:state => Stage::SKIPPED_STATE,    :decision => Stage::UNDECIDED_STATUS, :reason => nil)
+      expect(request).to have_attributes(:state => Request::FINISHED_STATE, :decision => Request::DENIED_STATUS, :reason => 'bad')
+    end
+  end
+
+  context 'cancel operation' do
+    it 'updates stage and request' do
+      stage1.update_attributes(:state => Stage::NOTIFIED_STATE)
+      action1 = svc1.create('operation' => Action::CANCEL_OPERATION, 'processed_by' => 'requester', 'comments' => 'regret')
+      stage1.reload
+      stage2.reload
+      request.reload
+      expect(action1).to have_attributes(:operation => Action::CANCEL_OPERATION, :processed_by => 'requester', :comments => 'regret')
+      expect(stage1).to  have_attributes(:state => Stage::CANCELED_STATE,   :decision => Stage::UNDECIDED_STATUS, :reason => 'regret')
+      expect(stage2).to  have_attributes(:state => Stage::SKIPPED_STATE,    :decision => Stage::UNDECIDED_STATUS, :reason => nil)
+      expect(request).to have_attributes(:state => Request::CANCELED_STATE, :decision => Request::UNDECIDED_STATUS, :reason => 'regret')
     end
   end
 
@@ -72,8 +87,8 @@ RSpec.describe ActionCreateService do
       stage1.reload
       request.reload
       expect(action).to  have_attributes(:operation => Action::MEMO_OPERATION, :processed_by => 'man', :comments => 'later')
-      expect(stage1).to  have_attributes(:state => Stage::PENDING_STATE, :decision => Stage::UNDECIDED_STATUS)
-      expect(request).to have_attributes(:state => Stage::PENDING_STATE, :decision => Stage::UNDECIDED_STATUS)
+      expect(stage1).to  have_attributes(:state => Stage::PENDING_STATE,   :decision => Stage::UNDECIDED_STATUS)
+      expect(request).to have_attributes(:state => Request::PENDING_STATE, :decision => Stage::UNDECIDED_STATUS)
     end
   end
 
