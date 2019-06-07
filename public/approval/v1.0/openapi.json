@@ -947,9 +947,9 @@
                 "schema": {
                     "type": "integer",
                     "format": "int32",
-                    "minimum": 20,
-                    "maximum": 100,
-                    "default": 20
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "default": 100
                 }
             },
             "offset": {
