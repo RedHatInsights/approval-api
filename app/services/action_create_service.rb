@@ -76,7 +76,7 @@ class ActionCreateService
       raise Exceptions::InvalidStateTransitionError, "Current stage has already finished"
     end
 
-    {:state => Stage::CANCELED_STATE}.tap do |h|
+    {:state => Stage::CANCELED_STATE, :decision => Stage::CANCELED_STATUS}.tap do |h|
       h[:reason] = comments if comments
     end
   end
