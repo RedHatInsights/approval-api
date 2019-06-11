@@ -20,6 +20,9 @@ class StageUpdateService
       request_finished(stage.decision, stage.reason) if last_stage?
     when Stage::SKIPPED_STATE
       last_stage_skipped if last_stage?
+    when Stage::CANCELED_STATE
+      stage_finished(Stage::CANCELED_STATUS)
+      request_canceled(stage.reason) if last_stage?
     end
   end
 
@@ -38,14 +41,15 @@ class StageUpdateService
   end
 
   def last_stage_skipped
-    last_decision = nil
-    last_reason   = nil
-    stage.request.stages.each do |st|
+    stage.request.stages.reverse_each do |st|
       next if st.state == Stage::SKIPPED_STATE
-      last_decision = st.decision
-      last_reason   = st.reason
+      if st.state == Stage::CANCELED_STATE
+        request_canceled(st.reason)
+      else
+        request_finished(st.decision, st.reason)
+      end
+      break
     end
-    request_finished(last_decision, last_reason)
   end
 
   def request_finished(last_decision, last_reason)
@@ -53,6 +57,14 @@ class StageUpdateService
       :state    => Request::FINISHED_STATE,
       :decision => last_decision,
       :reason   => last_reason
+    )
+  end
+
+  def request_canceled(reason)
+    RequestUpdateService.new(stage.request.id).update(
+      :state    => Request::CANCELED_STATE,
+      :decision => Request::CANCELED_STATUS,
+      :reason   => reason
     )
   end
 
@@ -69,7 +81,7 @@ class StageUpdateService
     next_stage = stage.request.stages.find { |s| s.state == Stage::PENDING_STATE }
     return unless next_stage
 
-    operation = decision == Stage::DENIED_STATUS ? Action::SKIP_OPERATION : Action::NOTIFY_OPERATION
+    operation = [Stage::DENIED_STATUS, Stage::CANCELED_STATE].include?(decision) ? Action::SKIP_OPERATION : Action::NOTIFY_OPERATION
     ActionCreateService.new(next_stage.id).create(:operation => operation, :processed_by => 'system')
   end
 
