@@ -25,6 +25,19 @@ module Api
         collection(reqs)
       end
 
+      def cancel
+        req = Request.find(params.require(:request_id))
+        raise Exceptions::ApprovalError, "Unable to cancel request." unless req.current_stage
+
+        ActionCreateService.new(req.current_stage.id).create(
+          :operation    => Action::CANCEL_OPERATION,
+          :processed_by => req.requester,
+          :comments     => params[:comments]
+        )
+
+        head :no_content
+      end
+
       private
 
       def request_params

@@ -389,6 +389,52 @@
                 }
             }
         },
+        "/requests/{request_id}/cancel": {
+            "post": {
+                "tags": [
+                  "Request"
+                ],
+                "summary": "Cancel the requst by given request id",
+                "description": "Cancel the requst by given request id",
+                "operationId": "cancelRequest",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/request_id"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CommentsIn"
+                            }
+                        }
+                    },
+                    "description": "Comments to cancel request",
+                    "required": false
+                },
+                "responses": {
+                    "204": {
+                        "description": "Request canceled"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequestResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401UnauthorizedResponse"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403ForbiddenResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFoundResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
+                    }
+                }
+            }
+        },
         "/requests/{request_id}/stages": {
             "get": {
                 "tags": [
@@ -1082,6 +1128,16 @@
                         "type": "string",
                         "description": "Comments for action",
                         "readOnly": true
+                    }
+                }
+            },
+            "CommentsIn": {
+                "type": "object",
+                "description": "Input comments for cancel request object.",
+                "properties": {
+                    "comments": {
+                        "type": "string",
+                        "description": "Comments to cancel the request"
                     }
                 }
             },

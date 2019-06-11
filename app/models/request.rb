@@ -24,6 +24,10 @@ class Request < ApplicationRecord
     super(options.merge(:methods => [:total_stages, :active_stage]))
   end
 
+  def current_stage
+    stages.find_by(:state => [Stage::NOTIFIED_STATE, Stage::PENDING_STATE])
+  end
+
   private
 
   def total_stages

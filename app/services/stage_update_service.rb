@@ -81,7 +81,7 @@ class StageUpdateService
     next_stage = stage.request.stages.find { |s| s.state == Stage::PENDING_STATE }
     return unless next_stage
 
-    operation = [Stage::DENIED_STATUS, Stage::CANCELED_STATE].include?(decision) ? Action::SKIP_OPERATION : Action::NOTIFY_OPERATION
+    operation = [Stage::DENIED_STATUS, Stage::CANCELED_STATUS].include?(decision) ? Action::SKIP_OPERATION : Action::NOTIFY_OPERATION
     ActionCreateService.new(next_stage.id).create(:operation => operation, :processed_by => 'system')
   end
 
