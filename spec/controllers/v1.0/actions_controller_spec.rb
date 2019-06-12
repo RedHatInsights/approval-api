@@ -44,7 +44,6 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     end
   end
 
-  # Test suite for PATCH /groups/:group_id/actions
   describe 'POST /stages/:stage_id/actions' do
     let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
 
@@ -56,6 +55,42 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
+      end
+    end
+  end
+
+  describe 'POST /requests/:request_id/actions' do
+    context 'when request is actionable' do
+      let(:req) { create(:request, :with_context, :tenant_id => tenant.id) }
+      let!(:stage1) { create(:stage, :id => "1", :state => Stage::NOTIFIED_STATE, :request => req, :tenant_id => tenant.id) }
+      let!(:stage2) { create(:stage, :id => "2", :state => Stage::PENDING_STATE, :request => req, :tenant_id => tenant.id) }
+      let(:valid_attributes) { { :operation => 'cancel', :processed_by => 'abcd' } }
+
+      before do
+        allow(Group).to receive(:find)
+        post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => request_header
+      end
+
+      it 'returns status code 201' do
+        expect(req.stages.first.state).to eq(Stage::CANCELED_STATE)
+        expect(req.stages.last.state).to eq(Stage::SKIPPED_STATE)
+        expect(response).to have_http_status(201)
+      end
+    end
+
+    context 'when request is not actionable' do
+      let(:req) { create(:request, :with_context, :tenant_id => tenant.id) }
+      let!(:stage1) { create(:stage, :id => "1", :state => Stage::FINISHED_STATE, :request => req, :tenant_id => tenant.id) }
+      let!(:stage2) { create(:stage, :id => "2", :state => Stage::FINISHED_STATE, :request => req, :tenant_id => tenant.id) }
+      let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
+
+      before do
+        allow(Group).to receive(:find)
+        post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => request_header
+      end
+
+      it 'returns status code 500' do
+        expect(response).to have_http_status(500)
       end
     end
   end

@@ -4,8 +4,17 @@ module Api
       include Mixins::IndexMixin
 
       def create
-        req = RequestCreateService.new(params.require(:workflow_id)).create(request_params)
-        json_response(req, :created)
+        if params[:request_id]
+          req = Request.find(params.require(:request_id))
+          current_stage = req.current_stage
+          raise Exceptions::ApprovalError, "Request has finished its lifecycle. No more action can be added to its current stage." unless current_stage
+
+          action = ActionCreateService.new(current_stage.id).create(action_params)
+          json_response(action, :created)
+        else
+          req = RequestCreateService.new(params.require(:workflow_id)).create(request_params)
+          json_response(req, :created)
+        end
       end
 
       def show
@@ -25,23 +34,14 @@ module Api
         collection(reqs)
       end
 
-      def cancel
-        req = Request.find(params.require(:request_id))
-        raise Exceptions::ApprovalError, "Unable to cancel request." unless req.current_stage
-
-        ActionCreateService.new(req.current_stage.id).create(
-          :operation    => Action::CANCEL_OPERATION,
-          :processed_by => req.requester,
-          :comments     => params[:comments]
-        )
-
-        head :no_content
-      end
-
       private
 
       def request_params
         params.permit(:name, :description, :requester, :content => {})
+      end
+
+      def action_params
+        params.permit(:operation, :processed_by, :comments)
       end
     end
   end

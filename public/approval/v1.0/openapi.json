@@ -389,14 +389,14 @@
                 }
             }
         },
-        "/requests/{request_id}/cancel": {
+        "/requests/{request_id}/actions": {
             "post": {
                 "tags": [
-                  "Request"
+                  "Action"
                 ],
-                "summary": "Cancel the requst by given request id",
-                "description": "Cancel the requst by given request id",
-                "operationId": "cancelRequest",
+                "summary": "Add an action to current active stage of a given request",
+                "description": "Add an action to current active stage of a given request. If request is finished, i.e. no current active stage is available, no action can be posted here.",
+                "operationId": "createActionByRequest",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/request_id"
@@ -406,16 +406,23 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CommentsIn"
+                                "$ref": "#/components/schemas/ActionIn"
                             }
                         }
                     },
-                    "description": "Comments to cancel request",
-                    "required": false
+                    "description": "Action object that will be added",
+                    "required": true
                 },
                 "responses": {
-                    "204": {
-                        "description": "Request canceled"
+                    "201": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ActionOut"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
@@ -1128,16 +1135,6 @@
                         "type": "string",
                         "description": "Comments for action",
                         "readOnly": true
-                    }
-                }
-            },
-            "CommentsIn": {
-                "type": "object",
-                "description": "Input comments for cancel request object.",
-                "properties": {
-                    "comments": {
-                        "type": "string",
-                        "description": "Comments to cancel the request"
                     }
                 }
             },
