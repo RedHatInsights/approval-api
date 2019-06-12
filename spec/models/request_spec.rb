@@ -5,6 +5,12 @@ RSpec.describe Request, type: :model do
   it { should validate_presence_of(:name) }
   it { should validate_presence_of(:content) }
 
+  around do |example|
+    ManageIQ::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+      example.call
+    end
+  end
+
   describe '#as_json' do
     subject { FactoryBot.create(:request, :stages => stages) }
 

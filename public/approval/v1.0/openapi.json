@@ -1053,11 +1053,6 @@
                     "id": {
                         "type": "string"
                     },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Timestamp of creation"
-                    },
                     "stage_id": {
                         "type": "string",
                         "description": "Associated stage id"
@@ -1082,6 +1077,16 @@
                         "type": "string",
                         "description": "Comments for action",
                         "readOnly": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of creation"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of last update"
                     }
                 }
             },
@@ -1222,6 +1227,16 @@
                     "notified_at": {
                         "type": "string",
                         "description": "the time approvers in the stage are notified"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of creation"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of last update"
                     }
                 }
             },
@@ -1237,6 +1252,16 @@
                     },
                     "description": {
                         "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of creation"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of last update"
                     }
                 }
             },
@@ -1285,6 +1310,16 @@
                         "items": {
                             "type": "string"
                         }
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of creation"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of last update"
                     }
                 }
             },

@@ -69,6 +69,6 @@ module RequestSpecHelper
   end
 
   def default_request_hash
-    {:headers => default_headers, :original_url => 'https://xyz.com/api/requests'}
+    {:headers => default_headers, :original_url => 'https://xyz.com/api/v1.0/requests'}
   end
 end

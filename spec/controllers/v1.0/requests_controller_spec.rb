@@ -8,7 +8,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let!(:workflow) { create(:workflow, :name => 'Test always approve') } #:template_id => template.id) }
   let(:workflow_id) { workflow.id }
   let!(:requests) do
-    ManageIQ::API::Common::Request.with_request(:headers => request_header, :original_url => "localhost/approval") do
+    ManageIQ::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
       create_list(:request, 2, :workflow_id => workflow.id, :tenant_id => tenant.id)
     end
   end
