@@ -9,8 +9,8 @@ if (env.CHANGE_ID) {
     runSmokeTest (
         ocDeployerBuilderPath: "approval",
         ocDeployerComponentPath: "approval",
-        ocDeployerServiceSets: "approval",
+        ocDeployerServiceSets: "approval, platform-mq",
         iqePlugins: ["iqe-approval-plugin"],
-        pytestMarker: "approval-smoke",
+        pytestMarker: "approval-api-smoke",
     )
 }
