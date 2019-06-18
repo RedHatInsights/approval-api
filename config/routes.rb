@@ -25,6 +25,7 @@ Rails.application.routes.draw do
 
       resources :requests, :only => %i(index show) do
         resources :stages, :only => [:index]
+        resources :actions, :only => [:create]
       end
 
       resources :workflows, :only => %i(index destroy update show) do

@@ -389,6 +389,59 @@
                 }
             }
         },
+        "/requests/{request_id}/actions": {
+            "post": {
+                "tags": [
+                  "Action"
+                ],
+                "summary": "Add an action to current active stage of a given request",
+                "description": "Add an action to current active stage of a given request. If request is finished, i.e. no current active stage is available, no action can be posted here.",
+                "operationId": "createActionByRequest",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/request_id"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ActionIn"
+                            }
+                        }
+                    },
+                    "description": "Action object that will be added",
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ActionOut"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequestResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401UnauthorizedResponse"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403ForbiddenResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFoundResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
+                    }
+                }
+            }
+        },
         "/requests/{request_id}/stages": {
             "get": {
                 "tags": [
