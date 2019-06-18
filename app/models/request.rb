@@ -21,7 +21,7 @@ class Request < ApplicationRecord
   before_create :set_context
 
   def as_json(options = {})
-    super(options.merge(:methods => [:total_stages, :active_stage_number]))
+    super.merge(:total_stages => total_stages, :active_stage => active_stage_number)
   end
 
   def current_stage

@@ -4,17 +4,8 @@ module Api
       include Mixins::IndexMixin
 
       def create
-        if params[:request_id]
-          req = Request.find(params.require(:request_id))
-          current_stage = req.current_stage
-          raise Exceptions::ApprovalError, "Request has finished its lifecycle. No more action can be added to its current stage." unless current_stage
-
-          action = ActionCreateService.new(current_stage.id).create(action_params)
-          json_response(action, :created)
-        else
-          req = RequestCreateService.new(params.require(:workflow_id)).create(request_params)
-          json_response(req, :created)
-        end
+        req = RequestCreateService.new(params.require(:workflow_id)).create(request_params)
+        json_response(req, :created)
       end
 
       def show
@@ -38,10 +29,6 @@ module Api
 
       def request_params
         params.permit(:name, :description, :requester, :content => {})
-      end
-
-      def action_params
-        params.permit(:operation, :processed_by, :comments)
       end
     end
   end
