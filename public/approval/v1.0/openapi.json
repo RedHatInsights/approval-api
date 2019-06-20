@@ -1079,9 +1079,10 @@
                     },
                     "operation": {
                         "type": "string",
-                        "description": "Types of action, may be one of the value (approve, deny, notify, memo, or skip). The stage will be updated according to the operation.",
+                        "description": "Types of action, may be one of the value (approve, cancel, deny, notify, memo, or skip). The stage will be updated according to the operation.",
                         "enum": [
                             "approve",
+                            "cancel",
                             "deny",
                             "notify",
                             "memo",
@@ -1121,9 +1122,10 @@
                     },
                     "operation": {
                         "type": "string",
-                        "description": "Types of action, may be one of the value (approve, deny, notify, memo, or skip). The stage will be updated according to the operation.",
+                        "description": "Types of action, may be one of the value (approve, cancel, deny, notify, memo, or skip). The stage will be updated according to the operation.",
                         "enum": [
                             "approve",
+                            "cancel",
                             "deny",
                             "notify",
                             "memo",
@@ -1173,8 +1175,9 @@
                     },
                     "state": {
                         "type": "string",
-                        "description": "The state of stage or request. It may be one of values (pending, skipped, notified or finished)",
+                        "description": "The state of stage or request. It may be one of values (canceled, pending, skipped, notified or finished)",
                         "enum": [
+                            "canceled",
                             "pending",
                             "skipped",
                             "notified",
@@ -1184,10 +1187,11 @@
                     },
                     "decision": {
                         "type": "string",
-                        "description": "Final decision, may be one of the value (undecided, approved, or denied)",
+                        "description": "Final decision, may be one of the value (undecided, approved, canceled or denied)",
                         "enum": [
                             "undecided",
                             "approved",
+                            "canceled",
                             "denied"
                         ],
                         "default": "undecided"
@@ -1253,8 +1257,9 @@
                     },
                     "state": {
                         "type": "string",
-                        "description": "The state of stage or request. It may be one of values (pending, skipped, notified or finished)",
+                        "description": "The state of stage or request. It may be one of values (canceled, pending, skipped, notified or finished)",
                         "enum": [
+                            "canceled",
                             "pending",
                             "skipped",
                             "notified",
@@ -1264,10 +1269,11 @@
                     },
                     "decision": {
                         "type": "string",
-                        "description": "Final decision, may be one of the value (undecided, approved, or denied)",
+                        "description": "Final decision, may be one of the value (undecided, approved, canceled or denied)",
                         "enum": [
                             "undecided",
                             "approved",
+                            "canceled",
                             "denied"
                         ],
                         "default": "undecided"
