@@ -3,6 +3,7 @@ require 'manageiq-messaging'
 class EventService
   EVENT_REQUEST_STARTED  = 'request_started'.freeze
   EVENT_REQUEST_FINISHED = 'request_finished'.freeze
+  EVENT_REQUEST_CANCELED = 'request_canceled'.freeze
   EVENT_APPROVER_GROUP_NOTIFIED = 'approver_group_notified'.freeze
   EVENT_APPROVER_GROUP_FINISHED = 'approver_group_finished'.freeze
   EVENT_SENDER = 'approval_service'.freeze
@@ -35,6 +36,12 @@ class EventService
     send_event(EVENT_REQUEST_FINISHED,
                :request_id => request.id,
                :decision   => request.decision,
+               :reason     => request.reason || '')
+  end
+
+  def request_canceled
+    send_event(EVENT_REQUEST_CANCELED,
+               :request_id => request.id,
                :reason     => request.reason || '')
   end
 

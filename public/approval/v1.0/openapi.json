@@ -389,6 +389,59 @@
                 }
             }
         },
+        "/requests/{request_id}/actions": {
+            "post": {
+                "tags": [
+                  "Action"
+                ],
+                "summary": "Add an action to current active stage of a given request",
+                "description": "Add an action to current active stage of a given request. If request is finished, i.e. no current active stage is available, no action can be posted here.",
+                "operationId": "createActionByRequest",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/request_id"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ActionIn"
+                            }
+                        }
+                    },
+                    "description": "Action object that will be added",
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ActionOut"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequestResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401UnauthorizedResponse"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403ForbiddenResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFoundResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
+                    }
+                }
+            }
+        },
         "/requests/{request_id}/stages": {
             "get": {
                 "tags": [
@@ -947,9 +1000,9 @@
                 "schema": {
                     "type": "integer",
                     "format": "int32",
-                    "minimum": 20,
-                    "maximum": 100,
-                    "default": 20
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "default": 100
                 }
             },
             "offset": {
@@ -1026,9 +1079,10 @@
                     },
                     "operation": {
                         "type": "string",
-                        "description": "Types of action, may be one of the value (approve, deny, notify, memo, or skip). The stage will be updated according to the operation.",
+                        "description": "Types of action, may be one of the value (approve, cancel, deny, notify, memo, or skip). The stage will be updated according to the operation.",
                         "enum": [
                             "approve",
+                            "cancel",
                             "deny",
                             "notify",
                             "memo",
@@ -1068,9 +1122,10 @@
                     },
                     "operation": {
                         "type": "string",
-                        "description": "Types of action, may be one of the value (approve, deny, notify, memo, or skip). The stage will be updated according to the operation.",
+                        "description": "Types of action, may be one of the value (approve, cancel, deny, notify, memo, or skip). The stage will be updated according to the operation.",
                         "enum": [
                             "approve",
+                            "cancel",
                             "deny",
                             "notify",
                             "memo",
@@ -1120,8 +1175,9 @@
                     },
                     "state": {
                         "type": "string",
-                        "description": "The state of stage or request. It may be one of values (pending, skipped, notified or finished)",
+                        "description": "The state of stage or request. It may be one of values (canceled, pending, skipped, notified or finished)",
                         "enum": [
+                            "canceled",
                             "pending",
                             "skipped",
                             "notified",
@@ -1131,10 +1187,11 @@
                     },
                     "decision": {
                         "type": "string",
-                        "description": "Final decision, may be one of the value (undecided, approved, or denied)",
+                        "description": "Final decision, may be one of the value (undecided, approved, canceled or denied)",
                         "enum": [
                             "undecided",
                             "approved",
+                            "canceled",
                             "denied"
                         ],
                         "default": "undecided"
@@ -1200,8 +1257,9 @@
                     },
                     "state": {
                         "type": "string",
-                        "description": "The state of stage or request. It may be one of values (pending, skipped, notified or finished)",
+                        "description": "The state of stage or request. It may be one of values (canceled, pending, skipped, notified or finished)",
                         "enum": [
+                            "canceled",
                             "pending",
                             "skipped",
                             "notified",
@@ -1211,10 +1269,11 @@
                     },
                     "decision": {
                         "type": "string",
-                        "description": "Final decision, may be one of the value (undecided, approved, or denied)",
+                        "description": "Final decision, may be one of the value (undecided, approved, canceled or denied)",
                         "enum": [
                             "undecided",
                             "approved",
+                            "canceled",
                             "denied"
                         ],
                         "default": "undecided"
