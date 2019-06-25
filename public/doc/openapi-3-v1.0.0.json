@@ -917,11 +917,6 @@
             }
         }
     },
-    "security": [
-        {
-            "Basic_auth": []
-        }
-    ],
     "servers": [
         {
             "url": "https://cloud.redhat.com/{basePath}",
