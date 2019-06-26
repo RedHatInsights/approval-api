@@ -25,11 +25,6 @@ class RequestCreateService
       :stages   => stages
     )
 
-    unless options[:requester]
-      requester = ManageIQ::API::Common::Request.current.user
-      create_options[:requester] = "#{requester.first_name} #{requester.last_name}"
-    end
-
     Request.create!(create_options).tap do |request|
       if default_approve? || auto_approve?
         start_internal_approval_process(request)

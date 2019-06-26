@@ -3,6 +3,7 @@ module Api
     module Mixins
       module IndexMixin
         def scoped(relation)
+          relation = rbac_scope(relation) if RBAC::Access.enabled?
           if relation.model.respond_to?(:taggable?) && relation.model.taggable?
             ref_schema = {relation.model.tagging_relation_name => :tag}
 
@@ -20,6 +21,23 @@ module Api
           ).response
 
           json_response(resp)
+        end
+
+        def rbac_scope(relation)
+          access_obj = RBAC::Access.new(relation.model.table_name, 'read').process
+          raise Exceptions::NotAuthorizedError, "Not Authorized for #{relation.model}" unless access_obj.accessible?
+
+          return relation if access_obj.admin?
+
+          owner_relation = relation.by_owner if access_obj.owner?
+          approver_relation = relation.where(:id => access_obj.id_list) if access_obj.approver?
+
+          Rails.logger.info("Owner scope: #{owner_relation.pluck(:id)}") if owner_relation
+          Rails.logger.info("approver scope: #{approver_relation.pluck(:id)}") if approver_relation
+
+          return owner_relation.or(approver_relation) if owner_relation && approver_relation
+
+          approver_relation ? approver_relation : owner_relation
         end
 
         def filtered(base_query)

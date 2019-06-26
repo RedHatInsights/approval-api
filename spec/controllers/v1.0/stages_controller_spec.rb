@@ -18,9 +18,15 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
 
   # Test suite for GET /stages/:id
   describe 'GET /stages/:id' do
-    before { get "#{api_version}/stages/#{id}", :headers => request_header }
+    context 'when admin' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
 
-    context 'when the record exists' do
+      before do
+        allow(RBAC::Access).to receive(:new).with('stages', 'read').and_return(access_obj)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        get "#{api_version}/stages/#{id}", :headers => request_header
+      end
+
       it 'returns the stage' do
         stage = stages.first
 
@@ -36,6 +42,13 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
 
     context 'when the record does not exist' do
       let!(:id) { 0 }
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+
+      before do
+        allow(RBAC::Access).to receive(:new).with('stages', 'read').and_return(access_obj)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        get "#{api_version}/stages/#{id}", :headers => request_header
+      end
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
@@ -49,7 +62,13 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
 
   # Test suite for GET /requests/:request_id/stages
   describe 'GET /requests/:request_id/stages' do
-    before { get "#{api_version}/requests/#{request_id}/stages", :headers => request_header }
+    let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+
+    before do
+      allow(RBAC::Access).to receive(:new).with('stages', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      get "#{api_version}/requests/#{request_id}/stages", :headers => request_header
+    end
 
     context 'when the record exists' do
       it 'returns the stages' do

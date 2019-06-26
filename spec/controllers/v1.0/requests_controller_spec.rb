@@ -26,9 +26,15 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
   # Test suite for GET /workflows/:workflow_id/requests
   describe 'GET /workflows/:workflow_id/requests' do
-    before { get "#{api_version}/workflows/#{workflow_id}/requests", :params => { :limit => 5, :offset => 0 }, :headers => request_header }
+    context 'when admins' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+      before do
+        allow(RBAC::Access).to receive(:new).with('requests', 'read').and_return(access_obj)
+        allow(access_obj).to receive(:process).and_return(access_obj)
 
-    context 'when workflow exists' do
+        get "#{api_version}/workflows/#{workflow_id}/requests", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+      end
+
       it 'returns status code 200' do
         expect(response).to have_http_status(200)
       end
@@ -40,11 +46,61 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         expect(json['data'].size).to eq(5)
       end
     end
+
+    context 'when approver' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => false, :approver? => true, :owner? => false, :id_list => Request.where(:workflow_id => workflow.id).pluck(:id)) }
+      before do
+        allow(RBAC::Access).to receive(:new).with('requests', 'read').and_return(access_obj)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+      end
+
+      it 'returns status code 200' do
+        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => request_header
+        expect(response).to have_http_status(200)
+      end
+
+      it 'returns matched workflow requests' do
+        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => request_header
+        expect(json['links']).not_to be_empty
+        expect(json['links']['first']).to match(/offset=0/)
+        expect(json['data'].size).to eq(6)
+      end
+
+      it 'returns unmatched workflow requests' do
+        get "#{api_version}/workflows/#{workflow_2.id}/requests", :headers => request_header
+        expect(json['data'].size).to eq(0)
+      end
+    end
+
+    context 'when owner' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => false, :approver? => false, :owner? => true) }
+      before do
+        allow(RBAC::Access).to receive(:new).with('requests', 'read').and_return(access_obj)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+
+        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => request_header
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
+
+      it 'returns matched workflow requests' do
+        expect(json['links']).not_to be_empty
+        expect(json['links']['first']).to match(/offset=0/)
+        expect(json['data'].size).to eq(2)
+      end
+    end
   end
 
   # Test suite for GET /requests
   describe 'GET /requests' do
-    before { get "#{api_version}/requests", :params => { :limit => 5, :offset => 0 }, :headers => request_header }
+    let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+    before do
+      allow(RBAC::Access).to receive(:new).with('requests', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      get "#{api_version}/requests", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+    end
 
     it 'returns requests' do
       expect(json['links']).not_to be_empty
@@ -82,7 +138,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
   # Test suite for GET /requests?state=
   describe 'GET /requests?state=notified' do
-    before { get "#{api_version}/requests?filter[state]=notified", :headers => request_header }
+    let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+    before do
+      allow(RBAC::Access).to receive(:new).with('requests', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      get "#{api_version}/requests?filter[state]=notified", :headers => request_header 
+    end
 
     it 'returns requests' do
       expect(json['links']).not_to be_empty
@@ -97,7 +158,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
   # Test suite for GET /requests?decision=
   describe 'GET /requests?decision=approved' do
-    before { get "#{api_version}/requests?filter[decision]=approved", :headers => request_header }
+    let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+    before do
+      allow(RBAC::Access).to receive(:new).with('requests', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      get "#{api_version}/requests?filter[decision]=approved", :headers => request_header
+    end
 
     it 'returns requests' do
       expect(json['links']).not_to be_empty
@@ -112,8 +178,11 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
   # Test suite for GET /requests?decision=
   describe 'GET /requests?approver=joe@acme.com' do
+    let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
     before do
       relation = Request.where(:id => user_requests.pluck(:id))
+      allow(RBAC::Access).to receive(:new).with('requests', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
       allow(RequestListByApproverService).to receive(:new).with(username_1).and_return(list_service)
       allow(list_service).to receive(:list).and_return(relation)
       get "#{api_version}/requests?approver=joe@acme.com", :headers => request_header
@@ -132,7 +201,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
   # Test suite for GET /requests/:id
   describe 'GET /requests/:id' do
-    before { get "#{api_version}/requests/#{id}", :headers => request_header }
+    let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+    before do
+      allow(RBAC::Access).to receive(:new).with('requests', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      get "#{api_version}/requests/#{id}", :headers => request_header
+    end
 
     context 'when the record exist' do
       it 'returns the request' do
@@ -163,12 +237,15 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
   # Test suite for POST /workflows/:workflow_id/requests
   describe 'POST /workflows/:workflow_id/requests' do
+    let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
     let(:item) { { 'disk' => '100GB' } }
-    let(:valid_attributes) { { :requester => '1234', :name => 'Visit Narnia', :content => item } }
+    let(:valid_attributes) { { :owner => '1234', :name => 'Visit Narnia', :content => item } }
 
     context 'when request attributes are valid' do
       before do
         ENV['AUTO_APPROVAL'] = 'y'
+        allow(RBAC::Access).to receive(:new).with('requests', 'create').and_return(access_obj)
+        allow(access_obj).to receive(:process).and_return(access_obj)
         post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => request_header
       end
 
@@ -176,6 +253,17 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
+      end
+    end
+
+    context 'when no permission' do
+      before do
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => request_header
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(500)
       end
     end
   end

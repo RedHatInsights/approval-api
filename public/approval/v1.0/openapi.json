@@ -194,7 +194,7 @@
                         "$ref": "#/components/parameters/state"
                     },
                     {
-                        "$ref": "#/components/parameters/requester"
+                        "$ref": "#/components/parameters/owner"
                     },
                     {
                         "$ref": "#/components/parameters/approver"
@@ -1019,8 +1019,8 @@
                     }
                 }
             },
-            "requester": {
-                "name": "requester",
+            "owner": {
+                "name": "owner",
                 "in": "query",
                 "description": "Fetch item by given requester",
                 "required": false,
@@ -1146,7 +1146,7 @@
                     "content"
                 ],
                 "properties": {
-                    "requester": {
+                    "owner": {
                         "type": "string",
                         "description": "Requester id"
                     },
@@ -1218,7 +1218,7 @@
                         "type": "integer",
                         "description": "Total number of stages. For regular approver this number is always 0."
                     },
-                    "requester": {
+                    "owner": {
                         "type": "string",
                         "description": "Requester id"
                     },

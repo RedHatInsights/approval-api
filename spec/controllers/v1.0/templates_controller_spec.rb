@@ -7,11 +7,16 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
   let(:template_id) { templates.first.id }
 
   let(:api_version) { version }
+  let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
 
   # Test suite for GET /templates
   describe 'GET /templates' do
     # make HTTP get request before each example
-    before { get "#{api_version}/templates", :params => { :limit => 5, :offset => 0 }, :headers => request_header }
+    before do
+      allow(RBAC::Access).to receive(:new).with('templates', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      get "#{api_version}/templates", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+    end
 
     it 'returns templates' do
       # Note `json` is a custom helper to parse JSON responses
@@ -28,7 +33,11 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
 
   # Test suite for GET /templates/:id
   describe 'GET /templates/:id' do
-    before { get "#{api_version}/templates/#{template_id}", :headers => request_header }
+    before do 
+      allow(RBAC::Access).to receive(:new).with('templates', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      get "#{api_version}/templates/#{template_id}", :headers => request_header
+    end
 
     context 'when the record exists' do
       it 'returns the template' do

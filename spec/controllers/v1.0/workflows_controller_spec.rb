@@ -11,8 +11,14 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   let(:api_version) { version }
 
+  let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+
   describe 'GET /templates/:template_id/workflows' do
-    before { get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header }
+    before do 
+      allow(RBAC::Access).to receive(:new).with('workflows', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+    end
 
     context 'when template exists' do
       it 'returns status code 200' do
@@ -41,7 +47,11 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   end
 
   describe 'GET /workflows' do
-    before { get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header }
+    before do 
+      allow(RBAC::Access).to receive(:new).with('workflows', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+    end
 
     context 'when no relate wiht template'
     it 'returns status code 200' do
@@ -58,6 +68,8 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   describe "GET /workflows with filter" do
     before do
+      allow(RBAC::Access).to receive(:new).with('workflows', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
       get "#{api_version}/workflows?filter[id]=#{id}", :params => { :limit => 5, :offset => 0 }, :headers => request_header
     end
 
@@ -68,7 +80,11 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   end
 
   describe 'GET /workflows/:id' do
-    before { get "#{api_version}/workflows/#{id}", :headers => request_header }
+    before do
+      allow(RBAC::Access).to receive(:new).with('workflows', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      get "#{api_version}/workflows/#{id}", :headers => request_header
+    end
 
     context 'when the record exists' do
       it 'returns the workflow' do
@@ -100,9 +116,17 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     let(:group_refs) { %w[990 991 992] }
 
     let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
+    let(:group) { instance_double(Group, :uuid => 990, :name => 'group_1') }
+    let(:aps) { instance_double(AccessProcessService) }
 
     context 'when request attributes are valid' do
-      before { post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => request_header }
+      before do
+        allow(AccessProcessService).to receive(:new).and_return(aps)
+        allow(aps).to receive(:add_resource_to_groups)
+        allow(RBAC::Access).to receive(:new).with('workflows', 'create').and_return(access_obj)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => request_header
+      end
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
@@ -110,7 +134,11 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'when a request with missing parameter' do
-      before { post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => request_header }
+      before do
+        allow(RBAC::Access).to receive(:new).with('workflows', 'create').and_return(access_obj)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => request_header
+      end
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
@@ -126,7 +154,11 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   describe 'PATCH /workflows/:id' do
     let(:valid_attributes) { { :name => 'Mozart' } }
 
-    before { patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => request_header }
+    before do
+      allow(RBAC::Access).to receive(:new).with('workflows', 'update').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => request_header
+    end
 
     context 'when item exists' do
       it 'returns status code 200' do
@@ -193,6 +225,11 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       missing_hash = default_user_hash
       missing_hash.delete("entitlements")
       missing_hash
+    end
+
+    before do
+      allow(RBAC::Access).to receive(:new).with('workflows', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
     end
 
     it "fails if the hybrid_cloud entitlement is false" do

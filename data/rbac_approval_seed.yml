@@ -1,0 +1,92 @@
+---
+resource_definition1: &AdminResourceDefinition
+  attribute_filter: 
+    value: '*'
+    key: id
+    operation: equal
+resource_definition2: &OwnerResourceDefinition
+  attribute_filter: 
+    value: '{{username}}'
+    key: owner
+    operation: equal
+access1: &AdminReadAccessTemplates
+  permission: approval:templates:read
+  resource_definitions:
+          - *AdminResourceDefinition
+access2: &AdminCreateAccessWorkflows
+  permission: approval:workflows:create
+  resource_definitions:
+          - *AdminResourceDefinition
+access3: &AdminReadAccessWorkflows
+  permission: approval:workflows:read
+  resource_definitions:
+          - *AdminResourceDefinition
+access4: &AdminUpdateAccessWorkflows
+  permission: approval:workflows:update
+  resource_definitions:
+          - *AdminResourceDefinition
+access5: &AdminReadAccessRequests
+  permission: approval:requests:read
+  resource_definitions:
+          - *AdminResourceDefinition
+access6: &AdminReadAccessStages
+  permission: approval:stages:read
+  resource_definitions:
+          - *AdminResourceDefinition
+access7: &AdminReadAccessActions
+  permission: approval:actions:read
+  resource_definitions:
+          - *AdminResourceDefinition
+access8: &AdminCreateAccessActions
+  permission: approval:actions:create
+  resource_definitions:
+          - *AdminResourceDefinition
+access51: &RequesterCreateAccessRequests
+  permission: approval:requests:create
+access52: &RequesterReadAccessRequests
+  permission: approval:requests:read
+  resource_definitions:
+          - *OwnerResourceDefinition
+role1: &ApprovalAdministratorRole
+  name: Approval Administrator
+  description: A Approval administrator roles grants create, read and update permissions
+  access:
+    - *AdminReadAccessTemplates
+    - *AdminCreateAccessWorkflows
+    - *AdminReadAccessWorkflows
+    - *AdminUpdateAccessWorkflows
+    - *AdminReadAccessRequests
+    - *AdminReadAccessStages
+    - *AdminReadAccessActions
+    - *AdminCreateAccessActions
+role2: &ApprovalRequesterRole
+  name: Approval Requester
+  description: A Approval requester roles grants read and order permissions
+  access:
+    - *RequesterCreateAccessRequests
+    - *RequesterReadAccessRequests
+group1: &ApprovalAdministratorsGroup
+  name: Approval Administrators
+  description: Approval Administrators have complete access to all objects in the Approval Service.
+group2: &ApprovalRequestersGroup
+  name: Approval Requesters
+  description: Approval Requesters have limited access to certain objects in the Approval Service.
+policy1: &ApprovalAdministratorPolicy
+  name: Approval Administrator
+  group: *ApprovalAdministratorsGroup
+  role: *ApprovalAdministratorRole
+  description: Policy for Approval Administrators who have complete access to all objects in the Approval Service.
+policy2: &ApprovalRequesterPolicy
+  name: Approval Requester
+  group: *ApprovalRequestersGroup
+  role: *ApprovalRequesterRole
+  description: Policy for Approval Requesters who can limit access to certain objects in the Approval Service
+roles:
+  - *ApprovalAdministratorRole
+  - *ApprovalRequesterRole
+groups:
+  - *ApprovalAdministratorsGroup
+  - *ApprovalRequestersGroup
+policies:
+  - *ApprovalAdministratorPolicy
+  - *ApprovalRequesterPolicy

@@ -15,7 +15,7 @@ module ExceptionHandler
       json_response({ :message => e.message }, :unprocessable_entity)
     end
 
-    rescue_from ManageIQ::API::Common::EntitlementError do |e|
+    rescue_from ManageIQ::API::Common::EntitlementError, Exceptions::NotAuthorizedError do |e|
       json_response({ :message => e.message }, :forbidden)
     end
   end

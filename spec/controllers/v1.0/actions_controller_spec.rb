@@ -12,10 +12,15 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
   let(:id) { actions.first.id }
 
   let(:api_version) { version }
+  let!(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
 
   # Test suite for GET /actions/:id
   describe 'GET /actions/:id' do
-    before { get "#{api_version}/actions/#{id}", :headers => request_header }
+    before do
+      allow(RBAC::Access).to receive(:new).with('actions', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      get "#{api_version}/actions/#{id}", :headers => request_header
+    end
 
     context 'when the record exists' do
       it 'returns the action' do
@@ -51,6 +56,8 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     context 'when request attributes are valid' do
       before do
         allow(Group).to receive(:find)
+        allow(RBAC::Access).to receive(:new).with('actions', 'create').and_return(access_obj)
+        allow(access_obj).to receive(:process).and_return(access_obj)
         post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => request_header
       end
 
