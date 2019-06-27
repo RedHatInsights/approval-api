@@ -11,6 +11,6 @@ if (env.CHANGE_ID) {
         ocDeployerComponentPath: "approval/approval-api",
         ocDeployerServiceSets: "approval,platform-mq",
         iqePlugins: ["iqe-approval-plugin"],
-        pytestMarker: "approval-api-smoke",
+        pytestMarker: "approval_api_smoke",
     )
 }
