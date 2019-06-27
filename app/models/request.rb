@@ -14,9 +14,9 @@ class Request < ApplicationRecord
   validates :state,    :inclusion => { :in => STATES }
   validates :decision, :inclusion => { :in => DECISIONS }
 
-  scope :decision,  ->(decision)  { where(:decision => decision) }
-  scope :state,     ->(state)     { where(:state => state) }
-  scope :owner,     ->(owner)     { where(:owner => owner) }
+  scope :decision, ->(decision) { where(:decision => decision) }
+  scope :state,    ->(state)    { where(:state => state) }
+  scope :owner,    ->(owner)    { where(:owner => owner) }
   default_scope { order(:created_at => :desc) }
 
   before_create :set_context

@@ -1148,10 +1148,6 @@
                     "content"
                 ],
                 "properties": {
-                    "owner": {
-                        "type": "string",
-                        "description": "Owner id"
-                    },
                     "name": {
                         "type": "string",
                         "description": "Request name"
