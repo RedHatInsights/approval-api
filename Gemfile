@@ -20,6 +20,7 @@ gem 'rbac-api-client', :git => 'https://github.com/RedHatInsights/insights-rbac-
 
 group :development, :test do
   gem 'simplecov'
+  gem 'climate_control'
 end
 
 group :test do
