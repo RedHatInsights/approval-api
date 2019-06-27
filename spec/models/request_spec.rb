@@ -10,14 +10,14 @@ RSpec.describe Request, type: :model do
 
     context 'all stages are pending or notified' do
       let(:stages) do
-        [FactoryBot.create(:stage, :id => 1, :state => Stage::NOTIFIED_STATE),
-         FactoryBot.create(:stage, :id => 2, :state => Stage::PENDING_STATE),
-         FactoryBot.create(:stage, :id => 3, :state => Stage::PENDING_STATE)]
+        [FactoryBot.create(:stage, :state => Stage::NOTIFIED_STATE),
+         FactoryBot.create(:stage, :state => Stage::PENDING_STATE),
+         FactoryBot.create(:stage, :state => Stage::PENDING_STATE)]
       end
 
-      it 'has active_stage pointing to the last stage' do
+      it 'has active_stage pointing to the first stage' do
         expect(subject.as_json).to include(:active_stage => 1, :total_stages => 3)
-        expect(subject.current_stage.id).to eq(1)
+        expect(subject.current_stage.id).to eq(stages[0].id)
       end
     end
 
@@ -36,14 +36,14 @@ RSpec.describe Request, type: :model do
 
     context 'some stage is active' do
       let(:stages) do
-        [FactoryBot.create(:stage, :id => 1, :state => Stage::FINISHED_STATE),
-         FactoryBot.create(:stage, :id => 2, :state => Stage::PENDING_STATE),
-         FactoryBot.create(:stage, :id => 3, :state => Stage::PENDING_STATE)]
+        [FactoryBot.create(:stage, :state => Stage::FINISHED_STATE),
+         FactoryBot.create(:stage, :state => Stage::PENDING_STATE),
+         FactoryBot.create(:stage, :state => Stage::PENDING_STATE)]
       end
 
       it 'has active_stage pointing to the first stage' do
         expect(subject.as_json).to include(:active_stage => 2, :total_stages => 3)
-        expect(subject.current_stage.id).to eq(2)
+        expect(subject.current_stage.id).to eq(stages[1].id)
       end
     end
   end

@@ -1,6 +1,7 @@
 class Request < ApplicationRecord
   include ApprovalStates
   include ApprovalDecisions
+  include OwnerField
 
   acts_as_tenant(:tenant)
 
@@ -15,7 +16,7 @@ class Request < ApplicationRecord
 
   scope :decision,  ->(decision)  { where(:decision => decision) }
   scope :state,     ->(state)     { where(:state => state) }
-  scope :requester, ->(requester) { where(:requester => requester) }
+  scope :owner,     ->(owner)     { where(:owner => owner) }
   default_scope { order(:created_at => :desc) }
 
   before_create :set_context

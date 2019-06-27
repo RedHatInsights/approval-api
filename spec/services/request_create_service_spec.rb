@@ -12,32 +12,16 @@ RSpec.describe RequestCreateService do
     end
   end
 
-  context 'with auto fill requester' do
-    it 'auto fill requester if it is nil' do
-      request = subject.create(:name => 'req1', :content => 'test me')
-      request.reload
-      expect(request.requester).to include(ManageIQ::API::Common::Request.current.user.last_name)
-      expect(request.requester).to include(ManageIQ::API::Common::Request.current.user.first_name)
-    end
-
-    it 'skips auto filling if requester is set' do
-      request = subject.create(:name => 'req1', :requester => 'test', :content => 'test me')
-      request.reload
-      expect(request.requester).to eq("test")
-    end
-  end
-
   context 'without auto approval' do
     context 'template has external process' do
       let(:template) { create(:template, :process_setting => {'processor_type' => 'jbpm', 'url' => 'url'}) }
 
       it 'creates a request and immediately starts' do
         expect(JbpmProcessService).to receive(:new).and_return(double(:jbpm, :start => 100))
-        request = subject.create(:name => 'req1', :requester => 'test', :content => 'test me')
+        request = subject.create(:name => 'req1', :content => 'test me')
         request.reload
         expect(request).to have_attributes(
           :name        => 'req1',
-          :requester   => 'test',
           :content     => 'test me',
           :process_ref => '100',
           :state       => Request::NOTIFIED_STATE,
@@ -57,12 +41,12 @@ RSpec.describe RequestCreateService do
 
     context 'template has no external process' do
       it 'creates a request in notified state' do
-        request = subject.create(:name => 'req1', :requester => 'test', :content => 'test me')
+        request = subject.create(:name => 'req1', :content => 'test me')
         request.reload
         expect(request).to have_attributes(
           :name      => 'req1',
-          :requester => 'test',
           :content   => 'test me',
+          :owner     => 'jdoe',
           :state     => Request::NOTIFIED_STATE,
           :decision  => Request::UNDECIDED_STATUS
         )
@@ -83,12 +67,12 @@ RSpec.describe RequestCreateService do
     end
 
     it 'creates a request and auto approves' do
-      request = subject.create(:name => 'req1', :requester => 'test', :content => 'test me')
+      request = subject.create(:name => 'req1', :content => 'test me')
       request.reload
       expect(request).to have_attributes(
         :name      => 'req1',
-        :requester => 'test',
         :content   => 'test me',
+        :owner     => 'jdoe',
         :state     => Request::FINISHED_STATE,
         :decision  => Request::APPROVED_STATUS,
         :reason    => 'ok'
@@ -127,12 +111,12 @@ RSpec.describe RequestCreateService do
       expect(ContextService).to receive(:new).and_return(context_service)
       expect(context_service).to receive(:with_context).and_yield
 
-      request = subject.create(:name => 'req2', :requester => 'test2', :content => 'test me')
+      request = subject.create(:name => 'req2', :content => 'test me')
       request.reload
       expect(request).to have_attributes(
         :name      => 'req2',
-        :requester => 'test2',
         :content   => 'test me',
+        :owner     => 'jdoe',
         :state     => Request::FINISHED_STATE,
         :decision  => Request::APPROVED_STATUS,
         :reason    => 'System approved'

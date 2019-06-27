@@ -4,7 +4,7 @@ FactoryBot.define do
     items = { Faker::Lorem.word   => Faker::Lorem.word,
              Faker::Lorem.word   => Faker::Lorem.word }
     name         { Faker::Lorem.word }
-    requester    { Faker::Lorem.word }
+    owner        { Faker::Lorem.word }
     content      { JSON.generate(items) }
     state        { :pending }
     decision     { :undecided }
