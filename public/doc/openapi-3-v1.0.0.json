@@ -1464,6 +1464,16 @@
                         "type": "integer",
                         "title": "Total number of items in the result set",
                         "description": "This is the total number of items in the result set, of which only a subset is returned defined by the QueryLimit parameter"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "title": "The number of items in each page",
+                        "description": "This is the number of items each page can display"
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "title": "Offset from beginning of the result set",
+                        "description": "This is the offset from beginning of the result set"
                     }
                 }
             }
