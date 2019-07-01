@@ -71,7 +71,7 @@ module Api
       def set_order
         request = @stage.request
         {
-          :orderer       => request.owner,
+          :orderer       => request.requester_name,
           :product       => request.content["product"],
           :portfolio     => request.content["portfolio"],
           :order_id      => request.content["order_id"],

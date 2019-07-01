@@ -35,7 +35,7 @@ ActiveRecord::Schema.define(version: 2019_06_12_021005) do
   end
 
   create_table "requests", force: :cascade do |t|
-    t.string "owner"
+    t.string "requester_name"
     t.string "name"
     t.string "description"
     t.string "state"
@@ -48,6 +48,7 @@ ActiveRecord::Schema.define(version: 2019_06_12_021005) do
     t.bigint "tenant_id"
     t.string "process_ref"
     t.jsonb "context"
+    t.string "owner"
     t.index ["tenant_id"], name: "index_requests_on_tenant_id"
     t.index ["workflow_id"], name: "index_requests_on_workflow_id"
   end

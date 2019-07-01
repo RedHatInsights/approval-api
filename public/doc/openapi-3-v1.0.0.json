@@ -1148,6 +1148,10 @@
                     "content"
                 ],
                 "properties": {
+                    "requester_name": {
+                        "type": "string",
+                        "description": "Requester id"
+                    },
                     "name": {
                         "type": "string",
                         "description": "Request name"
@@ -1221,6 +1225,10 @@
                     "owner": {
                         "type": "string",
                         "description": "Owner id"
+                    },
+                    "requester_name": {
+                        "type": "string",
+                        "description": "Requester name"
                     },
                     "name": {
                         "type": "string",

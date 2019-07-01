@@ -3,11 +3,12 @@ FactoryBot.define do
   factory :request do
     items = { Faker::Lorem.word   => Faker::Lorem.word,
              Faker::Lorem.word   => Faker::Lorem.word }
-    name         { Faker::Lorem.word }
-    owner        { Faker::Lorem.word }
-    content      { JSON.generate(items) }
-    state        { :pending }
-    decision     { :undecided }
+    name           { Faker::Lorem.word }
+    requester_name { Faker::Lorem.word }
+    owner          { Faker::Lorem.word }
+    content        { JSON.generate(items) }
+    state          { :pending }
+    decision       { :undecided }
 
     workflow
 
