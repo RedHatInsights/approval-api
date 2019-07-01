@@ -164,7 +164,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   # Test suite for POST /workflows/:workflow_id/requests
   describe 'POST /workflows/:workflow_id/requests' do
     let(:item) { { 'disk' => '100GB' } }
-    let(:valid_attributes) { { :requester => '1234', :name => 'Visit Narnia', :content => item, :description => 'desc' } }
+    let(:valid_attributes) { { :requester_name => '1234', :name => 'Visit Narnia', :content => item, :description => 'desc' } }
 
     context 'when request attributes are valid' do
       before do
@@ -176,7 +176,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
-        expect(json).to include('requester' => '1234', 'name' => 'Visit Narnia', 'content' => item, 'description' => 'desc')
+        expect(json).to include('requester_name' => '1234', 'name' => 'Visit Narnia', 'content' => item, 'description' => 'desc')
       end
     end
   end
