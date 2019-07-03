@@ -72,10 +72,6 @@ module RequestSpecHelper
     {:headers => default_headers, :original_url => 'https://xyz.com/api/requests'}
   end
 
-  def bypass_rbac
-    with_modified_env(:BYPASS_RBAC => 'true') { yield }
-  end
-
   def with_modified_env(options, &block)
     ClimateControl.modify(options, &block)
   end

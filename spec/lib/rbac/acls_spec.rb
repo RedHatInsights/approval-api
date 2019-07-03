@@ -1,10 +1,9 @@
 describe RBAC::ACLS do
-  let (:subject) { described_class.new }
-  let (:permissions) { ['approval:actions:read', 'approval:actions:create'] }
-  let (:resource_id) { "10" }
+  let(:subject) { described_class.new }
+  let(:permissions) { ['approval:actions:read', 'approval:actions:create'] }
+  let(:resource_id) { "10" }
 
   context "when create acls based on permissions" do
-
     it "with resource id" do
       acls = subject.create(resource_id, permissions)
 
@@ -23,7 +22,7 @@ describe RBAC::ACLS do
       expect(acls.count).to eq(2)
       expect(acls.first.permission).to eq(permissions.first)
       expect(acls.last.permission).to eq(permissions.last)
-      expect(acls.last.resource_definitions).to eq([]) 
+      expect(acls.last.resource_definitions).to eq([])
     end
   end
 
@@ -49,7 +48,7 @@ describe RBAC::ACLS do
       expect(new_acls.last.permission).to eq(permissions.last)
       expect(new_acls.first.resource_definitions.count).to eq(1)
     end
-  
+
     it "with mixed matching permissions" do
       new_acls = subject.remove(acls, resource_id, mix_existing_permissions)
 

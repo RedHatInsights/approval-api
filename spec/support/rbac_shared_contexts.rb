@@ -20,7 +20,8 @@ RSpec.shared_context "rbac_objects" do
   let(:resource_def3) { instance_double(RBACApiClient::ResourceDefinition, :attribute_filter => filter3) }
   let(:access1) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:#{resource}:read", :resource_definitions => [resource_def1]) }
   let(:access2) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:#{resource}:write", :resource_definitions => [resource_def2]) }
-  let(:access3) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:#{resource}:order", :resource_definitions => []) }
+  let(:access3) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:#{resource}:create", :resource_definitions => []) }
+  let(:access4) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:#{resource}:create") }
   let(:group_uuids) { [group1.uuid, group2.uuid, group3.uuid] }
   let(:api_instance) { double }
   let(:rs_class) { class_double("RBAC::Service").as_stubbed_const(:transfer_nested_constants => true) }
@@ -29,15 +30,8 @@ RSpec.shared_context "rbac_objects" do
   let(:approver_resource_def) { instance_double(RBACApiClient::ResourceDefinition, :attribute_filter => approver_filter) }
   let(:approver_access) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:approve", :resource_definitions => [approver_resource_def]) }
 
-  let(:current_user) { '{{username}}' }
-  let(:owner_resource) { 'requests' }
-  let(:owner_permission) { "#{app_name}:#{owner_resource}:read" }
-  let(:owner_filter) { instance_double(RBACApiClient::ResourceDefinitionFilter, :key => 'owner', :operation => 'equal', :value => current_user) }
-  let(:owner_resource_def) { instance_double(RBACApiClient::ResourceDefinition, :attribute_filter => owner_filter) }
-  let(:owner_access) { instance_double(RBACApiClient::Access, :permission => owner_permission, :resource_definitions => [owner_resource_def]) }
-
   let(:id_value) { '*' }
   let(:id_filter) { instance_double(RBACApiClient::ResourceDefinitionFilter, :key => 'id', :operation => 'equal', :value => id_value) }
   let(:id_resource_def) { instance_double(RBACApiClient::ResourceDefinition, :attribute_filter => id_filter) }
-  let(:admin_access) { instance_double(RBACApiClient::Access, :permission => owner_permission, :resource_definitions => [id_resource_def]) }
+  let(:admin_access) { instance_double(RBACApiClient::Access, :permission => 'approval:requests:read', :resource_definitions => [id_resource_def]) }
 end

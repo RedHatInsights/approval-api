@@ -1,8 +1,10 @@
 module RBAC
   class Access
-    attr_reader :acls
-    attr_reader :approver_acls
-    attr_reader :owner, :approver, :admin
+    include RBAC::Permissions
+    attr_reader :acls, :approver_acls, :owner_acls
+
+    OWNER_PERMISSIONS = [ACTION_CREATE_PERMISSION, REQUEST_CREATE_PERMISSION,
+                         REQUEST_READ_PERMISSION, STAGE_READ_PERMISSION].freeze
 
     def initialize(resource, verb)
       @resource      = resource
@@ -14,6 +16,7 @@ module RBAC
       @owner         = false
       @acls          = []
       @approver_acls = []
+      @owner_acls    = []
     end
 
     def process
@@ -29,22 +32,23 @@ module RBAC
             @admin = true if rd.attribute_filter.key == 'id' &&
                              rd.attribute_filter.operation == 'equal' &&
                              rd.attribute_filter.value == '*'
-            @owner = true if rd.attribute_filter.key == 'owner' &&
-                             rd.attribute_filter.operation == 'equal' &&
-                             rd.attribute_filter.value == '{{username}}'
           end
         end
-        @owner = false if @admin
 
-        unless @admin
-          approver_regexp = Regexp.new(":(workflows|\\*):(approve|\\*)")
-          @approver_acls = RBAC::Service.paginate(api, :get_principal_access, {}, @app_name).select do |item|
-            approver_regexp.match(item.permission)
-          end
-          @approver = true if approver_acls.any?
+        approver_regexp = Regexp.new(":(workflows|\\*):(approve|\\*)")
+        @approver_acls = RBAC::Service.paginate(api, :get_principal_access, {}, @app_name).select do |item|
+          approver_regexp.match(item.permission)
         end
+        @approver = true if approver_acls.any?
+
+        @owner_acls = requester_acls.select do |item|
+          @regexp.match(item.permission)
+        end
+
+        @owner = true if @owner_acls.any?
       end
-      Rails.logger.info("Role: admin[#{@admin}], approver[#{@approver}], owner[#{@owner}]; accessible?:[#{accessible?}]")
+
+      Rails.logger.info("Role: admin[#{@admin}], approver[#{@approver}], owner[#{@owner}]")
 
       self
     end
@@ -62,16 +66,12 @@ module RBAC
       end
     end
 
-    def accessible?
-      @acls.any?
-    end
-
     def self.enabled?
       ENV['BYPASS_RBAC'].blank?
     end
 
-    def owner?
-      @owner
+    def accessible?
+      @admin || @approver || @owner
     end
 
     def admin?
@@ -80,6 +80,10 @@ module RBAC
 
     def approver?
       @approver
+    end
+
+    def owner?
+      @owner
     end
 
     private
@@ -110,6 +114,10 @@ module RBAC
       @workflow_ids = ids.to_a
       Rails.logger.info("Workflows can be accessed: #{@workflow_ids}")
       @workflow_ids
+    end
+
+    def requester_acls
+      RBAC::ACLS.new.create(nil, OWNER_PERMISSIONS)
     end
   end
 end

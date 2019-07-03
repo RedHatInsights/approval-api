@@ -42,7 +42,6 @@ describe RBAC::Roles do
     expect(r2).to be_nil
   end
 
-
   it "add roles" do
     allow(RBAC::Service).to receive(:paginate).with(api_instance, :list_roles, pagination_options).and_return([role1, role2])
     allow(api_instance).to receive(:create_roles).and_return(role1_detail)

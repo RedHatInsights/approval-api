@@ -24,16 +24,28 @@ describe RBAC::Access do
       with_modified_env :APP_NAME => app_name do
         allow(RBAC::Service).to receive(:paginate).with(api_instance, :get_principal_access, {}, app_name).and_return(acls)
         svc_obj = rbac_access.process
-        expect(svc_obj.approver?).to be_truthy 
+        expect(svc_obj.approver?).to be_truthy
         expect(svc_obj.id_list).to eq(resource_id_list)
       end
     end
   end
 
-  context "owner access" do
+  context "when have admin access" do
     let(:verb) { "read" }
     let(:rbac_access) { described_class.new(resource, verb) }
-    let(:acls) { [owner_access] }
+    let(:acls) { [admin_access, access1] }
+    let(:owner_result) { true }
+    let(:admin_result) { true }
+    let(:approver_result) { false }
+    let(:acl_count) { 2 }
+    let(:approver_acl_count) { 0 }
+    it_behaves_like "#rbac_role?"
+  end
+
+  context "when have no admin access" do
+    let(:verb) { "read" }
+    let(:rbac_access) { described_class.new(resource, verb) }
+    let(:acls) { [access1] }
     let(:owner_result) { true }
     let(:admin_result) { false }
     let(:approver_result) { false }
@@ -42,38 +54,38 @@ describe RBAC::Access do
     it_behaves_like "#rbac_role?"
   end
 
-  context "owner access and admin access" do
-    let(:verb) { "read" }
-    let(:rbac_access) { described_class.new(resource, verb) }
-    let(:acls) { [admin_access, owner_access] }
-    let(:admin_result) { true }
-    let(:owner_result) { false }
-    let(:approver_result) { false }
-    let(:acl_count) { 2 }
-    let(:approver_acl_count) { 0 }
-    it_behaves_like "#rbac_role?"
-  end
-
-  context "fetches the array of plans" do
-    let(:verb) { "read" }
-    let(:rbac_access) { described_class.new(resource, verb) }
-    let(:acls) { [access1] }
-    let(:admin_result) { false }
-    let(:owner_result) { false }
-    let(:approver_result) { false }
-    let(:acl_count) { 1 }
-    let(:approver_acl_count) { 0 }
-    it_behaves_like "#rbac_role?"
-  end
-
-  context "approver access" do
+  context "when have approver access" do
     let(:verb) { "read" }
     let(:rbac_access) { described_class.new(resource, verb) }
     let(:acls) { [approver_access] }
+    let(:owner_result) { true }
     let(:admin_result) { false }
-    let(:owner_result) { false }
     let(:approver_result) { true }
     let(:acl_count) { 0 }
+    let(:approver_acl_count) { 1 }
+    it_behaves_like "#rbac_role?"
+  end
+
+  context "when have both admin and approver access" do
+    let(:verb) { "read" }
+    let(:rbac_access) { described_class.new(resource, verb) }
+    let(:acls) { [approver_access, admin_access] }
+    let(:owner_result) { true }
+    let(:admin_result) { true }
+    let(:approver_result) { true }
+    let(:acl_count) { 1 }
+    let(:approver_acl_count) { 1 }
+    it_behaves_like "#rbac_role?"
+  end
+
+  context "when have both admin and approver access" do
+    let(:verb) { "read" }
+    let(:rbac_access) { described_class.new(resource, verb) }
+    let(:acls) { [approver_access, admin_access] }
+    let(:owner_result) { true }
+    let(:admin_result) { true }
+    let(:approver_result) { true }
+    let(:acl_count) { 1 }
     let(:approver_acl_count) { 1 }
     it_behaves_like "#rbac_role?"
   end
