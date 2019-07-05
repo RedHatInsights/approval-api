@@ -17,6 +17,8 @@ Rails.application.routes.draw do
       resources :stageaction, :only => %i(show update)
 
       get "/openapi.json", :to => "root#openapi"
+      post "/graphql", :to => "graphql#query"
+
       resources :actions, :only => [:show]
 
       resources :stages, :only => [:show] do
