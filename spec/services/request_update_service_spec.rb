@@ -36,9 +36,9 @@ RSpec.describe RequestUpdateService do
     it 'sends no events' do
       expect(event_service).not_to receive(:request_started)
       expect(event_service).not_to receive(:request_finished)
-      subject.update(:requester => 'another')
+      subject.update(:owner => 'another')
       request.reload
-      expect(request.requester).to eq('another')
+      expect(request.owner).to eq('another')
     end
   end
 end

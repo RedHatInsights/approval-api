@@ -25,9 +25,9 @@ class RequestCreateService
       :stages   => stages
     )
 
-    unless options[:requester]
+    unless options[:requester_name]
       requester = ManageIQ::API::Common::Request.current.user
-      create_options[:requester] = "#{requester.first_name} #{requester.last_name}"
+      create_options[:requester_name] = "#{requester.first_name} #{requester.last_name}"
     end
 
     Request.create!(create_options).tap do |request|

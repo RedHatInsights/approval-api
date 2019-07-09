@@ -66,8 +66,8 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'when request is actionable' do
-      let!(:stage1) { create(:stage, :id => "1", :state => Stage::NOTIFIED_STATE, :request => req, :tenant_id => tenant.id) }
-      let!(:stage2) { create(:stage, :id => "2", :state => Stage::PENDING_STATE, :request => req, :tenant_id => tenant.id) }
+      let!(:stage1) { create(:stage, :state => Stage::NOTIFIED_STATE, :request => req, :tenant_id => tenant.id) }
+      let!(:stage2) { create(:stage, :state => Stage::PENDING_STATE, :request => req, :tenant_id => tenant.id) }
       let(:valid_attributes) { { :operation => 'cancel', :processed_by => 'abcd' } }
 
       it 'returns status code 201' do
@@ -80,8 +80,8 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'when request is not actionable' do
-      let!(:stage1) { create(:stage, :id => "1", :state => Stage::FINISHED_STATE, :request => req, :tenant_id => tenant.id) }
-      let!(:stage2) { create(:stage, :id => "2", :state => Stage::FINISHED_STATE, :request => req, :tenant_id => tenant.id) }
+      let!(:stage1) { create(:stage, :state => Stage::FINISHED_STATE, :request => req, :tenant_id => tenant.id) }
+      let!(:stage2) { create(:stage, :state => Stage::FINISHED_STATE, :request => req, :tenant_id => tenant.id) }
       let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
 
       it 'returns status code 500' do
