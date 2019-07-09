@@ -28,7 +28,7 @@ module Api
       private
 
       def request_params
-        params.permit(:name, :description, :requester, :content => {})
+        params.permit(:name, :description, :requester_name, :content => {})
       end
     end
   end

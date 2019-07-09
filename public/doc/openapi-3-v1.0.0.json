@@ -1148,7 +1148,7 @@
                     "content"
                 ],
                 "properties": {
-                    "requester": {
+                    "requester_name": {
                         "type": "string",
                         "description": "Requester id"
                     },
@@ -1222,9 +1222,13 @@
                         "type": "integer",
                         "description": "Total number of stages. For regular approver this number is always 0."
                     },
-                    "requester": {
+                    "owner": {
                         "type": "string",
-                        "description": "Requester id"
+                        "description": "Owner id"
+                    },
+                    "requester_name": {
+                        "type": "string",
+                        "description": "Requester name"
                     },
                     "name": {
                         "type": "string",
@@ -1464,6 +1468,16 @@
                         "type": "integer",
                         "title": "Total number of items in the result set",
                         "description": "This is the total number of items in the result set, of which only a subset is returned defined by the QueryLimit parameter"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "title": "The number of items in each page",
+                        "description": "This is the number of items each page can display"
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "title": "Offset from beginning of the result set",
+                        "description": "This is the offset from beginning of the result set"
                     }
                 }
             }
