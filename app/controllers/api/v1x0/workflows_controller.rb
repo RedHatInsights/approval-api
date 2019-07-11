@@ -9,9 +9,12 @@ module Api
       end
 
       def show
-        workflow = Workflow.find(params.require(:id))
-
-        json_response(workflow)
+        if params.require(:id).to_s == "default"
+          json_response(Workflow.default_workflow)
+        else
+          workflow = Workflow.find(params.require(:id))
+          json_response(workflow)
+        end
       end
 
       def index

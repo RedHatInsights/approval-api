@@ -93,6 +93,18 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         expect(response.body).to match(/Couldn't find Workflow/)
       end
     end
+
+    context 'when querying for the default workflow' do
+      before { Workflow.seed }
+      after { Workflow.instance_variable_set(:@default_workflow, nil) }
+
+      it 'returns the default workflow' do
+        get "#{api_version}/workflows/default", :headers => request_header
+
+        expect(response).to have_http_status(:ok)
+        expect(json["id"]).to eq Workflow.default_workflow.id.to_s
+      end
+    end
   end
 
   # Test suite for POST /templates/:template_id/workflows
@@ -171,14 +183,11 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   end
 
   describe 'DELETE /workflows/:id of default workflow' do
-    before do
-      Workflow.seed
-      delete "#{api_version}/workflows/#{Workflow.default_workflow.id}", :headers => request_header
-    end
-
+    before { Workflow.seed }
     after { Workflow.instance_variable_set(:@default_workflow, nil) }
 
     it 'returns status code 403' do
+      delete "#{api_version}/workflows/#{Workflow.default_workflow.id}", :headers => request_header
       expect(response).to have_http_status(403)
     end
   end

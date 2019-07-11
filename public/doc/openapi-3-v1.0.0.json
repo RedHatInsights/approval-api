@@ -915,6 +915,43 @@
                     }
                 }
             }
+        },
+        "/workflows/default": {
+            "get": {
+                "tags": [
+                    "Workflow"
+                ],
+                "summary": "Return the default approval workflow",
+                "description": "Return the default approval workflow",
+                "operationId": "showDefaultWorkflow",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkflowOut"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequestResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401UnauthorizedResponse"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403ForbiddenResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFoundResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
+                    }
+                }
+            }
         }
     },
     "security": [
