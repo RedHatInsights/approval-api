@@ -20,19 +20,23 @@ access4: &AdminUpdateAccessWorkflows
   permission: approval:workflows:update
   resourceDefinitions:
           - *AdminResourceDefinition
-access5: &AdminReadAccessRequests
+access5: &AdminDestroyAccessWorkflows
+  permission: approval:workflows:destroy
+  resourceDefinitions:
+          - *AdminResourceDefinition
+access6: &AdminReadAccessRequests
   permission: approval:requests:read
   resourceDefinitions:
           - *AdminResourceDefinition
-access6: &AdminReadAccessStages
+access7: &AdminReadAccessStages
   permission: approval:stages:read
   resourceDefinitions:
           - *AdminResourceDefinition
-access7: &AdminReadAccessActions
+access8: &AdminReadAccessActions
   permission: approval:actions:read
   resourceDefinitions:
           - *AdminResourceDefinition
-access8: &AdminCreateAccessActions
+access9: &AdminCreateAccessActions
   permission: approval:actions:create
   resourceDefinitions:
           - *AdminResourceDefinition
@@ -48,12 +52,13 @@ role1: &ApprovalAdministratorRole
   name: Approval Administrator
   system: true
   version: 1
-  description: An Approval administrator roles grants create, read and update permissions
+  description: An Approval administrator role that grants create, read, update and destroy permissions
   access:
     - *AdminReadAccessTemplates
     - *AdminCreateAccessWorkflows
     - *AdminReadAccessWorkflows
     - *AdminUpdateAccessWorkflows
+    - *AdminDestroyAccessWorkflows
     - *AdminReadAccessRequests
     - *AdminReadAccessStages
     - *AdminReadAccessActions
@@ -62,24 +67,24 @@ role2: &ApprovalApproverRole
   name: Approval Approver
   system: true
   version: 1
-  description: An Approval approver roles grants read and create permissions
+  description: An Approval approver role that grants read and create permissions
   access:
     - *ApproverReadAccessRequests
     - *ApproverReadAccessStages
     - *ApproverReadAccessActions
     - *ApproverCreateAccessActions
-group1: &ApprovalAdministratorsGroup
+group1: &ApprovalAdministratorGroup
   name: Approval Administrators
   description: Approval Administrators have complete access to all objects in the Approval Service.
 policy1: &ApprovalAdministratorPolicy
   name: Approval Administrator
-  group: *ApprovalAdministratorsGroup
+  group: *ApprovalAdministratorGroup
   role: *ApprovalAdministratorRole
   description: Policy for Approval Administrators who have complete access to all objects in the Approval Service.
 roles:
   - *ApprovalAdministratorRole
   - *ApprovalApproverRole
 groups:
-  - *ApprovalAdministratorsGroup
+  - *ApprovalAdministratorGroup
 policies:
   - *ApprovalAdministratorPolicy
