@@ -2,10 +2,6 @@ module Api
   module V1x0
     class RequestsController < ApplicationController
       include Mixins::IndexMixin
-      include Mixins::RBACMixin
-
-      before_action :read_access_check, :only => %i[show]
-      before_action :create_access_check, :only => %i[create]
 
       def create
         req = RequestCreateService.new(params.require(:workflow_id)).create(request_params)

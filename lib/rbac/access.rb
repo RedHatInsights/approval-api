@@ -1,7 +1,7 @@
 module RBAC
   class Access
     include RBAC::Permissions
-    attr_reader :acls, :approver_acls, :owner_acls
+    attr_reader :acls, :approver_acls, :owner_acls, :approver_requests, :owner_requests
 
     def initialize(resource, verb)
       @resource      = resource
@@ -119,7 +119,7 @@ module RBAC
     def id_list(request_ids)
       case @resource
       when "requests"
-        request_ids
+        request_ids 
       when "stages"
         stage_ids(request_ids)
       when "actions"

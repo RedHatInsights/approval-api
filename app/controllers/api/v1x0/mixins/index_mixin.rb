@@ -3,7 +3,6 @@ module Api
     module Mixins
       module IndexMixin
         def scoped(relation)
-          relation = rbac_scope(relation) if RBAC::Access.enabled?
           if relation.model.respond_to?(:taggable?) && relation.model.taggable?
             ref_schema = {relation.model.tagging_relation_name => :tag}
 
@@ -21,38 +20,6 @@ module Api
           ).response
 
           json_response(resp)
-        end
-
-        def rbac_scope(relation)
-          resource = relation.model.table_name
-          access_obj = RBAC::Access.new(resource, 'read').process
-          raise Exceptions::NotAuthorizedError, "Not Authorized to list #{relation.model}" unless access_obj.accessible?
-
-          # return UserError for wrong path
-          if resource == "requests" &&
-             !(access_obj.approver? && request.path.end_with?("/approver_requests")) &&
-             !(access_obj.owner? && request.path.end_with?("/owner_requests")) &&
-             !(access_obj.admin? && request.path.end_with?("/requests"))
-            raise Exceptions::NotAuthorizedError, "Current role cannot access #{request.path}"
-          end
-
-          approver_relation = relation.where(:id => access_obj.approver_id_list)
-          Rails.logger.info("approver scope: #{approver_relation.pluck(:id)}")
-
-          owner_relation = relation.where(:id => access_obj.owner_id_list)
-          Rails.logger.info("Owner scope: #{owner_relation.pluck(:id)}")
-
-          return relation if access_obj.admin?
-
-          # double roles for requests
-          if resource == "requests" && approver_relation.any? && owner_relation.any?
-            return request.path.end_with?("approver_requests") ? approver_relation : owner_relation
-          end
-
-          # For other resources
-          return approver_relation if approver_relation.any?
-
-          owner_relation
         end
 
         def filtered(base_query)

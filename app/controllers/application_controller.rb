@@ -21,7 +21,6 @@ class ApplicationController < ActionController::API
   def current_tenant(current_user)
     tenant = Tenant.find_or_create_by(:external_tenant => current_user.tenant) if current_user.tenant.present?
     return tenant if tenant
-
     raise  Exceptions::NoTenantError
   end
 
