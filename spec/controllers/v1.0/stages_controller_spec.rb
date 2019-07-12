@@ -22,8 +22,6 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
 
   # Test suite for GET /stages/:id
   describe 'GET /stages/:id' do
-    before { get "#{api_version}/stages/#{id}", :headers => request_header }
-
     context 'when the record exists' do
       let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
       before { get "#{api_version}/stages/#{id}", :headers => request_header }
@@ -52,6 +50,32 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
 
       it 'admin role returns a not found message' do
         expect(response.body).to match(/Couldn't find Stage/)
+      end
+    end
+
+    context 'approver role can not approve' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => false, :approver? => true, :owner? => false) }
+      before do
+        allow(access_obj).to receive(:not_owned?).and_return(true)
+        allow(access_obj).to receive(:not_approvable?).and_return(true)
+        get "#{api_version}/stages/#{id}", :headers => request_header
+      end
+
+      it 'returns status code 403' do
+        expect(response).to have_http_status(403)
+      end
+    end
+
+    context 'approver role can approve' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => false, :approver? => true, :owner? => false) }
+      before do
+        allow(access_obj).to receive(:not_owned?).and_return(true)
+        allow(access_obj).to receive(:not_approvable?).and_return(false)
+        get "#{api_version}/stages/#{id}", :headers => request_header
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
       end
     end
   end

@@ -2,6 +2,12 @@ module Api
   module V1x0
     class WorkflowsController < ApplicationController
       include Mixins::IndexMixin
+      include Mixins::RBACMixin
+
+      before_action :read_access_check, :only => %i[show]
+      before_action :create_access_check, :only => %i[create]
+      before_action :update_access_check, :only => %i[update]
+      before_action :destroy_access_check, :only => %i[destroy]
 
       def create
         workflow = WorkflowCreateService.new(params.require(:template_id)).create(workflow_params)
