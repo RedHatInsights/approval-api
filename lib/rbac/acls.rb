@@ -7,18 +7,16 @@ module RBAC
     end
 
     def remove(acls, resource_id, permissions)
-      permissions.each do |permission|
-        acls = delete_matching(acls, resource_id, permission)
+      permissions.each_with_object(acls) do |permission, as|
+        delete_matching(as, resource_id, permission)
       end
-      acls
     end
 
     def add(acls, resource_id, permissions)
-      new_acls = []
-      permissions.each do |permission|
+      new_acls = permissions.each_with_object([]) do |permission, as|
         next if find_matching(acls, resource_id, permission)
 
-        new_acls << create_acl(permission, resource_id)
+        as << create_acl(permission, resource_id)
       end
       new_acls.empty? ? acls : new_acls + acls
     end

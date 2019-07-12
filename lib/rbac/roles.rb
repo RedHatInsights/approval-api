@@ -3,7 +3,6 @@ module RBAC
     def initialize(prefix)
       @roles = {}
       load(prefix)
-      @deleted_roles = SortedSet.new
     end
 
     def find(name)
@@ -33,7 +32,6 @@ module RBAC
     end
 
     def delete(role)
-      @deleted_roles.add(role.uuid)
       RBAC::Service.call(RBACApiClient::RoleApi) do |api_instance|
         api_instance.delete_role(role.uuid)
       end
@@ -52,8 +50,6 @@ module RBAC
     end
 
     def get(uuid)
-      raise ArgumentError, "Role object #{uuid} has been deleted" if @deleted_roles.include?(uuid)
-
       RBAC::Service.call(RBACApiClient::RoleApi) do |api_instance|
         api_instance.get_role(uuid)
       end
