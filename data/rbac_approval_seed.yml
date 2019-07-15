@@ -51,7 +51,7 @@ access64: &ApproverReadAccessRequests
 role1: &ApprovalAdministratorRole
   name: Approval Administrator
   system: true
-  version: 1
+  version: 2
   description: An Approval administrator role that grants create, read, update and destroy permissions
   access:
     - *AdminReadAccessTemplates
@@ -66,7 +66,7 @@ role1: &ApprovalAdministratorRole
 role2: &ApprovalApproverRole
   name: Approval Approver
   system: true
-  version: 1
+  version: 2
   description: An Approval approver role that grants read and create permissions
   access:
     - *ApproverReadAccessRequests
