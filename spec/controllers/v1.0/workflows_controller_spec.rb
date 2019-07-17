@@ -100,6 +100,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     let(:group_refs) { %w[990 991 992] }
 
     let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
+    let(:aps) { instance_double(AccessProcessService) }
+
+    before do
+      allow(AccessProcessService).to receive(:new).and_return(aps)
+      allow(aps).to receive(:add_resource_to_groups)
+    end
 
     context 'when request attributes are valid' do
       before { post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => request_header }
@@ -124,9 +130,17 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   # Test suite for PATCH /workflows/:id
   describe 'PATCH /workflows/:id' do
-    let(:valid_attributes) { { :name => 'Mozart' } }
+    let(:valid_attributes) { { :name => 'Mozart', :group_refs => %w[999] } }
 
-    before { patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => request_header }
+    let(:aps) { instance_double(AccessProcessService) }
+
+    before do
+      allow(AccessProcessService).to receive(:new).and_return(aps)
+      allow(aps).to receive(:add_resource_to_groups)
+      allow(aps).to receive(:remove_resource_from_groups)
+
+      patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => request_header
+    end
 
     context 'when item exists' do
       it 'returns status code 200' do
@@ -136,6 +150,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       it 'updates the item' do
         updated_item = Workflow.find(id)
         expect(updated_item.name).to match(/Mozart/)
+        expect(updated_item.group_refs).to eq(%w[999])
       end
     end
 
