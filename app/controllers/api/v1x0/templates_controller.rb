@@ -10,7 +10,17 @@ module Api
 
       def index
         templates = Template.all
-        collection(templates)
+
+        RBAC::Access.enabled? ? collection(rbac_scope(templates)) : collection(templates)
+      end
+
+      private
+
+      def rbac_scope(relation)
+        access_obj = RBAC::Access.new('templates', 'read').process
+        raise Exceptions::NotAuthorizedError, "Not Authorized to list templates" unless access_obj.accessible? || access_obj.admin?
+
+        relation
       end
     end
   end

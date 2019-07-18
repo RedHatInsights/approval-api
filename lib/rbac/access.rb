@@ -26,16 +26,17 @@ module RBAC
         full_acls.each do |item|
           Rails.logger.debug("Found ACL: #{item}")
           @acls << item if regexp.match(item.permission)
+          @approver_acls << item if approver_regexp.match(item.permission)
+        end
 
-          unless @admin
+        unless @admin
+          @acls.each do |item|
             item.resource_definitions.any? do |rd|
               @admin = true if rd.attribute_filter.key == 'id' &&
                                rd.attribute_filter.operation == 'equal' &&
                                rd.attribute_filter.value == '*'
             end
           end
-
-          @approver_acls << item if approver_regexp.match(item.permission)
         end
 
         @approver = true if approver_acls.any?

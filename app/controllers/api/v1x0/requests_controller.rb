@@ -22,13 +22,47 @@ module Api
                  Request.includes(:stages)
                end
 
-        collection(reqs)
+        RBAC::Access.enabled? ? collection(rbac_scope(reqs)) : collection(reqs)
       end
 
       private
 
       def request_params
         params.permit(:name, :description, :requester_name, :content => {})
+      end
+
+      def rbac_scope(relation)
+        access_obj = RBAC::Access.new('requests', 'read').process
+        raise Exceptions::NotAuthorizedError, "Not Authorized to list requests" unless access_obj.accessible?
+
+        # return error for using wrong path
+        raise Exceptions::NotAuthorizedError, "Current role cannot access #{request.path}" unless right_path?(access_obj)
+
+        return relation if access_obj.admin?
+
+        approver_id_list = access_obj.approver_id_list
+        approver_relation = relation.where(:id => approver_id_list)
+        Rails.logger.info("approver scope for requests: #{approver_id_list}")
+
+        owner_id_list = access_obj.owner_id_list
+        owner_relation = relation.where(:id => owner_id_list)
+        Rails.logger.info("Owner scope for requests: #{owner_id_list}")
+
+        # double roles for requests
+        if approver_relation.any? && owner_relation.any?
+          return request.path.end_with?("/approver/requests") ? approver_relation : owner_relation
+        end
+
+        # For other resources
+        return approver_relation if approver_relation.any?
+
+        owner_relation
+      end
+
+      def right_path?(access_obj)
+        (access_obj.approver? && request.path.end_with?("/approver/requests")) ||
+          (access_obj.owner? && request.path.end_with?("/requester/requests")) ||
+          (access_obj.admin? && !request.path.end_with?("/approver/requests", "/requester/requests"))
       end
     end
   end

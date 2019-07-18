@@ -15,13 +15,14 @@ module Api
       end
 
       def index
-        if params[:template_id]
+        relation = if params[:template_id]
           template = Template.find(params.require(:template_id))
-          collection(template.workflows)
+          template.workflows
         else
-          workflows = Workflow.all
-          collection(workflows)
+          Workflow.all
         end
+
+        RBAC::Access.enabled? ? collection(rbac_scope(relation)) : collection(relation)
       end
 
       def destroy
@@ -47,6 +48,13 @@ module Api
 
       def workflow_params
         params.permit(:name, :description, :group_refs => [])
+      end
+
+      def rbac_scope(relation)
+        access_obj = RBAC::Access.new('workflows', 'read').process
+        raise Exceptions::NotAuthorizedError, "Not Authorized to list workflows" unless access_obj.accessible? || access_obj.admin?
+
+        relation
       end
     end
   end
