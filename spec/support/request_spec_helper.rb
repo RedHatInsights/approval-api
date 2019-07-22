@@ -71,4 +71,8 @@ module RequestSpecHelper
   def default_request_hash
     {:headers => default_headers, :original_url => 'https://xyz.com/api/requests'}
   end
+
+  def with_modified_env(options, &block)
+    ClimateControl.modify(options, &block)
+  end
 end

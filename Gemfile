@@ -19,6 +19,7 @@ gem 'manageiq-api-common', :git => 'https://github.com/ManageIQ/manageiq-api-com
 gem 'rbac-api-client', :git => 'https://github.com/RedHatInsights/insights-rbac-api-client-ruby.git', :branch => "master"
 
 group :development, :test do
+  gem 'climate_control'
   gem 'simplecov'
 end
 
