@@ -36,11 +36,10 @@ module Api
       end
 
       def rbac_scope(relation)
-        access_obj = RBAC::Access.new('actions', 'read').process
+        access_obj = rbac_read_access(relation)
         return relation if access_obj.admin?
 
-        raise Exceptions::NotAuthorizedError, "Not Authorized to list actions" unless access_obj.approver? || access_obj.accessible?
-
+        # Only approver can reach here
         action_ids = access_obj.approver_id_list
         Rails.logger.info("approver scope for actions: #{action_ids}")
 

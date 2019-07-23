@@ -26,6 +26,13 @@ module Api
           ManageIQ::API::Common::Filter.new(base_query, params[:filter], api_doc_definition).apply
         end
 
+        def rbac_read_access(relation)
+          access_obj = RBAC::Access.new(relation.model.table_name, 'read').process
+          raise Exceptions::NotAuthorizedError, "Not Authorized to list #{relation.model.table_name}" unless access_obj.accessible?
+
+          access_obj
+        end
+
         private
 
         def api_doc_definition

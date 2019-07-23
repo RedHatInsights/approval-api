@@ -17,8 +17,7 @@ module Api
       private
 
       def rbac_scope(relation)
-        access_obj = RBAC::Access.new('templates', 'read').process
-        raise Exceptions::NotAuthorizedError, "Not Authorized to list templates" unless access_obj.accessible? || access_obj.admin?
+        rbac_read_access(relation)
 
         relation
       end
