@@ -21,7 +21,9 @@ module RBAC
         role_in = RBACApiClient::RoleIn.new
         role_in.name = name
         role_in.access = acls
-        api_instance.create_roles(role_in)
+        api_instance.create_roles(role_in).tap do |role|
+          @roles[name] = role.uuid
+        end
       end
     end
 
@@ -32,6 +34,7 @@ module RBAC
     end
 
     def delete(role)
+      @roles.delete(name)
       RBAC::Service.call(RBACApiClient::RoleApi) do |api_instance|
         api_instance.delete_role(role.uuid)
       end
