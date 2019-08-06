@@ -6,14 +6,14 @@ class JbpmProcessService
   end
 
   def start
-    options = substitute_password(template.process_setting).merge('base_path' => '/kie-server/services/rest')
+    options = substitute_password(template.process_setting)
     Kie::Service.call(KieClient::ProcessInstancesBPMApi, options) do |bpm|
       bpm.start_process(options['container_id'], options['process_id'], :body => process_options)
     end
   end
 
   def signal(decision)
-    options = substitute_password(template.signal_setting).merge('base_path' => '/kie-server/services/rest')
+    options = substitute_password(template.signal_setting)
     Kie::Service.call(KieClient::ProcessInstancesBPMApi, options) do |bpm|
       bpm.signal_process_instance(options['container_id'], request.process_ref, options['signal_name'], :body => signal_options(decision))
     end
@@ -28,7 +28,7 @@ class JbpmProcessService
   def process_options
     options = nil
     ContextService.new(request.context).as_org_admin do
-      groups = request.workflow.group_refs.map { |ref| validate(Group.find(ref)) }
+      groups = request.workflow.group_refs.map { |ref| Group.find(ref) }
 
       options = {
         'request' => request.as_json,
@@ -37,11 +37,6 @@ class JbpmProcessService
       }
     end
     options
-  end
-
-  def validate(group)
-    raise Exceptions::RBACError, "Group #{group.uuid} doesn't have needed approver roles" unless group.has_role? 
-    group
   end
 
   def signal_options(decision)
