@@ -28,7 +28,7 @@ class JbpmProcessService
   def process_options
     options = nil
     ContextService.new(request.context).as_org_admin do
-      groups = request.workflow.group_refs.map { |ref| Group.find(ref) }
+      groups = request.workflow.group_refs.map { |ref| validate(Group.find(ref)) }
 
       options = {
         'request' => request.as_json,
@@ -37,6 +37,12 @@ class JbpmProcessService
       }
     end
     options
+  end
+
+  def validate(group)
+    raise Exceptions::RBACError, "Group #{group.name} doesn't have approval role" unless group.with_approval_role?
+
+    group
   end
 
   def signal_options(decision)

@@ -22,6 +22,15 @@ class Group
     groups
   end
 
+  def with_approval_role?
+    opts = { :limit => 100, :name => "approval-group-#{uuid}" }
+    RBAC::Service.call(RBACApiClient::RoleApi) do |api|
+      RBAC::Service.paginate(api, :list_roles, opts).tap do |roles|
+        return roles.count == 1
+      end
+    end
+  end
+
   def users
     @users ||= Group.find(uuid).users
   end
