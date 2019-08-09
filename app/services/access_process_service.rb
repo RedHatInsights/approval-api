@@ -2,7 +2,7 @@ class AccessProcessService
   include RBAC::Permissions
 
   def initialize(opts = {})
-    @app_name = opts[:app_name] || 'approval'
+    @app_name = ENV["APP_NAME"] || 'approval'
     @prefix = opts[:role_prefix] || "#{@app_name}-group-"
     @acls = RBAC::ACLS.new
     @roles = RBAC::Roles.new(@prefix)
