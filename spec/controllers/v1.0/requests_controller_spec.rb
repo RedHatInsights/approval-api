@@ -1,14 +1,13 @@
 RSpec.describe Api::V1x0::RequestsController, :type => :request do
   # Initialize the test data
   let(:encoded_user) { encoded_user_hash }
-  let(:request_header) { { 'x-rh-identity' => encoded_user } }
   let(:tenant) { create(:tenant, :external_tenant => 369_233) }
 
   let!(:template) { create(:template) }
   let!(:workflow) { create(:workflow, :name => 'Test always approve') } #:template_id => template.id) }
   let(:workflow_id) { workflow.id }
   let!(:requests) do
-    ManageIQ::API::Common::Request.with_request(:headers => request_header, :original_url => "localhost/approval") do
+    ManageIQ::API::Common::Request.with_request(:headers => default_headers, :original_url => "localhost/approval") do
       create_list(:request, 2, :workflow_id => workflow.id, :tenant_id => tenant.id)
     end
   end
@@ -34,7 +33,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         allow(access_obj).to receive(:approver_id_list).and_return([])
         allow(access_obj).to receive(:owner_id_list).and_return([])
 
-        get "#{api_version}/workflows/#{workflow_id}/requests", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => default_headers
       end
 
       it 'returns status code 200' do
@@ -43,9 +42,8 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
       it 'returns all workflow requests' do
         expect(json['links']).not_to be_empty
-        expect(json['links']['first']).to match(/limit=5&offset=0/)
-        expect(json['links']['last']).to match(/limit=5&offset=5/)
-        expect(json['data'].size).to eq(5)
+        expect(json['links']['first']).to match(/offset=0/)
+        expect(json['data'].size).to eq(6)
       end
     end
 
@@ -57,7 +55,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       end
 
       it 'returns status code 403' do
-        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => request_header
+        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => default_headers
         expect(response).to have_http_status(403)
       end
     end
@@ -68,7 +66,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         allow(RBAC::Access).to receive(:new).with('requests', 'read').and_return(access_obj)
         allow(access_obj).to receive(:process).and_return(access_obj)
 
-        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => request_header
+        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => default_headers
       end
 
       it 'returns status code 403' do
@@ -85,7 +83,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       allow(access_obj).to receive(:approver_id_list).and_return([])
       allow(access_obj).to receive(:owner_id_list).and_return([])
 
-      get "#{api_version}/requests", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+      get "#{api_version}/requests", :headers => default_headers
     end
 
     context 'as admin role' do
@@ -93,9 +91,8 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
       it 'returns requests' do
         expect(json['links']).not_to be_empty
-        expect(json['links']['first']).to match(/limit=5&offset=0/)
-        expect(json['links']['last']).to match(/limit=5&offset=5/)
-        expect(json['data'].size).to eq(5)
+        expect(json['links']['first']).to match(/offset=0/)
+        expect(json['data'].size).to eq(8)
       end
 
       it 'sets the context' do
@@ -109,7 +106,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
       it 'can recreate the request from context' do
         req = nil
-        ManageIQ::API::Common::Request.with_request(:headers => request_header, :original_url => "approval.com/approval") do
+        ManageIQ::API::Common::Request.with_request(:headers => default_headers, :original_url => "approval.com/approval") do
           req = create(:request)
         end
 
@@ -151,7 +148,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       allow(access_obj).to receive(:approver_id_list).and_return([])
       allow(access_obj).to receive(:owner_id_list).and_return([])
 
-      get "#{api_version}/requests?filter[state]=notified", :headers => request_header
+      get "#{api_version}/requests?filter[state]=notified", :headers => default_headers
     end
 
     it 'returns requests' do
@@ -178,7 +175,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         allow(access_obj).to receive(:approver_id_list).and_return([])
         allow(access_obj).to receive(:owner_id_list).and_return([])
 
-        get "#{api_version}/requests?filter[decision]=approved", :headers => request_header
+        get "#{api_version}/requests?filter[decision]=approved", :headers => default_headers
       end
 
       it 'returns requests' do
@@ -205,7 +202,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       allow(RequestListByApproverService).to receive(:new).with(username_1).and_return(list_service)
       allow(list_service).to receive(:list).and_return(relation)
 
-      get "#{api_version}/requests?approver=joe@acme.com", :headers => request_header
+      get "#{api_version}/requests?approver=joe@acme.com", :headers => default_headers
     end
 
     it 'returns requests' do
@@ -221,7 +218,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
   # Test suite for GET /requests/:id
   describe 'GET /requests/:id' do
-    before { get "#{api_version}/requests/#{id}", :headers => request_header }
+    before { get "#{api_version}/requests/#{id}", :headers => default_headers }
 
     context 'when the record exist' do
       it 'returns the request' do
@@ -258,13 +255,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     context 'admin role when request attributes are valid' do
       let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
       before do
-        ENV['AUTO_APPROVAL'] = 'y'
-        allow(RBAC::Access).to receive(:new).with('requests', 'create').and_return(access_obj)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => request_header
+        with_modified_env :AUTO_APPROVAL => 'y' do
+          allow(RBAC::Access).to receive(:new).with('requests', 'create').and_return(access_obj)
+          allow(access_obj).to receive(:process).and_return(access_obj)
+          post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => default_headers
+        end
       end
-
-      after { ENV['AUTO_APPROVAL'] = nil }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
@@ -276,7 +272,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before do
         allow(RBAC::Access).to receive(:new).with('requests', 'create').and_return(access_obj)
         allow(access_obj).to receive(:process).and_return(access_obj)
-        post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => request_header
+        post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => default_headers
       end
 
       it 'returns status code 500' do
@@ -287,13 +283,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     context 'approver role' do
       let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => false, :approver? => true, :owner? => false) }
       before do
-        ENV['AUTO_APPROVAL'] = 'y'
-        allow(RBAC::Access).to receive(:new).with('requests', 'create').and_return(access_obj)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => request_header
+        with_modified_env :AUTO_APPROVAL => 'y' do
+          allow(RBAC::Access).to receive(:new).with('requests', 'create').and_return(access_obj)
+          allow(access_obj).to receive(:process).and_return(access_obj)
+          post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => default_headers
+        end
       end
-
-      after { ENV['AUTO_APPROVAL'] = nil }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
@@ -303,13 +298,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     context 'owner role' do
       let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => false, :approver? => false, :owner? => true) }
       before do
-        ENV['AUTO_APPROVAL'] = 'y'
-        allow(RBAC::Access).to receive(:new).with('requests', 'create').and_return(access_obj)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => request_header
+        with_modified_env :AUTO_APPROVAL => 'y' do
+          allow(RBAC::Access).to receive(:new).with('requests', 'create').and_return(access_obj)
+          allow(access_obj).to receive(:process).and_return(access_obj)
+          post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => default_headers
+        end
       end
-
-      after { ENV['AUTO_APPROVAL'] = nil }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
