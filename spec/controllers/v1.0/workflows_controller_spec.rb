@@ -1,7 +1,5 @@
 RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   # Initialize the test data
-  let(:encoded_user) { encoded_user_hash }
-  let(:request_header) { { 'x-rh-identity' => encoded_user } }
   let(:tenant) { create(:tenant, :external_tenant => 369_233) }
 
   let!(:template) { create(:template) }
@@ -26,7 +24,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         allow(access_obj).to receive(:approver_id_list).and_return([])
         allow(access_obj).to receive(:owner_id_list).and_return([])
 
-        get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+        get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
       end
 
       it 'returns status code 200' do
@@ -51,7 +49,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         allow(access_obj).to receive(:approver_id_list).and_return([])
         allow(access_obj).to receive(:owner_id_list).and_return([])
 
-        get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+        get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
       end
 
       it 'returns status code 404' do
@@ -79,7 +77,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         allow(access_obj).to receive(:approver_id_list).and_return([])
         allow(access_obj).to receive(:owner_id_list).and_return([])
 
-        get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+        get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
       end
 
       it 'returns status code 200' do
@@ -105,7 +103,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       allow(access_obj).to receive(:approver_id_list).and_return([])
       allow(access_obj).to receive(:owner_id_list).and_return([])
 
-      get "#{api_version}/workflows?filter[id]=#{id}", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+      get "#{api_version}/workflows?filter[id]=#{id}", :headers => default_headers
     end
 
     it 'returns only the filtered result' do
@@ -124,7 +122,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       allow(access_obj).to receive(:approver_id_list).and_return([])
       allow(access_obj).to receive(:owner_id_list).and_return([])
 
-      get "#{api_version}/workflows/#{id}", :headers => request_header
+      get "#{api_version}/workflows/#{id}", :headers => default_headers
     end
 
     context 'when the record exists' do
@@ -171,7 +169,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         allow(RBAC::Access).to receive(:new).with('workflows', 'create').and_return(access_obj)
         allow(access_obj).to receive(:process).and_return(access_obj)
 
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => request_header
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
       end
 
       it 'returns status code 201' do
@@ -186,7 +184,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         allow(RBAC::Access).to receive(:new).with('workflows', 'create').and_return(access_obj)
         allow(access_obj).to receive(:process).and_return(access_obj)
 
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => request_header
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
       end
 
       it 'returns status code 422' do
@@ -212,7 +210,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       allow(access_obj).to receive(:approver_id_list).and_return([])
       allow(access_obj).to receive(:owner_id_list).and_return([])
 
-      patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => request_header
+      patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
     end
 
     context 'when item exists' do
@@ -246,7 +244,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       allow(RBAC::Access).to receive(:new).with('workflows', 'destroy').and_return(access_obj)
       allow(access_obj).to receive(:process).and_return(access_obj)
 
-      delete "#{api_version}/workflows/#{id}", :headers => request_header
+      delete "#{api_version}/workflows/#{id}", :headers => default_headers
     end
 
     it 'returns status code 204' do
@@ -262,7 +260,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       allow(RBAC::Access).to receive(:new).with('workflows', 'destroy').and_return(access_obj)
       allow(access_obj).to receive(:process).and_return(access_obj)
 
-      delete "#{api_version}/workflows/#{id}", :headers => request_header
+      delete "#{api_version}/workflows/#{id}", :headers => default_headers
     end
 
     it 'returns status code 403' do
@@ -277,7 +275,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       allow(access_obj).to receive(:process).and_return(access_obj)
 
       Workflow.seed
-      delete "#{api_version}/workflows/#{Workflow.default_workflow.id}", :headers => request_header
+      delete "#{api_version}/workflows/#{Workflow.default_workflow.id}", :headers => default_headers
     end
 
     after { Workflow.instance_variable_set(:@default_workflow, nil) }
@@ -308,14 +306,14 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     it "fails if the hybrid_cloud entitlement is false" do
       headers = { 'x-rh-identity' => encoded_user_hash(false_hash), 'x-rh-insights-request-id' => 'gobbledygook' }
-      get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => headers
+      get "#{api_version}/workflows", :headers => headers
 
       expect(response).to have_http_status(:forbidden)
     end
 
     it "allows the request through if entitlements isn't present" do
       headers = { 'x-rh-identity' => encoded_user_hash(missing_hash), 'x-rh-insights-request-id' => 'gobbledygook' }
-      get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => headers
+      get "#{api_version}/workflows", :headers => headers
 
       expect(response).to have_http_status(:ok)
     end

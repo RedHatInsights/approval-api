@@ -1,8 +1,5 @@
 RSpec.describe Api::V1x0::TemplatesController, :type => :request do
   # initialize test data
-  let(:encoded_user) { encoded_user_hash }
-  let(:request_header) { { 'x-rh-identity' => encoded_user } }
-
   let!(:templates) { create_list(:template, 10) }
   let(:template_id) { templates.first.id }
 
@@ -25,7 +22,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
         allow(access_obj).to receive(:approver_id_list).and_return([])
         allow(access_obj).to receive(:owner_id_list).and_return([])
 
-        get "#{api_version}/templates", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+        get "#{api_version}/templates", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
       end
 
       it 'returns templates' do
@@ -55,7 +52,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
         allow(access_obj).to receive(:approver_id_list).and_return([])
         allow(access_obj).to receive(:owner_id_list).and_return([])
 
-        get "#{api_version}/templates/#{template_id}", :headers => request_header
+        get "#{api_version}/templates/#{template_id}", :headers => default_headers
       end
 
       it 'returns the template' do
@@ -81,7 +78,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
         allow(access_obj).to receive(:approver_id_list).and_return([])
         allow(access_obj).to receive(:owner_id_list).and_return([])
 
-        get "#{api_version}/templates/#{template_id}", :headers => request_header
+        get "#{api_version}/templates/#{template_id}", :headers => default_headers
       end
 
       it 'returns status code 404' do
@@ -96,7 +93,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
     context 'approver role' do
       let(:access_obj) { instance_double(RBAC::Access, :accessible? => false, :admin? => false, :approver? => true, :owner? => false) }
 
-      before { get "#{api_version}/templates/#{template_id}", :headers => request_header }
+      before { get "#{api_version}/templates/#{template_id}", :headers => default_headers }
 
       it 'returns status code 403' do
         expect(response).to have_http_status(403)
@@ -106,7 +103,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
     context 'owner role' do
       let(:access_obj) { instance_double(RBAC::Access, :accessible? => false, :admin? => false, :approver? => false, :owner? => true) }
 
-      before { get "#{api_version}/templates/#{template_id}", :headers => request_header }
+      before { get "#{api_version}/templates/#{template_id}", :headers => default_headers }
 
       it 'returns status code 403' do
         expect(response).to have_http_status(403)
