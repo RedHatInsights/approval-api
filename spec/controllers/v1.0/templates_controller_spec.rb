@@ -11,18 +11,51 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
   # Test suite for GET /templates
   describe 'GET /templates' do
     # make HTTP get request before each example
-    before { get "#{api_version}/templates", :params => { :limit => 5, :offset => 0 }, :headers => request_header }
-
-    it 'returns templates' do
-      # Note `json` is a custom helper to parse JSON responses
-      expect(json['links']).not_to be_empty
-      expect(json['links']['first']).to match(/limit=5&offset=0/)
-      expect(json['links']['last']).to match(/limit=5&offset=5/)
-      expect(json['data'].size).to eq(5)
+    before do
+      allow(RBAC::Access).to receive(:new).with('templates', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
     end
 
-    it 'returns status code 200' do
-      expect(response).to have_http_status(200)
+    context 'when admin role' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+
+      before do
+        allow(access_obj).to receive(:not_owned?).and_return(false)
+        allow(access_obj).to receive(:not_approvable?).and_return(false)
+        allow(access_obj).to receive(:approver_id_list).and_return([])
+        allow(access_obj).to receive(:owner_id_list).and_return([])
+
+        get "#{api_version}/templates", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+      end
+
+      it 'returns templates' do
+        # Note `json` is a custom helper to parse JSON responses
+        expect(json['links']).not_to be_empty
+        expect(json['links']['first']).to match(/limit=5&offset=0/)
+        expect(json['links']['last']).to match(/limit=5&offset=5/)
+        expect(json['data'].size).to eq(5)
+        expect(response).to have_http_status(200)
+      end
+    end
+
+    context 'when approver role' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => false, :admin? => false, :approver? => true, :owner? => false) }
+
+      before { get "#{api_version}/templates", :params => { :limit => 5, :offset => 0 }, :headers => request_header }
+
+      it 'returns status 403' do
+        expect(response).to have_http_status(403)
+      end
+    end
+
+    context 'when owner role' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => false, :admin? => false, :approver? => false, :owner? => true) }
+
+      before { get "#{api_version}/templates", :params => { :limit => 5, :offset => 0 }, :headers => request_header }
+
+      it 'returns status 403' do
+        expect(response).to have_http_status(403)
+      end
     end
   end
 

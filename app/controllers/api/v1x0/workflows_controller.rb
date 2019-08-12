@@ -15,13 +15,14 @@ module Api
       end
 
       def index
-        if params[:template_id]
-          template = Template.find(params.require(:template_id))
-          collection(template.workflows)
-        else
-          workflows = Workflow.all
-          collection(workflows)
-        end
+        relation = if params[:template_id]
+                     template = Template.find(params.require(:template_id))
+                     template.workflows
+                   else
+                     Workflow.all
+                   end
+
+        RBAC::Access.enabled? ? collection(rbac_scope(relation)) : collection(relation)
       end
 
       def destroy
@@ -47,6 +48,12 @@ module Api
 
       def workflow_params
         params.permit(:name, :description, :group_refs => [])
+      end
+
+      def rbac_scope(relation)
+        rbac_read_access(relation)
+
+        relation
       end
     end
   end

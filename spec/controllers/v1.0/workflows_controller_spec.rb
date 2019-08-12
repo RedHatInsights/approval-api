@@ -12,9 +12,23 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   let(:api_version) { version }
 
   describe 'GET /templates/:template_id/workflows' do
-    before { get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header }
+    before do
+      allow(RBAC::Access).to receive(:new).with('workflows', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+    end
 
-    context 'when template exists' do
+    context 'admin role when template exists' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+
+      before do
+        allow(access_obj).to receive(:not_owned?).and_return(false)
+        allow(access_obj).to receive(:not_approvable?).and_return(false)
+        allow(access_obj).to receive(:approver_id_list).and_return([])
+        allow(access_obj).to receive(:owner_id_list).and_return([])
+
+        get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+      end
+
       it 'returns status code 200' do
         expect(response).to have_http_status(200)
       end
@@ -27,8 +41,18 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       end
     end
 
-    context 'when template does not exist' do
+    context 'admin role when template does not exist' do
       let!(:template_id) { 0 }
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+
+      before do
+        allow(access_obj).to receive(:not_owned?).and_return(false)
+        allow(access_obj).to receive(:not_approvable?).and_return(false)
+        allow(access_obj).to receive(:approver_id_list).and_return([])
+        allow(access_obj).to receive(:owner_id_list).and_return([])
+
+        get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+      end
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
@@ -38,26 +62,87 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         expect(response.body).to match(/Couldn't find Template/)
       end
     end
+
+    context 'approver role when list workflows' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => false, :admin? => false, :approver? => true, :owner? => false) }
+
+      before { get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header }
+
+      it 'returns status code 403' do
+        expect(response).to have_http_status(403)
+      end
+    end
+
+    context 'owner role when list workflows' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => false, :admin? => false, :approver? => false, :owner? => true) }
+
+      before { get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header }
+
+      it 'returns status code 403' do
+        expect(response).to have_http_status(403)
+      end
+    end
   end
 
   describe 'GET /workflows' do
-    before { get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header }
-
-    context 'when no relate wiht template'
-    it 'returns status code 200' do
-      expect(response).to have_http_status(200)
+    before do
+      allow(RBAC::Access).to receive(:new).with('workflows', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
     end
 
-    it 'returns all template workflows' do
-      expect(json['links']).not_to be_empty
-      expect(json['links']['first']).to match(/limit=5&offset=0/)
-      expect(json['links']['last']).to match(/limit=5&offset=15/)
-      expect(json['data'].size).to eq(5)
+    context 'admin role return workflows' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+
+      before do
+        allow(access_obj).to receive(:not_owned?).and_return(false)
+        allow(access_obj).to receive(:not_approvable?).and_return(false)
+        allow(access_obj).to receive(:approver_id_list).and_return([])
+        allow(access_obj).to receive(:owner_id_list).and_return([])
+
+        get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
+
+      it 'returns all workflows' do
+        expect(json['links']).not_to be_empty
+        expect(json['links']['first']).to match(/limit=5&offset=0/)
+        expect(json['links']['last']).to match(/limit=5&offset=15/)
+        expect(json['data'].size).to eq(5)
+      end
+    end
+
+    context 'approver role return workflows' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => false, :admin? => false, :approver? => true, :owner? => false) }
+      before { get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header }
+
+      it 'returns status code 403' do
+        expect(response).to have_http_status(403)
+      end
+    end
+
+    context 'owner role return workflows' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => false, :admin? => false, :approver? => false, :owner? => true) }
+      before { get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => request_header }
+
+      it 'returns status code 403' do
+        expect(response).to have_http_status(403)
+      end
     end
   end
 
   describe "GET /workflows with filter" do
+    let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
     before do
+      allow(RBAC::Access).to receive(:new).with('workflows', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      allow(access_obj).to receive(:not_owned?).and_return(false)
+      allow(access_obj).to receive(:not_approvable?).and_return(false)
+      allow(access_obj).to receive(:approver_id_list).and_return([])
+      allow(access_obj).to receive(:owner_id_list).and_return([])
+
       get "#{api_version}/workflows?filter[id]=#{id}", :params => { :limit => 5, :offset => 0 }, :headers => request_header
     end
 
@@ -208,6 +293,13 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       missing_hash = default_user_hash
       missing_hash.delete("entitlements")
       missing_hash
+    end
+    let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+    before do
+      allow(RBAC::Access).to receive(:new).with('workflows', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      allow(access_obj).to receive(:approver_id_list).and_return([])
+      allow(access_obj).to receive(:owner_id_list).and_return([])
     end
 
     it "fails if the hybrid_cloud entitlement is false" do

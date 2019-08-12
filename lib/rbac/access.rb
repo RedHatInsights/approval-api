@@ -25,13 +25,14 @@ module RBAC
 
         full_acls.each do |item|
           Rails.logger.debug("Found ACL: #{item}")
-          @acls << item if regexp.match(item.permission)
-
-          unless @admin
-            item.resource_definitions.any? do |rd|
-              @admin = true if rd.attribute_filter.key == 'id' &&
-                               rd.attribute_filter.operation == 'equal' &&
-                               rd.attribute_filter.value == '*'
+          if regexp.match(item.permission)
+            @acls << item
+            unless @admin
+              item.resource_definitions.any? do |rd|
+                @admin = true if rd.attribute_filter.key == 'id' &&
+                                 rd.attribute_filter.operation == 'equal' &&
+                                 rd.attribute_filter.value == '*'
+              end
             end
           end
 
