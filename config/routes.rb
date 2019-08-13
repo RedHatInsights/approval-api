@@ -30,7 +30,7 @@ Rails.application.routes.draw do
         resources :actions, :only => [:create]
       end
 
-			get "/admin/requests", :action => 'index', :controller => 'requests'
+      get "/admin/requests", :action => 'index', :controller => 'requests'
       get "/approver/requests", :action => 'index', :controller => 'requests'
       get "/requester/requests", :action => 'index', :controller => 'requests'
 

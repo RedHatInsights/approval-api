@@ -200,15 +200,15 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   # Test suite for PATCH /workflows/:id
   describe 'PATCH /workflows/:id' do
     let(:valid_attributes) { { :group_refs => %w[1000] } }
+    let(:aps) { instance_double(AccessProcessService) }
     let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
 
     before do
       allow(RBAC::Access).to receive(:new).with('workflows', 'update').and_return(access_obj)
       allow(access_obj).to receive(:process).and_return(access_obj)
-      allow(access_obj).to receive(:not_owned?).and_return(false)
-      allow(access_obj).to receive(:not_approvable?).and_return(false)
-      allow(access_obj).to receive(:approver_id_list).and_return([])
-      allow(access_obj).to receive(:owner_id_list).and_return([])
+      allow(AccessProcessService).to receive(:new).and_return(aps)
+      allow(aps).to receive(:add_resource_to_groups)
+      allow(aps).to receive(:remove_resource_from_groups)
 
       patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
     end
