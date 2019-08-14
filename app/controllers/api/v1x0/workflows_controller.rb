@@ -45,7 +45,7 @@ module Api
 
       def update
         workflow = Workflow.find(params.require(:id))
-        workflow.update(workflow_params)
+        WorkflowUpdateService.new(workflow.id).update(workflow_params)
 
         json_response(workflow)
       end
