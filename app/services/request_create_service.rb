@@ -30,8 +30,8 @@ class RequestCreateService
       create_options[:requester_name] = "#{requester.first_name} #{requester.last_name}"
     end
 
-    Request.create!(create_options).tap do |request|
-      begin
+    Request.transaction do
+      Request.create!(create_options).tap do |request|
         if default_approve? || auto_approve?
           start_internal_approval_process(request)
         elsif !workflow.external_processing?
@@ -39,10 +39,6 @@ class RequestCreateService
         else
           start_external_approval_process(request)
         end
-      rescue Exceptions::RBACError, Exceptions::KieError => e
-        Rails.logger.error("Failed to create request. Reason: #{e.message}")
-        request.destroy!
-        raise
       end
     end
   end
