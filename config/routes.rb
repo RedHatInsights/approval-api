@@ -30,6 +30,10 @@ Rails.application.routes.draw do
         resources :actions, :only => [:create]
       end
 
+      get "/admin/requests", :action => 'index', :controller => 'requests'
+      get "/approver/requests", :action => 'index', :controller => 'requests'
+      get "/requester/requests", :action => 'index', :controller => 'requests'
+
       resources :workflows, :only => %i(index destroy update show) do
         resources :requests, :only => %i(create index)
       end

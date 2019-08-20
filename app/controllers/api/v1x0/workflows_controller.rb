@@ -2,6 +2,12 @@ module Api
   module V1x0
     class WorkflowsController < ApplicationController
       include Mixins::IndexMixin
+      include Mixins::RBACMixin
+
+      before_action :read_access_check, :only => %i[show]
+      before_action :create_access_check, :only => %i[create]
+      before_action :update_access_check, :only => %i[update]
+      before_action :destroy_access_check, :only => %i[destroy]
 
       def create
         workflow = WorkflowCreateService.new(params.require(:template_id)).create(workflow_params)
@@ -15,13 +21,14 @@ module Api
       end
 
       def index
-        if params[:template_id]
-          template = Template.find(params.require(:template_id))
-          collection(template.workflows)
-        else
-          workflows = Workflow.all
-          collection(workflows)
-        end
+        relation = if params[:template_id]
+                     template = Template.find(params.require(:template_id))
+                     template.workflows
+                   else
+                     Workflow.all
+                   end
+
+        RBAC::Access.enabled? ? collection(rbac_scope(relation)) : collection(relation)
       end
 
       def destroy
@@ -38,7 +45,7 @@ module Api
 
       def update
         workflow = Workflow.find(params.require(:id))
-        workflow.update(workflow_params)
+        WorkflowUpdateService.new(workflow.id).update(workflow_params)
 
         json_response(workflow)
       end
@@ -47,6 +54,12 @@ module Api
 
       def workflow_params
         params.permit(:name, :description, :group_refs => [])
+      end
+
+      def rbac_scope(relation)
+        rbac_read_access(relation)
+
+        relation
       end
     end
   end

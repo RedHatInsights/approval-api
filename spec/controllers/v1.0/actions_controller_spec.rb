@@ -1,4 +1,6 @@
 RSpec.describe Api::V1x0::ActionsController, :type => :request do
+  include_context "rbac_objects"
+
   let(:encoded_user) { encoded_user_hash }
   let(:request_header) { { 'x-rh-identity' => encoded_user } }
   let(:tenant) { create(:tenant, :external_tenant => 369_233) }
@@ -15,9 +17,19 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
 
   # Test suite for GET /actions/:id
   describe 'GET /actions/:id' do
-    before { get "#{api_version}/actions/#{id}", :headers => request_header }
+    before do
+      allow(RBAC::Access).to receive(:new).with('actions', 'read').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+    end
 
-    context 'when the record exists' do
+    context 'admin role when the record exists' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+      before do
+        with_modified_env :APP_NAME => app_name do
+          get "#{api_version}/actions/#{id}", :headers => request_header
+        end
+      end
+
       it 'returns the action' do
         action = actions.first
 
@@ -31,8 +43,14 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       end
     end
 
-    context 'when the record does not exist' do
+    context 'admin role when the record does not exist' do
       let!(:id) { 0 }
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+      before do
+        with_modified_env :APP_NAME => app_name do
+          get "#{api_version}/actions/#{id}", :headers => request_header
+        end
+      end
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
@@ -42,26 +60,99 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
         expect(response.body).to match(/Couldn't find Action/)
       end
     end
+
+    context 'approver role can read' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => false, :approver? => true, :owner? => false) }
+      before do
+        allow(access_obj).to receive(:not_owned?).and_return(true)
+        allow(access_obj).to receive(:not_approvable?).and_return(false)
+
+        with_modified_env :APP_NAME => app_name do
+          get "#{api_version}/actions/#{id}", :headers => request_header
+        end
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
+    end
+
+    context 'approver role cannot read' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => false, :approver? => true, :owner? => false) }
+      before do
+        allow(access_obj).to receive(:not_owned?).and_return(true)
+        allow(access_obj).to receive(:not_approvable?).and_return(true)
+
+        with_modified_env :APP_NAME => app_name do
+          get "#{api_version}/actions/#{id}", :headers => request_header
+        end
+      end
+
+      it 'returns status code 403' do
+        expect(response).to have_http_status(403)
+      end
+    end
+
+    context 'owner role cannot read' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => false, :admin? => false, :approver? => false, :owner? => true) }
+      before do
+        with_modified_env :APP_NAME => app_name do
+          get "#{api_version}/actions/#{id}", :headers => request_header
+        end
+      end
+
+      it 'returns status code 403' do
+        expect(response).to have_http_status(403)
+      end
+    end
   end
 
   describe 'POST /stages/:stage_id/actions' do
     let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
+    before do
+      allow(Group).to receive(:find)
+      allow(RBAC::Access).to receive(:new).with('actions', 'create').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+    end
 
-    context 'when request attributes are valid' do
-      before do
-        allow(Group).to receive(:find)
-        post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => request_header
-      end
+    context 'admin role when request attributes are valid' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
 
       it 'returns status code 201' do
+        post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => request_header
+
         expect(response).to have_http_status(201)
+      end
+    end
+
+    context 'approver role when request attributes are valid' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => false, :approver? => true, :owner? => false) }
+
+      it 'returns status code 201' do
+        post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => request_header
+
+        expect(response).to have_http_status(201)
+      end
+    end
+
+    context 'owner role when request attributes are valid' do
+      let(:access_obj) { instance_double(RBAC::Access, :accessible? => false, :admin? => false, :approver? => false, :owner? => true) }
+
+      it 'returns status code 403' do
+        post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => request_header
+
+        expect(response).to have_http_status(403)
       end
     end
   end
 
   describe 'POST /requests/:request_id/actions' do
     let(:req) { create(:request, :with_context, :tenant_id => tenant.id) }
+    let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
+
     before do
+      allow(RBAC::Access).to receive(:new).with('actions', 'create').and_return(access_obj)
+      allow(access_obj).to receive(:process).and_return(access_obj)
       allow(Group).to receive(:find)
     end
 
