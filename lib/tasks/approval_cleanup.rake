@@ -1,22 +1,29 @@
 require 'rake'
 
 namespace :approval do
-  desc "All kinds of resources cleanup tasks"
+  desc "Resource cleanup tasks"
   namespace :workflows do
-    desc "Cleanup those workflows with empty associated group_refs"
+    desc "Cleanup workflows with empty associated group references"
     task :cleanup => :environment do
-      puts "Will cleanup workflows with empty group references"
-      Workflow.where(:group_refs => []).where.not(:name => "Always approve").destroy_all
+      workflows = Workflow.where(:group_refs => []).where.not(:name => "Always approve")
+      puts "The follow workflows with empty group references will be deleted:  #{workflows.pluck(:id, :name)}"
+      workflows.destroy_all
     end
   end
 
   namespace :requests do
-    desc "Cleanup those requests older than certain days"
+    desc "Cleanup requests older than specified days"
     task :cleanup, [:days] => [:environment] do |_t, args|
-      puts "Will cleanup requests created #{args.days} ago"
-      ids = Request.where("created_at < ?", Date.today - args.days.to_i).pluck(:id)
-      puts "Requests #{ids} will be cleaned up"
-      Request.where("created_at < ?", Date.today - args.days.to_i).destroy_all
+      days = Integer(args.days)
+
+      if days.zero?
+        puts "Not allowed to delete all requests in this task"
+        exit
+      end
+
+      requests = Request.where("created_at < ?", Time.zone.today - days)
+      puts "Requests older than #{days} days will be deleted: #{requests.pluck(:id)}"
+      requests.destroy_all
     end
   end
 end
