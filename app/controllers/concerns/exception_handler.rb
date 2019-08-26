@@ -22,5 +22,9 @@ module ExceptionHandler
     rescue_from Exceptions::UserError do |e|
       json_response({ :message => e.message }, :bad_request)
     end
+
+    rescue_from Exceptions::InvalidStateTransitionError do |e|
+      json_response({ :message => e.message }, :unprocessable_entity)
+    end
   end
 end

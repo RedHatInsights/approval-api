@@ -23,7 +23,7 @@ module Api
         stage_id = if params[:request_id]
                      req = Request.find(params[:request_id])
                      current_stage = req.current_stage
-                     raise Exceptions::ApprovalError, "Request has finished its lifecycle. No more action can be added to its current stage." unless current_stage
+                     raise Exceptions::InvalidStateTransitionError, "Request has finished its lifecycle. No more action can be added to its current stage." unless current_stage
 
                      current_stage.id
                    else

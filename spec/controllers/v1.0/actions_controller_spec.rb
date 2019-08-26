@@ -175,10 +175,10 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       let!(:stage2) { create(:stage, :state => Stage::FINISHED_STATE, :request => req, :tenant_id => tenant.id) }
       let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
 
-      it 'returns status code 500' do
+      it 'returns status code 422' do
         post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => request_header
 
-        expect(response).to have_http_status(500)
+        expect(response).to have_http_status(422)
       end
     end
   end
