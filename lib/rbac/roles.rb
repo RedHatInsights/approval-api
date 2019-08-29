@@ -16,6 +16,14 @@ module RBAC
       end
     end
 
+    def self.assigned_role?(role_name)
+      opts = { :name => role_name, :scope => 'principal' }
+
+      RBAC::Service.call(RBACApiClient::RoleApi) do |api_instance|
+        RBAC::Service.paginate(api_instance, :list_roles, opts).count.positive?
+      end
+    end
+
     def add(name, acls)
       RBAC::Service.call(RBACApiClient::RoleApi) do |api_instance|
         role_in = RBACApiClient::RoleIn.new
@@ -43,8 +51,7 @@ module RBAC
     private
 
     def load(prefix)
-      opts = { :limit => 100,
-               :name  => prefix }
+      opts = { :scope => 'principal', :name => prefix }
       RBAC::Service.call(RBACApiClient::RoleApi) do |api_instance|
         RBAC::Service.paginate(api_instance, :list_roles, opts).each do |role|
           @roles[role.name] = role.uuid

@@ -1,6 +1,9 @@
 RSpec.shared_context "rbac_objects" do
   let(:app_name) { 'approval' }
   let(:resource) { "requests" }
+  let(:rs_class) { class_double("RBAC::Service").as_stubbed_const(:transfer_nested_constants => true) }
+  let(:api_instance) { double }
+
   let(:resource_id1) { "1" }
   let(:resource_id2) { "2" }
   let(:resource_id3) { "3" }
@@ -22,9 +25,14 @@ RSpec.shared_context "rbac_objects" do
   let(:access2) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:#{resource}:write", :resource_definitions => [resource_def2]) }
   let(:access3) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:#{resource}:create", :resource_definitions => []) }
   let(:access4) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:#{resource}:create") }
+  let(:access5) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:stages:read") }
+  let(:approver_access1) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:#{resource}:read") }
+  let(:approver_access2) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:read") }
+  let(:approver_access3) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:actions:read") }
+  let(:approver_access4) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:actions:create") }
+  let(:approver_acls) { [approver_access1, approver_access2, approver_access3, approver_access4] }
+
   let(:group_uuids) { [group1.uuid, group2.uuid, group3.uuid] }
-  let(:api_instance) { double }
-  let(:rs_class) { class_double("RBAC::Service").as_stubbed_const(:transfer_nested_constants => true) }
 
   let(:approver_filter) { instance_double(RBACApiClient::ResourceDefinitionFilter, :key => 'id', :operation => 'equal', :value => resource_id1) }
   let(:approver_resource_def) { instance_double(RBACApiClient::ResourceDefinition, :attribute_filter => approver_filter) }

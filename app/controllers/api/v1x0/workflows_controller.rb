@@ -4,8 +4,9 @@ module Api
       include Mixins::IndexMixin
       include Mixins::RBACMixin
 
-      before_action :read_access_check, :only => %i[show]
+      before_action :index_access_check, :only => %i[show]
       before_action :create_access_check, :only => %i[create]
+      before_action :index_access_check, :only => %i[index]
       before_action :update_access_check, :only => %i[update]
       before_action :destroy_access_check, :only => %i[destroy]
 
@@ -28,7 +29,7 @@ module Api
                      Workflow.all
                    end
 
-        RBAC::Access.enabled? ? collection(rbac_scope(relation)) : collection(relation)
+        collection(relation)
       end
 
       def destroy
@@ -54,12 +55,6 @@ module Api
 
       def workflow_params
         params.permit(:name, :description, :group_refs => [])
-      end
-
-      def rbac_scope(relation)
-        rbac_read_access(relation)
-
-        relation
       end
     end
   end

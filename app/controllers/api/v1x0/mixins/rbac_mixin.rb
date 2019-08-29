@@ -12,6 +12,10 @@ module Api
           permission_check('destroy')
         end
 
+        def index_access_check
+          permission_check('read')
+        end
+
         def update_access_check
           permission_check('update')
         end
@@ -22,20 +26,15 @@ module Api
         end
 
         def resource_check(verb, id = params[:id], klass = controller_name.classify.constantize)
-          return unless RBAC::Access.enabled?
+          permission_check(verb, klass)
 
-          access_obj = permission_check(verb, klass)
-
-          raise Exceptions::NotAuthorizedError, "#{verb.titleize} access not authorized for #{klass}" if !access_obj.admin? && access_obj.not_owned?(id.to_i) && access_obj.not_approvable?(id.to_i)
+          raise Exceptions::NotAuthorizedError, "#{verb.titleize} access not authorized for #{klass}" unless RBAC::Access.resource_instance_accessible?(klass.table_name, id)
         end
 
         def permission_check(verb, klass = controller_name.classify.constantize)
           return unless RBAC::Access.enabled?
 
-          access_obj = RBAC::Access.new(klass.table_name, verb).process
-          raise Exceptions::NotAuthorizedError, "#{verb.titleize} access not authorized for #{klass}" unless access_obj.accessible?
-
-          access_obj
+          raise Exceptions::NotAuthorizedError, "#{verb.titleize} access not authorized for #{klass}" unless RBAC::Access.resource_accessible?(klass.table_name, verb)
         end
       end
     end

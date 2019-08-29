@@ -3,7 +3,7 @@ describe RBAC::Roles do
   let(:subject) { described_class.new(prefix) }
   let(:api_instance) { double }
   let(:rs_class) { class_double("RBAC::Service").as_stubbed_const(:transfer_nested_constants => true) }
-  let(:pagination_options) { { :limit => 100, :name => prefix } }
+  let(:pagination_options) { { :name => prefix, :scope => 'principal' } }
 
   let(:group1) { instance_double(RBACApiClient::GroupOut, :name => 'group1', :uuid => "123") }
   let(:group2) { instance_double(RBACApiClient::GroupOut, :name => 'group2', :uuid => "12345") }
@@ -17,7 +17,6 @@ describe RBAC::Roles do
   let(:acls) { [access1] }
 
   before do
-    allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
     allow(rs_class).to receive(:call).with(RBACApiClient::RoleApi).and_yield(api_instance)
   end
 

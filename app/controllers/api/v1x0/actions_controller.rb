@@ -41,11 +41,10 @@ module Api
       end
 
       def rbac_scope(relation)
-        access_obj = rbac_read_access(relation)
-        return relation if access_obj.admin?
+        return relation if RBAC::Access.admin?
 
         # Only approver can reach here
-        action_ids = access_obj.approver_id_list
+        action_ids = RBAC::Access.approver_id_list(relation.model.table_name)
         Rails.logger.info("approver scope for actions: #{action_ids}")
 
         relation.where(:id => action_ids)

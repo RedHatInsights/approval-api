@@ -36,26 +36,25 @@ module Api
       end
 
       def rbac_scope(relation)
-        access_obj = rbac_read_access(relation)
-
-        return relation if access_obj.admin?
-
-        # return error for using wrong path
-        raise Exceptions::NotAuthorizedError, "Current role cannot access #{request.path}" unless right_path?(access_obj)
+        raise Exceptions::NotAuthorizedError, "Current role cannot access #{request.path}" unless right_path?
 
         ids = if approver_endpoint?
-                access_obj.approver_id_list
-              else
-                access_obj.owner_id_list
+                { :id => RBAC::Access.approver_id_list(relation.model.table_name) }
+              elsif requester_endpoint?
+                { :id => RBAC::Access.owner_id_list(relation.model.table_name) }
               end
 
         Rails.logger.info("Accessible request ids: #{ids}")
 
-        relation.where(:id => ids)
+        relation.where(ids)
       end
 
-      def right_path?(access_obj)
-        (access_obj.approver? && approver_endpoint?) || (access_obj.owner? && requester_endpoint?)
+      def right_path?
+        (RBAC::Access.approver? && approver_endpoint?) || (RBAC::Access.admin? && admin_endpoint?) || (requester_endpoint? && !RBAC::Access.admin? && !RBAC::Access.approver?)
+      end
+
+      def admin_endpoint?
+        request.path.end_with?("/admin/requests") || (request.path.end_with?("/requests") && !requester_endpoint? && !approver_endpoint?)
       end
 
       def requester_endpoint?
