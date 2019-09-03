@@ -54,7 +54,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
     context 'when approver' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
       end
@@ -67,7 +67,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
     context 'when owner' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(false)
 
@@ -125,7 +125,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
     context 'as approver role' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
         get "#{api_version}/requests", :headers => default_headers
@@ -138,7 +138,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
     context 'as owner role' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(false)
         get "#{api_version}/requests", :headers => default_headers
@@ -194,7 +194,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       it 'approver role returns status code 403' do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         get "#{api_version}/approver/requests", :headers => default_headers
 
         expect(response).to have_http_status(200)
@@ -224,7 +224,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       it 'approver role returns status code 403' do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         get "#{api_version}/requester/requests", :headers => default_headers
 
         expect(response).to have_http_status(403)
@@ -375,7 +375,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
     context 'approver can approve' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(full_approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(full_approver_acls)
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
 
@@ -389,7 +389,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
     context 'approver cannot approve' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(full_approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(full_approver_acls)
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
 
@@ -403,7 +403,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
     context 'owner own the requests' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(false)
 
@@ -417,7 +417,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
     context 'owner does not own the requests' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(false)
 
@@ -462,7 +462,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     context 'approver role' do
       before do
         with_modified_env :AUTO_APPROVAL => 'y' do
-          allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(full_approver_acls)
+          allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(full_approver_acls)
           allow(RBAC::Access).to receive(:admin?).and_return(false)
           allow(RBAC::Access).to receive(:approver?).and_return(true)
           post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => default_headers
@@ -477,7 +477,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     context 'owner role' do
       before do
         with_modified_env :AUTO_APPROVAL => 'y' do
-          allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+          allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
           allow(RBAC::Access).to receive(:admin?).and_return(false)
           allow(RBAC::Access).to receive(:approver?).and_return(false)
           post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => default_headers

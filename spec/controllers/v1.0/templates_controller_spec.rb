@@ -30,7 +30,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
 
     context 'when approver role' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
         get "#{api_version}/templates", :headers => default_headers
@@ -43,7 +43,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
 
     context 'when regular user role' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(false)
         get "#{api_version}/templates", :headers => default_headers
@@ -95,7 +95,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
 
     context 'approver role' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
 
@@ -109,7 +109,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
 
     context 'owner role' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(false)
 

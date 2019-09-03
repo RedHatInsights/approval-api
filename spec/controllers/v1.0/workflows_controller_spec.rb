@@ -51,7 +51,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
       end
 
@@ -64,7 +64,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(false)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
         get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
       end
 
@@ -97,7 +97,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         get "#{api_version}/workflows", :headers => default_headers
       end
 
@@ -110,7 +110,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(false)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
         get "#{api_version}/workflows", :headers => default_headers
       end
 
@@ -137,7 +137,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         get "#{api_version}/workflows?filter[id]=#{id}", :headers => default_headers
       end
 
@@ -187,7 +187,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         get "#{api_version}/workflows/#{id}", :headers => default_headers
       end
 
@@ -200,7 +200,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(false)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
         get "#{api_version}/workflows/#{id}", :headers => default_headers
       end
 
@@ -252,7 +252,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
       end
 
@@ -265,7 +265,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(false)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
       end
 
@@ -323,7 +323,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
       end
 
@@ -336,7 +336,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(false)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
         patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
       end
 
@@ -363,7 +363,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         delete "#{api_version}/workflows/#{id}", :headers => default_headers
       end
 
@@ -376,7 +376,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(false)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
         delete "#{api_version}/workflows/#{id}", :headers => default_headers
       end
 

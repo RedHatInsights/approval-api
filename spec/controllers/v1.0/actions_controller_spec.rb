@@ -66,7 +66,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
 
     context 'approver role can approve' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(full_approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(full_approver_acls)
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
 
@@ -82,7 +82,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
 
     context 'approver role cannot read' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
 
@@ -98,7 +98,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
 
     context 'owner role cannot read' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(false)
         with_modified_env :APP_NAME => app_name do
@@ -129,7 +129,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
 
     context 'approver role when request attributes are valid' do
       it 'returns status code 201' do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
         post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => default_headers
@@ -140,7 +140,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
 
     context 'owner role when request attributes are valid' do
       it 'returns status code 201' do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(false)
         post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => default_headers
@@ -155,7 +155,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
 
     before do
       allow(Group).to receive(:find)
-      allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return([])
+      allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
       allow(RBAC::Access).to receive(:admin?).and_return(false)
     end
 

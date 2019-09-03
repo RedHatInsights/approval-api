@@ -39,14 +39,17 @@ module Api
         raise Exceptions::NotAuthorizedError, "Current role cannot access #{request.path}" unless right_path?
 
         ids = if approver_endpoint?
-                { :id => RBAC::Access.approver_id_list(relation.model.table_name) }
+                RBAC::Access.approver_id_list(relation.model.table_name)
               elsif requester_endpoint?
-                { :id => RBAC::Access.owner_id_list(relation.model.table_name) }
+                RBAC::Access.owner_id_list(relation.model.table_name)
               end
+
+        # for admin endpoints
+        return relation unless ids
 
         Rails.logger.info("Accessible request ids: #{ids}")
 
-        relation.where(ids)
+        relation.where(:id => ids)
       end
 
       def right_path?

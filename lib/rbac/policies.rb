@@ -18,7 +18,7 @@ module RBAC
     # delete all policies that contains the role.
     def delete_policy(role)
       RBAC::Service.call(RBACApiClient::PolicyApi) do |api_instance|
-        RBAC::Service.paginate(api_instance, :list_policies, :name => @prefix).each do |policy|
+        RBAC::Service.paginate(api_instance, :list_policies, :name => @prefix, :limit => 500).each do |policy|
           api_instance.delete_policy(policy.uuid) if policy.roles.map(&:uuid).include?(role.uuid)
         end
       end

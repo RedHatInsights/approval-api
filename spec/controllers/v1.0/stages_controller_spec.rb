@@ -56,7 +56,7 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
 
     context 'approver role can not read' do
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
         allow(RBAC::Access).to receive(:admin?).and_return(false)
         allow(RBAC::Access).to receive(:approver?).and_return(true)
         get "#{api_version}/stages/#{id}", :headers => default_headers

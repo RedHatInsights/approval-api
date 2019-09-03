@@ -11,7 +11,7 @@ describe RBAC::Access do
   shared_examples_for ".acls" do
     it "validate acls" do
       with_modified_env :APP_NAME => app_name do
-        allow(RBAC::Service).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(acls)
+        allow(RBAC::Service).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(acls)
 
         expect(described_class.acls(res, verb).count).to equal(num)
       end
@@ -21,7 +21,7 @@ describe RBAC::Access do
   shared_examples_for ".approver_id_list" do
     it "approver id list" do
       with_modified_env :APP_NAME => app_name do
-        allow(RBAC::Service).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(acls)
+        allow(RBAC::Service).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(acls)
 
         expect(described_class.approver_id_list(res)).to eq(ids)
       end
