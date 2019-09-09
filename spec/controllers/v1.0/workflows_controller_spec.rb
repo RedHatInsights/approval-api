@@ -14,7 +14,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   describe 'GET /templates/:template_id/workflows' do
     context 'admin role when template exists' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
       end
 
@@ -34,7 +36,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       let!(:template_id) { 0 }
 
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
       end
 
@@ -48,10 +52,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role when template exists' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
         get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
       end
 
@@ -61,10 +67,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role when template exists' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
       end
 
@@ -77,7 +85,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   describe 'GET /workflows' do
     context 'admin role return workflows' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
       end
 
@@ -94,10 +104,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role return workflows' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
         get "#{api_version}/workflows", :headers => default_headers
       end
 
@@ -107,10 +119,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role return workflows' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/workflows", :headers => default_headers
       end
 
@@ -123,7 +137,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   describe "GET /workflows with filter" do
     context 'admin role return workflows' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/workflows?filter[id]=#{id}", :headers => default_headers
       end
 
@@ -134,10 +150,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role return workflows' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
         get "#{api_version}/workflows?filter[id]=#{id}", :headers => default_headers
       end
 
@@ -151,7 +169,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   describe 'GET /workflows/:id' do
     context 'admin role when the record exists' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/workflows/#{id}", :headers => default_headers
       end
 
@@ -171,7 +191,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     context 'admin role when the record does not exist' do
       let!(:id) { 0 }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/workflows/#{id}", :headers => default_headers
       end
 
@@ -184,10 +206,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role when the record exists' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
         get "#{api_version}/workflows/#{id}", :headers => default_headers
       end
 
@@ -197,10 +221,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role when the record exists' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/workflows/#{id}", :headers => default_headers
       end
 
@@ -224,7 +250,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     context 'when admin role request attributes are valid' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
       end
 
@@ -235,7 +263,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     context 'when a request with missing parameter' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
       end
 
@@ -249,10 +279,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'when approver role request attributes are valid' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
       end
 
@@ -262,10 +294,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'when regular user role request attributes are valid' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
       end
 
@@ -288,7 +322,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     context 'admin role when item exists' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
       end
 
@@ -306,7 +342,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       let!(:id) { 0 }
 
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
       end
 
@@ -320,10 +358,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role when item exists' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
         patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
       end
 
@@ -333,10 +373,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role when item exists' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
       end
 
@@ -350,7 +392,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   describe 'DELETE /workflows/:id' do
     context 'admin role when delete' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         delete "#{api_version}/workflows/#{id}", :headers => default_headers
       end
 
@@ -360,10 +404,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role when delete' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
         delete "#{api_version}/workflows/#{id}", :headers => default_headers
       end
 
@@ -373,10 +419,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role when delete' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         delete "#{api_version}/workflows/#{id}", :headers => default_headers
       end
 
@@ -390,7 +438,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     let!(:request) { create(:request, :workflow => workflows.first) }
 
     before do
-      allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
       delete "#{api_version}/workflows/#{id}", :headers => default_headers
     end
 
@@ -401,7 +451,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   describe 'DELETE /workflows/:id of default workflow' do
     before do
-      allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
 
       Workflow.seed
       delete "#{api_version}/workflows/#{Workflow.default_workflow.id}", :headers => default_headers
@@ -427,7 +479,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     before do
-      allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
     end
 
     it "fails if the hybrid_cloud entitlement is false" do

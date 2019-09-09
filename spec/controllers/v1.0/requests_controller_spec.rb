@@ -36,8 +36,9 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   describe 'GET /workflows/:workflow_id/requests' do
     context 'when admins' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/workflows/#{workflow_id}/requests", :headers => default_headers
       end
 
@@ -53,10 +54,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'when approver' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
       end
 
       it 'returns status code 403' do
@@ -66,10 +69,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'when owner' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
 
         get "#{api_version}/workflows/#{workflow_id}/requests", :headers => default_headers
       end
@@ -84,8 +89,9 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   describe 'GET /requests' do
     context 'as admin role' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
 
         get "#{api_version}/requests", :headers => default_headers
       end
@@ -124,10 +130,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'as approver role' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
         get "#{api_version}/requests", :headers => default_headers
       end
 
@@ -137,10 +145,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'as owner role' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/requests", :headers => default_headers
       end
 
@@ -154,25 +164,38 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   describe 'GET /admin/requests' do
     context 'as admin role' do
       it 'admin role returns requests' do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/admin/requests", :headers => default_headers
 
         expect(json['links']).not_to be_empty
         expect(response).to have_http_status(200)
       end
+    end
+
+    context 'as approver role' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
 
       it 'approver role returns status code 403' do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
         get "#{api_version}/admin/requests", :headers => default_headers
 
         expect(response).to have_http_status(403)
       end
+    end
+
+    context 'as regular user' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
 
       it 'regular user role returns status code 403' do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/admin/requests", :headers => default_headers
 
         expect(response).to have_http_status(403)
@@ -184,25 +207,37 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   describe 'GET /approver/requests' do
     context 'as admin role' do
       it 'admin role returns requests' do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/approver/requests", :headers => default_headers
 
         expect(response).to have_http_status(403)
       end
+    end
+
+    context 'as approver role' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
 
       it 'approver role returns status code 403' do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
         get "#{api_version}/approver/requests", :headers => default_headers
 
         expect(response).to have_http_status(200)
       end
+    end
+
+    context 'as regular user' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
 
       it 'regular user role returns status code 403' do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/approver/requests", :headers => default_headers
 
         expect(response).to have_http_status(403)
@@ -214,25 +249,37 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   describe 'GET /requester/requests' do
     context 'as admin role' do
       it 'admin role returns requests' do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/requester/requests", :headers => default_headers
 
         expect(response).to have_http_status(403)
       end
+    end
+
+    context 'as approver role' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
 
       it 'approver role returns status code 403' do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
         get "#{api_version}/requester/requests", :headers => default_headers
 
         expect(response).to have_http_status(403)
       end
+    end
+
+    context 'as regular user' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
 
       it 'regular user role returns status code 403' do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/requester/requests", :headers => default_headers
 
         expect(response).to have_http_status(200)
@@ -243,8 +290,9 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   # Test suite for GET /requests?state=
   describe 'GET /requests?state=notified' do
     it 'admin role returns requests' do
-      allow(RBAC::Access).to receive(:admin?).and_return(true)
-      allow(RBAC::Access).to receive(:approver?).and_return(false)
+      allow(rs_class).to receive(:paginate).and_return([])
+      allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+      allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
       get "#{api_version}/requests?filter[state]=notified", :headers => default_headers
 
       expect(json['links']).not_to be_empty
@@ -253,20 +301,27 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     it 'admin role returns status code 200' do
-      allow(RBAC::Access).to receive(:admin?).and_return(true)
-      allow(RBAC::Access).to receive(:approver?).and_return(false)
+      allow(rs_class).to receive(:paginate).and_return([])
+      allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+      allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
       get "#{api_version}/requests?filter[state]=notified", :headers => default_headers
 
       expect(json['links']).not_to be_empty
       expect(response).to have_http_status(200)
     end
 
-    it 'approver role returns status code 403' do
-      allow(RBAC::Access).to receive(:admin?).and_return(false)
-      allow(RBAC::Access).to receive(:approver?).and_return(true)
-      get "#{api_version}/requests?filter[state]=notified", :headers => default_headers
+    context 'as approver role' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
 
-      expect(response).to have_http_status(403)
+      it 'approver role returns status code 403' do
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
+        get "#{api_version}/requests?filter[state]=notified", :headers => default_headers
+
+        expect(response).to have_http_status(403)
+      end
     end
   end
 
@@ -274,8 +329,9 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   describe 'GET /requests?decision=approved' do
     context 'as admin role' do
       it 'admin role returns requests' do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/requests?filter[decision]=approved", :headers => default_headers
 
         expect(json['links']).not_to be_empty
@@ -284,19 +340,25 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       end
 
       it 'admin role returns status code 200' do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/requests?filter[decision]=approved", :headers => default_headers
 
         expect(response).to have_http_status(200)
       end
 
-      it 'approver role returns status code 403' do
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
-        get "#{api_version}/requests?filter[decision]=approved", :headers => default_headers
+      context 'as approver' do
+        let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+        it 'approver role returns status code 403' do
+          allow(rs_class).to receive(:paginate).and_return(approver_acls)
+          allow(access_obj).to receive(:process).and_return(access_obj)
+          allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+          allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
+          get "#{api_version}/requests?filter[decision]=approved", :headers => default_headers
 
-        expect(response).to have_http_status(403)
+          expect(response).to have_http_status(403)
+        end
       end
     end
   end
@@ -310,8 +372,9 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     it 'admin role returns requests' do
-      allow(RBAC::Access).to receive(:admin?).and_return(true)
-      allow(RBAC::Access).to receive(:approver?).and_return(false)
+      allow(rs_class).to receive(:paginate).and_return([])
+      allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+      allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
       get "#{api_version}/requests?approver=joe@acme.com", :headers => default_headers
 
       expect(json['links']).not_to be_empty
@@ -320,19 +383,26 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     it 'admin role returns status code 200' do
-      allow(RBAC::Access).to receive(:admin?).and_return(true)
-      allow(RBAC::Access).to receive(:approver?).and_return(false)
+      allow(rs_class).to receive(:paginate).and_return([])
+      allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+      allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
       get "#{api_version}/requests?approver=joe@acme.com", :headers => default_headers
 
       expect(response).to have_http_status(200)
     end
 
-    it 'approver role returns status code 403' do
-      allow(RBAC::Access).to receive(:admin?).and_return(false)
-      allow(RBAC::Access).to receive(:approver?).and_return(false)
-      get "#{api_version}/requests?approver=joe@acme.com", :headers => default_headers
+    context 'as approver' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
 
-      expect(response).to have_http_status(403)
+      it 'approver role returns status code 403' do
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
+        get "#{api_version}/requests?approver=joe@acme.com", :headers => default_headers
+
+        expect(response).to have_http_status(403)
+      end
     end
   end
 
@@ -340,7 +410,9 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   describe 'GET /requests/:id' do
     context 'admin role when the record exist' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/requests/#{id}", :headers => default_headers
       end
 
@@ -360,7 +432,9 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     context 'admin role when request does not exist' do
       let!(:id) { 0 }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/requests/#{id}", :headers => default_headers
       end
 
@@ -374,10 +448,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'approver can approve' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => full_approver_acls) }
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(full_approver_acls)
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
 
         get "#{api_version}/requests/#{user_requests.first.id}", :headers => default_headers
       end
@@ -388,10 +464,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'approver cannot approve' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => full_approver_acls) }
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(full_approver_acls)
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
 
         get "#{api_version}/requests/#{requests_with_same_state.first.id}", :headers => default_headers
       end
@@ -402,10 +480,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'owner own the requests' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
 
         get "#{api_version}/requests/#{id}", :headers => default_headers
       end
@@ -416,10 +496,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'owner does not own the requests' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
 
         get "#{api_version}/requests/#{requests_with_same_state.first.id}", :headers => default_headers
       end
@@ -438,7 +520,9 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     context 'admin role when request attributes are valid' do
       before do
         with_modified_env :AUTO_APPROVAL => 'y' do
-          allow(RBAC::Access).to receive(:admin?).and_return(true)
+          allow(rs_class).to receive(:paginate).and_return([])
+          allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+          allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
           post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => default_headers
         end
       end
@@ -450,7 +534,9 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
     context 'admin role when no permission' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => default_headers
       end
 
@@ -460,11 +546,13 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'approver role' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
       before do
         with_modified_env :AUTO_APPROVAL => 'y' do
-          allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(full_approver_acls)
-          allow(RBAC::Access).to receive(:admin?).and_return(false)
-          allow(RBAC::Access).to receive(:approver?).and_return(true)
+          allow(rs_class).to receive(:paginate).and_return(approver_acls)
+          allow(access_obj).to receive(:process).and_return(access_obj)
+          allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+          allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
           post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => default_headers
         end
       end
@@ -475,11 +563,13 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'owner role' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
       before do
         with_modified_env :AUTO_APPROVAL => 'y' do
-          allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
-          allow(RBAC::Access).to receive(:admin?).and_return(false)
-          allow(RBAC::Access).to receive(:approver?).and_return(false)
+          allow(rs_class).to receive(:paginate).and_return([])
+          allow(access_obj).to receive(:process).and_return(access_obj)
+          allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+          allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
           post "#{api_version}/workflows/#{workflow_id}/requests", :params => valid_attributes, :headers => default_headers
         end
       end

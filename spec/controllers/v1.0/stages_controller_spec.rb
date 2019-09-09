@@ -21,7 +21,9 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
   describe 'GET /stages/:id' do
     context 'when the record exists' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/stages/#{id}", :headers => default_headers
       end
 
@@ -41,7 +43,9 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
     context 'when the record does not exist' do
       let!(:id) { 0 }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/stages/#{id}", :headers => default_headers
       end
 
@@ -55,10 +59,12 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
     end
 
     context 'approver role can not read' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
         get "#{api_version}/stages/#{id}", :headers => default_headers
       end
 
@@ -72,7 +78,9 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
   describe 'GET /requests/:request_id/stages' do
     context 'admin role when the record exists' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/requests/#{request_id}/stages", :headers => default_headers
       end
 
@@ -90,7 +98,9 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
     context 'admin role when the record does not exist' do
       let!(:request_id) { 0 }
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/requests/#{request_id}/stages", :headers => default_headers
       end
 
@@ -104,10 +114,12 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
     end
 
     context 'approver role can not read' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal'}, app_name).and_return(approver_acls)
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
         get "#{api_version}/requests/#{request_id}/stages", :headers => default_headers
       end
 

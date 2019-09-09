@@ -26,15 +26,18 @@ module Api
         end
 
         def resource_check(verb, id = params[:id], klass = controller_name.classify.constantize)
-          permission_check(verb, klass)
+          access = permission_check(verb, klass)
 
-          raise Exceptions::NotAuthorizedError, "#{verb.titleize} access not authorized for #{klass}" unless RBAC::Access.resource_instance_accessible?(klass.table_name, id)
+          raise Exceptions::NotAuthorizedError, "#{verb.titleize} access not authorized for #{klass}" unless access.resource_instance_accessible?(klass.table_name, id)
         end
 
         def permission_check(verb, klass = controller_name.classify.constantize)
           return unless RBAC::Access.enabled?
 
-          raise Exceptions::NotAuthorizedError, "#{verb.titleize} access not authorized for #{klass}" unless RBAC::Access.resource_accessible?(klass.table_name, verb)
+          access = RBAC::ApprovalAccess.new(klass.table_name, verb).process
+          raise Exceptions::NotAuthorizedError, "#{verb.titleize} access not authorized for #{klass}" unless access.resource_accessible?
+
+          access
         end
       end
     end

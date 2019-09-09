@@ -15,7 +15,10 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
     # make HTTP get request before each example
     context 'when admin role' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
+
         get "#{api_version}/templates", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
       end
 
@@ -29,10 +32,12 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
     end
 
     context 'when approver role' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
         get "#{api_version}/templates", :headers => default_headers
       end
 
@@ -42,10 +47,12 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
     end
 
     context 'when regular user role' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/templates", :headers => default_headers
       end
 
@@ -59,7 +66,9 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
   describe 'GET /templates/:id' do
     context 'admin role when the record exists' do
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/templates/#{template_id}", :headers => default_headers
       end
 
@@ -80,7 +89,9 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
       let!(:template_id) { 0 }
 
       before do
-        allow(RBAC::Access).to receive(:admin?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
         get "#{api_version}/templates/#{template_id}", :headers => default_headers
       end
 
@@ -94,10 +105,12 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
     end
 
     context 'approver role' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return(approver_acls)
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(true)
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
 
         get "#{api_version}/templates/#{template_id}", :headers => default_headers
       end
@@ -108,10 +121,12 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
     end
 
     context 'owner role' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
       before do
-        allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, {:scope => 'principal', :limit => 500}, app_name).and_return([])
-        allow(RBAC::Access).to receive(:admin?).and_return(false)
-        allow(RBAC::Access).to receive(:approver?).and_return(false)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
+        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
 
         get "#{api_version}/templates/#{template_id}", :headers => default_headers
       end

@@ -15,7 +15,7 @@ RSpec.describe AccessProcessService do
   end
 
   it "#find_role" do
-    allow(RBAC::Service).to receive(:paginate).with(api_instance, :list_roles, pagination_options).and_return([role1])
+    allow(rs_class).to receive(:paginate).and_return([role1])
     allow(api_instance).to receive(:get_role).with(role1.uuid).and_return(role1_detail)
 
     role = subject.send(:find_role, "approval-group-#{group1.uuid}")
