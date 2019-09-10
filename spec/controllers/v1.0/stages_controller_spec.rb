@@ -10,9 +10,11 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
   let!(:group_ref) { "990" }
   let!(:stages) { create_list(:stage, 5, :group_ref => group_ref, :request_id => request.id, :tenant_id => tenant.id) }
   let(:id) { stages.first.id }
+  let(:roles_obj) { double }
   let(:api_version) { version }
 
   before do
+    allow(RBAC::Roles).to receive(:new).and_return(roles_obj)
     allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
     allow(Group).to receive(:find)
   end
@@ -22,8 +24,7 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
     context 'when the record exists' do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
+        allow(roles_obj).to receive(:roles).and_return([admin_role])
         get "#{api_version}/stages/#{id}", :headers => default_headers
       end
 
@@ -44,8 +45,7 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
       let!(:id) { 0 }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
+        allow(roles_obj).to receive(:roles).and_return([admin_role])
         get "#{api_version}/stages/#{id}", :headers => default_headers
       end
 
@@ -63,8 +63,7 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
+        allow(roles_obj).to receive(:roles).and_return([approver_role])
         get "#{api_version}/stages/#{id}", :headers => default_headers
       end
 
@@ -79,8 +78,7 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
     context 'admin role when the record exists' do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
+        allow(roles_obj).to receive(:roles).and_return([admin_role])
         get "#{api_version}/requests/#{request_id}/stages", :headers => default_headers
       end
 
@@ -99,8 +97,7 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
       let!(:request_id) { 0 }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
+        allow(roles_obj).to receive(:roles).and_return([admin_role])
         get "#{api_version}/requests/#{request_id}/stages", :headers => default_headers
       end
 
@@ -118,8 +115,7 @@ RSpec.describe Api::V1x0::StagesController, :type => :request do
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
+        allow(roles_obj).to receive(:roles).and_return([approver_role])
         get "#{api_version}/requests/#{request_id}/stages", :headers => default_headers
       end
 

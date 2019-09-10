@@ -12,9 +12,11 @@ RSpec.describe WorkflowUpdateService do
     end
 
     it 'with group_refs' do
-      subject.update(:group_refs => [999])
-      workflow.reload
-      expect(workflow.group_refs).to eq([999])
+      ManageIQ::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+        subject.update(:group_refs => [999])
+        workflow.reload
+        expect(workflow.group_refs).to eq([999])
+      end
     end
   end
 end

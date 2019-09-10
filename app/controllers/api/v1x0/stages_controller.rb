@@ -20,12 +20,10 @@ module Api
       private
 
       def rbac_scope(relation)
-        access = RBAC::ApprovalAccess.new(relation.model.table_name, 'read').process
-
-        return relation if access.admin?
+        return relation if admin?
 
         # Only owner can reach here
-        stage_ids = access.owner_id_list(relation.model.table_name)
+        stage_ids = owner_id_list(relation.model.table_name)
         raise Exceptions::NotAuthorizedError, "Not Authorized for #{relation.model.table_name}" if stage_ids.empty?
 
         Rails.logger.info("Owner scope for stages: #{stage_ids}")

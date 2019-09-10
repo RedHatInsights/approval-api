@@ -36,14 +36,12 @@ module Api
       end
 
       def rbac_scope(relation)
-        access = RBAC::ApprovalAccess.new(relation.model.table_name, 'read').process
-
-        raise Exceptions::NotAuthorizedError, "Current role cannot access #{request.path}" unless right_path?(access)
+        raise Exceptions::NotAuthorizedError, "Current role cannot access #{request.path}" unless right_path?
 
         ids = if approver_endpoint?
-                access.approver_id_list(relation.model.table_name)
+                approver_id_list(relation.model.table_name)
               elsif requester_endpoint?
-                access.owner_id_list(relation.model.table_name)
+                owner_id_list(relation.model.table_name)
               end
 
         # for admin endpoints
@@ -54,8 +52,8 @@ module Api
         relation.where(:id => ids)
       end
 
-      def right_path?(access)
-        (access.approver? && approver_endpoint?) || (access.admin? && admin_endpoint?) || (requester_endpoint? && !access.admin? && !access.approver?)
+      def right_path?
+        (approver? && approver_endpoint?) || (admin? && admin_endpoint?) || (requester_endpoint? && !admin? && !approver?)
       end
 
       def admin_endpoint?

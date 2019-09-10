@@ -6,7 +6,6 @@ module Api
 
       before_action :index_access_check, :only => %i[show]
       before_action :create_access_check, :only => %i[create]
-      before_action :index_access_check, :only => %i[index]
       before_action :update_access_check, :only => %i[update]
       before_action :destroy_access_check, :only => %i[destroy]
 
@@ -29,7 +28,7 @@ module Api
                      Workflow.all
                    end
 
-        collection(relation)
+        RBAC::Access.enabled? ? collection(rbac_scope(relation)) : collection(relation)
       end
 
       def destroy
@@ -52,6 +51,13 @@ module Api
       end
 
       private
+
+      # TODO: remove 'approval:workflows:read' from approver acls list in RBAC Insight
+      def rbac_scope(relation)
+        raise Exceptions::NotAuthorizedError, "Not Authorized for #{relation.model.table_name}" unless admin?
+
+        relation
+      end
 
       def workflow_params
         params.permit(:name, :description, :group_refs => [])

@@ -14,8 +14,18 @@ class WorkflowUpdateService
       added_group_refs = current_group_refs - original_group_refs
 
       aps = AccessProcessService.new
-      aps.add_resource_to_groups(workflow.id, added_group_refs) if added_group_refs.any?
-      aps.remove_resource_from_groups(workflow.id, removed_group_refs) if removed_group_refs.any?
+
+      if added_group_refs.any?
+        ContextService.new(ManageIQ::API::Common::Request.current.to_h.transform_keys(&:to_s)).as_org_admin do
+          aps.add_resource_to_groups(workflow.id, added_group_refs)
+        end
+      end
+
+      if removed_group_refs.any?
+        ContextService.new(ManageIQ::API::Common::Request.current.to_h.transform_keys(&:to_s)).as_org_admin do
+          aps.remove_resource_from_groups(workflow.id, removed_group_refs)
+        end
+      end
     end
 
     workflow.update!(options)

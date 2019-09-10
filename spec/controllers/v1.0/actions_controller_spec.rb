@@ -16,10 +16,12 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
   let(:resource_def) { instance_double(RBACApiClient::ResourceDefinition, :attribute_filter => filter) }
   let(:access) { instance_double(RBACApiClient::Access, :permission => "approval:workflows:approve", :resource_definitions => [resource_def]) }
   let(:full_approver_acls) { approver_acls << access }
+  let(:roles_obj) { double }
 
   let(:api_version) { version }
 
   before do
+    allow(RBAC::Roles).to receive(:new).and_return(roles_obj)
     allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
   end
 
@@ -28,8 +30,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     context 'admin role when the record exists' do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
+        allow(roles_obj).to receive(:roles).and_return([admin_role])
         with_modified_env :APP_NAME => app_name do
           get "#{api_version}/actions/#{id}", :headers => default_headers
         end
@@ -52,8 +53,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       let!(:id) { 0 }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
+        allow(roles_obj).to receive(:roles).and_return([admin_role])
         with_modified_env :APP_NAME => app_name do
           get "#{api_version}/actions/#{id}", :headers => default_headers
         end
@@ -73,8 +73,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       before do
         allow(rs_class).to receive(:paginate).and_return(full_approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
+        allow(roles_obj).to receive(:roles).and_return([approver_role])
 
         with_modified_env :APP_NAME => app_name do
           get "#{api_version}/actions/#{id}", :headers => default_headers
@@ -91,8 +90,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
+        allow(roles_obj).to receive(:roles).and_return([approver_role])
 
         with_modified_env :APP_NAME => app_name do
           get "#{api_version}/actions/#{id}", :headers => default_headers
@@ -109,8 +107,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
+        allow(roles_obj).to receive(:roles).and_return([])
         with_modified_env :APP_NAME => app_name do
           get "#{api_version}/actions/#{id}", :headers => default_headers
         end
@@ -131,9 +128,8 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     context 'admin role when request attributes are valid' do
       it 'returns status code 201' do
         allow(rs_class).to receive(:paginate).and_return([])
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(true)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
-        post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => default_headers
+        allow(roles_obj).to receive(:roles).and_return([admin_role])
+        post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => default_headers, :as => :json
 
         expect(response).to have_http_status(201)
       end
@@ -144,9 +140,8 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       it 'returns status code 201' do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(true)
-        post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => default_headers
+        allow(roles_obj).to receive(:roles).and_return([approver_role])
+        post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => default_headers, :as => :json
 
         expect(response).to have_http_status(201)
       end
@@ -157,9 +152,8 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       it 'returns status code 201' do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
-        allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
-        post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => default_headers
+        allow(roles_obj).to receive(:roles).and_return([])
+        post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => default_headers, :as => :json
 
         expect(response).to have_http_status(201)
       end
@@ -172,8 +166,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     before do
       allow(Group).to receive(:find)
       allow(rs_class).to receive(:paginate).and_return([])
-      allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::ADMIN_ROLE).and_return(false)
-      allow(RBAC::Roles).to receive(:assigned_role?).with(RBAC::ApprovalAccess::APPROVER_ROLE).and_return(false)
+      allow(roles_obj).to receive(:roles).and_return([])
     end
 
     context 'when request is actionable' do
@@ -182,7 +175,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       let(:valid_attributes) { { :operation => 'cancel', :processed_by => 'abcd' } }
 
       it 'returns status code 201' do
-        post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => default_headers
+        post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => default_headers, :as => :json
 
         expect(req.stages.first.state).to eq(Stage::CANCELED_STATE)
         expect(req.stages.last.state).to eq(Stage::SKIPPED_STATE)
@@ -196,7 +189,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
 
       it 'returns status code 422' do
-        post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => default_headers
+        post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => default_headers, :as => :json
 
         expect(response).to have_http_status(422)
       end

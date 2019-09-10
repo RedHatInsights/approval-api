@@ -11,13 +11,16 @@ RSpec.describe WorkflowCreateService do
       allow(aps).to receive(:add_resource_to_groups)
     end
     it 'create a workflow with valid group ids' do
-      workflow = subject.create(:name => 'workflow_1', :description => 'workflow with valid groups', :group_refs => group_refs, :template_id => template.id)
-      workflow.reload
+      ManageIQ::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+        workflow = subject.create(:name => 'workflow_1', :description => 'workflow with valid groups', :group_refs => group_refs, :template_id => template.id)
 
-      expect(workflow.name).to eq('workflow_1')
-      expect(workflow.description).to eq('workflow with valid groups')
-      expect(workflow.template_id).to eq(template.id)
-      expect(workflow.group_refs).to eq(group_refs)
+        workflow.reload
+
+        expect(workflow.name).to eq('workflow_1')
+        expect(workflow.description).to eq('workflow with valid groups')
+        expect(workflow.template_id).to eq(template.id)
+        expect(workflow.group_refs).to eq(group_refs)
+      end
     end
   end
 end
