@@ -1,7 +1,7 @@
 RSpec.describe Api::V1x0::RequestsController, :type => :request do
   # Initialize the test data
   let(:encoded_user) { encoded_user_hash }
-  let(:tenant) { create(:tenant, :external_tenant => 369_233) }
+  let(:tenant) { create(:tenant) }
 
   let!(:template) { create(:template) }
   let!(:workflow) { create(:workflow, :name => 'Test always approve') } #:template_id => template.id) }
