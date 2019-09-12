@@ -3,7 +3,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
 
   let(:encoded_user) { encoded_user_hash }
   let(:request_header) { { 'x-rh-identity' => encoded_user } }
-  let(:tenant) { create(:tenant, :external_tenant => 369_233) }
+  let(:tenant) { create(:tenant) }
 
   let(:request) { create(:request, :with_context, :tenant_id => tenant.id) }
   let!(:group_ref) { "990" }

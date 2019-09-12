@@ -1,6 +1,6 @@
 RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   # Initialize the test data
-  let(:tenant) { create(:tenant, :external_tenant => 369_233) }
+  let(:tenant) { create(:tenant) }
 
   let!(:template) { create(:template) }
   let(:template_id) { template.id }

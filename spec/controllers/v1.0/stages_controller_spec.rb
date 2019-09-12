@@ -1,7 +1,7 @@
 RSpec.describe Api::V1x0::StagesController, :type => :request do
   let(:encoded_user) { encoded_user_hash }
   let(:request_header) { { 'x-rh-identity' => encoded_user } }
-  let(:tenant) { create(:tenant, :external_tenant => 369_233) }
+  let(:tenant) { create(:tenant) }
 
   let!(:template) { create(:template) }
   let!(:workflow) { create(:workflow, :template_id => template.id) }
