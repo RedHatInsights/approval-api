@@ -1,162 +1,66 @@
 module RBAC
   class Access
-    include RBAC::Permissions
-    attr_reader :acls, :approver_acls, :owner_acls
-
+    attr_reader :acl
+    DEFAULT_LIMIT = 500
     def initialize(resource, verb)
-      @resource      = resource
-      @verb          = verb
-      @app_name      = ENV["APP_NAME"] || "approval"
-      @admin         = false
-      @approver      = false
-      @owner         = false
-      @acls          = []
-      @approver_acls = []
-      @owner_acls    = []
+      @resource = resource
+      @verb     = verb
+      @regexp   = Regexp.new(":(#{@resource}|\\*):(#{@verb}|\\*)")
+      @app_name = ENV["APP_NAME"] || "approval"
     end
 
     def process
       RBAC::Service.call(RBACApiClient::AccessApi) do |api|
         Rails.logger.info("Fetch access list for #{@app_name}")
-        full_acls = RBAC::Service.paginate(api, :get_principal_access, {}, @app_name)
-
-        regexp = Regexp.new(":(#{@resource}|\\*):(#{@verb}|\\*)")
-        approver_regexp = Regexp.new(":(workflows|\\*):(approve|\\*)")
-
-        full_acls.each do |item|
-          Rails.logger.debug("Found ACL: #{item}")
-          if regexp.match(item.permission)
-            @acls << item
-            unless @admin
-              item.resource_definitions.any? do |rd|
-                @admin = true if rd.attribute_filter.key == 'id' &&
-                                 rd.attribute_filter.operation == 'equal' &&
-                                 rd.attribute_filter.value == '*'
-              end
-            end
-          end
-
-          @approver_acls << item if approver_regexp.match(item.permission)
+        @acl = RBAC::Service.paginate(api, :get_principal_access, {:limit => DEFAULT_LIMIT}, @app_name).select do |item|
+          Rails.logger.info("Found ACL: #{item}")
+          @regexp.match(item.permission)
         end
-
-        @approver = true if approver_acls.any?
-
-        @owner_acls = requester_acls.select do |item|
-          regexp.match(item.permission)
-        end
-
-        @owner = true if @owner_acls.any?
       end
-
-      Rails.logger.info("Role: admin[#{@admin}], approver[#{@approver}], owner[#{@owner}]")
-
       self
     end
 
-    # resource ids approver can approve
-    def approver_id_list
-      id_list(approver_requests)
+    def accessible?
+      Rails.logger.info("ACL for #{@app_name} #{@acl}")
+      @acl.any?
     end
 
-    # resource ids owner owns
-    def owner_id_list
-      id_list(owner_requests)
+    def id_list
+      generate_ids
+      Rails.logger.info("IDS for #{@app_name} #{@ids}")
+      @ids.include?('*') ? [] : @ids
     end
 
-    # request ids that approver can approve
-    def approver_requests
-      @approver_requests ||= approver_request_ids
-    end
-
-    # request ids that owner owns
-    def owner_requests
-      @owner_requests ||= owner_request_ids
+    def owner_scoped?
+      generate_ids
+      @ids.include?('*') ? false : owner_scope_filter?
     end
 
     def self.enabled?
       ENV['BYPASS_RBAC'].blank?
     end
 
-    # permission level check
-    def accessible?
-      @acls.any? || @owner_acls.any?
-    end
-
-    # approver but cannot approve the resource
-    def not_approvable?(resource_id)
-      resource_ids = approver_id_list
-      @approver && resource_ids && resource_ids.exclude?(resource_id)
-    end
-
-    # owner but does not own the resource
-    def not_owned?(resource_id)
-      resource_ids = owner_id_list
-      @owner && resource_ids && resource_ids.exclude?(resource_id)
-    end
-
-    def admin?
-      @admin
-    end
-
-    def approver?
-      @approver
-    end
-
-    def owner?
-      @owner
-    end
-
     private
 
-    def owner_request_ids
-      Request.by_owner.pluck(:id)
-    end
+    def generate_ids
+      @ids ||= @acl.each_with_object([]) do |item, ids|
+        item.resource_definitions.each do |rd|
+          next unless rd.attribute_filter.key == 'id'
+          next unless rd.attribute_filter.operation == 'equal'
 
-    def approver_request_ids
-      Request.where(:workflow_id => workflow_ids).pluck(:id)
-    end
-
-    def id_list(request_ids)
-      case @resource
-      when "requests"
-        request_ids
-      when "stages"
-        stage_ids(request_ids)
-      when "actions"
-        action_ids(request_ids)
-      else
-        raise Exceptions::NotAuthorizedError, "Not Authorized for #{@resource}"
-      end
-    end
-
-    def stage_ids(request_ids)
-      Stage.where(:request_id => request_ids).pluck(:id)
-    end
-
-    def action_ids(request_ids)
-      Action.where(:stage_id => stage_ids(request_ids)).pluck(:id)
-    end
-
-    def workflow_ids
-      @workflow_ids ||= begin
-        ids = SortedSet.new
-        @approver_acls.each do |acl|
-          acl.resource_definitions.any? do |rd|
-            next unless rd.attribute_filter.key == 'id'
-            next unless rd.attribute_filter.operation == 'equal'
-
-            ids << rd.attribute_filter.value.to_i
-          end
+          ids << rd.attribute_filter.value
         end
-
-        Rails.logger.info("Accessible workflows: #{ids}")
-
-        ids.to_a
       end
     end
 
-    def requester_acls
-      RBAC::ACLS.new.create(nil, OWNER_PERMISSIONS)
+    def owner_scope_filter?
+      @acl.any? do |item|
+        item.resource_definitions.any? do |rd|
+          rd.attribute_filter.key == 'owner' &&
+            rd.attribute_filter.operation == 'equal' &&
+            rd.attribute_filter.value == '{{username}}'
+        end
+      end
     end
   end
 end

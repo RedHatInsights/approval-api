@@ -1,6 +1,8 @@
 module RBAC
   class Roles
-    def initialize(prefix)
+    attr_reader :roles
+
+    def initialize(prefix = nil)
       @roles = {}
       load(prefix)
     end
@@ -43,8 +45,7 @@ module RBAC
     private
 
     def load(prefix)
-      opts = { :limit => 100,
-               :name  => prefix }
+      opts = { :scope => 'principal', :name => prefix, :limit => 500 }
       RBAC::Service.call(RBACApiClient::RoleApi) do |api_instance|
         RBAC::Service.paginate(api_instance, :list_roles, opts).each do |role|
           @roles[role.name] = role.uuid
