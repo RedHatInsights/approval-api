@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_12_021005) do
+ActiveRecord::Schema.define(version: 2019_09_11_144228) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -81,7 +81,7 @@ ActiveRecord::Schema.define(version: 2019_06_12_021005) do
   end
 
   create_table "tenants", force: :cascade do |t|
-    t.bigint "external_tenant"
+    t.string "external_tenant"
     t.string "name"
     t.string "description"
     t.datetime "created_at", null: false

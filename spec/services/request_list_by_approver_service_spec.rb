@@ -1,5 +1,5 @@
 RSpec.describe RequestListByApproverService do
-  let(:tenant) { create(:tenant, :external_tenant => 369_233) }
+  let(:tenant) { create(:tenant) }
 
   let(:username_1) { "jdoe@acme.com" }
   let(:username_2) { "john@acme.com" }

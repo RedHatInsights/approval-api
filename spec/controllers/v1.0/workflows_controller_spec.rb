@@ -1,5 +1,8 @@
 RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   include_context "rbac_objects"
+  # Initialize the test data
+  let(:tenant) { create(:tenant) }
+
   let!(:template) { create(:template) }
   let(:template_id) { template.id }
   let!(:workflows) { create_list(:workflow, 16, :template_id => template.id) }
@@ -205,8 +208,8 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         get "#{api_version}/workflows/#{id}", :headers => default_headers
       end
 
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
+      it 'returns status code 403' do
+        expect(response).to have_http_status(403)
       end
     end
 

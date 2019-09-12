@@ -4,7 +4,6 @@ module Api
       include Mixins::IndexMixin
       include Mixins::RBACMixin
 
-      before_action :index_access_check, :only => %i[show]
       before_action :create_access_check, :only => %i[create]
       before_action :update_access_check, :only => %i[update]
       before_action :destroy_access_check, :only => %i[destroy]
@@ -14,7 +13,10 @@ module Api
         json_response(workflow, :created)
       end
 
+      # TODO: remove 'approval:workflows:read' from approver acls list in RBAC Insight
       def show
+        raise Exceptions::NotAuthorizedError, "Not Authorized for workflows" unless admin?
+
         workflow = Workflow.find(params.require(:id))
 
         json_response(workflow)

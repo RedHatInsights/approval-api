@@ -2,6 +2,6 @@
 #
 FactoryBot.define do
   factory :tenant do
-    sequence(:external_tenant, &:to_s)
+    external_tenant { "0369233" }
   end
 end

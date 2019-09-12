@@ -1,7 +1,7 @@
 RSpec.describe Api::V1x0::GraphqlController, :type => :request do
   let(:encoded_user) { encoded_user_hash }
   let(:headers) { { 'x-rh-identity' => encoded_user } }
-  let(:tenant) { create(:tenant, :external_tenant => 369_233) }
+  let(:tenant) { create(:tenant) }
 
   let!(:template) { create(:template) }
   let(:template_id) { template.id }
