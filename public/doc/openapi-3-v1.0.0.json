@@ -225,9 +225,6 @@
                 "operationId": "listRequests",
                 "parameters": [
                     {
-                        "$ref": "#/components/parameters/approver"
-                    },
-                    {
                         "$ref": "#/components/parameters/limit"
                     },
                     {
@@ -1063,15 +1060,6 @@
                 "explode": true,
                 "schema": {
                     "type": "object"
-                }
-            },
-            "approver": {
-                "name": "approver",
-                "in": "query",
-                "description": "Fetch requests by given approver username",
-                "required": false,
-                "schema": {
-                    "type": "string"
                 }
             }
         },

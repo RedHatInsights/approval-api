@@ -19,7 +19,6 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:group1) { double(:name => 'group1', :uuid => "123") }
   let!(:workflow_2) { create(:workflow, :name => 'workflow_2', :group_refs => [group1.uuid]) }
   let!(:user_requests) { create_list(:request, 2, :decision => 'denied', :workflow_id => workflow_2.id, :tenant_id => tenant.id) }
-  let!(:list_service) { RequestListByApproverService.new(username_1) }
 
   let(:filter) { instance_double(RBACApiClient::ResourceDefinitionFilter, :key => 'id', :operation => 'equal', :value => workflow_2.id) }
   let(:resource_def) { instance_double(RBACApiClient::ResourceDefinition, :attribute_filter => filter) }
@@ -340,46 +339,6 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
           expect(response).to have_http_status(403)
         end
-      end
-    end
-  end
-
-  # Test suite for GET /requests?approver=
-  describe 'GET /requests?approver=joe@acme.com' do
-    before do
-      relation = Request.where(:id => user_requests.pluck(:id))
-      allow(RequestListByApproverService).to receive(:new).with(username_1).and_return(list_service)
-      allow(list_service).to receive(:list).and_return(relation)
-    end
-
-    it 'admin role returns requests' do
-      allow(rs_class).to receive(:paginate).and_return([])
-      allow(roles_obj).to receive(:roles).and_return([admin_role])
-      get "#{api_version}/requests?approver=joe@acme.com", :headers => default_headers
-
-      expect(json['links']).not_to be_empty
-      expect(json['links']['first']).to match(/offset=0/)
-      expect(json['data'].size).to eq(2)
-    end
-
-    it 'admin role returns status code 200' do
-      allow(rs_class).to receive(:paginate).and_return([])
-      allow(roles_obj).to receive(:roles).and_return([admin_role])
-      get "#{api_version}/requests?approver=joe@acme.com", :headers => default_headers
-
-      expect(response).to have_http_status(200)
-    end
-
-    context 'as approver' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
-
-      it 'approver role returns status code 403' do
-        allow(rs_class).to receive(:paginate).and_return(approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role])
-        get "#{api_version}/requests?approver=joe@acme.com", :headers => default_headers
-
-        expect(response).to have_http_status(403)
       end
     end
   end
