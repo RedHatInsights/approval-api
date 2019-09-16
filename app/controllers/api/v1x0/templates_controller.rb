@@ -5,6 +5,7 @@ module Api
       include Mixins::RBACMixin
 
       before_action :read_access_check, :only => %i[show]
+      before_action :index_access_check, :only => %i[index]
 
       def show
         template = Template.find(params.require(:id))
@@ -14,15 +15,7 @@ module Api
       def index
         templates = Template.all
 
-        RBAC::Access.enabled? ? collection(rbac_scope(templates)) : collection(templates)
-      end
-
-      private
-
-      def rbac_scope(relation)
-        rbac_read_access(relation)
-
-        relation
+        collection(templates)
       end
     end
   end

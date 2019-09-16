@@ -23,7 +23,7 @@ module Api
         stage_id = if params[:request_id]
                      req = Request.find(params[:request_id])
                      current_stage = req.current_stage
-                     raise Exceptions::ApprovalError, "Request has finished its lifecycle. No more action can be added to its current stage." unless current_stage
+                     raise Exceptions::InvalidStateTransitionError, "Request has finished its lifecycle. No more action can be added to its current stage." unless current_stage
 
                      current_stage.id
                    else
@@ -41,11 +41,10 @@ module Api
       end
 
       def rbac_scope(relation)
-        access_obj = rbac_read_access(relation)
-        return relation if access_obj.admin?
+        return relation if admin?
 
         # Only approver can reach here
-        action_ids = access_obj.approver_id_list
+        action_ids = approver_id_list(relation.model.table_name)
         Rails.logger.info("approver scope for actions: #{action_ids}")
 
         relation.where(:id => action_ids)

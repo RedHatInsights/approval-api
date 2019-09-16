@@ -1,26 +1,24 @@
 RSpec.describe Api::V1x0::TemplatesController, :type => :request do
+  include_context "rbac_objects"
   # initialize test data
   let!(:templates) { create_list(:template, 10) }
   let(:template_id) { templates.first.id }
+  let(:roles_obj) { double }
 
   let(:api_version) { version }
+
+  before do
+    allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
+    allow(RBAC::Roles).to receive(:new).and_return(roles_obj)
+  end
 
   # Test suite for GET /templates
   describe 'GET /templates' do
     # make HTTP get request before each example
-    before do
-      allow(RBAC::Access).to receive(:new).with('templates', 'read').and_return(access_obj)
-      allow(access_obj).to receive(:process).and_return(access_obj)
-    end
-
     context 'when admin role' do
-      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
-
       before do
-        allow(access_obj).to receive(:not_owned?).and_return(false)
-        allow(access_obj).to receive(:not_approvable?).and_return(false)
-        allow(access_obj).to receive(:approver_id_list).and_return([])
-        allow(access_obj).to receive(:owner_id_list).and_return([])
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(roles_obj).to receive(:roles).and_return([admin_role])
 
         get "#{api_version}/templates", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
       end
@@ -29,29 +27,46 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
         # Note `json` is a custom helper to parse JSON responses
         expect(json['links']).not_to be_empty
         expect(json['links']['first']).to match(/limit=5&offset=0/)
-        expect(json['links']['last']).to match(/limit=5&offset=5/)
         expect(json['data'].size).to eq(5)
         expect(response).to have_http_status(200)
+      end
+    end
+
+    context 'when approver role' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      before do
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(roles_obj).to receive(:roles).and_return([approver_role])
+        get "#{api_version}/templates", :headers => default_headers
+      end
+
+      it 'returns templates' do
+        expect(response).to have_http_status(403)
+      end
+    end
+
+    context 'when regular user role' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      before do
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(roles_obj).to receive(:roles).and_return([])
+        get "#{api_version}/templates", :headers => default_headers
+      end
+
+      it 'returns templates' do
+        expect(response).to have_http_status(403)
       end
     end
   end
 
   # Test suite for GET /templates/:id
   describe 'GET /templates/:id' do
-    before do
-      allow(RBAC::Access).to receive(:new).with('templates', 'read').and_return(access_obj)
-      allow(access_obj).to receive(:process).and_return(access_obj)
-    end
-
     context 'admin role when the record exists' do
-      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
-
       before do
-        allow(access_obj).to receive(:not_owned?).and_return(false)
-        allow(access_obj).to receive(:not_approvable?).and_return(false)
-        allow(access_obj).to receive(:approver_id_list).and_return([])
-        allow(access_obj).to receive(:owner_id_list).and_return([])
-
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(roles_obj).to receive(:roles).and_return([admin_role])
         get "#{api_version}/templates/#{template_id}", :headers => default_headers
       end
 
@@ -70,14 +85,10 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
 
     context 'when the record does not exist' do
       let!(:template_id) { 0 }
-      let(:access_obj) { instance_double(RBAC::Access, :accessible? => true, :admin? => true, :approver? => false, :owner? => false) }
 
       before do
-        allow(access_obj).to receive(:not_owned?).and_return(false)
-        allow(access_obj).to receive(:not_approvable?).and_return(false)
-        allow(access_obj).to receive(:approver_id_list).and_return([])
-        allow(access_obj).to receive(:owner_id_list).and_return([])
-
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(roles_obj).to receive(:roles).and_return([admin_role])
         get "#{api_version}/templates/#{template_id}", :headers => default_headers
       end
 
@@ -91,9 +102,14 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
     end
 
     context 'approver role' do
-      let(:access_obj) { instance_double(RBAC::Access, :accessible? => false, :admin? => false, :approver? => true, :owner? => false) }
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      before do
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(roles_obj).to receive(:roles).and_return([approver_role])
 
-      before { get "#{api_version}/templates/#{template_id}", :headers => default_headers }
+        get "#{api_version}/templates/#{template_id}", :headers => default_headers
+      end
 
       it 'returns status code 403' do
         expect(response).to have_http_status(403)
@@ -101,9 +117,14 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
     end
 
     context 'owner role' do
-      let(:access_obj) { instance_double(RBAC::Access, :accessible? => false, :admin? => false, :approver? => false, :owner? => true) }
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      before do
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(roles_obj).to receive(:roles).and_return([])
 
-      before { get "#{api_version}/templates/#{template_id}", :headers => default_headers }
+        get "#{api_version}/templates/#{template_id}", :headers => default_headers
+      end
 
       it 'returns status code 403' do
         expect(response).to have_http_status(403)

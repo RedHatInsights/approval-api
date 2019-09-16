@@ -6,7 +6,7 @@ RSpec.describe AccessProcessService do
   let(:role1) { instance_double(RBACApiClient::RoleOut, :name => "approval-group-#{group1.uuid}", :uuid => "67899") }
   let(:access1) { instance_double(RBACApiClient::Access, :permission => "approval:actions:read", :resource_definitions => []) }
   let(:role1_detail) { instance_double(RBACApiClient::RoleWithAccess, :name => role1.name, :uuid => role1.uuid, :access => [access1]) }
-  let(:pagination_options) { { :limit => 100, :name => "approval-group-" } }
+  let(:pagination_options) { { :name => "approval-group-", :scope => 'principal', :limit => 500 } }
 
   before do
     allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
@@ -15,7 +15,7 @@ RSpec.describe AccessProcessService do
   end
 
   it "#find_role" do
-    allow(RBAC::Service).to receive(:paginate).with(api_instance, :list_roles, pagination_options).and_return([role1])
+    allow(rs_class).to receive(:paginate).and_return([role1])
     allow(api_instance).to receive(:get_role).with(role1.uuid).and_return(role1_detail)
 
     role = subject.send(:find_role, "approval-group-#{group1.uuid}")
