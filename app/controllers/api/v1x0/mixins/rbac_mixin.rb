@@ -32,6 +32,8 @@ module Api
 
         # Klass here is allowed for Request, Stage and Action.
         def resource_check(verb, id = params[:id], klass = controller_name.classify.constantize)
+          return unless RBAC::Access.enabled?
+
           permission_check(verb, klass)
 
           raise Exceptions::NotAuthorizedError, "#{verb.titleize} access not authorized for #{klass} with id: #{id}" unless resource_instance_accessible?(klass.table_name, id)
