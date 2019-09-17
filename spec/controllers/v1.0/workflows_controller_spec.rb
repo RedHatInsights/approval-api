@@ -226,6 +226,16 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         expect(response).to have_http_status(403)
       end
     end
+
+    context 'when env BYPASS_RBAC is enabled' do
+      it 'returns status code 200' do
+        with_modified_env :BYPASS_RBAC => 'y' do
+          get "#{api_version}/workflows/#{id}", :headers => default_headers
+
+          expect(response).to have_http_status(200)
+        end
+      end
+    end
   end
 
   # Test suite for POST /templates/:template_id/workflows
