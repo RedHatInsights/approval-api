@@ -45,13 +45,13 @@ module Api
         # for admin endpoints
         return relation unless ids
 
-        Rails.logger.info("Accessible request ids: #{ids}")
+        Rails.logger.info("Accessible #{relation.model.table_name} ids: #{ids}")
 
         relation.where(:id => ids)
       end
 
       def right_path?
-        (approver? && approver_endpoint?) || (admin? && admin_endpoint?) || (requester_endpoint? && !admin? && !approver?)
+        (approver? && approver_endpoint?) || (admin? && admin_endpoint?) || requester_endpoint?
       end
 
       def admin_endpoint?

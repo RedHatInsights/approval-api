@@ -242,7 +242,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         allow(roles_obj).to receive(:roles).and_return([admin_role])
         get "#{api_version}/requester/requests", :headers => default_headers
 
-        expect(response).to have_http_status(403)
+        expect(response).to have_http_status(200)
       end
     end
 
@@ -255,7 +255,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         allow(roles_obj).to receive(:roles).and_return([approver_role])
         get "#{api_version}/requester/requests", :headers => default_headers
 
-        expect(response).to have_http_status(403)
+        expect(response).to have_http_status(200)
       end
     end
 
