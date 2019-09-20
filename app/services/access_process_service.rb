@@ -1,14 +1,16 @@
 class AccessProcessService
   include RBAC::Permissions
 
+  # Need to call as org admin
   def initialize(opts = {})
     @app_name = ENV["APP_NAME"] || 'approval'
     @prefix = opts[:role_prefix] || "#{@app_name}-group-"
     @acls = RBAC::ACLS.new
-    @roles = RBAC::Roles.new
+    @roles = RBAC::Roles.new(@prefix, 'account')
     @policies = RBAC::Policies.new(@prefix)
   end
 
+  # Need to call as org admin
   def add_resource_to_groups(resource_id, group_refs, permissions = [WORKFLOW_APPROVE_PERMISSION])
     group_refs.each do |uuid|
       name = "#{@prefix}#{uuid}"
@@ -16,6 +18,7 @@ class AccessProcessService
     end
   end
 
+  # Need to call as org admin
   def remove_resource_from_groups(resource_id, group_refs, permissions = [WORKFLOW_APPROVE_PERMISSION])
     group_refs.each do |uuid|
       name = "#{@prefix}#{uuid}"
