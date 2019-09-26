@@ -596,7 +596,7 @@
                 "tags": [
                   "Action"
                 ],
-                "summary": "Add an action to current active stage of a given request, available for admin/approver",
+                "summary": "Add an action to current active stage of a given request, available for admin/approver/requester",
                 "description": "Add an action to current active stage of a given request. If request is finished, i.e. no current active stage is available, no action can be posted here.",
                 "operationId": "createActionByRequest",
                 "parameters": [
@@ -691,7 +691,7 @@
                 "tags": [
                   "Stage"
                 ],
-                "summary": "Return an approval stage by given id, available for admin/requester",
+                "summary": "Return an approval stage by given id, available for admin/approver/requester",
                 "description": "Return an approval stage by given id",
                 "operationId": "showStage",
                 "parameters": [
