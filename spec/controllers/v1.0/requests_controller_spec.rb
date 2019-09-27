@@ -4,6 +4,10 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:encoded_user) { encoded_user_hash }
   let(:tenant) { create(:tenant) }
 
+  let(:headers_with_admin)     { default_headers.merge(described_class::PERSONA_HEADER => described_class::PERSONA_ADMIN) }
+  let(:headers_with_approver)  { default_headers.merge(described_class::PERSONA_HEADER => described_class::PERSONA_APPROVER) }
+  let(:headers_with_requester) { default_headers.merge(described_class::PERSONA_HEADER => described_class::PERSONA_REQUESTER) }
+
   let!(:workflow) { create(:workflow, :name => 'Test always approve') }
   let(:workflow_id) { workflow.id }
   let!(:requests) do
@@ -39,7 +43,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => default_headers
+        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => headers_with_admin
       end
 
       it 'returns status code 200' do
@@ -62,7 +66,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       end
 
       it 'returns status code 403' do
-        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => default_headers
+        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => headers_with_admin
         expect(response).to have_http_status(403)
       end
     end
@@ -74,7 +78,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         allow(access_obj).to receive(:process).and_return(access_obj)
         allow(roles_obj).to receive(:roles).and_return([])
 
-        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => default_headers
+        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => headers_with_admin
       end
 
       it 'returns status code 403' do
@@ -83,14 +87,14 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
   end
 
-  # Test suite for GET /requests
-  describe 'GET /requests' do
+  # Test suite for GET /requests for admin persona
+  describe 'GET /requests (for admin persona)' do
     context 'as admin role' do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
 
-        get "#{api_version}/requests", :headers => default_headers
+        get "#{api_version}/requests", :headers => headers_with_admin
       end
 
       it 'returns requests' do
@@ -132,7 +136,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
         allow(roles_obj).to receive(:roles).and_return([approver_role])
-        get "#{api_version}/requests", :headers => default_headers
+        get "#{api_version}/requests", :headers => headers_with_admin
       end
 
       it 'returns status code 403' do
@@ -140,13 +144,13 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       end
     end
 
-    context 'as owner role' do
+    context 'as regular user role' do
       let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
         allow(roles_obj).to receive(:roles).and_return([])
-        get "#{api_version}/requests", :headers => default_headers
+        get "#{api_version}/requests", :headers => headers_with_admin
       end
 
       it 'returns status code 403' do
@@ -155,67 +159,72 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
   end
 
-  # Test suite for GET /admin/requests
-  describe 'GET /admin/requests' do
+  # Test suite for GET /requests for approval persona
+  describe 'GET /requests (for approval persona)' do
     context 'as admin role' do
-      it 'admin role returns requests' do
+      it 'returns status code 403' do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/admin/requests", :headers => default_headers
+        get "#{api_version}/requests", :headers => headers_with_approver
 
-        expect(json['links']).not_to be_empty
-        expect(response).to have_http_status(200)
+        expect(response).to have_http_status(403)
       end
     end
 
     context 'as approver role' do
       let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
 
-      it 'approver role returns status code 403' do
+      it 'returns status code 200' do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
         allow(roles_obj).to receive(:roles).and_return([approver_role])
-        get "#{api_version}/admin/requests", :headers => default_headers
+        get "#{api_version}/requests", :headers => headers_with_approver
 
-        expect(response).to have_http_status(403)
+        expect(response).to have_http_status(200)
       end
     end
 
     context 'as regular user' do
       let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
 
-      it 'regular user role returns status code 403' do
+      it 'returns status code 403' do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
         allow(roles_obj).to receive(:roles).and_return([])
-        get "#{api_version}/admin/requests", :headers => default_headers
+        get "#{api_version}/requests", :headers => headers_with_approver
 
         expect(response).to have_http_status(403)
       end
     end
   end
 
-  # Test suite for GET /approver/requests
-  describe 'GET /approver/requests' do
+  # Test suite for GET /requests for regular users
+  describe 'GET /requests (for requesters)' do
     context 'as admin role' do
-      it 'admin role returns requests' do
+      it 'returns requests' do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/approver/requests", :headers => default_headers
 
-        expect(response).to have_http_status(403)
+        get "#{api_version}/requests", :headers => headers_with_requester
+        expect(response).to have_http_status(200)
+
+        get "#{api_version}/requests", :headers => default_headers
+        expect(response).to have_http_status(200)
       end
     end
 
     context 'as approver role' do
       let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
 
-      it 'approver role returns status code 403' do
+      it 'returns status code 200' do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
         allow(roles_obj).to receive(:roles).and_return([approver_role])
-        get "#{api_version}/approver/requests", :headers => default_headers
 
+        get "#{api_version}/requests", :headers => headers_with_requester
+        expect(response).to have_http_status(200)
+
+        get "#{api_version}/requests", :headers => default_headers
         expect(response).to have_http_status(200)
       end
     end
@@ -223,53 +232,24 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     context 'as regular user' do
       let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
 
-      it 'regular user role returns status code 403' do
+      it 'returns status code 200' do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
         allow(roles_obj).to receive(:roles).and_return([])
-        get "#{api_version}/approver/requests", :headers => default_headers
 
-        expect(response).to have_http_status(403)
+        get "#{api_version}/requests", :headers => headers_with_requester
+        expect(response).to have_http_status(200)
+
+        get "#{api_version}/requests", :headers => default_headers
+        expect(response).to have_http_status(200)
       end
     end
   end
 
-  # Test suite for GET /requester/requests
-  describe 'GET /requester/requests' do
-    context 'as admin role' do
-      it 'admin role returns requests' do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/requester/requests", :headers => default_headers
-
-        expect(response).to have_http_status(200)
-      end
-    end
-
-    context 'as approver role' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
-
-      it 'approver role returns status code 403' do
-        allow(rs_class).to receive(:paginate).and_return(approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role])
-        get "#{api_version}/requester/requests", :headers => default_headers
-
-        expect(response).to have_http_status(200)
-      end
-    end
-
-    context 'as regular user' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
-
-      it 'regular user role returns status code 403' do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([])
-        get "#{api_version}/requester/requests", :headers => default_headers
-
-        expect(response).to have_http_status(200)
-      end
+  describe 'GET /requests for unknown persona' do
+    it 'returns status code 403' do
+        get "#{api_version}/requests", :headers => default_headers.merge(described_class::PERSONA_HEADER => 'approval/unknown')
+        expect(response).to have_http_status(403)
     end
   end
 
@@ -278,32 +258,24 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     it 'admin role returns requests' do
       allow(rs_class).to receive(:paginate).and_return([])
       allow(roles_obj).to receive(:roles).and_return([admin_role])
-      get "#{api_version}/requests?filter[state]=notified", :headers => default_headers
+      get "#{api_version}/requests?filter[state]=notified", :headers => headers_with_admin
 
       expect(json['links']).not_to be_empty
       expect(json['links']['first']).to match(/offset=0/)
       expect(json['data'].size).to eq(2)
-    end
-
-    it 'admin role returns status code 200' do
-      allow(rs_class).to receive(:paginate).and_return([])
-      allow(roles_obj).to receive(:roles).and_return([admin_role])
-      get "#{api_version}/requests?filter[state]=notified", :headers => default_headers
-
-      expect(json['links']).not_to be_empty
       expect(response).to have_http_status(200)
     end
 
     context 'as approver role' do
       let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
 
-      it 'approver role returns status code 403' do
+      it 'approver role returns status code 200' do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
         allow(roles_obj).to receive(:roles).and_return([approver_role])
-        get "#{api_version}/requests?filter[state]=notified", :headers => default_headers
+        get "#{api_version}/requests?filter[state]=notified", :headers => headers_with_approver
 
-        expect(response).to have_http_status(403)
+        expect(response).to have_http_status(200)
       end
     end
   end
@@ -314,30 +286,23 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       it 'admin role returns requests' do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/requests?filter[decision]=approved", :headers => default_headers
+        get "#{api_version}/requests?filter[decision]=approved", :headers => headers_with_admin
 
         expect(json['links']).not_to be_empty
         expect(json['links']['first']).to match(/offset=0/)
         expect(json['data'].size).to eq(2)
-      end
-
-      it 'admin role returns status code 200' do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/requests?filter[decision]=approved", :headers => default_headers
-
         expect(response).to have_http_status(200)
       end
 
       context 'as approver' do
         let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
-        it 'approver role returns status code 403' do
+        it 'approver role returns status code 200' do
           allow(rs_class).to receive(:paginate).and_return(approver_acls)
           allow(access_obj).to receive(:process).and_return(access_obj)
           allow(roles_obj).to receive(:roles).and_return([approver_role])
-          get "#{api_version}/requests?filter[decision]=approved", :headers => default_headers
+          get "#{api_version}/requests?filter[decision]=approved", :headers => headers_with_approver
 
-          expect(response).to have_http_status(403)
+          expect(response).to have_http_status(200)
         end
       end
     end
