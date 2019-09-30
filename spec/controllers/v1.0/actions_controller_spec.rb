@@ -119,44 +119,80 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     end
   end
 
+  shared_examples_for "validate_operation" do
+    it "should validate operation" do
+      allow(rs_class).to receive(:paginate).and_return(acls)
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      allow(roles_obj).to receive(:roles).and_return(roles)
+      post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => default_headers, :as => :json
+
+      expect(response).to have_http_status(code)
+    end
+  end
+
   describe 'POST /stages/:stage_id/actions' do
-    let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
     before do
       allow(Group).to receive(:find)
     end
 
     context 'admin role when request attributes are valid' do
-      it 'returns status code 201' do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => default_headers, :as => :json
+      let(:acls) { [] }
+      let(:access_obj) { instance_double(RBAC::Access, :acl => acls) }
+      let(:roles) { [admin_role] }
+      let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
+      let(:code) { 201 }
 
-        expect(response).to have_http_status(201)
-      end
+      it_behaves_like "validate_operation"
     end
 
-    context 'approver role when request attributes are valid' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
-      it 'returns status code 201' do
-        allow(rs_class).to receive(:paginate).and_return(approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role])
-        post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => default_headers, :as => :json
+    context 'approver role far valid operation' do
+      let(:acls) { approver_acls }
+      let(:access_obj) { instance_double(RBAC::Access, :acl => acls) }
+      let(:roles) { [approver_role] }
+      let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
+      let(:code) { 201 }
 
-        expect(response).to have_http_status(201)
-      end
+      it_behaves_like "validate_operation"
     end
 
-    context 'owner role when request attributes are valid' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
-      it 'returns status code 201' do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([])
-        post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => default_headers, :as => :json
+    context 'approver role far invalid operation cancel' do
+      let(:acls) { approver_acls }
+      let(:access_obj) { instance_double(RBAC::Access, :acl => acls) }
+      let(:roles) { [approver_role] }
+      let(:valid_attributes) { { :operation => 'cancel', :processed_by => 'abcd' } }
+      let(:code) { 403 }
 
-        expect(response).to have_http_status(201)
-      end
+      it_behaves_like "validate_operation"
+    end
+
+    context 'owner role for valid operation cancel' do
+      let(:acls) { [] }
+      let(:access_obj) { instance_double(RBAC::Access, :acl => acls) }
+      let(:roles) { [] }
+      let(:valid_attributes) { { :operation => 'cancel', :processed_by => 'abcd' } }
+      let(:code) { 201 }
+
+      it_behaves_like "validate_operation"
+    end
+
+    context 'owner role for invalid operation notify' do
+      let(:acls) { [] }
+      let(:access_obj) { instance_double(RBAC::Access, :acl => acls) }
+      let(:roles) { [] }
+      let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
+      let(:code) { 403 }
+
+      it_behaves_like "validate_operation"
+    end
+
+    context 'owner role for invalid operation approve' do
+      let(:acls) { [] }
+      let(:access_obj) { instance_double(RBAC::Access, :acl => acls) }
+      let(:roles) { [] }
+      let(:valid_attributes) { { :operation => 'approve', :processed_by => 'abcd' } }
+      let(:code) { 403 }
+
+      it_behaves_like "validate_operation"
     end
   end
 
@@ -188,10 +224,10 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       let!(:stage2) { create(:stage, :state => Stage::FINISHED_STATE, :request => req, :tenant_id => tenant.id) }
       let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
 
-      it 'returns status code 422' do
+      it 'returns status code 403' do
         post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => default_headers, :as => :json
 
-        expect(response).to have_http_status(422)
+        expect(response).to have_http_status(403)
       end
     end
   end
