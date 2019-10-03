@@ -458,7 +458,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   describe 'Entitlement enforcement' do
     let(:false_hash) do
       false_hash = default_user_hash
-      false_hash["entitlements"]["hybrid_cloud"]["is_entitled"] = false
+      false_hash["entitlements"]["ansible"]["is_entitled"] = false
       false_hash
     end
     let(:missing_hash) do
@@ -472,7 +472,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       allow(roles_obj).to receive(:roles).and_return([admin_role])
     end
 
-    it "fails if the hybrid_cloud entitlement is false" do
+    it "fails if the ansible entitlement is false" do
       headers = { 'x-rh-identity' => encoded_user_hash(false_hash), 'x-rh-insights-request-id' => 'gobbledygook' }
       get "#{api_version}/workflows", :headers => headers
 
