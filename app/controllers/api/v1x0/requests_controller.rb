@@ -29,7 +29,7 @@ module Api
                  Request.includes(:stages)
                end
 
-        RBAC::Access.enabled? ? collection(rbac_scope(reqs)) : collection(reqs)
+        collection(rbac_scope(reqs))
       end
 
       private
@@ -39,6 +39,8 @@ module Api
       end
 
       def rbac_scope(relation)
+        index_access_check
+
         ids =
           case ManageIQ::API::Common::Request.current.headers[PERSONA_HEADER]
           when PERSONA_ADMIN

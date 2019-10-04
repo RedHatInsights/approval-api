@@ -14,12 +14,14 @@ module Api
       def index
         req = Request.find(params.require(:request_id))
 
-        RBAC::Access.enabled? ? collection(rbac_scope(req.stages)) : collection(req.stages)
+        collection(rbac_scope(req.stages))
       end
 
       private
 
       def rbac_scope(relation)
+        index_access_check
+
         return relation if admin?
 
         # Only owner can reach here
