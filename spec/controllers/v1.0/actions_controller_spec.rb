@@ -70,10 +70,11 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
 
     context 'approver role can approve' do
       let(:access_obj) { instance_double(RBAC::Access, :acl => full_approver_acls) }
+      let(:approver_group_role) { "approval-group-#{group_ref}" }
       before do
         allow(rs_class).to receive(:paginate).and_return(full_approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role])
+        allow(roles_obj).to receive(:roles).and_return([approver_role, approver_group_role])
 
         with_modified_env :APP_NAME => app_name do
           get "#{api_version}/actions/#{id}", :headers => default_headers
@@ -110,6 +111,85 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
         allow(roles_obj).to receive(:roles).and_return([])
         with_modified_env :APP_NAME => app_name do
           get "#{api_version}/actions/#{id}", :headers => default_headers
+        end
+      end
+
+      it 'returns status code 403' do
+        expect(response).to have_http_status(403)
+      end
+    end
+  end
+
+  describe "GET /stages/:stage_id/actions" do
+    context 'admin role when request attributes are valid' do
+      before do
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(roles_obj).to receive(:roles).and_return([admin_role])
+        with_modified_env :APP_NAME => app_name do
+          get "#{api_version}/stages/#{stage_id}/actions", :headers => default_headers
+        end
+      end
+
+      it 'returns the actions' do
+        expect(json['links']).not_to be_nil
+        expect(json['links']['first']).to match(/offset=0/)
+        expect(json['data'].size).to eq(10)
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
+    end
+
+    context 'approver role can get actions' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => full_approver_acls) }
+      let(:approver_group_role) { "approval-group-#{group_ref}" }
+      before do
+        allow(rs_class).to receive(:paginate).and_return(full_approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(roles_obj).to receive(:roles).and_return([approver_role, approver_group_role])
+        with_modified_env :APP_NAME => app_name do
+          get "#{api_version}/stages/#{stage_id}/actions", :headers => default_headers
+        end
+      end
+
+      it 'returns the actions' do
+        expect(json['links']).not_to be_nil
+        expect(json['links']['first']).to match(/offset=0/)
+        expect(json['data'].size).to eq(10)
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
+    end
+
+    context 'approver role can not get actions' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:approver_group_role) { "approval-group-#{group_ref}" }
+      before do
+        allow(rs_class).to receive(:paginate).and_return(approver_acls)
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(roles_obj).to receive(:roles).and_return([approver_role, approver_group_role])
+        with_modified_env :APP_NAME => app_name do
+          get "#{api_version}/stages/#{stage_id}/actions", :headers => default_headers
+        end
+      end
+
+      it 'returns status code 403' do
+        expect(response).to have_http_status(403)
+      end
+    end
+
+    context 'owner role can not get actions' do
+      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:approver_group_role) { "approval-group-#{group_ref}" }
+      before do
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(access_obj).to receive(:process).and_return(access_obj)
+        allow(roles_obj).to receive(:roles).and_return([])
+        with_modified_env :APP_NAME => app_name do
+          get "#{api_version}/stages/#{stage_id}/actions", :headers => default_headers
         end
       end
 

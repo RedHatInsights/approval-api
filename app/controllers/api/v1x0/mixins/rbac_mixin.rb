@@ -7,6 +7,8 @@ module Api
         ADMIN_ROLE = 'Approval Administrator'.freeze
         APPROVER_ROLE = 'Approval Approver'.freeze
 
+        APPROVER_ROLE_PREFIX = 'approval-group-'.freeze
+
         # create action only needs class level permission check
         def create_access_check
           permission_check('create')
@@ -79,12 +81,35 @@ module Api
 
         # resource ids approver can approve
         def approver_id_list(resource)
-          id_list(resource, approver_request_ids)
+          stage_ids = approver_stage_ids
+          raise Exceptions::NotAuthorizedError, "Not Authorized for #{@resource}" if stage_ids.empty?
+
+          Rails.logger.info("Final accessible stage ids: #{stage_ids}")
+
+          case resource
+          when "requests"
+            stage_ids.map { |stage_id| Stage.find(stage_id).request_id }
+          when "stages"
+            stage_ids
+          when "actions"
+            Action.where(:stage_id => stage_ids).pluck(:id).sort
+          else
+            raise Exceptions::NotAuthorizedError, "Not Authorized for #{@resource}"
+          end
         end
 
         # resource ids owner owns
         def owner_id_list(resource)
-          id_list(resource, owner_request_ids)
+          case resource
+          when "requests"
+            owner_request_ids
+          when "stages"
+            owner_stage_ids(owner_request_ids)
+          when "actions"
+            Action.where(:stage_id => owner_stage_ids(owner_request_ids)).pluck(:id).sort
+          else
+            raise Exceptions::NotAuthorizedError, "Not Authorized for #{@resource}"
+          end
         end
 
         # Owner access list for the #{resource} and action #{verb}
@@ -105,28 +130,42 @@ module Api
           Request.where(:workflow_id => workflow_ids).pluck(:id).sort
         end
 
-        # Id list for resource #{resource}
-        def id_list(resource, request_ids)
-          case resource
-          when "requests"
-            request_ids
-          when "stages"
-            stage_ids(request_ids)
-          when "actions"
-            action_ids(request_ids)
-          else
-            raise Exceptions::NotAuthorizedError, "Not Authorized for #{@resource}"
+        # lookup table between stage ids and group refs
+        def stages_groups
+          request_ids = approver_request_ids
+          Rails.logger.info("Approvable request ids: #{request_ids}")
+
+          Stage.where(:request_id => request_ids).each_with_object({}) do |stage, ids|
+            ids[stage.id] = stage.group_ref
           end
         end
 
-        # Stage ids associated with request ids #{request_ids}
-        def stage_ids(request_ids)
-          Stage.where(:request_id => request_ids).pluck(:id).sort
+        def approver_stage_ids
+          group_ids = assigned_group_ids
+          Rails.logger.info("Groups from assigned roles: #{group_ids}")
+
+          # stage ids after filtering with user groups
+          stage_ids = stages_groups.select { |_stage_id, group_id| group_ids.include?(group_id) }.keys
+          Rails.logger.info("Approvable stage ids after filtering with assigned groups: #{stage_ids}")
+
+          # another filtering based on stage index inside request
+          stage_ids.select do |stage_id|
+            stage = Stage.find(stage_id)
+            if stage.index_of_request > stage.request.active_stage_number
+              Rails.logger.info("Stage #{stage.id} is filtered out because it is still in next stages.")
+            end
+
+            stage.index_of_request <= stage.request.active_stage_number
+          end
         end
 
-        # Action ids associated with request ids #{request_ids}
-        def action_ids(request_ids)
-          Action.where(:stage_id => stage_ids(request_ids)).pluck(:id).sort
+        def assigned_group_ids
+          assigned_roles.map { |name, _id| name.split(APPROVER_ROLE_PREFIX)[1] }.compact
+        end
+
+        # Stage ids associated with request ids #{request_ids}
+        def owner_stage_ids(request_ids)
+          Stage.where(:request_id => request_ids).pluck(:id).sort
         end
 
         # The accessible workflow ids for approver
@@ -134,7 +173,7 @@ module Api
           approval_access = RBAC::Access.new('workflows', 'approve').process
           approval_access.send(:generate_ids)
 
-          Rails.logger.info("Accessible workflows: #{approval_access.id_list}")
+          Rails.logger.info("Approvable workflows: #{approval_access.id_list}")
 
           approval_access.id_list
         end

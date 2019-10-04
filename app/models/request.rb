@@ -30,12 +30,6 @@ class Request < ApplicationRecord
     stages.find_by(:state => [Stage::NOTIFIED_STATE, Stage::PENDING_STATE])
   end
 
-  private
-
-  def total_stages
-    stages.size
-  end
-
   def active_stage_number
     return 0 if total_stages.zero?
 
@@ -47,6 +41,12 @@ class Request < ApplicationRecord
     else
       active_stage + 1
     end
+  end
+
+  private
+
+  def total_stages
+    stages.size
   end
 
   def set_context
