@@ -250,12 +250,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
 
     it 'returns status code 403' do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([])
+      allow(rs_class).to receive(:paginate).and_return([])
+      allow(access_obj).to receive(:process).and_return(access_obj)
+      allow(roles_obj).to receive(:roles).and_return([])
 
-        get "#{api_version}/requests", :headers => default_headers.merge(described_class::PERSONA_HEADER => 'approval/unknown')
-        expect(response).to have_http_status(403)
+      get "#{api_version}/requests", :headers => default_headers.merge(described_class::PERSONA_HEADER => 'approval/unknown')
+      expect(response).to have_http_status(403)
     end
   end
 

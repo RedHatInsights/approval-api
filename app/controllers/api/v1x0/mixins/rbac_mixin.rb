@@ -19,6 +19,7 @@ module Api
 
         def index_scope(relation)
           return relation unless RBAC::Access.enabled?
+
           permission_check('read')
           rbac_scope(relation)
         end
