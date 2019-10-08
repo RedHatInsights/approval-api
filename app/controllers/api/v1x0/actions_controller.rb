@@ -10,7 +10,7 @@ module Api
       def index
         stage = Stage.find(params.require(:stage_id))
 
-        collection(rbac_scope(stage.actions))
+        collection(index_scope(stage.actions))
       end
 
       def show
@@ -51,8 +51,6 @@ module Api
       end
 
       def rbac_scope(relation)
-        index_access_check
-
         return relation if admin?
 
         # Only approver can reach here

@@ -17,8 +17,10 @@ module Api
           permission_check('destroy')
         end
 
-        def index_access_check
+        def index_scope(relation)
+          return relation unless RBAC::Access.enabled?
           permission_check('read')
+          rbac_scope(relation)
         end
 
         def update_access_check

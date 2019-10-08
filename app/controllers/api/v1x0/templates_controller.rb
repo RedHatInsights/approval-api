@@ -14,11 +14,10 @@ module Api
       def index
         templates = Template.all
 
-        collection(rbac_scope(templates))
+        collection(index_scope(templates))
       end
 
       def rbac_scope(relation)
-        index_access_check
         relation
       end
     end
