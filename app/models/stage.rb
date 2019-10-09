@@ -23,11 +23,6 @@ class Stage < ApplicationRecord
     super.merge('name' => name, 'notified_at' => notified_at)
   end
 
-  # starts from 1
-  def index_of_request
-    request.stages.find_index { |stage| stage.id == id } + 1
-  end
-
   def group
     @group ||= Group.find(group_ref)
   end

@@ -24,10 +24,10 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:group2) { double(:name => 'group2', :uuid => "456") }
   let!(:workflow_2) { create(:workflow, :name => 'workflow_2', :group_refs => [group1.uuid, group2.uuid]) }
   let!(:user_requests) { create_list(:request, 2, :decision => 'denied', :workflow_id => workflow_2.id, :tenant_id => tenant.id) }
-  let!(:stages1) { create(:stage, :group_ref => group1.uuid, :request_id => user_requests.first.id, :tenant_id => tenant.id) }
-  let!(:stages2) { create(:stage, :group_ref => group2.uuid, :request_id => user_requests.first.id, :tenant_id => tenant.id) }
-  let!(:stages3) { create(:stage, :group_ref => group1.uuid, :request_id => user_requests.last.id, :tenant_id => tenant.id) }
-  let!(:stages4) { create(:stage, :group_ref => group2.uuid, :request_id => user_requests.last.id, :tenant_id => tenant.id) }
+  let!(:stages1) { create(:stage, :group_ref => group1.uuid, :state => 'notified', :request_id => user_requests.first.id, :tenant_id => tenant.id) }
+  let!(:stages2) { create(:stage, :group_ref => group2.uuid, :state => 'pending', :request_id => user_requests.first.id, :tenant_id => tenant.id) }
+  let!(:stages3) { create(:stage, :group_ref => group1.uuid, :state => 'notified', :request_id => user_requests.last.id, :tenant_id => tenant.id) }
+  let!(:stages4) { create(:stage, :group_ref => group2.uuid, :state => 'pending', :request_id => user_requests.last.id, :tenant_id => tenant.id) }
 
   let(:filter) { instance_double(RBACApiClient::ResourceDefinitionFilter, :key => 'id', :operation => 'equal', :value => workflow_2.id) }
   let(:resource_def) { instance_double(RBACApiClient::ResourceDefinition, :attribute_filter => filter) }
@@ -301,7 +301,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     let!(:workflow_b) { create(:workflow, :name => 'workflow_b', :group_refs => [group_b.uuid, group_d.uuid, group_e.uuid]) }
     let!(:approver_request1) { create(:request, :workflow_id => workflow_a.id, :tenant_id => tenant.id) }
     let!(:approver_request2) { create(:request, :workflow_id => workflow_b.id, :tenant_id => tenant.id) }
-    let!(:stage_a) { create(:stage, :group_ref => group_a.uuid, :request_id => approver_request1.id, :tenant_id => tenant.id) }
+    let!(:stage_a) { create(:stage, :group_ref => group_a.uuid, :state => 'notified', :request_id => approver_request1.id, :tenant_id => tenant.id) }
     let!(:stage_b) { create(:stage, :group_ref => group_b.uuid, :request_id => approver_request1.id, :tenant_id => tenant.id) }
     let!(:stage_c) { create(:stage, :group_ref => group_c.uuid, :request_id => approver_request1.id, :tenant_id => tenant.id) }
     let!(:stage_d) { create(:stage, :state => 'finished', :group_ref => group_b.uuid, :request_id => approver_request2.id, :tenant_id => tenant.id) }
@@ -310,26 +310,6 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     let!(:role_a) { "approval-group-#{group_a.uuid}" }
     let!(:role_b) { "approval-group-#{group_b.uuid}" }
     let!(:role_d) { "approval-group-#{group_d.uuid}" }
-
-    context 'when set stage index of request' do
-      it '#index_of_request' do
-        expect(stage_a.index_of_request).to eq(1)
-        expect(stage_b.index_of_request).to eq(2)
-        expect(stage_c.index_of_request).to eq(3)
-        expect(stage_d.index_of_request).to eq(1)
-        expect(stage_e.index_of_request).to eq(2)
-        expect(stage_f.index_of_request).to eq(3)
-      end
-    end
-
-    context "when link stages and groups together" do
-      it '#stages_groups' do
-        allow(ctrl).to receive(:workflow_ids).and_return([workflow_a.id, workflow_b.id])
-
-        expect(ctrl.stages_groups.keys).to eq([stage_a.id, stage_b.id, stage_c.id, stage_d.id, stage_e.id, stage_f.id])
-        expect(ctrl.stages_groups.values).to eq([group_a.uuid, group_b.uuid, group_c.uuid, group_b.uuid, group_d.uuid, group_e.uuid])
-      end
-    end
 
     context "when filter stages with groups" do
       it '#approver_stage_ids for standalone group' do

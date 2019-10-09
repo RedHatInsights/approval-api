@@ -6,7 +6,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
   let!(:workflow) { create(:workflow, :template_id => template.id) }
   let!(:request) { create(:request, :with_context, :workflow_id => workflow.id, :tenant_id => tenant.id) }
   let!(:group_ref) { "990" }
-  let!(:stage) { create(:stage, :group_ref => group_ref, :request => request, :tenant_id => tenant.id) }
+  let!(:stage) { create(:stage, :state => 'notified', :group_ref => group_ref, :request => request, :tenant_id => tenant.id) }
   let(:stage_id) { stage.id }
 
   let!(:actions) { create_list(:action, 10, :stage_id => stage.id, :tenant_id => tenant.id) }
@@ -176,8 +176,9 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
         end
       end
 
-      it 'returns status code 403' do
-        expect(response).to have_http_status(403)
+      it 'returns status code 200' do
+        expect(json['data'].size).to eq(0)
+        expect(response).to have_http_status(200)
       end
     end
 
@@ -193,8 +194,9 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
         end
       end
 
-      it 'returns status code 403' do
-        expect(response).to have_http_status(403)
+      it 'returns status code 200' do
+        expect(json['data'].size).to eq(0)
+        expect(response).to have_http_status(200)
       end
     end
   end
@@ -219,7 +221,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       let(:acls) { [] }
       let(:access_obj) { instance_double(RBAC::Access, :acl => acls) }
       let(:roles) { [admin_role] }
-      let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
+      let(:valid_attributes) { { :operation => 'cancel', :processed_by => 'abcd' } }
       let(:code) { 201 }
 
       it_behaves_like "validate_operation"
@@ -229,7 +231,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       let(:acls) { approver_acls }
       let(:access_obj) { instance_double(RBAC::Access, :acl => acls) }
       let(:roles) { [approver_role] }
-      let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
+      let(:valid_attributes) { { :operation => 'approve', :processed_by => 'abcd' } }
       let(:code) { 201 }
 
       it_behaves_like "validate_operation"

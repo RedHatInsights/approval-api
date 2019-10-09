@@ -7,8 +7,6 @@ module Api
         ADMIN_ROLE = 'Approval Administrator'.freeze
         APPROVER_ROLE = 'Approval Approver'.freeze
 
-        APPROVER_ROLE_PREFIX = 'approval-group-'.freeze
-
         # create action only needs class level permission check
         def create_access_check
           permission_check('create')
@@ -82,8 +80,6 @@ module Api
         # resource ids approver can approve
         def approver_id_list(resource)
           stage_ids = approver_stage_ids
-          raise Exceptions::NotAuthorizedError, "Not Authorized for #{@resource}" if stage_ids.empty?
-
           Rails.logger.info("Final accessible stage ids: #{stage_ids}")
 
           case resource
@@ -94,7 +90,7 @@ module Api
           when "actions"
             Action.where(:stage_id => stage_ids).pluck(:id).sort
           else
-            raise Exceptions::NotAuthorizedError, "Not Authorized for #{@resource}"
+            raise ArgumentError, "Unknown resource type: #{resource}"
           end
         end
 
@@ -108,7 +104,7 @@ module Api
           when "actions"
             Action.where(:stage_id => owner_stage_ids(owner_request_ids)).pluck(:id).sort
           else
-            raise Exceptions::NotAuthorizedError, "Not Authorized for #{@resource}"
+            raise ArgumentError, "Unknown resource type: #{resource}"
           end
         end
 
@@ -130,37 +126,19 @@ module Api
           Request.where(:workflow_id => workflow_ids).pluck(:id).sort
         end
 
-        # lookup table between stage ids and group refs
-        def stages_groups
+        def approver_stage_ids
           request_ids = approver_request_ids
           Rails.logger.info("Approvable request ids: #{request_ids}")
 
-          Stage.where(:request_id => request_ids).each_with_object({}) do |stage, ids|
-            ids[stage.id] = stage.group_ref
-          end
+          group_refs = assigned_group_refs
+          Rails.logger.info("Groups from assigned roles: #{group_refs}")
+
+          accessible_states = [ApprovalStates::NOTIFIED_STATE, ApprovalStates::FINISHED_STATE]
+          Stage.where(:request_id => request_ids, :group_ref => group_refs, :state => accessible_states).pluck(:id)
         end
 
-        def approver_stage_ids
-          group_ids = assigned_group_ids
-          Rails.logger.info("Groups from assigned roles: #{group_ids}")
-
-          # stage ids after filtering with user groups
-          stage_ids = stages_groups.select { |_stage_id, group_id| group_ids.include?(group_id) }.keys
-          Rails.logger.info("Approvable stage ids after filtering with assigned groups: #{stage_ids}")
-
-          # another filtering based on stage index inside request
-          stage_ids.select do |stage_id|
-            stage = Stage.find(stage_id)
-            if stage.index_of_request > stage.request.active_stage_number
-              Rails.logger.info("Stage #{stage.id} is filtered out because it is still in next stages.")
-            end
-
-            stage.index_of_request <= stage.request.active_stage_number
-          end
-        end
-
-        def assigned_group_ids
-          assigned_roles.map { |name, _id| name.split(APPROVER_ROLE_PREFIX)[1] }.compact
+        def assigned_group_refs
+          assigned_roles.map { |name, _id| name.split(RBAC::Roles::APPROVER_ROLE_PREFIX)[1] }.compact
         end
 
         # Stage ids associated with request ids #{request_ids}
