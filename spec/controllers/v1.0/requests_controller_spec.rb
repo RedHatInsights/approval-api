@@ -4,9 +4,9 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:encoded_user) { encoded_user_hash }
   let(:tenant) { create(:tenant) }
 
-  let(:headers_with_admin)     { default_headers.merge(described_class::PERSONA_HEADER => described_class::PERSONA_ADMIN) }
-  let(:headers_with_approver)  { default_headers.merge(described_class::PERSONA_HEADER => described_class::PERSONA_APPROVER) }
-  let(:headers_with_requester) { default_headers.merge(described_class::PERSONA_HEADER => described_class::PERSONA_REQUESTER) }
+  let(:headers_with_admin)     { default_headers.merge(ManageIQ::API::Common::Request::PERSONA_KEY => described_class::PERSONA_ADMIN) }
+  let(:headers_with_approver)  { default_headers.merge(ManageIQ::API::Common::Request::PERSONA_KEY => described_class::PERSONA_APPROVER) }
+  let(:headers_with_requester) { default_headers.merge(ManageIQ::API::Common::Request::PERSONA_KEY => described_class::PERSONA_REQUESTER) }
 
   let!(:workflow) { create(:workflow, :name => 'Test always approve') }
   let(:workflow_id) { workflow.id }
@@ -254,7 +254,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       allow(access_obj).to receive(:process).and_return(access_obj)
       allow(roles_obj).to receive(:roles).and_return([])
 
-      get "#{api_version}/requests", :headers => default_headers.merge(described_class::PERSONA_HEADER => 'approval/unknown')
+      get "#{api_version}/requests", :headers => default_headers.merge(ManageIQ::API::Common::Request::PERSONA_KEY => 'approval/unknown')
       expect(response).to have_http_status(403)
     end
   end

@@ -4,7 +4,6 @@ module Api
       include Mixins::IndexMixin
       include Mixins::RBACMixin
 
-      PERSONA_HEADER    = 'x-rh-persona'.freeze
       PERSONA_ADMIN     = 'approval/admin'.freeze
       PERSONA_APPROVER  = 'approval/approver'.freeze
       PERSONA_REQUESTER = 'approval/requester'.freeze
@@ -40,7 +39,7 @@ module Api
 
       def rbac_scope(relation)
         ids =
-          case ManageIQ::API::Common::Request.current.headers[PERSONA_HEADER]
+          case ManageIQ::API::Common::Request.current.headers[ManageIQ::API::Common::Request::PERSONA_KEY]
           when PERSONA_ADMIN
             raise Exceptions::NotAuthorizedError, "No permission to access the complete list of requests" unless admin?
           when PERSONA_APPROVER
