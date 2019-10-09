@@ -10,7 +10,7 @@ module Api
       def index
         stage = Stage.find(params.require(:stage_id))
 
-        RBAC::Access.enabled? ? collection(rbac_scope(stage.actions)) : collection(stage.actions)
+        collection(index_scope(stage.actions))
       end
 
       def show

@@ -29,7 +29,7 @@ module Api
                  Request.includes(:stages)
                end
 
-        RBAC::Access.enabled? ? collection(rbac_scope(reqs)) : collection(reqs)
+        collection(index_scope(reqs))
       end
 
       private
