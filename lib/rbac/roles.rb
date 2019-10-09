@@ -2,8 +2,6 @@ module RBAC
   class Roles
     attr_reader :roles
 
-    APPROVER_ROLE_PREFIX = 'approval-group-'.freeze
-
     def initialize(prefix = nil, scope = 'principal')
       @roles = {}
       load(prefix, scope)

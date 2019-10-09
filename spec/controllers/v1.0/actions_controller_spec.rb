@@ -194,9 +194,8 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
         end
       end
 
-      it 'returns status code 200' do
-        expect(json['data'].size).to eq(0)
-        expect(response).to have_http_status(200)
+      it 'returns status code 403' do
+        expect(response).to have_http_status(403)
       end
     end
   end

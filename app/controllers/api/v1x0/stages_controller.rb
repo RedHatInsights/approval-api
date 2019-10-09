@@ -14,7 +14,7 @@ module Api
       def index
         req = Request.find(params.require(:request_id))
 
-        RBAC::Access.enabled? ? collection(rbac_scope(req.stages)) : collection(req.stages)
+        collection(index_scope(req.stages))
       end
 
       private

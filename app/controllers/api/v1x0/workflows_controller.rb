@@ -28,7 +28,7 @@ module Api
                      Workflow.all
                    end
 
-        RBAC::Access.enabled? ? collection(rbac_scope(relation)) : collection(relation)
+        collection(index_scope(relation))
       end
 
       def destroy

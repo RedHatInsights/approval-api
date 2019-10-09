@@ -17,8 +17,11 @@ module Api
           permission_check('destroy')
         end
 
-        def index_access_check
+        def index_scope(relation)
+          return relation unless RBAC::Access.enabled?
+
           permission_check('read')
+          rbac_scope(relation)
         end
 
         def update_access_check
@@ -138,7 +141,7 @@ module Api
         end
 
         def assigned_group_refs
-          assigned_roles.map { |name, _id| name.split(RBAC::Roles::APPROVER_ROLE_PREFIX)[1] }.compact
+          assigned_roles.map { |name, _id| name.split(AccessProcessService::APPROVER_ROLE_PREFIX)[1] }.compact
         end
 
         # Stage ids associated with request ids #{request_ids}
