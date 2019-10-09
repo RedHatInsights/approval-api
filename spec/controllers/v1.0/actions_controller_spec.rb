@@ -175,12 +175,12 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       it_behaves_like "validate_operation"
     end
 
-    context 'owner role for invalid operation notify' do
+    context 'owner role for valid operation notify' do
       let(:acls) { [] }
       let(:access_obj) { instance_double(RBAC::Access, :acl => acls) }
       let(:roles) { [] }
       let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
-      let(:code) { 403 }
+      let(:code) { 201 }
 
       it_behaves_like "validate_operation"
     end
@@ -224,10 +224,10 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       let!(:stage2) { create(:stage, :state => Stage::FINISHED_STATE, :request => req, :tenant_id => tenant.id) }
       let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
 
-      it 'returns status code 403' do
+      it 'returns status code 422' do
         post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => default_headers, :as => :json
 
-        expect(response).to have_http_status(403)
+        expect(response).to have_http_status(422)
       end
     end
   end
