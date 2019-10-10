@@ -3,6 +3,7 @@ class Workflow < ApplicationRecord
 
   belongs_to :template
   has_many :requests, -> { order(:id => :asc) }, :inverse_of => :workflow
+  has_many :tag_links, :dependent => :destroy, :inverse_of => :workflow
 
   validates :name, :presence => true
   validate :unique_with_same_or_no_tenant
