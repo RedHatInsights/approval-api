@@ -39,12 +39,11 @@ module Api
       # Different roles can only create certain kind of actions
       #   admin:     can create all kinds of actions
       #   approver:  can not create 'cancel' action
-      #   requester: can only create 'cancel' action
-      #     temporary allow bpm to create 'notify' action
+      #   requester: can not create 'approve' and 'deny' actions
       def validate_create_action
         operation = params[:operation]
         valid_operation = admin? || (approver? && operation != Action::CANCEL_OPERATION) ||
-                          (!admin? && !approver? && [Action::CANCEL_OPERATION, Action::NOTIFY_OPERATION].include?(operation))
+                          (!admin? && !approver? && [Action::APPROVE_OPERATION, Action::DENY_OPERATION].exclude?(operation))
         raise Exceptions::NotAuthorizedError, "Not authorized to create [#{operation}] action " unless valid_operation
       end
 
