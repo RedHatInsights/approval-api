@@ -4,6 +4,7 @@ RSpec.describe Workflow, :type => :model do
 
   it { should belong_to(:template) }
   it { should have_many(:requests) }
+  it { should have_many(:tag_links) }
 
   it { should validate_presence_of(:name) }
 

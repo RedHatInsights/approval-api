@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_10_102743) do
+ActiveRecord::Schema.define(version: 2019_10_11_161512) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -77,7 +77,7 @@ ActiveRecord::Schema.define(version: 2019_10_10_102743) do
     t.string "tag_name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["app_name", "object_type", "tag_name"], name: "index_tag_links_on_app_name_and_object_type_and_tag_name", unique: true
+    t.index ["app_name", "object_type", "tag_name", "tenant_id"], name: "index_tag_links_on_app_type_tag", unique: true
   end
 
   create_table "templates", force: :cascade do |t|
