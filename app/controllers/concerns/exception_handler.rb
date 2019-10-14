@@ -19,7 +19,7 @@ module ExceptionHandler
       json_response({ :message => e.message }, :forbidden)
     end
 
-    rescue_from Exceptions::UserError do |e|
+    rescue_from Exceptions::UserError, Exceptions::ApprovalError do |e|
       json_response({ :message => e.message }, :bad_request)
     end
 

@@ -4,6 +4,10 @@ module Api
       include Mixins::IndexMixin
       include Mixins::RBACMixin
 
+      PERSONA_ADMIN     = 'approval/admin'.freeze
+      PERSONA_APPROVER  = 'approval/approver'.freeze
+      PERSONA_REQUESTER = 'approval/requester'.freeze
+
       before_action :read_access_check, :only => %i[show]
       before_action :create_access_check, :only => %i[create]
 
@@ -24,7 +28,7 @@ module Api
                  Request.includes(:stages)
                end
 
-        RBAC::Access.enabled? ? collection(rbac_scope(reqs)) : collection(reqs)
+        collection(index_scope(reqs))
       end
 
       private
@@ -34,36 +38,25 @@ module Api
       end
 
       def rbac_scope(relation)
-        raise Exceptions::NotAuthorizedError, "Current role cannot access #{request.path}" unless right_path?
+        ids =
+          case ManageIQ::API::Common::Request.current.headers[ManageIQ::API::Common::Request::PERSONA_KEY]
+          when PERSONA_ADMIN
+            raise Exceptions::NotAuthorizedError, "No permission to access the complete list of requests" unless admin?
+          when PERSONA_APPROVER
+            raise Exceptions::NotAuthorizedError, "No permission to access requests assigned to approvers" unless approver?
+            approver_id_list(relation.model.table_name)
+          when PERSONA_REQUESTER, nil
+            owner_id_list(relation.model.table_name)
+          else
+            raise Exceptions::NotAuthorizedError, "Unknown persona"
+          end
 
-        ids = if approver_endpoint?
-                approver_id_list(relation.model.table_name)
-              elsif requester_endpoint?
-                owner_id_list(relation.model.table_name)
-              end
-
-        # for admin endpoints
+        # for admin
         return relation unless ids
 
         Rails.logger.info("Accessible #{relation.model.table_name} ids: #{ids}")
 
         relation.where(:id => ids)
-      end
-
-      def right_path?
-        (approver? && approver_endpoint?) || (admin? && admin_endpoint?) || requester_endpoint?
-      end
-
-      def admin_endpoint?
-        request.path.end_with?("/admin/requests") || (request.path.end_with?("/requests") && !requester_endpoint? && !approver_endpoint?)
-      end
-
-      def requester_endpoint?
-        request.path.end_with?("/requester/requests")
-      end
-
-      def approver_endpoint?
-        request.path.end_with?("/approver/requests")
       end
     end
   end

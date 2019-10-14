@@ -13,10 +13,16 @@ module RequestSpecHelper
 
   DEFAULT_USER = {
     "entitlements" => {
+      "ansible"          => {
+        "is_entitled" => true
+      },
       "hybrid_cloud"     => {
         "is_entitled" => true
       },
       "insights"         => {
+        "is_entitled" => true
+      },
+      "migrations"       => {
         "is_entitled" => true
       },
       "openshift"        => {

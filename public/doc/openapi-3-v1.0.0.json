@@ -220,178 +220,13 @@
                 "tags": [
                   "Request"
                 ],
-                "summary": "Obsoleted. Replaced by /admin/requests",
-                "description": "Return an array of requests",
+                "summary": "Return an array of approval requests, available to anyone",
+                "description": "Return an array of requests. The result depends on the x-rh-persona header",
                 "operationId": "listRequests",
                 "parameters": [
                     {
-                        "$ref": "#/components/parameters/limit"
+                        "$ref": "#/components/parameters/persona"
                     },
-                    {
-                        "$ref": "#/components/parameters/offset"
-                    },
-                    {
-                        "$ref": "#/components/parameters/filter"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "headers": {
-                            "X-total-count": {
-                                "description": "Total number of items",
-                                "schema": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RequestOutCollection"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            }
-        },
-        "/admin/requests": {
-            "get": {
-                "tags": [
-                  "Request"
-                ],
-                "summary": "Return an array of approval requests, only available for admin role",
-                "description": "Return an array of requests for admin role",
-                "operationId": "listRequestsByAdmin",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/limit"
-                    },
-                    {
-                        "$ref": "#/components/parameters/offset"
-                    },
-                    {
-                        "$ref": "#/components/parameters/filter"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "headers": {
-                            "X-total-count": {
-                                "description": "Total number of items",
-                                "schema": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RequestOutCollection"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            }
-        },
-        "/approver/requests": {
-            "get": {
-                "tags": [
-                  "Request"
-                ],
-                "summary": "Return an array of approval requests, only available for approver role",
-                "description": "Return an array of requests for an approver",
-                "operationId": "listRequestsByApprover",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/limit"
-                    },
-                    {
-                        "$ref": "#/components/parameters/offset"
-                    },
-                    {
-                        "$ref": "#/components/parameters/filter"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "headers": {
-                            "X-total-count": {
-                                "description": "Total number of items",
-                                "schema": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RequestOutCollection"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            }
-        },
-        "/requester/requests": {
-            "get": {
-                "tags": [
-                  "Request"
-                ],
-                "summary": "Return an array of approval requests, only available for regular requester",
-                "description": "Return an array of requests for a regular requester",
-                "operationId": "listRequestsByRequester",
-                "parameters": [
                     {
                         "$ref": "#/components/parameters/limit"
                     },
@@ -596,7 +431,7 @@
                 "tags": [
                   "Action"
                 ],
-                "summary": "Add an action to current active stage of a given request, available for admin/approver",
+                "summary": "Add an action to current active stage of a given request, available for admin/approver/requester",
                 "description": "Add an action to current active stage of a given request. If request is finished, i.e. no current active stage is available, no action can be posted here.",
                 "operationId": "createActionByRequest",
                 "parameters": [
@@ -691,7 +526,7 @@
                 "tags": [
                   "Stage"
                 ],
-                "summary": "Return an approval stage by given id, available for admin/requester",
+                "summary": "Return an approval stage by given id, available for admin/approver/requester",
                 "description": "Return an approval stage by given id",
                 "operationId": "showStage",
                 "parameters": [
@@ -1228,6 +1063,16 @@
                 "explode": true,
                 "schema": {
                     "type": "object"
+                }
+            },
+            "persona": {
+                "in": "header",
+                "name": "x-rh-persona",
+                "description": "Current login user's persona",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "enum": ["approval/admin", "approval/approver", "approval/requester"]
                 }
             }
         },

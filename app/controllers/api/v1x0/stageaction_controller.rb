@@ -6,9 +6,14 @@ module Api
 
       protect_from_forgery :with => :exception, :prepend => true
 
-      rescue_from Exceptions::RBACError, Exceptions::ApprovalError, URI::InvalidURIError, ArgumentError do |e|
+      rescue_from Exceptions::RBACError, URI::InvalidURIError, ArgumentError do |e|
         response.body = e.message
         render :status => :internal_server_error, :action => :result
+      end
+
+      rescue_from Exceptions::ApprovalError do |e|
+        response.body = e.message
+        render :status => :bad_request, :action => :result
       end
 
       rescue_from ActionController::ParameterMissing do |_e|

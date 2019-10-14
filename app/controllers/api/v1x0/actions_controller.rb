@@ -5,12 +5,12 @@ module Api
       include Mixins::RBACMixin
 
       before_action :read_access_check, :only => %i[show]
-      before_action :create_access_check, :only => %i[create]
+      before_action :create_access_check, :validate_create_action, :only => %i[create]
 
       def index
         stage = Stage.find(params.require(:stage_id))
 
-        RBAC::Access.enabled? ? collection(rbac_scope(stage.actions)) : collection(stage.actions)
+        collection(index_scope(stage.actions))
       end
 
       def show
@@ -35,6 +35,17 @@ module Api
       end
 
       private
+
+      # Different roles can only create certain kind of actions
+      #   admin:     can create all kinds of actions
+      #   approver:  can not create 'cancel' action
+      #   requester: can not create 'approve' and 'deny' actions
+      def validate_create_action
+        operation = params[:operation]
+        valid_operation = admin? || (approver? && operation != Action::CANCEL_OPERATION) ||
+                          (!admin? && !approver? && [Action::APPROVE_OPERATION, Action::DENY_OPERATION].exclude?(operation))
+        raise Exceptions::NotAuthorizedError, "Not authorized to create [#{operation}] action " unless valid_operation
+      end
 
       def action_params
         params.permit(:operation, :processed_by, :comments)
