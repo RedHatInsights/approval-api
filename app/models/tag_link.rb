@@ -3,5 +3,5 @@ class TagLink < ApplicationRecord
 
   belongs_to :workflow, :inverse_of => :tag_links
 
-  validates :tag_name, :uniqueness => { :scope => [:app_name, :object_type] }
+  validates :tag_name, :uniqueness => { :scope => [:app_name, :object_type, :tenant_id] }
 end
