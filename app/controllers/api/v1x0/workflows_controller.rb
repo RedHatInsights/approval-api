@@ -44,25 +44,23 @@ module Api
       end
 
       def link
-        attrs = params.require(:tag).to_unsafe_h
+        attrs = params.require(:obj).to_unsafe_h
         WorkflowLinkService.new(params.require(:id)).link(attrs)
 
         head :no_content
       end
 
       def unlink
-        attrs = params.require(:tag).to_unsafe_h
+        attrs = params.require(:obj).to_unsafe_h
         WorkflowLinkService.new(params.require(:id)).unlink(attrs)
 
         head :no_content
       end
 
       def resolve
-        tags = params.require(:tags).collect(&:to_unsafe_h)
+        objs = params.require(:objs).collect(&:to_unsafe_h)
 
-        # TODO: Based on :object_id inside of tags, go to its app to retrieve tag names, and
-        #  tags.merge(:tag_name => tag_name)
-        workflow_ids = WorkflowFindService.new.find(tags)
+        workflow_ids = WorkflowFindService.new.find(objs)
         json_response(workflow_ids, :created)
       end
 

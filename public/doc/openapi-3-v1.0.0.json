@@ -723,7 +723,7 @@
                     "Workflow"
                 ],
                 "summary": "Get a list of workflows ids",
-                "description": "", 
+                "description": "get workflows for a list of resource objects.", 
                 "operationId": "resolveWorkflows",
                 "requestBody": {
                    "content": {
@@ -731,10 +731,10 @@
                            "schema": {
                                "type": "object",
                                "properties": {
-                                   "tags": {
+                                   "objs": {
                                        "type": "array",
                                        "items": {
-                                           "$ref": "#/components/schemas/Tag"
+                                           "$ref": "#/components/schemas/ResourceObject"
                                        }
                                    }
                                }
@@ -751,9 +751,9 @@
                            "application/json": {
                                "schema": {
                                    "type": "array",
-                                   "description": "Workflow ids associated with tags",
+                                   "description": "Workflow ids associated with remote objects",
                                    "items": {
-                                       "type": "integer"
+                                       "type": "string"
                                    }
                                }
                            }
@@ -1030,7 +1030,16 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/LinkIn"
+                                "type": "object",
+                                "description": "attributes to describe a resource for workflow linkage",
+                                "required": [
+                                    "obj"
+                                ],
+                                "properties": {
+                                    "obj": {
+                                        "$ref": "#/components/schemas/ResourceObject"
+                                    }
+                                }
                             }
                         }
                     },
@@ -1076,7 +1085,16 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/LinkIn"
+                                "type": "object",
+                                "description": "attributes to describe a resource for workflow linkage",
+                                "required": [
+                                    "obj"
+                                ],
+                                "properties": {
+                                    "obj": {
+                                        "$ref": "#/components/schemas/ResourceObject"
+                                    }
+                                }
                             }
                         }
                     },
@@ -1369,21 +1387,9 @@
                     }
                 }
             },
-            "LinkIn": {
+            "ResourceObject": {
                 "type": "object",
-                "description": "Input tag for creating a link",
-                "required": [
-                    "tag"
-                ],
-                "properties": {
-                    "tag": {
-                        "$ref": "#/components/schemas/Tag"
-                    }
-                }
-            },
-            "Tag": {
-                "type": "object",
-                "description": "Tag definition",
+                "description": "Remote object definition",
                 "required": [
                     "object_type",
                     "app_name",
@@ -1392,15 +1398,18 @@
                 "properties": {
                     "object_type": {
                         "type": "string",
-                        "description": "Object type"
+                        "description": "Object type",
+                        "readOnly": true
                     },
                     "app_name": {
                         "type": "string",
-                        "description": "Application name the object belongs to"
+                        "description": "Application name the object belongs to",
+                        "readOnly": true
                     },
                     "object_id": {
                         "type": "string",
-                        "description": "Id of the object"
+                        "description": "Id of the object",
+                        "readOnly": true
                     }
                 }
             },
