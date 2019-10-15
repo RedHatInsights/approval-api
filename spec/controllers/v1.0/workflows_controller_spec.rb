@@ -455,6 +455,50 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
   end
 
+  describe 'POST /workflows/:id/link' do
+    let(:tag) { { :tag => {:object_type => 'inventory', :app_name => 'topology', :object_id => '123'} } }
+
+    it 'returns status code 204' do
+      post "#{api_version}/workflows/#{id}/link", :params => tag, :headers => default_headers
+
+      expect(response).to have_http_status(204)
+      expect(TagLink.count).to eq(1)
+      expect(TagLink.first.tag_name).to eq("/approval/workflows/#{id}")
+      expect(TagLink.first.app_name).to eq(tag[:tag][:app_name])
+      expect(TagLink.first.object_type).to eq(tag[:tag][:object_type])
+    end
+  end
+
+  describe 'POST /workflows/:id/unlink' do
+    let(:tag) { { :tag => {:object_type => 'inventory', :app_name => 'topology', :object_id => '123'} } }
+
+    it 'returns status code 204' do
+      expect(TagLink.count).to eq(0)
+      post "#{api_version}/workflows/#{id}/link", :params => tag, :headers => default_headers
+      expect(TagLink.count).to eq(1)
+      post "#{api_version}/workflows/#{id}/unlink", :params => tag, :headers => default_headers
+
+      expect(response).to have_http_status(204)
+      expect(TagLink.count).to eq(0)
+    end
+  end
+
+  # TODO: resolve needs further work to query tag names
+  describe 'POST /workflows/resolve' do
+    let(:tag_a) { { :tag => { :object_type => 'inventory', :app_name => 'topology', :object_id => '123'} } }
+    let(:tag_b) { { :tag => { :object_type => 'portfolio', :app_name => 'catalog', :object_id => '123'} } }
+    let(:tags) { { :tags => [tag_a[:tag], tag_b[:tag]] } }
+
+    it 'returns status code 200' do
+      post "#{api_version}/workflows/#{id}/link", :params => tag_a, :headers => default_headers
+      post "#{api_version}/workflows/#{workflows.last.id}/link", :params => tag_b, :headers => default_headers
+      post "#{api_version}/workflows/resolve", :params => tags, :headers => default_headers
+
+      expect(response).to have_http_status(201)
+      expect(json).to eq([id, workflows.last.id])
+    end
+  end
+
   describe 'Entitlement enforcement' do
     let(:false_hash) do
       false_hash = default_user_hash

@@ -43,6 +43,29 @@ module Api
         json_response({ :message => Workflow::MSG_PROTECTED_RECORD }, :forbidden)
       end
 
+      def link
+        attrs = params.require(:tag).to_unsafe_h
+        WorkflowLinkService.new(params.require(:id)).link(attrs)
+
+        head :no_content
+      end
+
+      def unlink
+        attrs = params.require(:tag).to_unsafe_h
+        WorkflowLinkService.new(params.require(:id)).unlink(attrs)
+
+        head :no_content
+      end
+
+      def resolve
+        tags = params.require(:tags).collect(&:to_unsafe_h)
+
+        # TODO: Based on :object_id inside of tags, go to its app to retrieve tag names, and
+        #  tags.merge(:tag_name => tag_name)
+        workflow_ids = WorkflowFindService.new.find(tags)
+        json_response(workflow_ids, :created)
+      end
+
       def update
         workflow = Workflow.find(params.require(:id))
         WorkflowUpdateService.new(workflow.id).update(workflow_params)

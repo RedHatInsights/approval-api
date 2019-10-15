@@ -1,6 +1,6 @@
 RSpec.describe WorkflowLinkService do
   let(:workflow) { create(:workflow, :with_tenant, :group_refs => [990]) }
-  let(:a_tag) { {:object_type => 'inventory', :app_name => 'topology', :tag_name => '/approval/workflows/abc'} }
+  let(:a_tag) { {:object_type => 'inventory', :app_name => 'topology', :object_id => 'abc'} }
 
   subject { described_class.new(workflow.id) }
 

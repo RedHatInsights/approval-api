@@ -717,6 +717,66 @@
                 }
             }
         },
+        "/workflows/resolve": {
+            "post": {
+                "tags": [
+                    "Workflow"
+                ],
+                "summary": "Get a list of workflows ids",
+                "description": "", 
+                "operationId": "resolveWorkflows",
+                "requestBody": {
+                   "content": {
+                       "application/json": {
+                           "schema": {
+                               "type": "object",
+                               "properties": {
+                                   "tags": {
+                                       "type": "array",
+                                       "items": {
+                                           "$ref": "#/components/schemas/Tag"
+                                       }
+                                   }
+                               }
+                           }
+                       }
+                   },
+                   "description": "Objects need to resolve workflows",
+                   "required": true
+                },
+                "responses": {
+                   "201": {
+                       "description": "Success",
+                       "content": {
+                           "application/json": {
+                               "schema": {
+                                   "type": "array",
+                                   "description": "Workflow ids associated with tags",
+                                   "items": {
+                                       "type": "integer"
+                                   }
+                               }
+                           }
+                       }
+                   },
+                   "400": {
+                       "$ref": "#/components/responses/400BadRequestResponse"
+                   },
+                   "401": {
+                       "$ref": "#/components/responses/401UnauthorizedResponse"
+                   },
+                   "403": {
+                       "$ref": "#/components/responses/403ForbiddenResponse"
+                   },
+                   "404": {
+                       "$ref": "#/components/responses/404NotFoundResponse"
+                   },
+                   "422": {
+                       "$ref": "#/components/responses/422UnprocessableEntityResponse"
+                   }
+                }
+            }
+        },
         "/templates/{template_id}/workflows": {
             "get": {
                 "tags": [
@@ -934,6 +994,98 @@
                 "responses": {
                     "204": {
                         "description": "Workflow Deleted"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequestResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401UnauthorizedResponse"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403ForbiddenResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFoundResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
+                    }
+                }
+            }
+        },
+        "/workflows/{id}/link": {
+            "post": {
+                "tags": [
+                  "Workflow"
+                ],
+                "summary": "Create a resource link to a given workflow",
+                "operationId": "linkWorkflow",
+                "description": "Create a resource link to a given workflow",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/id"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LinkIn"
+                            }
+                        }
+                    },
+                    "description": "Parameters need to create a link",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequestResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401UnauthorizedResponse"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403ForbiddenResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFoundResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
+                    }
+                }
+            }
+        },
+        "/workflows/{id}/unlink": {
+            "post": {
+                "tags": [
+                  "Workflow"
+                ],
+                "summary": "Remove the resource link from a given workflow",
+                "operationId": "unlinkWorkflow",
+                "description": "Remove the resource link from a given workflow",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/id"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LinkIn"
+                            }
+                        }
+                    },
+                    "description": "Parameters need to remove a link",
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Success"
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
@@ -1214,6 +1366,41 @@
                         "type": "string",
                         "description": "Comments for action",
                         "readOnly": true
+                    }
+                }
+            },
+            "LinkIn": {
+                "type": "object",
+                "description": "Input tag for creating a link",
+                "required": [
+                    "tag"
+                ],
+                "properties": {
+                    "tag": {
+                        "$ref": "#/components/schemas/Tag"
+                    }
+                }
+            },
+            "Tag": {
+                "type": "object",
+                "description": "Tag definition",
+                "required": [
+                    "object_type",
+                    "app_name",
+                    "object_id"
+                ],
+                "properties": {
+                    "object_type": {
+                        "type": "string",
+                        "description": "Object type"
+                    },
+                    "app_name": {
+                        "type": "string",
+                        "description": "Application name the object belongs to"
+                    },
+                    "object_id": {
+                        "type": "string",
+                        "description": "Id of the object"
                     }
                 }
             },
