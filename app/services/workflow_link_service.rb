@@ -10,10 +10,6 @@ class WorkflowLinkService
     nil
   end
 
-  def unlink(tag_attrs)
-    TagLink.find_by(tag_link(tag_attrs)).try(:destroy)
-  end
-
   private
 
   def tag_link(tag_attrs)
