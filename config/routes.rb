@@ -35,6 +35,7 @@ Rails.application.routes.draw do
       end
 
       post '/workflows/resolve', :to => "workflows#resolve", :as => 'resolve'
+      post '/workflows/unlink', :to => "workflows#unlink", :as => 'unlink_all'
       post '/workflows/:id/link', :to => "workflows#link", :as => 'link'
       post '/workflows/:id/unlink', :to => "workflows#unlink", :as => 'unlink'
 

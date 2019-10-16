@@ -15,7 +15,7 @@ class WorkflowLinkService
   private
 
   def tag_link(tag_attrs)
-    tag_attrs.tap { |attrs| attrs.delete(:object_id) }.merge(:workflow_id => workflow_id, :tag_name => tag_name)
+    tag_attrs.except(:object_id).merge(:workflow_id => workflow_id, :tag_name => tag_name)
   end
 
   # TODO: create tag name based on workflow id

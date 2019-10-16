@@ -44,24 +44,20 @@ module Api
       end
 
       def link
-        attrs = params.require(:obj).to_unsafe_h
         WorkflowLinkService.new(params.require(:id)).link(attrs)
 
         head :no_content
       end
 
       def unlink
-        attrs = params.require(:obj).to_unsafe_h
-        WorkflowLinkService.new(params.require(:id)).unlink(attrs)
+        WorkflowUnlinkService.new(params[:id]).unlink(attrs)
 
         head :no_content
       end
 
       def resolve
-        objs = params.require(:objs).collect(&:to_unsafe_h)
-
-        workflow_ids = WorkflowFindService.new.find(objs)
-        json_response(workflow_ids, :created)
+        found_workflows = WorkflowFindService.new.find(attrs)
+        found_workflows.empty? ? head(:no_content) : json_response(found_workflows, :ok)
       end
 
       def update
@@ -81,7 +77,11 @@ module Api
       end
 
       def workflow_params
-        params.permit(:name, :description, :group_refs => [])
+        params.permit(:object_id, :object_type, :app_name, :name, :description, :group_refs => [])
+      end
+
+      def attrs
+        workflow_params.slice(:object_id, :object_type, :app_name).to_unsafe_h
       end
     end
   end

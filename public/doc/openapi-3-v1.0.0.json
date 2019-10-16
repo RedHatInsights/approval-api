@@ -722,38 +722,29 @@
                 "tags": [
                     "Workflow"
                 ],
-                "summary": "Get a list of workflows ids",
-                "description": "get workflows for a list of resource objects.", 
+                "summary": "Get all workflows linked to a resource object.",
+                "description": "Get all workflows linked to a resource object.", 
                 "operationId": "resolveWorkflows",
                 "requestBody": {
                    "content": {
                        "application/json": {
                            "schema": {
-                               "type": "object",
-                               "properties": {
-                                   "objs": {
-                                       "type": "array",
-                                       "items": {
-                                           "$ref": "#/components/schemas/ResourceObject"
-                                       }
-                                   }
-                               }
+                               "$ref": "#/components/schemas/ResourceObject"
                            }
                        }
                    },
-                   "description": "Objects need to resolve workflows",
+                   "description": "Resource object used to resolve workflows.",
                    "required": true
                 },
                 "responses": {
-                   "201": {
+                   "200": {
                        "description": "Success",
                        "content": {
                            "application/json": {
                                "schema": {
                                    "type": "array",
-                                   "description": "Workflow ids associated with remote objects",
                                    "items": {
-                                       "type": "string"
+                                       "$ref": "#/components/schemas/WorkflowOut"
                                    }
                                }
                            }
@@ -774,6 +765,47 @@
                    "422": {
                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
                    }
+                }
+            }
+        },
+        "/workflows/unlink": {
+            "post": {
+                "tags": [
+                  "Workflow"
+                ],
+                "summary": "Break all links between a resource object and its assigned workflows",
+                "operationId": "unlinkAll",
+                "description": "Break all links between a resource object and its assigned workflows",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResourceObject"
+                            }
+                        }
+                    },
+                    "description": "Parameters needed to remove a link",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequestResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401UnauthorizedResponse"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403ForbiddenResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFoundResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
+                    }
                 }
             }
         },
@@ -1020,7 +1052,7 @@
                 ],
                 "summary": "Create a resource link to a given workflow",
                 "operationId": "linkWorkflow",
-                "description": "Create a resource link to a given workflow",
+                "description": "Link a resource object to a given workflow",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -1030,20 +1062,11 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type": "object",
-                                "description": "attributes to describe a resource for workflow linkage",
-                                "required": [
-                                    "obj"
-                                ],
-                                "properties": {
-                                    "obj": {
-                                        "$ref": "#/components/schemas/ResourceObject"
-                                    }
-                                }
+                                "$ref": "#/components/schemas/ResourceObject"
                             }
                         }
                     },
-                    "description": "Parameters need to create a link",
+                    "description": "Parameters needed to create a link",
                     "required": true
                 },
                 "responses": {
@@ -1073,9 +1096,9 @@
                 "tags": [
                   "Workflow"
                 ],
-                "summary": "Remove the resource link from a given workflow",
+                "summary": "Break the link between a resource object and selected workflow",
                 "operationId": "unlinkWorkflow",
-                "description": "Remove the resource link from a given workflow",
+                "description": "Break the link between a resource object and selected workflow",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -1085,24 +1108,15 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type": "object",
-                                "description": "attributes to describe a resource for workflow linkage",
-                                "required": [
-                                    "obj"
-                                ],
-                                "properties": {
-                                    "obj": {
-                                        "$ref": "#/components/schemas/ResourceObject"
-                                    }
-                                }
+                                "$ref": "#/components/schemas/ResourceObject"
                             }
                         }
                     },
-                    "description": "Parameters need to remove a link",
+                    "description": "Parameters needed to remove a link",
                     "required": true
                 },
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Success"
                     },
                     "400": {
@@ -1389,7 +1403,7 @@
             },
             "ResourceObject": {
                 "type": "object",
-                "description": "Remote object definition",
+                "description": "Resource object definition",
                 "required": [
                     "object_type",
                     "app_name",
