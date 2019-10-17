@@ -19,19 +19,4 @@ RSpec.describe WorkflowLinkService do
       end
     end
   end
-
-  describe 'unlink' do
-    it 'removes an existing link' do
-      subject.link(a_tag)
-      expect(TagLink.count).to eq(1)
-
-      subject.unlink(a_tag)
-      expect(TagLink.count).to eq(0)
-    end
-
-    it 'is ok to remove a non-existing link' do
-      subject.unlink(a_tag)
-      expect(TagLink.count).to eq(0)
-    end
-  end
 end
