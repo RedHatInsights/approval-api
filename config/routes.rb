@@ -34,6 +34,11 @@ Rails.application.routes.draw do
         resources :requests, :only => %i(create index)
       end
 
+      post '/workflows/resolve', :to => "workflows#resolve", :as => 'resolve'
+      post '/workflows/unlink', :to => "workflows#unlink", :as => 'unlink_all'
+      post '/workflows/:id/link', :to => "workflows#link", :as => 'link'
+      post '/workflows/:id/unlink', :to => "workflows#unlink", :as => 'unlink'
+
       resources :templates, :only => %i(index show) do
         resources :workflows, :only => %i(create index)
       end

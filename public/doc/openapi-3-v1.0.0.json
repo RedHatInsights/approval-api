@@ -717,6 +717,98 @@
                 }
             }
         },
+        "/workflows/resolve": {
+            "post": {
+                "tags": [
+                    "Workflow"
+                ],
+                "summary": "Get all workflows linked to a resource object.",
+                "description": "Get all workflows linked to a resource object.", 
+                "operationId": "resolveWorkflows",
+                "requestBody": {
+                   "content": {
+                       "application/json": {
+                           "schema": {
+                               "$ref": "#/components/schemas/ResourceObject"
+                           }
+                       }
+                   },
+                   "description": "Resource object used to resolve workflows.",
+                   "required": true
+                },
+                "responses": {
+                   "200": {
+                       "description": "Success",
+                       "content": {
+                           "application/json": {
+                               "schema": {
+                                   "type": "array",
+                                   "items": {
+                                       "$ref": "#/components/schemas/WorkflowOut"
+                                   }
+                               }
+                           }
+                       }
+                   },
+                   "400": {
+                       "$ref": "#/components/responses/400BadRequestResponse"
+                   },
+                   "401": {
+                       "$ref": "#/components/responses/401UnauthorizedResponse"
+                   },
+                   "403": {
+                       "$ref": "#/components/responses/403ForbiddenResponse"
+                   },
+                   "404": {
+                       "$ref": "#/components/responses/404NotFoundResponse"
+                   },
+                   "422": {
+                       "$ref": "#/components/responses/422UnprocessableEntityResponse"
+                   }
+                }
+            }
+        },
+        "/workflows/unlink": {
+            "post": {
+                "tags": [
+                  "Workflow"
+                ],
+                "summary": "Break all links between a resource object and its assigned workflows",
+                "operationId": "unlinkAll",
+                "description": "Break all links between a resource object and its assigned workflows",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResourceObject"
+                            }
+                        }
+                    },
+                    "description": "Parameters needed to remove a link",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequestResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401UnauthorizedResponse"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403ForbiddenResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFoundResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
+                    }
+                }
+            }
+        },
         "/templates/{template_id}/workflows": {
             "get": {
                 "tags": [
@@ -934,6 +1026,98 @@
                 "responses": {
                     "204": {
                         "description": "Workflow Deleted"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequestResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401UnauthorizedResponse"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403ForbiddenResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFoundResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
+                    }
+                }
+            }
+        },
+        "/workflows/{id}/link": {
+            "post": {
+                "tags": [
+                  "Workflow"
+                ],
+                "summary": "Create a resource link to a given workflow",
+                "operationId": "linkWorkflow",
+                "description": "Link a resource object to a given workflow",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/id"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResourceObject"
+                            }
+                        }
+                    },
+                    "description": "Parameters needed to create a link",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequestResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401UnauthorizedResponse"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403ForbiddenResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFoundResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
+                    }
+                }
+            }
+        },
+        "/workflows/{id}/unlink": {
+            "post": {
+                "tags": [
+                  "Workflow"
+                ],
+                "summary": "Break the link between a resource object and selected workflow",
+                "operationId": "unlinkWorkflow",
+                "description": "Break the link between a resource object and selected workflow",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/id"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResourceObject"
+                            }
+                        }
+                    },
+                    "description": "Parameters needed to remove a link",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
@@ -1213,6 +1397,32 @@
                     "comments": {
                         "type": "string",
                         "description": "Comments for action",
+                        "readOnly": true
+                    }
+                }
+            },
+            "ResourceObject": {
+                "type": "object",
+                "description": "Resource object definition",
+                "required": [
+                    "object_type",
+                    "app_name",
+                    "object_id"
+                ],
+                "properties": {
+                    "object_type": {
+                        "type": "string",
+                        "description": "Object type",
+                        "readOnly": true
+                    },
+                    "app_name": {
+                        "type": "string",
+                        "description": "Application name the object belongs to",
+                        "readOnly": true
+                    },
+                    "object_id": {
+                        "type": "string",
+                        "description": "Id of the object",
                         "readOnly": true
                     }
                 }
