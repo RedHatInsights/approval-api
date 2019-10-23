@@ -667,7 +667,7 @@
                   "Workflow"
                 ],
                 "summary": "Return all approval workflows, only available for admin",
-                "description": "Return all approval workflows",
+                "description": "Return all approval workflows in ascending sequence order",
                 "operationId": "listWorkflows",
                 "parameters": [
                     {
@@ -1603,6 +1603,10 @@
                     "description": {
                         "type": "string"
                     },
+                    "sequence": {
+                        "type": "integer",
+                         "description": "an indicator of the execution order for selected workflows"
+                    },
                     "group_refs": {
                         "type": "array",
                         "description": "Group reference ids associated with workflow",
@@ -1628,6 +1632,10 @@
                     },
                     "description": {
                         "type": "string"
+                    },
+                    "sequence": {
+                        "type": "integer",
+                        "description": "an indicator of the execution order for selected workflows"
                     },
                     "group_refs": {
                         "type": "array",
