@@ -31,6 +31,10 @@ module Api
         collection(index_scope(reqs))
       end
 
+      def index_scope(relation)
+        super(relation.includes(:children))
+      end
+
       private
 
       def request_params
