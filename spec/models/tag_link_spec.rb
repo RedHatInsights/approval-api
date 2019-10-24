@@ -12,7 +12,7 @@ RSpec.describe TagLink, :type => :model do
 
     it 'creates the same link in another tenant' do
       ActsAsTenant.with_tenant(tenant2) do
-        expect { described_class.create!(a_tag) }.not_to raise_error(ActiveRecord::RecordInvalid)
+        expect { described_class.create!(a_tag) }.not_to raise_error
       end
     end
   end
