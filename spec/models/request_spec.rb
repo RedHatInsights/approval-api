@@ -49,15 +49,15 @@ RSpec.describe Request, type: :model do
     end
   end
 
-  describe '#num_children and #num_finished_children' do
+  describe '#number_of_children and #number_of_finished_children' do
     subject { FactoryBot.create(:request, :children => children) }
 
     context 'no children' do
       let(:children) { [] }
 
       it 'has 0 children and 0 finished children' do
-        expect(subject.num_children).to eq(0)
-        expect(subject.num_finished_children).to eq(0)
+        expect(subject.number_of_children).to eq(0)
+        expect(subject.number_of_finished_children).to eq(0)
       end
     end
 
@@ -65,14 +65,14 @@ RSpec.describe Request, type: :model do
       let(:children) do
         [
           FactoryBot.create(:request, :state => Request::FINISHED_STATE),
-          FactoryBot.create(:request, :state => Request::SKIPPED_STATE),
+          FactoryBot.create(:request, :state => Request::CANCELED_STATE),
           FactoryBot.create(:request, :state => Request::SKIPPED_STATE)
         ]
       end
 
       it 'has 3 children and 3 finished children' do
-        expect(subject.num_children).to eq(3)
-        expect(subject.num_finished_children).to eq(3)
+        expect(subject.number_of_children).to eq(3)
+        expect(subject.number_of_finished_children).to eq(3)
       end
     end
 
@@ -86,8 +86,8 @@ RSpec.describe Request, type: :model do
       end
 
       it 'has 3 children and 1 finished children' do
-        expect(subject.num_children).to eq(3)
-        expect(subject.num_finished_children).to eq(1)
+        expect(subject.number_of_children).to eq(3)
+        expect(subject.number_of_finished_children).to eq(1)
       end
     end
   end

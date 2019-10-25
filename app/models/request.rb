@@ -31,11 +31,11 @@ class Request < ApplicationRecord
     stages.find_by(:state => [Stage::NOTIFIED_STATE, Stage::PENDING_STATE])
   end
 
-  def num_children
+  def number_of_children
     children.size
   end
 
-  def num_finished_children
+  def number_of_finished_children
     children.count { |child| Request::FINISHED_STATES.include?(child.state) }
   end
 
