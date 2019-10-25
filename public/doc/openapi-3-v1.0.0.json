@@ -251,66 +251,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/RequestOutCollection"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/422UnprocessableEntityResponse"
-                    }
-                }
-            }
-        },
-        "/workflows/{workflow_id}/requests": {
-            "get": {
-                "tags": [
-                  "Request"
-                ],
-                "summary": "Return approval requests by given workflow id, only available for admin",
-                "description": "Return approval requests by given workflow id",
-                "operationId": "listRequestsByWorkflow",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/workflow_id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/limit"
-                    },
-                    {
-                        "$ref": "#/components/parameters/offset"
-                    },
-                    {
-                        "$ref": "#/components/parameters/filter"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "headers": {
-                            "X-total-count": {
-                                "description": "Total number of items",
-                                "schema": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RequestOutCollection"
+                                    "$ref": "#/components/schemas/RequestCollection"
                                 }
                             }
                         }
@@ -336,14 +277,9 @@
                 "tags": [
                   "Request"
                 ],
-                "summary": "Add an approval request by given parameters, available for admin/approver/requester",
-                "description": "Add an approval request by given parameters",
+                "summary": "Add an approval request by given parameters",
+                "description": "Add an approval request by given parameters, available to anyone",
                 "operationId": "createRequest",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/workflow_id"
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -361,7 +297,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/RequestOut"
+                                    "$ref": "#/components/schemas/Request"
                                 }
                             }
                         }
@@ -389,8 +325,8 @@
                 "tags": [
                   "Request"
                 ],
-                "summary": "Return an approval request by given id, available for admin/approver/requester",
-                "description": "Return an approval request by given id",
+                "summary": "Return an approval request by given id",
+                "description": "Return an approval request by given id, available to anyone who can access the request",
                 "operationId": "showRequest",
                 "parameters": [
                     {
@@ -403,7 +339,7 @@
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/RequestOut"
+                                    "$ref": "#/components/schemas/Request"
                                 }
                             }
                         }
@@ -1432,13 +1368,10 @@
                 "description": "Input parameters for approval request object.",
                 "required": [
                     "name",
-                    "content"
+                    "content",
+                    "tag_resources"
                 ],
                 "properties": {
-                    "requester_name": {
-                        "type": "string",
-                        "description": "Requester id"
-                    },
                     "name": {
                         "type": "string",
                         "description": "Request name"
@@ -1450,19 +1383,69 @@
                     "content": {
                         "type": "object",
                         "description": "JSON object with request content"
+                    },
+                    "tag_resources": {
+                        "type": "array",
+                        "description": "collection of resources having tags that determine the workflows for the request",
+                        "items": {
+                          "$ref": "#/components/schemas/TagResource"
+                        }
                     }
                 }
             },
-            "RequestOut": {
-                "description": "Approval request. Each request will associate with a workflow. Corresponding to the groups of the associated workflow, every request will have a list of stages to record the request processing details.",
+            "TagResource": {
+                "description": "Resource with tags",
+                "type": "object",
+                "required": [
+                    "app_name",
+                    "object_type",
+                    "tags"
+                ],
+                "properties": {
+                    "app_name": {
+                        "type": "string"
+                    },
+                    "object_type": {
+                        "type": "string"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Tag"
+                        }
+                    }
+                }
+            },
+            "Tag": {
+                "description": "tag details",
+                "type": "object",
+                "required": [
+                    "namespace",
+                    "name"
+                ],
+                "properties": {
+                    "namespace": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Request": {
+                "description": "Approval request. It may have child requests. Only a leaf node request can have workflow_id and actions",
                 "type": "object",
                 "properties": {
                     "id": {
-                        "type": "string"
+                        "type": "string",
+                        "readOnly": true
                     },
                     "state": {
                         "type": "string",
-                        "description": "The state of stage or request. It may be one of values (canceled, pending, skipped, notified or finished)",
+                        "description": "The state of the request. Possible value: canceled, pending, skipped, notified, or finished",
                         "enum": [
                             "canceled",
                             "pending",
@@ -1470,64 +1453,70 @@
                             "notified",
                             "finished"
                         ],
-                        "default": "pending"
+                        "readOnly": true
                     },
                     "decision": {
                         "type": "string",
-                        "description": "Final decision, may be one of the value (undecided, approved, canceled or denied)",
+                        "description": "Approval decision. Possible value: undecided, approved, canceled, or denied",
                         "enum": [
                             "undecided",
                             "approved",
                             "canceled",
                             "denied"
                         ],
-                        "default": "undecided"
+                        "readOnly": true
                     },
                     "reason": {
                         "type": "string",
-                        "description": "Comments for requests"
+                        "description": "Reason for the decision. Optional. Present normally when the decision is denied",
+                        "readOnly": true
                     },
                     "workflow_id": {
                         "type": "string",
-                        "description": "Associate workflow id"
+                        "description": "Associate workflow id. Available only if the request is a leaf node",
+                        "readOnly": true
                     },
                     "created_at": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "Timestamp of creation"
+                        "description": "Timestamp of creation",
+                        "readOnly": true
                     },
                     "updated_at": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "Timestamp of last update"
+                        "description": "Timestamp of last update",
+                        "readOnly": true
                     },
-                    "active_stage": {
+                    "number_of_children": {
                         "type": "integer",
-                        "description": "Current (or last) active stage. For regular approver this number is always 0"
+                        "description": "Number of child requests",
+                        "readOnly": true
                     },
-                    "total_stages": {
+                    "number_of_finished_children": {
                         "type": "integer",
-                        "description": "Total number of stages. For regular approver this number is always 0."
+                        "description": "Number of finished child requests",
+                        "readOnly": true
                     },
                     "owner": {
                         "type": "string",
-                        "description": "Owner id"
+                        "description": "Requester's id",
+                        "readOnly": true
                     },
                     "requester_name": {
                         "type": "string",
-                        "description": "Requester name"
+                        "description": "Requester's full name",
+                        "readOnly": true
                     },
                     "name": {
                         "type": "string",
-                        "description": "Request name"
+                        "description": "Request name",
+                        "readOnly": true
                     },
                     "description": {
                         "type": "string",
-                        "description": "Request description"
-                    },
-                    "content": {
-                        "type": "object",
-                        "description": "JSON object with request content"
+                        "description": "Request description",
+                        "readOnly": true
                     }
                 }
             },
@@ -1663,7 +1652,7 @@
                     }
                 }
             },
-            "RequestOutCollection": {
+            "RequestCollection": {
                 "type": "object",
                 "properties": {
                     "meta": {
@@ -1675,7 +1664,7 @@
                     "data": {
                         "type": "array",
                         "items": {
-                          "$ref": "#/components/schemas/RequestOut"
+                          "$ref": "#/components/schemas/Request"
                         }
                     }
                 }

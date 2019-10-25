@@ -12,7 +12,9 @@ module Api
       before_action :create_access_check, :only => %i[create]
 
       def create
-        req = RequestCreateService.new(params.require(:workflow_id)).create(request_params)
+        # TODO: switch back to RequestCreateService when the refactoring is done
+        params.permit!
+        req = Request.create(params.slice(:name, :description, :content))
         json_response(req, :created)
       end
 
@@ -22,13 +24,7 @@ module Api
       end
 
       def index
-        reqs = if params[:workflow_id]
-                 Request.includes(:stages).where(:workflow_id => params.require(:workflow_id))
-               else
-                 Request.includes(:stages)
-               end
-
-        collection(index_scope(reqs))
+        collection(index_scope(Request.all))
       end
 
       private
