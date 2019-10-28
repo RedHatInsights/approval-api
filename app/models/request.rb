@@ -4,6 +4,7 @@ class Request < ApplicationRecord
   include OwnerField
 
   acts_as_tenant(:tenant)
+  acts_as_tree
 
   belongs_to :workflow
   has_many :stages, -> { order(:id => :asc) }, :inverse_of => :request, :dependent => :destroy
@@ -28,6 +29,14 @@ class Request < ApplicationRecord
 
   def current_stage
     stages.find_by(:state => [Stage::NOTIFIED_STATE, Stage::PENDING_STATE])
+  end
+
+  def number_of_children
+    children.size
+  end
+
+  def number_of_finished_children
+    children.count { |child| Request::FINISHED_STATES.include?(child.state) }
   end
 
   private
