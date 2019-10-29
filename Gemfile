@@ -3,7 +3,9 @@ source 'https://rubygems.org'
 plugin 'bundler-inject', '~> 1.1'
 require File.join(Bundler::Plugin.index.load_paths("bundler-inject")[0], "bundler-inject") rescue nil
 
+gem 'acts_as_list',        '~> 1.0'
 gem 'acts_as_tenant'
+gem 'acts_as_tree',        '~> 2.9'
 gem 'jbuilder',            '~> 2.0'
 gem 'manageiq-api-common', '~> 1.0', '>= 1.0.2'
 gem 'manageiq-loggers',    '~> 0.2'

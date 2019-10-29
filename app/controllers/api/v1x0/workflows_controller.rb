@@ -43,6 +43,23 @@ module Api
         json_response({ :message => Workflow::MSG_PROTECTED_RECORD }, :forbidden)
       end
 
+      def link
+        WorkflowLinkService.new(params.require(:id)).link(attrs)
+
+        head :no_content
+      end
+
+      def unlink
+        WorkflowUnlinkService.new(params[:id]).unlink(attrs)
+
+        head :no_content
+      end
+
+      def resolve
+        found_workflows = WorkflowFindService.new.find(attrs)
+        found_workflows.empty? ? head(:no_content) : json_response(found_workflows, :ok)
+      end
+
       def update
         workflow = Workflow.find(params.require(:id))
         WorkflowUpdateService.new(workflow.id).update(workflow_params)
@@ -60,7 +77,11 @@ module Api
       end
 
       def workflow_params
-        params.permit(:name, :description, :group_refs => [])
+        params.permit(:object_id, :object_type, :app_name, :name, :description, :group_refs => [])
+      end
+
+      def attrs
+        workflow_params.slice(:object_id, :object_type, :app_name).to_unsafe_h
       end
     end
   end
