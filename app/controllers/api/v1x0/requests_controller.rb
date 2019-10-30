@@ -12,9 +12,7 @@ module Api
       before_action :create_access_check, :only => %i[create]
 
       def create
-        # TODO: switch back to RequestCreateService when the refactoring is done
-        params.permit!
-        req = Request.create(params.slice(:name, :description, :content))
+        req = RequestCreateService.new.create(request_params)
         json_response(req, :created)
       end
 
@@ -34,7 +32,7 @@ module Api
       private
 
       def request_params
-        params.permit(:name, :description, :requester_name, :content => {})
+        params.permit(:name, :description, :tag_resources => [], :content => {})
       end
 
       def rbac_scope(relation)

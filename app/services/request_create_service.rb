@@ -1,34 +1,18 @@
 class RequestCreateService
   require 'securerandom'
 
-  attr_accessor :workflow
-
-  def initialize(workflow_id)
-    self.workflow = Workflow.find(workflow_id)
-  end
+  attr_accessor :workflows
 
   def create(options)
-    stages = workflow.group_refs.collect do |group_ref|
-      Stage.new(
-        :group_ref         => group_ref,
-        :state             => Stage::PENDING_STATE,
-        :decision          => Stage::UNDECIDED_STATUS,
-        :random_access_key => SecureRandom.hex(16)
-      )
-    end
-
+    requester = ManageIQ::API::Common::Request.current.user
     options = options.transform_keys(&:to_sym)
-    create_options = options.merge(
-      :workflow => workflow,
-      :state    => Request::PENDING_STATE,
-      :decision => Request::UNDECIDED_STATUS,
-      :stages   => stages
+    create_options = options.slice(:name, :description, :content).merge(
+      :state          => Request::PENDING_STATE,
+      :decision       => Request::UNDECIDED_STATUS,
+      :requester_name => "#{requester.first_name} #{requester.last_name}"
     )
 
-    unless options[:requester_name]
-      requester = ManageIQ::API::Common::Request.current.user
-      create_options[:requester_name] = "#{requester.first_name} #{requester.last_name}"
-    end
+    self.workflows = WorkflowFindService.new.find_by_tag_resources(options[:tag_resources])
 
     Request.transaction do
       Request.create!(create_options).tap do |request|
@@ -46,7 +30,7 @@ class RequestCreateService
   private
 
   def default_approve?
-    workflow.id == Workflow.default_workflow.try(:id)
+    workflows.blank?
   end
 
   def auto_approve?
