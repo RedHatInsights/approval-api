@@ -6,10 +6,9 @@ class RequestCreateService
   def create(options)
     requester = ManageIQ::API::Common::Request.current.user
     options = options.transform_keys(&:to_sym)
-    create_options = options.slice(:name, :description, :content).merge(
-      :state          => Request::PENDING_STATE,
-      :decision       => Request::UNDECIDED_STATUS,
-      :requester_name => "#{requester.first_name} #{requester.last_name}"
+    create_options = options.slice(:name, :description).merge(
+      :requester_name  => "#{requester.first_name} #{requester.last_name}",
+      :request_context => RequestContext.new(:content => options[:content])
     )
 
     self.workflows = WorkflowFindService.new.find_by_tag_resources(options[:tag_resources])

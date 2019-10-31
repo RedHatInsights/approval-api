@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_18_141212) do
+ActiveRecord::Schema.define(version: 2019_10_18_142121) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -34,6 +34,11 @@ ActiveRecord::Schema.define(version: 2019_10_18_141212) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "request_contexts", force: :cascade do |t|
+    t.jsonb "content"
+    t.jsonb "context"
+  end
+
   create_table "requests", force: :cascade do |t|
     t.string "requester_name"
     t.string "name"
@@ -41,15 +46,14 @@ ActiveRecord::Schema.define(version: 2019_10_18_141212) do
     t.string "state"
     t.string "decision"
     t.string "reason"
-    t.jsonb "content"
     t.bigint "workflow_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "tenant_id"
     t.string "process_ref"
-    t.jsonb "context"
     t.string "owner"
     t.bigint "parent_id"
+    t.bigint "request_context_id"
     t.index ["parent_id"], name: "index_requests_on_parent_id"
     t.index ["tenant_id"], name: "index_requests_on_tenant_id"
     t.index ["workflow_id"], name: "index_requests_on_workflow_id"
