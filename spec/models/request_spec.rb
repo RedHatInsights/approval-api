@@ -1,10 +1,10 @@
 RSpec.describe Request, type: :model do
+  it { should belong_to(:request_context) }
   it { should belong_to(:workflow) }
   it { should have_many(:stages) }
   it { should have_many(:children) }
 
   it { should validate_presence_of(:name) }
-  it { should validate_presence_of(:content) }
 
   describe '#as_json' do
     subject { FactoryBot.create(:request, :stages => stages) }
@@ -89,6 +89,22 @@ RSpec.describe Request, type: :model do
         expect(subject.number_of_children).to eq(3)
         expect(subject.number_of_finished_children).to eq(1)
       end
+    end
+  end
+
+  describe '#create_child' do
+    subject { FactoryBot.create(:request) }
+    it 'creates a child' do
+      child = subject.create_child
+      expect(child).to have_attributes(
+        :name               => subject.name,
+        :description        => subject.description,
+        :request_context_id => subject.request_context_id,
+        :owner              => subject.owner,
+        :requester_name     => subject.requester_name,
+        :state              => Request::PENDING_STATE,
+        :decision           => Request::UNDECIDED_STATUS
+      )
     end
   end
 end
