@@ -12,7 +12,7 @@ RSpec.describe RemoteTaggingService do
   end
   let(:http_status) { [200, 'Ok'] }
   let(:headers)     do
-    { 'Content-Type'  => 'application/json' }.merge(default_headers)
+    { 'Content-Type' => 'application/json' }.merge(default_headers)
   end
 
   let(:test_env) do
@@ -42,7 +42,7 @@ RSpec.describe RemoteTaggingService do
     end
 
     context "raises error" do
-      let(:http_status)  { [404, 'Bad Request'] }
+      let(:http_status) { [404, 'Bad Request'] }
       it 'raises an error if the status is not 200' do
         with_modified_env test_env do
           expect { subject.process('add', approval_tag) }.to raise_error(RuntimeError, /Error posting tags/)
