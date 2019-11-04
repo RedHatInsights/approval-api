@@ -68,7 +68,7 @@ RSpec.describe RemoteTaggingService do
     end
   end
 
-  context 'catalog' do
+  context 'topology' do
     let(:app_name) { 'topology' }
     let(:env_not_set) { /TOPOLOGICAL_INVENTORY_URL is not set/ }
 

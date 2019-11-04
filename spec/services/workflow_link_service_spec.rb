@@ -4,8 +4,7 @@ RSpec.describe WorkflowLinkService do
   end
 
   let(:workflow) { create(:workflow, :with_tenant, :group_refs => [990]) }
-  let(:object_id) { '123' }
-  let(:obj_a) { {:object_type => 'inventory', :app_name => 'topology', :object_id => object_id} }
+  let(:obj_a) { {:object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
   let(:remote_tag_svc) { instance_double(RemoteTaggingService) }
   let(:tag) do
     { :namespace => WorkflowLinkService::TAG_NAMESPACE,
