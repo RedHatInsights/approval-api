@@ -276,12 +276,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers, :as => :json
       end
 
-      it 'returns status code 422' do
-        expect(response).to have_http_status(422)
+      it 'returns status code 400' do
+        expect(response).to have_http_status(400)
       end
 
       it 'returns a failure message' do
-        expect(response.body).to match(/Validation failed:/)
+        expect(response.body).to match(/required parameters name not exist/)
       end
     end
 
@@ -316,7 +316,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   # Test suite for PATCH /workflows/:id
   describe 'PATCH /workflows/:id' do
-    let(:valid_attributes) { { :group_refs => %w[1000] } }
+    let(:valid_attributes) { { :name => "test", :group_refs => %w[1000] } }
     let(:aps) { instance_double(AccessProcessService) }
 
     before do
@@ -329,7 +329,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
-        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
+        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers, :as => :json
       end
 
       it 'returns status code 200' do
@@ -348,7 +348,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
-        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
+        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers, :as => :json
       end
 
       it 'returns status code 404' do
@@ -366,7 +366,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
         allow(roles_obj).to receive(:roles).and_return([approver_role])
-        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
+        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers, :as => :json
       end
 
       it 'returns status code 403' do
@@ -380,7 +380,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
         allow(roles_obj).to receive(:roles).and_return([])
-        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
+        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers, :as => :json
       end
 
       it 'returns status code 403' do

@@ -30,7 +30,7 @@ module Api
                      params.require(:stage_id)
                    end
 
-        action = ActionCreateService.new(stage_id).create(action_params)
+        action = ActionCreateService.new(stage_id).create(action_params.except(:request_id))
         json_response(action, :created)
       end
 
@@ -48,7 +48,7 @@ module Api
       end
 
       def action_params
-        params.permit(:operation, :processed_by, :comments)
+        params.permit(:request_id, :stage_id, :operation, :processed_by, :comments)
       end
 
       def rbac_scope(relation)

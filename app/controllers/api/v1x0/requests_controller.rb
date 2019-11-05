@@ -32,7 +32,7 @@ module Api
       private
 
       def request_params
-        params.permit(:name, :description, :tag_resources => [], :content => {})
+        params.permit(:name, :description, :workflow_id, :requester_name, :tag_resources => [], :content => {})
       end
 
       def rbac_scope(relation)

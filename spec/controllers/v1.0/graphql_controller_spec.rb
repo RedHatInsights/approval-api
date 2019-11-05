@@ -28,7 +28,7 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
       end
 
       it 'selects attributes in workflows' do
-        post("#{api_version}/graphql", :headers => headers, :params => graphql_source_query)
+        post "#{api_version}/graphql", :headers => headers, :params => graphql_source_query, :as => :json
 
         expect(response.status).to eq(200)
 
@@ -47,7 +47,7 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
       end
 
       it 'selects attributes in workflows' do
-        post("#{api_version}/graphql", :headers => headers, :params => graphql_source_query)
+        post "#{api_version}/graphql", :headers => headers, :params => graphql_source_query, :as => :json
         expect(response.status).to eq(403)
       end
     end
