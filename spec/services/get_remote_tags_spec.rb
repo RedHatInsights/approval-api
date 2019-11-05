@@ -14,9 +14,6 @@ RSpec.describe GetRemoteTags do
   let(:object_type) { 'Portfolio' }
   let(:url) { "http://localhost/api/catalog/v1.0/portfolios/#{object_id}/tags" }
   let(:http_status) { [200, 'Ok'] }
-  let(:headers)     do
-    { 'Content-Type' => 'application/json' }.merge(default_headers)
-  end
 
   let(:remote_tags) do
     [{:name => 'Charkie', :namespace => 'Gnocchi', :value => 'Hundley'},
@@ -36,7 +33,7 @@ RSpec.describe GetRemoteTags do
   context 'get tags' do
     before do
       stub_request(:get, url)
-        .to_return(:status => http_status, :body => remote_tags.to_json, :headers => headers)
+        .to_return(:status => http_status, :body => {:data => remote_tags}.to_json, :headers => default_headers)
     end
 
     it 'successfully fetches tags' do
@@ -50,7 +47,7 @@ RSpec.describe GetRemoteTags do
     let(:http_status) { [404, 'Not found'] }
     before do
       stub_request(:get, url)
-        .to_return(:status => http_status, :body => {:a => 1}.to_json, :headers => headers)
+        .to_return(:status => http_status, :body => {:a => 1}.to_json, :headers => default_headers)
     end
 
     it 'raises error' do
