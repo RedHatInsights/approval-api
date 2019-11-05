@@ -1,4 +1,3 @@
-require 'remote_tagging_service'
 class WorkflowLinkService
   attr_accessor :workflow_id
 
@@ -11,7 +10,7 @@ class WorkflowLinkService
 
   def link(tag_attrs)
     TagLink.find_or_create_by!(tag_link(tag_attrs))
-    RemoteTaggingService.new(tag_attrs).process('add', approval_tag)
+    AddRemoteTags.new(tag_attrs).process(approval_tag)
     nil
   end
 

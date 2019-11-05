@@ -5,7 +5,7 @@ RSpec.describe WorkflowLinkService do
 
   let(:workflow) { create(:workflow, :with_tenant, :group_refs => [990]) }
   let(:obj_a) { {:object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
-  let(:remote_tag_svc) { instance_double(RemoteTaggingService) }
+  let(:remote_tag_svc) { instance_double(AddRemoteTags) }
   let(:tag) do
     { :namespace => WorkflowLinkService::TAG_NAMESPACE,
       :name      => WorkflowLinkService::TAG_NAME,
@@ -16,8 +16,8 @@ RSpec.describe WorkflowLinkService do
 
   describe 'link' do
     before do
-      allow(RemoteTaggingService).to receive(:new).with(obj_a).and_return(remote_tag_svc)
-      allow(remote_tag_svc).to receive(:process).with('add', tag).and_return(remote_tag_svc)
+      allow(AddRemoteTags).to receive(:new).with(obj_a).and_return(remote_tag_svc)
+      allow(remote_tag_svc).to receive(:process).with(tag).and_return(remote_tag_svc)
     end
 
     it 'adds a new link' do

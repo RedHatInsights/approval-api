@@ -8,7 +8,8 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   let!(:workflows) { create_list(:workflow, 16, :template_id => template.id) }
   let(:id) { workflows.first.id }
   let(:roles_obj) { double }
-  let(:remote_tag_svc) { instance_double(RemoteTaggingService) }
+  let(:add_tag_svc) { instance_double(AddRemoteTags) }
+  let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [tag]) }
   let(:tag) do
     { :namespace => WorkflowLinkService::TAG_NAMESPACE,
       :name      => WorkflowLinkService::TAG_NAME,
@@ -465,17 +466,15 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     let(:obj) { { :object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
 
     it 'returns status code 204' do
-      ManageIQ::API::Common::Request.with_request(default_request_hash) do
-        allow(RemoteTaggingService).to receive(:new).with(obj).and_return(remote_tag_svc)
-        allow(remote_tag_svc).to receive(:process).with('add', tag).and_return(remote_tag_svc)
-        post "#{api_version}/workflows/#{id}/link", :params => obj, :headers => default_headers
+      allow(AddRemoteTags).to receive(:new).with(obj).and_return(add_tag_svc)
+      allow(add_tag_svc).to receive(:process).with(tag).and_return(add_tag_svc)
+      post "#{api_version}/workflows/#{id}/link", :params => obj, :headers => default_headers
 
-        expect(response).to have_http_status(204)
-        expect(TagLink.count).to eq(1)
-        expect(TagLink.first.tag_name).to eq("/approval/workflows=#{id}")
-        expect(TagLink.first.app_name).to eq(obj[:app_name])
-        expect(TagLink.first.object_type).to eq(obj[:object_type])
-      end
+      expect(response).to have_http_status(204)
+      expect(TagLink.count).to eq(1)
+      expect(TagLink.first.tag_name).to eq("/approval/workflows=#{id}")
+      expect(TagLink.first.app_name).to eq(obj[:app_name])
+      expect(TagLink.first.object_type).to eq(obj[:object_type])
     end
   end
 
@@ -495,6 +494,11 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     let(:obj_b) { { :object_type => 'portfolio', :app_name => 'catalog', :object_id => '123'} }
 
     before do
+      allow(AddRemoteTags).to receive(:new).with(obj_a).and_return(add_tag_svc)
+      allow(add_tag_svc).to receive(:process).with(tag).and_return(add_tag_svc)
+      allow(GetRemoteTags).to receive(:new).with(obj_a).and_return(get_tag_svc)
+      allow(GetRemoteTags).to receive(:new).with(obj_b).and_return(get_tag_svc)
+      allow(get_tag_svc).to receive(:process).and_return(get_tag_svc)
       post "#{api_version}/workflows/#{id}/link", :params => obj_a, :headers => default_headers
     end
 
