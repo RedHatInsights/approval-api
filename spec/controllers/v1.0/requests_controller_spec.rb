@@ -490,7 +490,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   end
 
   # Test suite for POST /requests
-  describe 'POST /requests' do
+  xdescribe 'POST /requests' do
     let(:item) { { 'disk' => '100GB' } }
     let(:valid_attributes) { { :tag_resources => tag_resources, :name => 'Visit Narnia', :content => item, :description => 'desc' } }
     let(:tag_resources) do
