@@ -49,7 +49,7 @@ class RemoteTaggingService
     con = Faraday.new
     res = con.post(url) do |session|
       session.headers['Content-Type'] = 'application/json'
-      set_headers(session)
+      headers(session)
       session.body = tag.to_json
     end
 
@@ -59,14 +59,14 @@ class RemoteTaggingService
   def get_request(url)
     con = Faraday.new
     response = con.get(url) do |session|
-      set_headers(session)
+      headers(session)
     end
     raise "Error getting tags #{response.reason_phrase}" unless response.status == 200
 
     response
   end
 
-  def set_headers(session)
+  def headers(session)
     ManageIQ::API::Common::Request.current_forwardable.each do |k, v|
       session.headers[k] = v
     end
