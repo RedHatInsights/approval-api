@@ -32,7 +32,9 @@ module Api
       private
 
       def request_params
-        params.permit(:name, :description, :workflow_id, :requester_name, :tag_resources => [], :content => {})
+        params.permit(:name, :description, :workflow_id, :requester_name,
+                      :content       => {},
+                      :tag_resources => [:app_name, :object_type, :tags => [:name, :namespace, :value]])
       end
 
       def rbac_scope(relation)
@@ -42,6 +44,7 @@ module Api
             raise Exceptions::NotAuthorizedError, "No permission to access the complete list of requests" unless admin?
           when PERSONA_APPROVER
             raise Exceptions::NotAuthorizedError, "No permission to access requests assigned to approvers" unless approver?
+
             approver_id_list(relation.model.table_name)
           when PERSONA_REQUESTER, nil
             owner_id_list(relation.model.table_name)

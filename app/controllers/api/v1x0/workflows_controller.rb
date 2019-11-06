@@ -77,7 +77,7 @@ module Api
       end
 
       def workflow_params
-        params.permit(:object_id, :object_type, :app_name, :name, :description, :group_refs => [])
+        params.permit(:id, :object_id, :object_type, :app_name, :name, :description, :template_id, :group_refs => [])
       end
 
       def attrs
