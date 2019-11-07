@@ -6,11 +6,6 @@ class RemoteTaggingService
     @object_id = options[:object_id]
   end
 
-  def process(action, tag)
-    post_request(action_url(action), tag)
-    self
-  end
-
   def self.remotes
     [{ :app_name => 'topology', :object_type => 'ServiceInventory', :url => proc { topo_url } },
      { :app_name => 'topology', :object_type => 'Credential',       :url => proc { topo_url } },
@@ -39,13 +34,8 @@ class RemoteTaggingService
   end
   private_class_method :sources_url
 
-  def action_url(action)
-    url = service_url
-    if action == 'add'
-      "#{url}/#{@object_type.underscore.pluralize}/#{@object_id}/tags"
-    else
-      raise "Invalid action #{action}"
-    end
+  def object_url
+    "#{service_url}/#{@object_type.underscore.pluralize}/#{@object_id}/tags"
   end
 
   def service_url
@@ -59,11 +49,26 @@ class RemoteTaggingService
     con = Faraday.new
     res = con.post(url) do |session|
       session.headers['Content-Type'] = 'application/json'
-      ManageIQ::API::Common::Request.current_forwardable.each do |k, v|
-        session.headers[k] = v
-      end
+      headers(session)
       session.body = tag.to_json
     end
+
     raise "Error posting tags #{res.reason_phrase}" unless res.status == 200
+  end
+
+  def get_request(url)
+    con = Faraday.new
+    response = con.get(url) do |session|
+      headers(session)
+    end
+    raise "Error getting tags #{response.reason_phrase}" unless response.status == 200
+
+    response
+  end
+
+  def headers(session)
+    ManageIQ::API::Common::Request.current_forwardable.each do |k, v|
+      session.headers[k] = v
+    end
   end
 end

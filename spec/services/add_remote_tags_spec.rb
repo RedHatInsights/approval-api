@@ -1,4 +1,4 @@
-RSpec.describe RemoteTaggingService do
+RSpec.describe AddRemoteTags do
   around do |example|
     ManageIQ::API::Common::Request.with_request(default_request_hash) { example.call }
   end
@@ -13,6 +13,11 @@ RSpec.describe RemoteTaggingService do
   let(:http_status) { [200, 'Ok'] }
   let(:headers)     do
     { 'Content-Type' => 'application/json' }.merge(default_headers)
+  end
+
+  let(:remote_tags) do
+    [{:name => 'Charkie', :namespace => 'Gnocchi', :value => 'Hundley'},
+     {:name => 'Curious George', :namespace => 'Jumpy Squirrel', :value => 'Compass'}]
   end
 
   let(:test_env) do
@@ -33,19 +38,19 @@ RSpec.describe RemoteTaggingService do
 
     it 'adds a remote tag' do
       with_modified_env test_env do
-        subject.process('add', approval_tag)
+        subject.process(approval_tag)
       end
     end
 
     it 'raises an error if env is missing' do
-      expect { subject.process('add', approval_tag) }.to raise_error(RuntimeError, env_not_set)
+      expect { subject.process(approval_tag) }.to raise_error(RuntimeError, env_not_set)
     end
 
     context "raises error" do
       let(:http_status) { [404, 'Bad Request'] }
       it 'raises an error if the status is not 200' do
         with_modified_env test_env do
-          expect { subject.process('add', approval_tag) }.to raise_error(RuntimeError, /Error posting tags/)
+          expect { subject.process(approval_tag) }.to raise_error(RuntimeError, /Error posting tags/)
         end
       end
     end
@@ -93,16 +98,6 @@ RSpec.describe RemoteTaggingService do
       let(:object_type) { 'Source' }
       let(:url)         { "http://localhost/api/sources/v1.0/sources/#{object_id}/tags" }
       it_behaves_like "#test_all"
-    end
-  end
-
-  context 'invalid action' do
-    let(:app_name) { 'catalog' }
-    let(:object_type) { 'Portfolio' }
-    it 'raises an error' do
-      with_modified_env test_env do
-        expect { subject.process('kaboom', approval_tag) }.to raise_error(RuntimeError, /Invalid action kaboom/)
-      end
     end
   end
 end
