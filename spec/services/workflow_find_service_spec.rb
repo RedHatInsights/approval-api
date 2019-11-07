@@ -30,4 +30,23 @@ RSpec.describe WorkflowFindService do
       expect(another_workflows).to eq([])
     end
   end
+
+  describe 'find_by_tag_resources' do
+    include_context "tag_resource_objects"
+
+    it 'finds sorted workflow based on tags' do
+      workflows = subject.find_by_tag_resources([tag_resource1])
+      expect(workflows).to eq([workflow2, workflow1])
+    end
+
+    it 'if tags is empty returns empty array' do
+      workflows = subject.find_by_tag_resources([tagless_resource])
+      expect(workflows).to be_empty
+    end
+
+    it 'if input is empty array return empty array' do
+      workflows = subject.find_by_tag_resources([])
+      expect(workflows).to be_empty
+    end
+  end
 end
