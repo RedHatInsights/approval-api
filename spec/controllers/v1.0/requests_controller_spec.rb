@@ -506,7 +506,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         with_modified_env :AUTO_APPROVAL => 'y' do
           allow(rs_class).to receive(:paginate).and_return([])
           allow(roles_obj).to receive(:roles).and_return([admin_role])
-          post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers, :as => :json
+          post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
         end
 
         expect(response).to have_http_status(201)

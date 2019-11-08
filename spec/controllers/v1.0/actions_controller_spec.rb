@@ -205,7 +205,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       allow(rs_class).to receive(:paginate).and_return(acls)
       allow(access_obj).to receive(:process).and_return(access_obj)
       allow(roles_obj).to receive(:roles).and_return(roles)
-      post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => default_headers, :as => :json
+      post "#{api_version}/stages/#{stage_id}/actions", :params => valid_attributes, :headers => default_headers
 
       expect(response).to have_http_status(code)
     end
@@ -282,7 +282,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       let(:valid_attributes) { { :operation => 'cancel', :processed_by => 'abcd' } }
 
       it 'returns status code 201' do
-        post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => default_headers, :as => :json
+        post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => default_headers
 
         expect(req.stages.first.state).to eq(Stage::CANCELED_STATE)
         expect(req.stages.last.state).to eq(Stage::SKIPPED_STATE)
@@ -296,7 +296,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
 
       it 'returns status code 422' do
-        post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => default_headers, :as => :json
+        post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => default_headers
 
         expect(response).to have_http_status(422)
       end

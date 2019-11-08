@@ -1,4 +1,4 @@
-RSpec.describe GetRemoteTags do
+RSpec.describe GetRemoteTags, :type => :request do
   around do |example|
     ManageIQ::API::Common::Request.with_request(default_request_hash) { example.call }
   end

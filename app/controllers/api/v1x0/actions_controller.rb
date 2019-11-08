@@ -30,7 +30,7 @@ module Api
                      params.require(:stage_id)
                    end
 
-        action = ActionCreateService.new(stage_id).create(action_params.except(:request_id))
+        action = ActionCreateService.new(stage_id).create(params_for_create)
         json_response(action, :created)
       end
 
@@ -45,10 +45,6 @@ module Api
         valid_operation = admin? || (approver? && operation != Action::CANCEL_OPERATION) ||
                           (!admin? && !approver? && [Action::APPROVE_OPERATION, Action::DENY_OPERATION].exclude?(operation))
         raise Exceptions::NotAuthorizedError, "Not authorized to create [#{operation}] action " unless valid_operation
-      end
-
-      def action_params
-        params.permit(:request_id, :stage_id, :operation, :processed_by, :comments)
       end
 
       def rbac_scope(relation)

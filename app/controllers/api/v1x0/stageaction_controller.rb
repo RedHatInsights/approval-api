@@ -4,9 +4,6 @@ module Api
       include Response
       include ExceptionHandler
 
-      self.openapi_enabled = false
-      skip_before_action :validate_primary_collection_id
-
       protect_from_forgery :with => :exception, :prepend => true
 
       rescue_from Exceptions::RBACError, URI::InvalidURIError, ArgumentError do |e|

@@ -12,7 +12,7 @@ module Api
       before_action :create_access_check, :only => %i[create]
 
       def create
-        req = RequestCreateService.new.create(request_params)
+        req = RequestCreateService.new.create(params_for_create)
         json_response(req, :created)
       end
 
@@ -30,12 +30,6 @@ module Api
       end
 
       private
-
-      def request_params
-        params.permit(:name, :description, :workflow_id, :requester_name,
-                      :content       => {},
-                      :tag_resources => [:app_name, :object_type, :tags => [:name, :namespace, :value]])
-      end
 
       def rbac_scope(relation)
         ids =
