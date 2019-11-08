@@ -32,20 +32,20 @@ RSpec.shared_context "tag_resource_objects" do
   end
 
   let(:tag_resource1) do
-    { 'app_name'      => 'catalog',
-      'object_type'   => 'Portfolio',
-      'tags'          => [tag1, tag2] }
+    { 'app_name'    => 'catalog',
+      'object_type' => 'Portfolio',
+      'tags'        => [tag1, tag2] }
   end
 
   let(:tag_resource2) do
-    { 'app_name'      => 'topology',
-      'object_type'   => 'ServiceInventory',
-      'tags'          => [tag1, tag2] }
+    { 'app_name'    => 'topology',
+      'object_type' => 'ServiceInventory',
+      'tags'        => [tag1, tag2] }
   end
 
   let(:tagless_resource) do
-    { 'app_name'      => 'topology',
-      'object_type'   => 'ServiceInventory',
-      'tags'          => [] }
+    { 'app_name'    => 'topology',
+      'object_type' => 'ServiceInventory',
+      'tags'        => [] }
   end
 end

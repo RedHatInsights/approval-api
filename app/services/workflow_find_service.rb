@@ -16,7 +16,7 @@ class WorkflowFindService
       tag_names = tr['tags'].map { |tag| "/#{tag['namespace']}/#{tag['name']}=#{tag['value']}" }
       params = {:app_name => tr['app_name'], :object_type => tr['object_type'], :tag_name => tag_names}
       query =
-        if i == 0
+        if i.zero?
           query.where(params)
         else
           query.or(TagLink.where(params))
