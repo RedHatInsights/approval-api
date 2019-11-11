@@ -1110,7 +1110,7 @@
                 "description": "Query by id",
                 "required": true,
                 "schema": {
-                    "type": "string"
+                    "$ref": "#/components/parameters/Identity"
                 }
             },
             "template_id": {
@@ -1119,7 +1119,7 @@
                 "description": "Id of template",
                 "required": true,
                 "schema": {
-                    "type": "string"
+                    "$ref": "#/components/parameters/Identity"
                 }
             },
             "workflow_id": {
@@ -1128,7 +1128,7 @@
                 "description": "Id of workflow",
                 "required": true,
                 "schema": {
-                    "type": "string"
+                    "$ref": "#/components/parameters/Identity"
                 }
             },
             "request_id": {
@@ -1137,7 +1137,7 @@
                 "description": "Id of request",
                 "required": true,
                 "schema": {
-                    "type": "string"
+                    "$ref": "#/components/parameters/Identity"
                 }
             },
             "stage_id": {
@@ -1146,7 +1146,7 @@
                 "description": "Id of stage",
                 "required": true,
                 "schema": {
-                    "type": "string"
+                    "$ref": "#/components/parameters/Identity"
                 }
             },
             "limit": {
@@ -1194,6 +1194,10 @@
                     "type": "string",
                     "enum": ["approval/admin", "approval/approver", "approval/requester"]
                 }
+            },
+            "Identity": {
+                "type": "string",
+                "pattern": "^\\d+$"
             }
         },
         "responses": {

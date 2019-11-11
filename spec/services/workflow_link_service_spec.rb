@@ -1,4 +1,4 @@
-RSpec.describe WorkflowLinkService do
+RSpec.describe WorkflowLinkService, :type => :request do
   around do |example|
     ManageIQ::API::Common::Request.with_request(default_request_hash) { example.call }
   end

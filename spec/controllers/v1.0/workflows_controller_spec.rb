@@ -261,7 +261,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers, :as => :json
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
       end
 
       it 'returns status code 201' do
@@ -273,15 +273,15 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers, :as => :json
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
       end
 
-      it 'returns status code 422' do
-        expect(response).to have_http_status(422)
+      it 'returns status code 400' do
+        expect(response).to have_http_status(400)
       end
 
       it 'returns a failure message' do
-        expect(response.body).to match(/Validation failed:/)
+        expect(response.body).to match(/required parameters name not exist/)
       end
     end
 
@@ -291,7 +291,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
         allow(roles_obj).to receive(:roles).and_return([approver_role])
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers, :as => :json
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
       end
 
       it 'returns status code 403' do
@@ -305,7 +305,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
         allow(roles_obj).to receive(:roles).and_return([])
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers, :as => :json
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
       end
 
       it 'returns status code 403' do
@@ -316,7 +316,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   # Test suite for PATCH /workflows/:id
   describe 'PATCH /workflows/:id' do
-    let(:valid_attributes) { { :group_refs => %w[1000] } }
+    let(:valid_attributes) { { :name => "test", :group_refs => %w[1000] } }
     let(:aps) { instance_double(AccessProcessService) }
 
     before do
@@ -489,10 +489,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   end
 
   # TODO: resolve needs further work to query tag names
-  describe 'POST /workflows/resolve' do
-    let(:obj_a) { { :object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
-    let(:obj_b) { { :object_type => 'portfolio', :app_name => 'catalog', :object_id => '123'} }
-
+  xdescribe 'POST /workflows/resolve' do
+    let(:obj_a) { { :object_type => 'ServiceInventory', :app_name => 'topology', :object_id => '123'} }
+    let(:obj_b) { { :object_type => 'Portfolio', :app_name => 'catalog', :object_id => '123'} }
     before do
       allow(AddRemoteTags).to receive(:new).with(obj_a).and_return(add_tag_svc)
       allow(add_tag_svc).to receive(:process).with(tag).and_return(add_tag_svc)

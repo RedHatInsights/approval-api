@@ -12,7 +12,7 @@ module Api
       before_action :create_access_check, :only => %i[create]
 
       def create
-        req = RequestCreateService.new.create(request_params)
+        req = RequestCreateService.new.create(params_for_create)
         json_response(req, :created)
       end
 
@@ -31,10 +31,6 @@ module Api
 
       private
 
-      def request_params
-        params.permit(:name, :description, :tag_resources => [], :content => {})
-      end
-
       def rbac_scope(relation)
         ids =
           case ManageIQ::API::Common::Request.current.headers[ManageIQ::API::Common::Request::PERSONA_KEY]
@@ -42,6 +38,7 @@ module Api
             raise Exceptions::NotAuthorizedError, "No permission to access the complete list of requests" unless admin?
           when PERSONA_APPROVER
             raise Exceptions::NotAuthorizedError, "No permission to access requests assigned to approvers" unless approver?
+
             approver_id_list(relation.model.table_name)
           when PERSONA_REQUESTER, nil
             owner_id_list(relation.model.table_name)
