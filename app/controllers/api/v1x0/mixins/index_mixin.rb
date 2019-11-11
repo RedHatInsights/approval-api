@@ -37,8 +37,7 @@ module Api
         end
 
         def model_name
-          # Because approval uses the In/Out objects - we need to handle that appropriately.
-          @model_name ||= (controller_name.singularize + "Out").classify
+          @model_name ||= controller_name.singularize.classify
         end
 
         def name

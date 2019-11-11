@@ -1,4 +1,4 @@
-RSpec.describe Api::V1x0::StagesController, :type => :request do
+RSpec.xdescribe Api::V1x0::StagesController, :type => :request do
   include_context "rbac_objects"
   let(:encoded_user) { encoded_user_hash }
   let(:request_header) { { 'x-rh-identity' => encoded_user } }
