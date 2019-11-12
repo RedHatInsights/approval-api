@@ -22,7 +22,7 @@ class WorkflowFindService
           query.or(TagLink.where(params))
         end
     end
-    Workflow.where(:id => query).order(:sequence)
+    Workflow.where(:id => query)
   end
 
   def fq_tag_names(tag_attrs)

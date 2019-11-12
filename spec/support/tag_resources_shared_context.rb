@@ -31,6 +31,12 @@ RSpec.shared_context "tag_resource_objects" do
       'value'     => workflow3.id.to_s }
   end
 
+  let(:bogus_tag) do
+    { 'namespace' => 'curious',
+      'name'      => 'george',
+      'value'     => 'gnocchi' }
+  end
+
   let(:tag_resource1) do
     { 'app_name'    => 'catalog',
       'object_type' => 'Portfolio',
@@ -47,5 +53,11 @@ RSpec.shared_context "tag_resource_objects" do
     { 'app_name'    => 'topology',
       'object_type' => 'ServiceInventory',
       'tags'        => [] }
+  end
+
+  let(:mismatch_tag_resource) do
+    { 'app_name'    => 'catalog',
+      'object_type' => 'Portfolio',
+      'tags'        => [bogus_tag] }
   end
 end
