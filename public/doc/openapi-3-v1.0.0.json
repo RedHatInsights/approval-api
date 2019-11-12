@@ -95,9 +95,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -148,9 +145,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -192,9 +186,6 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
                     },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
@@ -249,9 +240,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -292,9 +280,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -331,9 +316,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -369,9 +351,6 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
                     },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
@@ -423,9 +402,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -461,9 +437,6 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
                     },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
@@ -515,9 +488,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -563,9 +533,6 @@
                    "400": {
                        "$ref": "#/components/responses/400BadRequestResponse"
                    },
-                   "401": {
-                       "$ref": "#/components/responses/401UnauthorizedResponse"
-                   },
                    "403": {
                        "$ref": "#/components/responses/403ForbiddenResponse"
                    },
@@ -600,9 +567,6 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
                     },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
@@ -657,9 +621,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -709,9 +670,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -747,9 +705,6 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
                     },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
@@ -800,9 +755,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -829,9 +781,6 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
                     },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
@@ -873,9 +822,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -915,9 +861,6 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
                     },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
@@ -1048,10 +991,7 @@
         },
         "responses": {
             "400BadRequestResponse": {
-                "description": "Bad request"
-            },
-            "401UnauthorizedResponse": {
-                "description": "Caller is not authorized to access the resource."
+                "description": "Bad request: either all the required parameters specified or the parameter value is invalid."
             },
             "403ForbiddenResponse": {
                 "description": "Caller is forbidden to perform the action."

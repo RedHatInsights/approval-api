@@ -276,8 +276,8 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
       end
 
-      it 'returns status code 422' do
-        expect(response).to have_http_status(422)
+      it 'returns status code 400' do
+        expect(response).to have_http_status(400)
       end
 
       it 'returns a failure message' do

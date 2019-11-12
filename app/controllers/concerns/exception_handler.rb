@@ -7,24 +7,12 @@ module ExceptionHandler
       json_response({ :message => e.message }, :not_found)
     end
 
-    rescue_from ActiveRecord::RecordInvalid do |e|
-      json_response({ :message => e.message }, :unprocessable_entity)
-    end
-
-    rescue_from ActionController::ParameterMissing do |e|
-      json_response({ :message => e.message }, :unprocessable_entity)
-    end
-
-    rescue_from ManageIQ::API::Common::EntitlementError, Exceptions::NotAuthorizedError do |e|
+    rescue_from ManageIQ::API::Common::EntitlementError do |e|
       json_response({ :message => e.message }, :forbidden)
     end
 
     rescue_from Exceptions::UserError, Exceptions::ApprovalError do |e|
       json_response({ :message => e.message }, :bad_request)
-    end
-
-    rescue_from Exceptions::InvalidStateTransitionError do |e|
-      json_response({ :message => e.message }, :unprocessable_entity)
     end
   end
 end
