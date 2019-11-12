@@ -12,7 +12,7 @@ module Api
       before_action :create_access_check, :only => %i[create]
 
       def create
-        req = RequestCreateService.new(params.require(:workflow_id)).create(request_params)
+        req = RequestCreateService.new.create(params_for_create)
         json_response(req, :created)
       end
 
@@ -22,20 +22,14 @@ module Api
       end
 
       def index
-        reqs = if params[:workflow_id]
-                 Request.includes(:stages).where(:workflow_id => params.require(:workflow_id))
-               else
-                 Request.includes(:stages)
-               end
+        collection(index_scope(Request.all))
+      end
 
-        collection(index_scope(reqs))
+      def index_scope(relation)
+        super(relation.includes(:children))
       end
 
       private
-
-      def request_params
-        params.permit(:name, :description, :requester_name, :content => {})
-      end
 
       def rbac_scope(relation)
         ids =
@@ -44,6 +38,7 @@ module Api
             raise Exceptions::NotAuthorizedError, "No permission to access the complete list of requests" unless admin?
           when PERSONA_APPROVER
             raise Exceptions::NotAuthorizedError, "No permission to access requests assigned to approvers" unless approver?
+
             approver_id_list(relation.model.table_name)
           when PERSONA_REQUESTER, nil
             owner_id_list(relation.model.table_name)

@@ -25,14 +25,17 @@ Rails.application.routes.draw do
         resources :actions, :only => %i(create index)
       end
 
-      resources :requests, :only => %i(index show) do
+      resources :requests, :only => %i(create index show) do
         resources :stages, :only => [:index]
         resources :actions, :only => [:create]
       end
 
-      resources :workflows, :only => %i(index destroy update show) do
-        resources :requests, :only => %i(create index)
-      end
+      resources :workflows, :only => %i(index destroy update show)
+
+      post '/workflows/resolve', :to => "workflows#resolve", :as => 'resolve'
+      post '/workflows/unlink', :to => "workflows#unlink", :as => 'unlink_all'
+      post '/workflows/:id/link', :to => "workflows#link", :as => 'link'
+      post '/workflows/:id/unlink', :to => "workflows#unlink", :as => 'unlink'
 
       resources :templates, :only => %i(index show) do
         resources :workflows, :only => %i(create index)

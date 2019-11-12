@@ -9,7 +9,7 @@ module Api
       before_action :destroy_access_check, :only => %i[destroy]
 
       def create
-        workflow = WorkflowCreateService.new(params.require(:template_id)).create(workflow_params)
+        workflow = WorkflowCreateService.new(params.require(:template_id)).create(params_for_create)
         json_response(workflow, :created)
       end
 
@@ -43,9 +43,27 @@ module Api
         json_response({ :message => Workflow::MSG_PROTECTED_RECORD }, :forbidden)
       end
 
+      def link
+        WorkflowLinkService.new(params.require(:id)).link(params_for_create.to_unsafe_h)
+
+        head :no_content
+      end
+
+      def unlink
+        WorkflowUnlinkService.new(params[:id]).unlink(params_for_create.to_unsafe_h)
+
+        head :no_content
+      end
+
+      def resolve
+        found_workflows = WorkflowFindService.new.find(params_for_create.to_unsafe_h)
+        found_workflows.empty? ? head(:no_content) : json_response(found_workflows, :ok)
+      end
+
       def update
         workflow = Workflow.find(params.require(:id))
-        WorkflowUpdateService.new(workflow.id).update(workflow_params)
+        # TODO: need to change params_for_update when using insights-api-commons
+        WorkflowUpdateService.new(workflow.id).update(params_for_create)
 
         json_response(workflow)
       end
@@ -57,10 +75,6 @@ module Api
         raise Exceptions::NotAuthorizedError, "Not Authorized for #{relation.model.table_name}" unless admin?
 
         relation
-      end
-
-      def workflow_params
-        params.permit(:name, :description, :group_refs => [])
       end
     end
   end

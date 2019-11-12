@@ -8,6 +8,13 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   let!(:workflows) { create_list(:workflow, 16, :template_id => template.id) }
   let(:id) { workflows.first.id }
   let(:roles_obj) { double }
+  let(:add_tag_svc) { instance_double(AddRemoteTags) }
+  let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [tag]) }
+  let(:tag) do
+    { :namespace => WorkflowLinkService::TAG_NAMESPACE,
+      :name      => WorkflowLinkService::TAG_NAME,
+      :value     => id.to_s }
+  end
 
   let(:api_version) { version }
 
@@ -254,7 +261,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers, :as => :json
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
       end
 
       it 'returns status code 201' do
@@ -266,7 +273,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers, :as => :json
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
       end
 
       it 'returns status code 422' do
@@ -284,7 +291,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
         allow(roles_obj).to receive(:roles).and_return([approver_role])
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers, :as => :json
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
       end
 
       it 'returns status code 403' do
@@ -298,7 +305,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
         allow(roles_obj).to receive(:roles).and_return([])
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers, :as => :json
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
       end
 
       it 'returns status code 403' do
@@ -309,7 +316,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   # Test suite for PATCH /workflows/:id
   describe 'PATCH /workflows/:id' do
-    let(:valid_attributes) { { :group_refs => %w[1000] } }
+    let(:valid_attributes) { { :name => "test", :group_refs => %w[1000] } }
     let(:aps) { instance_double(AccessProcessService) }
 
     before do
@@ -452,6 +459,59 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     it 'returns status code 403' do
       expect(response).to have_http_status(403)
+    end
+  end
+
+  describe 'POST /workflows/:id/link' do
+    let(:obj) { { :object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
+
+    it 'returns status code 204' do
+      allow(AddRemoteTags).to receive(:new).with(obj).and_return(add_tag_svc)
+      allow(add_tag_svc).to receive(:process).with(tag).and_return(add_tag_svc)
+      post "#{api_version}/workflows/#{id}/link", :params => obj, :headers => default_headers
+
+      expect(response).to have_http_status(204)
+      expect(TagLink.count).to eq(1)
+      expect(TagLink.first.tag_name).to eq("/approval/workflows=#{id}")
+      expect(TagLink.first.app_name).to eq(obj[:app_name])
+      expect(TagLink.first.object_type).to eq(obj[:object_type])
+    end
+  end
+
+  describe 'POST /workflows/:id/unlink' do
+    let(:obj) { { :object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
+
+    it 'returns status code 204' do
+      post "#{api_version}/workflows/#{id}/unlink", :params => obj, :headers => default_headers
+
+      expect(response).to have_http_status(204)
+    end
+  end
+
+  # TODO: resolve needs further work to query tag names
+  xdescribe 'POST /workflows/resolve' do
+    let(:obj_a) { { :object_type => 'ServiceInventory', :app_name => 'topology', :object_id => '123'} }
+    let(:obj_b) { { :object_type => 'Portfolio', :app_name => 'catalog', :object_id => '123'} }
+    before do
+      allow(AddRemoteTags).to receive(:new).with(obj_a).and_return(add_tag_svc)
+      allow(add_tag_svc).to receive(:process).with(tag).and_return(add_tag_svc)
+      allow(GetRemoteTags).to receive(:new).with(obj_a).and_return(get_tag_svc)
+      allow(GetRemoteTags).to receive(:new).with(obj_b).and_return(get_tag_svc)
+      allow(get_tag_svc).to receive(:process).and_return(get_tag_svc)
+      post "#{api_version}/workflows/#{id}/link", :params => obj_a, :headers => default_headers
+    end
+
+    it 'returns status code 200' do
+      post "#{api_version}/workflows/resolve", :params => obj_a, :headers => default_headers
+
+      expect(response).to have_http_status(200)
+      expect(json.first["id"].to_i).to eq(id)
+    end
+
+    it 'returns status code 204' do
+      post "#{api_version}/workflows/resolve", :params => obj_b, :headers => default_headers
+
+      expect(response).to have_http_status(204)
     end
   end
 
