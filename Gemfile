@@ -8,7 +8,7 @@ gem 'acts_as_tenant'
 gem 'acts_as_tree',        '~> 2.9'
 gem 'faraday',             '>= 0.17.0'
 gem 'jbuilder',            '~> 2.0'
-gem 'manageiq-api-common', '~> 1.0', '>= 1.0.2'
+gem 'manageiq-api-common', '~> 2.0'
 gem 'manageiq-loggers',    '~> 0.2'
 gem 'manageiq-messaging',  '~> 0.1'
 gem 'pg',                  '~> 1.0', :require => false

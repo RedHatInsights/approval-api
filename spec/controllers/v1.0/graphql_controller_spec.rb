@@ -1,5 +1,5 @@
 RSpec.describe Api::V1x0::GraphqlController, :type => :request do
-  include_context "rbac_objects"
+  include_context "approval_rbac_objects"
   let(:encoded_user) { encoded_user_hash }
   let(:headers) { { 'x-rh-identity' => encoded_user } }
   let(:tenant) { create(:tenant) }
