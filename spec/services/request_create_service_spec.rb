@@ -11,7 +11,7 @@ RSpec.describe RequestCreateService do
 
   context 'with auto fill requester' do
     it 'auto fills requester_name' do
-      request = subject.create(:name => 'req1', :content => 'test me')
+      request = subject.create(:name => 'req1', :content => 'test me', :tag_resources => [])
       request.reload
       expect(request.requester_name).to include(ManageIQ::API::Common::Request.current.user.last_name)
       expect(request.requester_name).to include(ManageIQ::API::Common::Request.current.user.first_name)

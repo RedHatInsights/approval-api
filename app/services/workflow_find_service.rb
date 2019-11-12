@@ -8,8 +8,21 @@ class WorkflowFindService
   end
 
   # find workflows from a collection of [app_name, object_type, [namespace, key, value]]
-  def find_by_tag_resources(_tag_resources)
-    []
+  def find_by_tag_resources(tag_resources)
+    return [] if tag_resources.empty?
+
+    query = TagLink.select(:workflow_id).distinct
+    tag_resources.each_with_index do |tr, i|
+      tag_names = tr['tags'].map { |tag| "/#{tag['namespace']}/#{tag['name']}=#{tag['value']}" }
+      params = {:app_name => tr['app_name'], :object_type => tr['object_type'], :tag_name => tag_names}
+      query =
+        if i.zero?
+          query.where(params)
+        else
+          query.or(TagLink.where(params))
+        end
+    end
+    Workflow.where(:id => query)
   end
 
   def fq_tag_names(tag_attrs)
