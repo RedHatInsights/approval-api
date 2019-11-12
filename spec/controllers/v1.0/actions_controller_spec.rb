@@ -1,5 +1,5 @@
 RSpec.describe Api::V1x0::ActionsController, :type => :request do
-  include_context "rbac_objects"
+  include_context "approval_rbac_objects"
   let(:tenant) { create(:tenant) }
 
   let!(:template) { create(:template) }
@@ -295,10 +295,10 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       let!(:stage2) { create(:stage, :state => Stage::FINISHED_STATE, :request => req, :tenant_id => tenant.id) }
       let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
 
-      it 'returns status code 422' do
+      it 'returns status code 400' do
         post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => default_headers
 
-        expect(response).to have_http_status(422)
+        expect(response).to have_http_status(400)
       end
     end
   end

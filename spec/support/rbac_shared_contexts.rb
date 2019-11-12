@@ -1,4 +1,4 @@
-RSpec.shared_context "rbac_objects" do
+RSpec.shared_context "approval_rbac_objects" do
   let(:app_name) { 'approval' }
   let(:resource) { "requests" }
   let(:rs_class) { class_double("RBAC::Service").as_stubbed_const(:transfer_nested_constants => true) }

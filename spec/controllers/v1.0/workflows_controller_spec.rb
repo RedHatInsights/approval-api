@@ -1,5 +1,5 @@
 RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
-  include_context "rbac_objects"
+  include_context "approval_rbac_objects"
   # Initialize the test data
   let(:tenant) { create(:tenant) }
 
@@ -276,8 +276,8 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
       end
 
-      it 'returns status code 422' do
-        expect(response).to have_http_status(422)
+      it 'returns status code 400' do
+        expect(response).to have_http_status(400)
       end
 
       it 'returns a failure message' do
@@ -536,7 +536,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       headers = { 'x-rh-identity' => encoded_user_hash(false_hash), 'x-rh-insights-request-id' => 'gobbledygook' }
       get "#{api_version}/workflows", :headers => headers
 
-      expect(response).to have_http_status(:forbidden)
+      expect(response).to have_http_status(:bad_request)
     end
 
     it "allows the request through if entitlements isn't present" do
