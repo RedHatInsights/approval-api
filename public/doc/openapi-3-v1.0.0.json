@@ -908,7 +908,8 @@
                 "description": "Query by id",
                 "required": true,
                 "schema": {
-                    "$ref": "#/components/parameters/Identity"
+                    "type": "string",
+                    "pattern": "^\\d+$"
                 }
             },
             "template_id": {
@@ -917,7 +918,8 @@
                 "description": "Id of template",
                 "required": true,
                 "schema": {
-                    "$ref": "#/components/parameters/Identity"
+                    "type": "string",
+                    "pattern": "^\\d+$"
                 }
             },
             "workflow_id": {
@@ -926,7 +928,8 @@
                 "description": "Id of workflow",
                 "required": true,
                 "schema": {
-                    "$ref": "#/components/parameters/Identity"
+                    "type": "string",
+                    "pattern": "^\\d+$"
                 }
             },
             "request_id": {
@@ -935,7 +938,8 @@
                 "description": "Id of request",
                 "required": true,
                 "schema": {
-                    "$ref": "#/components/parameters/Identity"
+                    "type": "string",
+                    "pattern": "^\\d+$"
                 }
             },
             "limit": {
@@ -983,10 +987,6 @@
                     "type": "string",
                     "enum": ["approval/admin", "approval/approver", "approval/requester"]
                 }
-            },
-            "Identity": {
-                "type": "string",
-                "pattern": "^\\d+$"
             }
         },
         "responses": {
