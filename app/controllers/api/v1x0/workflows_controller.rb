@@ -24,6 +24,8 @@ module Api
         relation = if params[:template_id]
                      template = Template.find(params.require(:template_id))
                      template.workflows
+                   elsif resolvable?
+                     WorkflowFindService.new.find(resolve_params)
                    else
                      Workflow.all
                    end
@@ -50,14 +52,9 @@ module Api
       end
 
       def unlink
-        WorkflowUnlinkService.new(params[:id]).unlink(params_for_create.to_unsafe_h)
+        WorkflowUnlinkService.new(params[:id]).unlink(resolve_params)
 
         head :no_content
-      end
-
-      def resolve
-        found_workflows = WorkflowFindService.new.find(params_for_create.to_unsafe_h)
-        found_workflows.empty? ? head(:no_content) : json_response(found_workflows, :ok)
       end
 
       def update
@@ -75,6 +72,16 @@ module Api
         raise Exceptions::NotAuthorizedError, "Not Authorized for #{relation.model.table_name}" unless admin?
 
         relation
+      end
+
+      def resolve_params
+        params.slice(:object_type, :object_id, :app_name).to_unsafe_h
+      end
+
+      def resolvable?
+        raise Exceptions::UserError, "Invalid resolve params: #{resolve_params}" unless resolve_params.length.zero? || resolve_params.length == 3
+
+        !!(params[:app_name] && params[:object_id] && params[:object_type])
       end
     end
   end

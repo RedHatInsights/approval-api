@@ -15,8 +15,8 @@ module Api
           resp = ManageIQ::API::Common::PaginatedResponse.new(
             :base_query => filtered(scoped(base_query)),
             :request    => request,
-            :limit      => pagination_limit,
-            :offset     => pagination_offset
+            :limit      => params[:limit],
+            :offset     => params[:offset]
           ).response
 
           json_response(resp)

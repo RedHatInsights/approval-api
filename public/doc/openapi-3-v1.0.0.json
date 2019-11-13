@@ -457,6 +457,15 @@
                 "operationId": "listWorkflows",
                 "parameters": [
                     {
+                        "$ref": "#/components/parameters/app_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/object_id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/object_type"
+                    },
+                    {
                         "$ref": "#/components/parameters/limit"
                     },
                     {
@@ -497,53 +506,8 @@
                 }
             }
         },
-        "/workflows/resolve": {
-            "post": {
-                "tags": [
-                    "Workflow"
-                ],
-                "summary": "Get all workflows linked to a resource object.",
-                "description": "Get all workflows linked to a resource object.", 
-                "operationId": "resolveWorkflows",
-                "requestBody": {
-                   "content": {
-                       "application/json": {
-                           "schema": {
-                               "$ref": "#/components/schemas/ResourceObject"
-                           }
-                       }
-                   },
-                   "description": "Resource object used to resolve workflows.",
-                   "required": true
-                },
-                "responses": {
-                   "200": {
-                       "description": "Success",
-                       "content": {
-                           "application/json": {
-                               "schema": {
-                                   "type": "array",
-                                   "items": {
-                                       "$ref": "#/components/schemas/Workflow"
-                                   }
-                               }
-                           }
-                       }
-                   },
-                   "400": {
-                       "$ref": "#/components/responses/400BadRequestResponse"
-                   },
-                   "403": {
-                       "$ref": "#/components/responses/403ForbiddenResponse"
-                   },
-                   "404": {
-                       "$ref": "#/components/responses/404NotFoundResponse"
-                   }
-                }
-            }
-        },
         "/workflows/unlink": {
-            "post": {
+            "delete": {
                 "tags": [
                   "Workflow"
                 ],
@@ -832,7 +796,7 @@
             }
         },
         "/workflows/{id}/unlink": {
-            "post": {
+            "delete": {
                 "tags": [
                   "Workflow"
                 ],
@@ -976,6 +940,33 @@
                 "explode": true,
                 "schema": {
                     "type": "object"
+                }
+            },
+            "app_name": {
+                "in": "query",
+                "name": "app_name",
+                "description": "The name of the application",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "object_id": {
+                "in": "query",
+                "name": "object_id",
+                "description": "Id of the resource object",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "object_type": {
+                "in": "query",
+                "name": "object_type",
+                "description": "Type of the resource object",
+                "required": false,
+                "schema": {
+                    "type": "string"
                 }
             },
             "persona": {

@@ -477,21 +477,25 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
   end
 
-  describe 'POST /workflows/:id/unlink' do
+  describe 'DELETE /workflows/:id/unlink' do
     let(:obj) { { :object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
 
     it 'returns status code 204' do
-      post "#{api_version}/workflows/#{id}/unlink", :params => obj, :headers => default_headers
+      delete "#{api_version}/workflows/#{id}/unlink", :params => obj, :headers => default_headers
 
       expect(response).to have_http_status(204)
     end
   end
 
   # TODO: resolve needs further work to query tag names
-  xdescribe 'POST /workflows/resolve' do
+  describe 'GET /workflows?resource_tags' do
     let(:obj_a) { { :object_type => 'ServiceInventory', :app_name => 'topology', :object_id => '123'} }
     let(:obj_b) { { :object_type => 'Portfolio', :app_name => 'catalog', :object_id => '123'} }
+    let(:obj_c) { { :object_type => 'Portfolio', :object_id => '123'} }
     before do
+      allow(rs_class).to receive(:paginate).and_return([])
+      allow(roles_obj).to receive(:roles).and_return([admin_role])
+
       allow(AddRemoteTags).to receive(:new).with(obj_a).and_return(add_tag_svc)
       allow(add_tag_svc).to receive(:process).with(tag).and_return(add_tag_svc)
       allow(GetRemoteTags).to receive(:new).with(obj_a).and_return(get_tag_svc)
@@ -501,16 +505,23 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     it 'returns status code 200' do
-      post "#{api_version}/workflows/resolve", :params => obj_a, :headers => default_headers
+      get "#{api_version}/workflows", :params => obj_a, :headers => default_headers
 
       expect(response).to have_http_status(200)
-      expect(json.first["id"].to_i).to eq(id)
+      expect(json["data"].first["id"].to_i).to eq(id)
     end
 
-    it 'returns status code 204' do
-      post "#{api_version}/workflows/resolve", :params => obj_b, :headers => default_headers
+    it 'returns status code 200' do
+      get "#{api_version}/workflows", :params => obj_b, :headers => default_headers
 
-      expect(response).to have_http_status(204)
+      expect(response).to have_http_status(200)
+    end
+
+    it 'raises an user error' do
+      get "#{api_version}/workflows", :params => obj_c, :headers => default_headers
+
+      expect(response.body).to include("Exceptions::UserError: Invalid resolve params")
+      expect(response).to have_http_status(400)
     end
   end
 
