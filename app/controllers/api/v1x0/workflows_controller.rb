@@ -24,8 +24,8 @@ module Api
         relation = if params[:template_id]
                      template = Template.find(params.require(:template_id))
                      template.workflows
-                   elsif resolvable?
-                     WorkflowFindService.new.find(resolve_params)
+                   elsif for_resource_object?
+                     WorkflowFindService.new.find(resource_object_params)
                    else
                      Workflow.all
                    end
@@ -52,7 +52,7 @@ module Api
       end
 
       def unlink
-        WorkflowUnlinkService.new(params[:id]).unlink(resolve_params)
+        WorkflowUnlinkService.new(params[:id]).unlink(resource_object_params)
 
         head :no_content
       end
@@ -74,14 +74,25 @@ module Api
         relation
       end
 
-      def resolve_params
-        params.slice(:object_type, :object_id, :app_name).to_unsafe_h
+      def collection(base_query)
+        resp = ManageIQ::API::Common::PaginatedResponse.new(
+          :base_query => filtered(scoped(base_query)),
+          :request    => request,
+          :limit      => params[:limit],
+          :offset     => params[:offset]
+        ).response
+
+        json_response(resp)
       end
 
-      def resolvable?
-        raise Exceptions::UserError, "Invalid resolve params: #{resolve_params}" unless resolve_params.length.zero? || resolve_params.length == 3
+      def resource_object_params
+        @resource_object_params ||= params[:resource_object].try(:to_unsafe_h) || {}
+      end
 
-        !!(params[:app_name] && params[:object_id] && params[:object_type])
+      def for_resource_object?
+        raise Exceptions::UserError, "Invalid resource object params: #{resource_object_params}" unless resource_object_params.length.zero? || resource_object_params.length == 3
+
+        !!(resource_object_params[:app_name] && resource_object_params[:object_id] && resource_object_params[:object_type])
       end
     end
   end

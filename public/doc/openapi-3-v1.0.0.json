@@ -457,13 +457,7 @@
                 "operationId": "listWorkflows",
                 "parameters": [
                     {
-                        "$ref": "#/components/parameters/app_name"
-                    },
-                    {
-                        "$ref": "#/components/parameters/object_id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/object_type"
+                        "$ref": "#/components/parameters/resource_object"
                     },
                     {
                         "$ref": "#/components/parameters/limit"
@@ -493,41 +487,6 @@
                                 }
                             }
                         }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    }
-                }
-            }
-        },
-        "/workflows/unlink": {
-            "delete": {
-                "tags": [
-                  "Workflow"
-                ],
-                "summary": "Break all links between a resource object and its assigned workflows",
-                "operationId": "unlinkAll",
-                "description": "Break all links between a resource object and its assigned workflows",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ResourceObject"
-                            }
-                        }
-                    },
-                    "description": "Parameters needed to remove a link",
-                    "required": true
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success"
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
@@ -796,7 +755,7 @@
             }
         },
         "/workflows/{id}/unlink": {
-            "delete": {
+            "post": {
                 "tags": [
                   "Workflow"
                 ],
@@ -942,31 +901,13 @@
                     "type": "object"
                 }
             },
-            "app_name": {
+            "resource_object": {
                 "in": "query",
-                "name": "app_name",
-                "description": "The name of the application",
+                "name": "resource_object",
+                "description": "The query parameters for resource object",
                 "required": false,
                 "schema": {
-                    "type": "string"
-                }
-            },
-            "object_id": {
-                "in": "query",
-                "name": "object_id",
-                "description": "Id of the resource object",
-                "required": false,
-                "schema": {
-                    "type": "string"
-                }
-            },
-            "object_type": {
-                "in": "query",
-                "name": "object_type",
-                "description": "Type of the resource object",
-                "required": false,
-                "schema": {
-                    "type": "string"
+                    "$ref": "#/components/schemas/ResourceObject"
                 }
             },
             "persona": {

@@ -32,9 +32,8 @@ Rails.application.routes.draw do
 
       resources :workflows, :only => %i(index destroy update show)
 
-      delete '/workflows/unlink', :to => "workflows#unlink", :as => 'unlink_all'
       post '/workflows/:id/link', :to => "workflows#link", :as => 'link'
-      delete '/workflows/:id/unlink', :to => "workflows#unlink", :as => 'unlink'
+      post '/workflows/:id/unlink', :to => "workflows#unlink", :as => 'unlink'
 
       resources :templates, :only => %i(index show) do
         resources :workflows, :only => %i(create index)
