@@ -1296,12 +1296,6 @@
                     "description": {
                         "type": "string",
                         "readOnly": true
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Timestamp of creation",
-                        "readOnly": true
                     }
                 }
             },
@@ -1324,12 +1318,6 @@
                     "description": {
                         "type": "string",
                         "nullable": true
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Timestamp of creation",
-                        "readOnly": true
                     },
                     "sequence": {
                         "type": "integer",

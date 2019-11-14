@@ -182,7 +182,6 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
         expect(json).not_to be_empty
         expect(json['id']).to eq(workflow.id.to_s)
-        expect(json['created_at']).to eq(workflow.created_at.iso8601)
       end
 
       it 'returns status code 200' do
