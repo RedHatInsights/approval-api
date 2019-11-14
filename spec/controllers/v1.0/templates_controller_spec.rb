@@ -75,7 +75,6 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
 
         expect(json).not_to be_empty
         expect(json['id']).to eq(template.id.to_s)
-        expect(json['created_at']).to eq(template.created_at.iso8601)
       end
 
       it 'admin role returns status code 200' do
