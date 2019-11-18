@@ -52,12 +52,7 @@ class RemoteTaggingService
       headers(session)
       session.body = tag.to_json
     end
-
-    if response.status == 403
-      raise Exceptions::NotAuthorizedError, response.reason_phrase
-    else
-      raise "Error posting tags #{response.reason_phrase}" unless response.status == 200
-    end
+    check_for_exceptions(response, "Error posting tags")
   end
 
   def get_request(url)
@@ -65,15 +60,18 @@ class RemoteTaggingService
     response = con.get(url) do |session|
       headers(session)
     end
+    check_for_exceptions(response, "Error getting tags")
+    response
+  end
 
+  def check_for_exceptions(response, message_prefix)
     if response.status == 403
       raise Exceptions::NotAuthorizedError, response.reason_phrase
     else
-      raise "Error getting tags #{response.reason_phrase}" unless response.status == 200
+      raise "#{message_prefix} #{response.reason_phrase}" unless response.status == 200
     end
-
-    response
   end
+
 
   def headers(session)
     ManageIQ::API::Common::Request.current_forwardable.each do |k, v|
