@@ -47,13 +47,17 @@ class RemoteTaggingService
 
   def post_request(url, tag)
     con = Faraday.new
-    res = con.post(url) do |session|
+    response = con.post(url) do |session|
       session.headers['Content-Type'] = 'application/json'
       headers(session)
       session.body = tag.to_json
     end
 
-    raise "Error posting tags #{res.reason_phrase}" unless res.status == 200
+    if response.status == 403
+      raise Exceptions::NotAuthorizedError, response.reason_phrase
+    else
+      raise "Error posting tags #{response.reason_phrase}" unless response.status == 200
+    end
   end
 
   def get_request(url)
@@ -61,7 +65,12 @@ class RemoteTaggingService
     response = con.get(url) do |session|
       headers(session)
     end
-    raise "Error getting tags #{response.reason_phrase}" unless response.status == 200
+
+    if response.status == 403
+      raise Exceptions::NotAuthorizedError, response.reason_phrase
+    else
+      raise "Error getting tags #{response.reason_phrase}" unless response.status == 200
+    end
 
     response
   end

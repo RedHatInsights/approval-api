@@ -54,6 +54,15 @@ RSpec.describe AddRemoteTags, :type => :request do
         end
       end
     end
+
+    context "raises authentication error" do
+      let(:http_status) { [403, 'Authentication Error'] }
+      it 'raises an error if the status is 403' do
+        with_modified_env test_env do
+          expect { subject.process(approval_tag) }.to raise_error(Exceptions::NotAuthorizedError, /Authentication Error/)
+        end
+      end
+    end
   end
 
   context 'catalog' do
