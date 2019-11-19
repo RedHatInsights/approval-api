@@ -86,7 +86,7 @@ module Api
       end
 
       def resource_object_params
-        @resource_object_params ||= params[:resource_object].try(:to_unsafe_h) || {}
+        @resource_object_params ||= params.slice(:object_type, :object_id, :app_name).to_unsafe_h
       end
 
       def for_resource_object?

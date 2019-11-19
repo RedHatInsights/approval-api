@@ -453,11 +453,17 @@
                   "Workflow"
                 ],
                 "summary": "Return all approval workflows, only available for admin",
-                "description": "Return all approval workflows in ascending sequence order",
+                "description": "Depends on the query parameters, either return all workflows in ascending sequence order when no parameters are provided; or return the workflows linking to the resource object whose app_name, object_type and object_id are specified by query parameters",
                 "operationId": "listWorkflows",
                 "parameters": [
                     {
-                        "$ref": "#/components/parameters/resource_object"
+                        "$ref": "#/components/parameters/app_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/object_id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/object_type"
                     },
                     {
                         "$ref": "#/components/parameters/limit"
@@ -890,6 +896,33 @@
                     "default": 0
                 }
             },
+            "app_name": {
+                "name": "app_name",
+                "in": "query",
+                "description": "Name of the application",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "object_id": {
+                "name": "object_id",
+                "in": "query",
+                "description": "Id of the resource object",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "object_type": {
+                "name": "object_type",
+                "in": "query",
+                "description": "Type of the resource object",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
             "filter": {
                 "in": "query",
                 "name": "filter",
@@ -899,15 +932,6 @@
                 "explode": true,
                 "schema": {
                     "type": "object"
-                }
-            },
-            "resource_object": {
-                "in": "query",
-                "name": "resource_object",
-                "description": "The query parameters for resource object",
-                "required": false,
-                "schema": {
-                    "$ref": "#/components/schemas/ResourceObject"
                 }
             },
             "persona": {

@@ -488,13 +488,10 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   end
 
   # TODO: resolve needs further work to query tag names
-  describe 'GET /workflows?resource_object' do
+  describe 'GET /workflows?resource_object_params' do
     let(:obj_a) { { :object_type => 'ServiceInventory', :app_name => 'topology', :object_id => '123'} }
     let(:obj_b) { { :object_type => 'Portfolio', :app_name => 'catalog', :object_id => '123'} }
     let(:obj_c) { { :object_type => 'Portfolio', :object_id => '123'} }
-    let(:resource_object_a) { { :resource_object => obj_a } }
-    let(:resource_object_b) { { :resource_object => obj_b } }
-    let(:resource_object_c) { { :resource_object => obj_c } }
     before do
       allow(rs_class).to receive(:paginate).and_return([])
       allow(roles_obj).to receive(:roles).and_return([admin_role])
@@ -508,20 +505,20 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     it 'returns status code 200' do
-      get "#{api_version}/workflows", :params => resource_object_a, :headers => default_headers
+      get "#{api_version}/workflows", :params => obj_a, :headers => default_headers
 
       expect(response).to have_http_status(200)
       expect(json["data"].first["id"].to_i).to eq(id)
     end
 
     it 'returns status code 200' do
-      get "#{api_version}/workflows", :params => resource_object_b, :headers => default_headers
+      get "#{api_version}/workflows", :params => obj_b, :headers => default_headers
 
       expect(response).to have_http_status(200)
     end
 
     it 'raises an user error' do
-      get "#{api_version}/workflows", :params => resource_object_c, :headers => default_headers
+      get "#{api_version}/workflows", :params => obj_c, :headers => default_headers
 
       expect(first_error_detail).to match("Exceptions::UserError: Invalid resource object params")
       expect(response).to have_http_status(400)
