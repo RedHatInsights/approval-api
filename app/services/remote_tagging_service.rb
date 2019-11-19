@@ -1,5 +1,6 @@
 require 'faraday'
 class RemoteTaggingService
+  VALID_200_CODES = [200, 201, 202, 204]
   def initialize(options)
     @app_name = options[:app_name]
     @object_type = options[:object_type]
@@ -68,7 +69,7 @@ class RemoteTaggingService
     if response.status == 403
       raise Exceptions::NotAuthorizedError, response.reason_phrase
     else
-      raise "#{message_prefix} #{response.reason_phrase}" unless response.status == 200
+      raise "#{message_prefix} #{response.reason_phrase}" unless VALID_200_CODES.include?(response.status)
     end
   end
 
