@@ -1,6 +1,6 @@
 require 'faraday'
 class RemoteTaggingService
-  VALID_200_CODES = [200, 201, 202, 204]
+  VALID_200_CODES = [200, 201, 202, 204].freeze
   def initialize(options)
     @app_name = options[:app_name]
     @object_type = options[:object_type]
@@ -72,7 +72,6 @@ class RemoteTaggingService
       raise "#{message_prefix} #{response.reason_phrase}" unless VALID_200_CODES.include?(response.status)
     end
   end
-
 
   def headers(session)
     ManageIQ::API::Common::Request.current_forwardable.each do |k, v|
