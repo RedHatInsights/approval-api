@@ -4,14 +4,14 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:encoded_user) { encoded_user_hash }
   let(:tenant) { create(:tenant) }
 
-  let(:headers_with_admin)     { default_headers.merge(ManageIQ::API::Common::Request::PERSONA_KEY => described_class::PERSONA_ADMIN) }
-  let(:headers_with_approver)  { default_headers.merge(ManageIQ::API::Common::Request::PERSONA_KEY => described_class::PERSONA_APPROVER) }
-  let(:headers_with_requester) { default_headers.merge(ManageIQ::API::Common::Request::PERSONA_KEY => described_class::PERSONA_REQUESTER) }
+  let(:headers_with_admin)     { default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => described_class::PERSONA_ADMIN) }
+  let(:headers_with_approver)  { default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => described_class::PERSONA_APPROVER) }
+  let(:headers_with_requester) { default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => described_class::PERSONA_REQUESTER) }
 
   let!(:workflow) { create(:workflow, :name => 'Test always approve') }
   let(:workflow_id) { workflow.id }
   let!(:requests) do
-    ManageIQ::API::Common::Request.with_request(:headers => default_headers, :original_url => "localhost/approval") do
+    Insights::API::Common::Request.with_request(:headers => default_headers, :original_url => "localhost/approval") do
       create_list(:request, 2, :workflow_id => workflow.id, :tenant_id => tenant.id)
     end
   end
@@ -120,14 +120,14 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
       it 'can recreate the request from context' do
         req = nil
-        ManageIQ::API::Common::Request.with_request(:headers => default_headers, :original_url => "approval.com/approval") do
+        Insights::API::Common::Request.with_request(:headers => default_headers, :original_url => "approval.com/approval") do
           req = create(:request)
         end
 
         new_request = req.context.transform_keys(&:to_sym)
-        ManageIQ::API::Common::Request.with_request(new_request) do
-          expect(ManageIQ::API::Common::Request.current.user.username).to eq "jdoe"
-          expect(ManageIQ::API::Common::Request.current.user.email).to eq "jdoe@acme.com"
+        Insights::API::Common::Request.with_request(new_request) do
+          expect(Insights::API::Common::Request.current.user.username).to eq "jdoe"
+          expect(Insights::API::Common::Request.current.user.email).to eq "jdoe@acme.com"
         end
       end
 
@@ -264,7 +264,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       allow(access_obj).to receive(:process).and_return(access_obj)
       allow(roles_obj).to receive(:roles).and_return([])
 
-      get "#{api_version}/requests", :headers => default_headers.merge(ManageIQ::API::Common::Request::PERSONA_KEY => 'approval/unknown')
+      get "#{api_version}/requests", :headers => default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/unknown')
       expect(response).to have_http_status(403)
     end
   end

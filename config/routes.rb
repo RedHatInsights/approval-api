@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   def put(*_args)
   end
 
-  routing_helper = ManageIQ::API::Common::Routing.new(self)
+  routing_helper = Insights::API::Common::Routing.new(self)
 
   prefix = "api"
   if ENV["PATH_PREFIX"].present? && ENV["APP_NAME"].present?

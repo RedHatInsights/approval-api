@@ -6,8 +6,8 @@ require File.join(Bundler::Plugin.index.load_paths("bundler-inject")[0], "bundle
 gem 'acts_as_list',        '~> 1.0'
 gem 'acts_as_tree',        '~> 2.9'
 gem 'faraday',             '>= 0.17.0'
+gem 'insights-api-common', '~> 3.0'
 gem 'jbuilder',            '~> 2.0'
-gem 'manageiq-api-common', '~> 2.0'
 gem 'manageiq-loggers',    '~> 0.2'
 gem 'manageiq-messaging',  '~> 0.1'
 gem 'pg',                  '~> 1.0', :require => false

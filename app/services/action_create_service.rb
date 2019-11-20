@@ -10,7 +10,7 @@ class ActionCreateService
 
     options = options.transform_keys(&:to_sym)
     unless options[:processed_by]
-      requester = ManageIQ::API::Common::Request.current.user
+      requester = Insights::API::Common::Request.current.user
       options[:processed_by] = requester.username
     end
 

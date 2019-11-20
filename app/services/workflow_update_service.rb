@@ -16,13 +16,13 @@ class WorkflowUpdateService
       aps = AccessProcessService.new
 
       if added_group_refs.any?
-        ContextService.new(ManageIQ::API::Common::Request.current.to_h.transform_keys(&:to_s)).as_org_admin do
+        ContextService.new(Insights::API::Common::Request.current.to_h.transform_keys(&:to_s)).as_org_admin do
           aps.add_resource_to_groups(workflow.id, added_group_refs)
         end
       end
 
       if removed_group_refs.any?
-        ContextService.new(ManageIQ::API::Common::Request.current.to_h.transform_keys(&:to_s)).as_org_admin do
+        ContextService.new(Insights::API::Common::Request.current.to_h.transform_keys(&:to_s)).as_org_admin do
           aps.remove_resource_from_groups(workflow.id, removed_group_refs)
         end
       end

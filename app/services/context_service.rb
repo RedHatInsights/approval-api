@@ -24,7 +24,7 @@ class ContextService
   end
 
   def switch_context(new_context)
-    ManageIQ::API::Common::Request.with_request(new_context.transform_keys(&:to_sym)) do |current|
+    Insights::API::Common::Request.with_request(new_context.transform_keys(&:to_sym)) do |current|
       ActsAsTenant.with_tenant(Tenant.find_by(:external_tenant => current.user.tenant)) { yield }
     end
   end

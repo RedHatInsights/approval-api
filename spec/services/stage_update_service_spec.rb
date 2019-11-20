@@ -16,7 +16,7 @@ RSpec.describe StageUpdateService do
   end
 
   around do |example|
-    ManageIQ::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+    Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
       example.call
     end
   end

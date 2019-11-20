@@ -16,7 +16,7 @@ RSpec.describe ActionCreateService do
   end
 
   around do |example|
-    ManageIQ::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+    Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
       example.call
     end
   end
@@ -95,7 +95,7 @@ RSpec.describe ActionCreateService do
   context 'auto set processed_by if nil' do
     it 'create a new action with nil processed_by' do
       action = svc1.create('operation' => Action::MEMO_OPERATION, 'comments' => 'later')
-      expect(action.processed_by).to eq(ManageIQ::API::Common::Request.current.user.username)
+      expect(action.processed_by).to eq(Insights::API::Common::Request.current.user.username)
     end
   end
 

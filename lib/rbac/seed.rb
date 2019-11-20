@@ -7,7 +7,7 @@ module RBAC
     end
 
     def process
-      ManageIQ::API::Common::Request.with_request(@request) do
+      Insights::API::Common::Request.with_request(@request) do
         create_groups
         create_roles
         create_policies
