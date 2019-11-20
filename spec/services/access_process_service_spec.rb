@@ -1,7 +1,7 @@
 RSpec.describe AccessProcessService do
   let(:subject) { described_class.new }
   let(:api_instance) { double }
-  let(:rs_class) { class_double("RBAC::Service").as_stubbed_const(:transfer_nested_constants => true) }
+  let(:rs_class) { class_double("Insights::API::Common::RBAC::Service").as_stubbed_const(:transfer_nested_constants => true) }
   let(:group1) { instance_double(RBACApiClient::GroupOut, :name => 'group1', :uuid => "123") }
   let(:role1) { instance_double(RBACApiClient::RoleOut, :name => "approval-group-#{group1.uuid}", :uuid => "67899") }
   let(:access1) { instance_double(RBACApiClient::Access, :permission => "approval:actions:read", :resource_definitions => []) }

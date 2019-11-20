@@ -2,7 +2,7 @@ module Api
   module V1x0
     module Mixins
       module RBACMixin
-        include RBAC::Permissions
+        include ApprovalPermissions
 
         ADMIN_ROLE = 'Approval Administrator'.freeze
         APPROVER_ROLE = 'Approval Approver'.freeze
@@ -18,7 +18,7 @@ module Api
         end
 
         def index_scope(relation)
-          return relation unless RBAC::Access.enabled?
+          return relation unless Insights::API::Common::RBAC::Access.enabled?
 
           permission_check('read')
           rbac_scope(relation)
@@ -35,7 +35,7 @@ module Api
 
         # Klass here is allowed for Request, Stage and Action.
         def resource_check(verb, id = params[:id], klass = controller_name.classify.constantize)
-          return unless RBAC::Access.enabled?
+          return unless Insights::API::Common::RBAC::Access.enabled?
 
           permission_check(verb, klass)
 
@@ -43,14 +43,14 @@ module Api
         end
 
         def permission_check(verb, klass = controller_name.classify.constantize)
-          return unless RBAC::Access.enabled?
+          return unless Insights::API::Common::RBAC::Access.enabled?
 
           raise Exceptions::NotAuthorizedError, "#{verb.titleize} access not authorized for #{klass}" unless resource_accessible?(klass.table_name, verb)
         end
 
         # permission level check
         def resource_accessible?(resource, verb)
-          admin? || owner_acls(resource, verb).any? || RBAC::Access.new(resource, verb).process.acl.any?
+          admin? || owner_acls(resource, verb).any? || Insights::API::Common::RBAC::Access.new(resource, verb).process.acl.any?
         end
 
         # instance level check
@@ -67,7 +67,7 @@ module Api
         end
 
         def assigned_roles
-          @assigned_roles ||= RBAC::Roles.new.roles
+          @assigned_roles ||= Insights::API::Common::RBAC::Roles.new.roles
         end
 
         # check if approver can process the #{resource} with #{id}
@@ -151,8 +151,8 @@ module Api
 
         # The accessible workflow ids for approver
         def workflow_ids
-          approval_access = RBAC::Access.new('workflows', 'approve').process
-          approval_access.send(:generate_ids)
+          approval_access = Insights::API::Common::RBAC::Access.new('workflows', 'approve').process
+          approval_access.send(:ids)
 
           Rails.logger.info("Approvable workflows: #{approval_access.id_list}")
 
@@ -161,7 +161,7 @@ module Api
 
         # The access list regular requesters have
         def requester_acls
-          RBAC::ACLS.new.create(nil, OWNER_PERMISSIONS)
+          Insights::API::Common::RBAC::ACL.new.create(nil, OWNER_PERMISSIONS)
         end
       end
     end

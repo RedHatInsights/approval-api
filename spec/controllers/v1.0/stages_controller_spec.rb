@@ -16,7 +16,7 @@ RSpec.xdescribe Api::V1x0::StagesController, :type => :request do
   let(:api_version) { version }
 
   before do
-    allow(RBAC::Roles).to receive(:new).and_return(roles_obj)
+    allow(Insights::API::Common::RBAC::Roles).to receive(:new).and_return(roles_obj)
     allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
     allow(Group).to receive(:find)
   end
@@ -61,7 +61,7 @@ RSpec.xdescribe Api::V1x0::StagesController, :type => :request do
     end
 
     context 'approver role can not read' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -113,7 +113,7 @@ RSpec.xdescribe Api::V1x0::StagesController, :type => :request do
     end
 
     context 'approver role can not read' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)

@@ -1,13 +1,13 @@
 class AccessProcessService
-  include RBAC::Permissions
+  include ApprovalPermissions
 
   APPROVER_ROLE_PREFIX = 'approval-group-'.freeze
 
   # Need to call as org admin
   def initialize
-    @acls = RBAC::ACLS.new
-    @roles = RBAC::Roles.new(APPROVER_ROLE_PREFIX, 'account')
-    @policies = RBAC::Policies.new(APPROVER_ROLE_PREFIX)
+    @acls = Insights::API::Common::RBAC::ACL.new
+    @roles = Insights::API::Common::RBAC::Roles.new(APPROVER_ROLE_PREFIX, 'account')
+    @policies = Insights::API::Common::RBAC::Policies.new(APPROVER_ROLE_PREFIX)
   end
 
   # Need to call as org admin

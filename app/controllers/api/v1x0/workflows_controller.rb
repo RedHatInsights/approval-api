@@ -15,7 +15,7 @@ module Api
 
       # TODO: remove 'approval:workflows:read' from approver acls list in RBAC Insight
       def show
-        raise Exceptions::NotAuthorizedError, "Not Authorized for workflows" if RBAC::Access.enabled? && !admin?
+        raise Exceptions::NotAuthorizedError, "Not Authorized for workflows" if Insights::API::Common::RBAC::Access.enabled? && !admin?
 
         json_response(Workflow.find(params.require(:id)))
       end
@@ -75,7 +75,7 @@ module Api
       end
 
       def collection(base_query)
-        resp = ManageIQ::API::Common::PaginatedResponse.new(
+        resp = Insights::API::Common::PaginatedResponse.new(
           :base_query => filtered(scoped(base_query)),
           :request    => request,
           :limit      => params[:limit],
