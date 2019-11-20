@@ -6,7 +6,7 @@ module RBAC
     end
 
     def sync_workflows
-      ManageIQ::API::Common::Request.with_request(@request) do
+      Insights::API::Common::Request.with_request(@request) do
         aps = AccessProcessService.new
         Workflow.all.each do |workflow|
           aps.add_resource_to_groups(workflow.id, workflow.group_refs)

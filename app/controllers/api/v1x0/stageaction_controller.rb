@@ -40,7 +40,7 @@ module Api
           comments = params[:message]
         end
 
-        ManageIQ::API::Common::Request.with_request(@stage.request.context.transform_keys(&:to_sym)) do
+        Insights::API::Common::Request.with_request(@stage.request.context.transform_keys(&:to_sym)) do
           ActsAsTenant.with_tenant(Tenant.find(@stage.tenant_id)) do
             ActionCreateService.new(@stage.id).create(
               :operation    => operation.downcase,

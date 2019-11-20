@@ -33,7 +33,7 @@ module Api
 
       def rbac_scope(relation)
         ids =
-          case ManageIQ::API::Common::Request.current.headers[ManageIQ::API::Common::Request::PERSONA_KEY]
+          case Insights::API::Common::Request.current.headers[Insights::API::Common::Request::PERSONA_KEY]
           when PERSONA_ADMIN
             raise Exceptions::NotAuthorizedError, "No permission to access the complete list of requests" unless admin?
           when PERSONA_APPROVER

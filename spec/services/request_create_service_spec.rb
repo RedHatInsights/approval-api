@@ -4,7 +4,7 @@ RSpec.describe RequestCreateService do
   before { allow(Group).to receive(:find) }
 
   around do |example|
-    ManageIQ::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+    Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
       example.call
     end
   end
@@ -13,8 +13,8 @@ RSpec.describe RequestCreateService do
     it 'auto fills requester_name' do
       request = subject.create(:name => 'req1', :content => 'test me', :tag_resources => [])
       request.reload
-      expect(request.requester_name).to include(ManageIQ::API::Common::Request.current.user.last_name)
-      expect(request.requester_name).to include(ManageIQ::API::Common::Request.current.user.first_name)
+      expect(request.requester_name).to include(Insights::API::Common::Request.current.user.last_name)
+      expect(request.requester_name).to include(Insights::API::Common::Request.current.user.first_name)
     end
   end
 

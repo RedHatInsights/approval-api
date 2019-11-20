@@ -12,7 +12,7 @@ module Api
         end
 
         def collection(base_query)
-          resp = ManageIQ::API::Common::PaginatedResponse.new(
+          resp = Insights::API::Common::PaginatedResponse.new(
             :base_query => filtered(scoped(base_query)),
             :request    => request,
             :limit      => pagination_limit,
@@ -23,7 +23,7 @@ module Api
         end
 
         def filtered(base_query)
-          ManageIQ::API::Common::Filter.new(base_query, params[:filter], api_doc_definition).apply
+          Insights::API::Common::Filter.new(base_query, params[:filter], api_doc_definition).apply
         end
 
         private

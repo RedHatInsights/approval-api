@@ -6,7 +6,7 @@ RSpec.describe ContextService do
     context 'request with context' do
       it 'sets the http request header and current tenant' do
         subject.with_context do
-          expect(ManageIQ::API::Common::Request.current.to_h).to eq(request.context.transform_keys(&:to_sym))
+          expect(Insights::API::Common::Request.current.to_h).to eq(request.context.transform_keys(&:to_sym))
           expect(ActsAsTenant.current_tenant).to eq(request.tenant)
         end
       end
@@ -24,7 +24,7 @@ RSpec.describe ContextService do
   describe '#as_org_admin' do
     it 'sets the http request header with is_org_admin == true' do
       subject.as_org_admin do
-        expect(ManageIQ::API::Common::Request.current.user.org_admin?).to be_truthy
+        expect(Insights::API::Common::Request.current.user.org_admin?).to be_truthy
       end
     end
   end

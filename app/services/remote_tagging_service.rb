@@ -74,7 +74,7 @@ class RemoteTaggingService
   end
 
   def headers(session)
-    ManageIQ::API::Common::Request.current_forwardable.each do |k, v|
+    Insights::API::Common::Request.current_forwardable.each do |k, v|
       session.headers[k] = v
     end
   end

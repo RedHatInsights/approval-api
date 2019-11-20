@@ -4,7 +4,7 @@ class RequestCreateService
   attr_accessor :workflows
 
   def create(options)
-    requester = ManageIQ::API::Common::Request.current.user
+    requester = Insights::API::Common::Request.current.user
     options = options.transform_keys(&:to_sym)
     create_options = options.slice(:name, :description).merge(
       :requester_name  => "#{requester.first_name} #{requester.last_name}",
