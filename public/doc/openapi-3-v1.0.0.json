@@ -453,9 +453,18 @@
                   "Workflow"
                 ],
                 "summary": "Return all approval workflows, only available for admin",
-                "description": "Return all approval workflows in ascending sequence order",
+                "description": "Depends on the query parameters, either return all workflows in ascending sequence order when no parameters are provided; or return the workflows linking to the resource object whose app_name, object_type and object_id are specified by query parameters",
                 "operationId": "listWorkflows",
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/app_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/object_id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/object_type"
+                    },
                     {
                         "$ref": "#/components/parameters/limit"
                     },
@@ -484,86 +493,6 @@
                                 }
                             }
                         }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    }
-                }
-            }
-        },
-        "/workflows/resolve": {
-            "post": {
-                "tags": [
-                    "Workflow"
-                ],
-                "summary": "Get all workflows linked to a resource object.",
-                "description": "Get all workflows linked to a resource object.", 
-                "operationId": "resolveWorkflows",
-                "requestBody": {
-                   "content": {
-                       "application/json": {
-                           "schema": {
-                               "$ref": "#/components/schemas/ResourceObject"
-                           }
-                       }
-                   },
-                   "description": "Resource object used to resolve workflows.",
-                   "required": true
-                },
-                "responses": {
-                   "200": {
-                       "description": "Success",
-                       "content": {
-                           "application/json": {
-                               "schema": {
-                                   "type": "array",
-                                   "items": {
-                                       "$ref": "#/components/schemas/Workflow"
-                                   }
-                               }
-                           }
-                       }
-                   },
-                   "400": {
-                       "$ref": "#/components/responses/400BadRequestResponse"
-                   },
-                   "403": {
-                       "$ref": "#/components/responses/403ForbiddenResponse"
-                   },
-                   "404": {
-                       "$ref": "#/components/responses/404NotFoundResponse"
-                   }
-                }
-            }
-        },
-        "/workflows/unlink": {
-            "post": {
-                "tags": [
-                  "Workflow"
-                ],
-                "summary": "Break all links between a resource object and its assigned workflows",
-                "operationId": "unlinkAll",
-                "description": "Break all links between a resource object and its assigned workflows",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ResourceObject"
-                            }
-                        }
-                    },
-                    "description": "Parameters needed to remove a link",
-                    "required": true
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success"
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
@@ -965,6 +894,33 @@
                     "format": "int32",
                     "minimum": 0,
                     "default": 0
+                }
+            },
+            "app_name": {
+                "name": "app_name",
+                "in": "query",
+                "description": "Name of the application",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "object_id": {
+                "name": "object_id",
+                "in": "query",
+                "description": "Id of the resource object",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "object_type": {
+                "name": "object_type",
+                "in": "query",
+                "description": "Type of the resource object",
+                "required": false,
+                "schema": {
+                    "type": "string"
                 }
             },
             "filter": {

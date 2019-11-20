@@ -24,6 +24,8 @@ module Api
         relation = if params[:template_id]
                      template = Template.find(params.require(:template_id))
                      template.workflows
+                   elsif for_resource_object?
+                     WorkflowFindService.new.find(resource_object_params)
                    else
                      Workflow.all
                    end
@@ -50,14 +52,9 @@ module Api
       end
 
       def unlink
-        WorkflowUnlinkService.new(params[:id]).unlink(params_for_create.to_unsafe_h)
+        WorkflowUnlinkService.new(params[:id]).unlink(resource_object_params)
 
         head :no_content
-      end
-
-      def resolve
-        found_workflows = WorkflowFindService.new.find(params_for_create.to_unsafe_h)
-        found_workflows.empty? ? head(:no_content) : json_response(found_workflows, :ok)
       end
 
       def update
@@ -75,6 +72,27 @@ module Api
         raise Exceptions::NotAuthorizedError, "Not Authorized for #{relation.model.table_name}" unless admin?
 
         relation
+      end
+
+      def collection(base_query)
+        resp = ManageIQ::API::Common::PaginatedResponse.new(
+          :base_query => filtered(scoped(base_query)),
+          :request    => request,
+          :limit      => params[:limit],
+          :offset     => params[:offset]
+        ).response
+
+        json_response(resp)
+      end
+
+      def resource_object_params
+        @resource_object_params ||= params.slice(:object_type, :object_id, :app_name).to_unsafe_h
+      end
+
+      def for_resource_object?
+        raise Exceptions::UserError, "Invalid resource object params: #{resource_object_params}" unless resource_object_params.length.zero? || resource_object_params.length == 3
+
+        !!(resource_object_params[:app_name] && resource_object_params[:object_id] && resource_object_params[:object_type])
       end
     end
   end
