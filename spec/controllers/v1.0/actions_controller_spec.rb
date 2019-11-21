@@ -1,4 +1,4 @@
-RSpec.describe Api::V1x0::ActionsController, :type => :request do
+RSpec.xdescribe Api::V1x0::ActionsController, :type => :request do
   include_context "approval_rbac_objects"
   let(:tenant) { create(:tenant) }
 
