@@ -8,7 +8,7 @@ class Request < ApplicationRecord
 
   belongs_to :request_context, :optional => false
   belongs_to :workflow
-  has_many :stages, -> { order(:id => :asc) }, :inverse_of => :request, :dependent => :destroy
+  has_many :actions, -> { order(:id => :asc) }, :dependent => :destroy, :inverse_of => :request
 
   validates :name,     :presence  => true
   validates :state,    :inclusion => { :in => STATES }
@@ -18,6 +18,7 @@ class Request < ApplicationRecord
   scope :state,          ->(state)          { where(:state => state) }
   scope :owner,          ->(owner)          { where(:owner => owner) }
   scope :requester_name, ->(requester_name) { where(:requester_name => requester_name) }
+  scope :group_ref,      ->(group_ref)      { where(:group_ref => group_ref) }
   default_scope { order(:created_at => :desc) }
 
   delegate :content, :to => :request_context
@@ -25,24 +26,22 @@ class Request < ApplicationRecord
 
   after_initialize :set_defaults
 
-  def as_json(options = {})
-    super.merge(:total_stages => total_stages, :active_stage => active_stage_number)
+  def invalidate_number_of_children
+    update(:number_of_children => children.size)
   end
 
-  def current_stage
-    stages.find_by(:state => [Stage::NOTIFIED_STATE, Stage::PENDING_STATE])
-  end
-
-  def number_of_children
-    children.size
-  end
-
-  def number_of_finished_children
-    children.count { |child| Request::FINISHED_STATES.include?(child.state) }
+  def invalidate_number_of_finished_children
+    update(:number_of_finished_children => children.count { |child| Request::FINISHED_STATES.include?(child.state) })
   end
 
   def create_child
-    self.class.create!(:name => name, :description => description, :owner => owner, :requester_name => requester_name, :parent_id => id, :request_context_id => request_context_id)
+    self.class.create!(:name => name, :description => description, :owner => owner, :requester_name => requester_name, :parent_id => id, :request_context_id => request_context_id).tap do
+      invalidate_number_of_children
+    end
+  end
+
+  def group
+    @group ||= Group.find(group_ref)
   end
 
   private
@@ -52,22 +51,5 @@ class Request < ApplicationRecord
 
     self.state    = Request::PENDING_STATE
     self.decision = Request::UNDECIDED_STATUS
-  end
-
-  def total_stages
-    stages.size
-  end
-
-  def active_stage_number
-    return 0 if total_stages.zero?
-
-    # return 1-based active stage
-    active_stage = stages.find_index { |st| st.state == Stage::NOTIFIED_STATE || st.state == Stage::PENDING_STATE }
-    if active_stage.nil?
-      # no stage in active, must have completed
-      stages.size
-    else
-      active_stage + 1
-    end
   end
 end

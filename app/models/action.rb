@@ -11,5 +11,5 @@ class Action < ApplicationRecord
 
   validates :operation, :inclusion => { :in => OPERATIONS }
   validates :processed_by, :presence  => true
-  belongs_to :stage, :inverse_of => :actions
+  belongs_to :request, :inverse_of => :actions
 end

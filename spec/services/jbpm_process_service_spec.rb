@@ -1,4 +1,4 @@
-RSpec.describe JbpmProcessService do
+RSpec.xdescribe JbpmProcessService do
   let(:template) do
     ENV['APPROVAL_PAM_SERVICE_HOST'] = 'localhost'
     ENV['APPROVAL_PAM_SERVICE_PORT'] = '8080'
