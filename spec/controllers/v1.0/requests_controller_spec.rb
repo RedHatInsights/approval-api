@@ -39,7 +39,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:api_version) { version }
 
   before do
-    allow(RBAC::Roles).to receive(:new).and_return(roles_obj)
+    allow(Insights::API::Common::RBAC::Roles).to receive(:new).and_return(roles_obj)
     allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
   end
 
@@ -64,7 +64,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'when approver' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -78,7 +78,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'when owner' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -137,7 +137,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'as approver role' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -151,7 +151,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'as regular user role' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -178,7 +178,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'as approver role' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => full_approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => full_approver_acls) }
 
       it 'returns status code 200' do
         allow(rs_class).to receive(:paginate).and_return(full_approver_acls)
@@ -195,7 +195,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'as regular user' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
 
       it 'returns status code 403' do
         allow(rs_class).to receive(:paginate).and_return([])
@@ -224,7 +224,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'as approver role' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
 
       it 'returns status code 200' do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
@@ -240,7 +240,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'as regular user' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
 
       it 'returns status code 200' do
         allow(rs_class).to receive(:paginate).and_return([])
@@ -257,7 +257,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   end
 
   xdescribe 'GET /requests for unknown persona' do
-    let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+    let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
 
     it 'returns status code 403' do
       allow(rs_class).to receive(:paginate).and_return([])
@@ -283,7 +283,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'as approver role' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => full_approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => full_approver_acls) }
 
       it 'approver role returns status code 200' do
         allow(rs_class).to receive(:paginate).and_return(full_approver_acls)
@@ -375,7 +375,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       end
 
       context 'as approver' do
-        let(:access_obj) { instance_double(RBAC::Access, :acl => full_approver_acls) }
+        let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => full_approver_acls) }
         it 'approver role returns status code 200' do
           allow(rs_class).to receive(:paginate).and_return(full_approver_acls)
           allow(access_obj).to receive(:process).and_return(access_obj)
@@ -428,7 +428,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'approver can approve' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => full_approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => full_approver_acls) }
       let(:approver_group_role) { "approval-group-#{group1.uuid}" }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
@@ -444,7 +444,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'approver cannot approve' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => full_approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => full_approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -459,7 +459,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'owner own the requests' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -474,7 +474,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'owner does not own the requests' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)

@@ -6,7 +6,7 @@ class Group
 
   def self.find(uuid)
     group = nil
-    RBAC::Service.call(RBACApiClient::GroupApi) do |api|
+    Insights::API::Common::RBAC::Service.call(RBACApiClient::GroupApi) do |api|
       group = from_raw(api.get_group(uuid))
     end
     group
@@ -14,8 +14,8 @@ class Group
 
   def self.all(username = nil)
     groups = []
-    RBAC::Service.call(RBACApiClient::GroupApi) do |api|
-      RBAC::Service.paginate(api, :list_groups, :username => username).each do |item|
+    Insights::API::Common::RBAC::Service.call(RBACApiClient::GroupApi) do |api|
+      Insights::API::Common::RBAC::Service.paginate(api, :list_groups, :username => username).each do |item|
         groups << from_raw(item)
       end
     end

@@ -6,7 +6,7 @@ namespace :approval do
     raise "Please provide a seed yaml file" unless ENV['SEED_FILE']
     raise "Please provide a user yaml file" unless ENV['USER_FILE']
 
-    obj = RBAC::Seed.new(ENV['SEED_FILE'], ENV['USER_FILE'])
+    obj = Insights::API::Common::RBAC::Seed.new(ENV['SEED_FILE'], ENV['USER_FILE'])
     obj.process
   end
 end

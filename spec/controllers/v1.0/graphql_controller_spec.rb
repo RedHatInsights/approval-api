@@ -8,14 +8,14 @@ RSpec.xdescribe Api::V1x0::GraphqlController, :type => :request do
   let(:template_id) { template.id }
   let!(:workflows) { create_list(:workflow, 4, :template_id => template.id) }
   let(:id) { workflows.first.id }
-  let(:roles_obj) { instance_double(RBAC::Roles) }
+  let(:roles_obj) { instance_double(Insights::API::Common::RBAC::Roles) }
 
   let(:api_version) { version }
 
   let(:graphql_source_query) { { 'query' => '{ workflows {  id template_id name  } }' } }
 
   before do
-    allow(RBAC::Roles).to receive(:new).and_return(roles_obj)
+    allow(Insights::API::Common::RBAC::Roles).to receive(:new).and_return(roles_obj)
     allow(roles_obj).to receive(:roles)
     allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
   end

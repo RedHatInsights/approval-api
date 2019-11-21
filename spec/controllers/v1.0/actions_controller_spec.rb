@@ -21,7 +21,7 @@ RSpec.xdescribe Api::V1x0::ActionsController, :type => :request do
   let(:api_version) { version }
 
   before do
-    allow(RBAC::Roles).to receive(:new).and_return(roles_obj)
+    allow(Insights::API::Common::RBAC::Roles).to receive(:new).and_return(roles_obj)
     allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
   end
 
@@ -69,7 +69,7 @@ RSpec.xdescribe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'approver role can approve' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => full_approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => full_approver_acls) }
       let(:approver_group_role) { "approval-group-#{group_ref}" }
       before do
         allow(rs_class).to receive(:paginate).and_return(full_approver_acls)
@@ -87,7 +87,7 @@ RSpec.xdescribe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'approver role cannot read' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -104,7 +104,7 @@ RSpec.xdescribe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'owner role cannot read' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -142,7 +142,7 @@ RSpec.xdescribe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'approver role can get actions' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => full_approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => full_approver_acls) }
       let(:approver_group_role) { "approval-group-#{group_ref}" }
       before do
         allow(rs_class).to receive(:paginate).and_return(full_approver_acls)
@@ -165,7 +165,7 @@ RSpec.xdescribe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'approver role can not get actions' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       let(:approver_group_role) { "approval-group-#{group_ref}" }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
@@ -183,7 +183,7 @@ RSpec.xdescribe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'owner role can not get actions' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
       let(:approver_group_role) { "approval-group-#{group_ref}" }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
@@ -218,7 +218,7 @@ RSpec.xdescribe Api::V1x0::ActionsController, :type => :request do
 
     context 'admin role when request attributes are valid' do
       let(:acls) { [] }
-      let(:access_obj) { instance_double(RBAC::Access, :acl => acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => acls) }
       let(:roles) { [admin_role] }
       let(:valid_attributes) { { :operation => 'cancel', :processed_by => 'abcd' } }
       let(:code) { 201 }
@@ -228,7 +228,7 @@ RSpec.xdescribe Api::V1x0::ActionsController, :type => :request do
 
     context 'approver role far valid operation' do
       let(:acls) { approver_acls }
-      let(:access_obj) { instance_double(RBAC::Access, :acl => acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => acls) }
       let(:roles) { [approver_role] }
       let(:valid_attributes) { { :operation => 'approve', :processed_by => 'abcd' } }
       let(:code) { 201 }
@@ -238,7 +238,7 @@ RSpec.xdescribe Api::V1x0::ActionsController, :type => :request do
 
     context 'approver role far invalid operation cancel' do
       let(:acls) { approver_acls }
-      let(:access_obj) { instance_double(RBAC::Access, :acl => acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => acls) }
       let(:roles) { [approver_role] }
       let(:valid_attributes) { { :operation => 'cancel', :processed_by => 'abcd' } }
       let(:code) { 403 }
@@ -248,7 +248,7 @@ RSpec.xdescribe Api::V1x0::ActionsController, :type => :request do
 
     context 'owner role for valid operation cancel' do
       let(:acls) { [] }
-      let(:access_obj) { instance_double(RBAC::Access, :acl => acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => acls) }
       let(:roles) { [] }
       let(:valid_attributes) { { :operation => 'cancel', :processed_by => 'abcd' } }
       let(:code) { 201 }
@@ -258,7 +258,7 @@ RSpec.xdescribe Api::V1x0::ActionsController, :type => :request do
 
     context 'owner role for invalid operation approve' do
       let(:acls) { [] }
-      let(:access_obj) { instance_double(RBAC::Access, :acl => acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => acls) }
       let(:roles) { [] }
       let(:valid_attributes) { { :operation => 'approve', :processed_by => 'abcd' } }
       let(:code) { 403 }

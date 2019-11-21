@@ -11,7 +11,7 @@ class User
 
   def self.find_by_username(username)
     user = nil
-    RBAC::Service.call(RBACApiClient::PrincipalApi) do |api|
+    Insights::API::Common::RBAC::Service.call(RBACApiClient::PrincipalApi) do |api|
       user = from_raw(api.get_principal(username))
     end
     user
@@ -19,8 +19,8 @@ class User
 
   def self.all
     users = []
-    RBAC::Service.call(RBACApiClient::PrincipalApi) do |api|
-      RBAC::Service.paginate(api, :list_principals, {}).each do |item|
+    Insights::API::Common::RBAC::Service.call(RBACApiClient::PrincipalApi) do |api|
+      Insights::API::Common::RBAC::Service.paginate(api, :list_principals, {}).each do |item|
         users << from_raw(item)
       end
     end

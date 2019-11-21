@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::API
   include Response
+  include Insights::API::Common::RBAC
   include Insights::API::Common::ApplicationControllerMixins::ExceptionHandling
   include Insights::API::Common::ApplicationControllerMixins::ApiDoc
   include Insights::API::Common::ApplicationControllerMixins::Common
