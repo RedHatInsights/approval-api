@@ -152,7 +152,6 @@ module Api
         # The accessible workflow ids for approver
         def workflow_ids
           approval_access = Insights::API::Common::RBAC::Access.new('workflows', 'approve').process
-          approval_access.send(:ids)
 
           Rails.logger.info("Approvable workflows: #{approval_access.id_list}")
 
