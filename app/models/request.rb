@@ -56,12 +56,12 @@ class Request < ApplicationRecord
     number_of_children.zero?
   end
 
-  def pure_leaf?
-    !root? && leaf?
+  def child?
+    parent_id.present?
   end
 
-  def pure_root?
-    root? && !leaf?
+  def parent?
+    number_of_children.nonezero?
   end
 
   def group

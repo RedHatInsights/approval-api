@@ -20,7 +20,7 @@ class RequestUpdateService
 
     EventService.new(request).request_started if request.root?
 
-    update_parent(options) if request.pure_leaf?
+    update_parent(options) if request.child?
 
     notify_request if request.leaf?
   end
@@ -30,7 +30,7 @@ class RequestUpdateService
 
     EventService.new(request).approver_group_notified if request.leaf?
 
-    update_parent(options) if request.pure_leaf?
+    update_parent(options) if request.child?
   end
 
   def completed(options)
@@ -40,19 +40,9 @@ class RequestUpdateService
 
     EventService.new(request).approver_group_finished if request.leaf?
 
-    if request.pure_leaf?
-      request.update!(options.merge(:finished_at => DateTime.now))
-      request.parent.invalidate_number_of_finished_children
-      update_parent(options)
-      if options[:decision] == Request::DENIED_STATUS
-        skip_leaves
-      else
-        start_next_leaves if peers_approved?(request)
-      end
-    elsif request.number_of_finished_children == request.number_of_children || options[:decision] == Request::DENIED_STATUS
-      request.update!(options.merge(:finished_at => DateTime.now))
-      EventService.new(request).request_completed
-    end
+    return child_completed(options) if request.child?
+
+    return parent_completed(options) if request_completed?(request, options[:decision])
   end
 
   # Root only.
@@ -77,14 +67,30 @@ class RequestUpdateService
     end
   end
 
+  def child_completed(options)
+    request.update!(options.merge(:finished_at => DateTime.now))
+    request.parent.invalidate_number_of_finished_children
+    update_parent(options)
+    if options[:decision] == Request::DENIED_STATUS
+      skip_leaves
+    else
+      start_next_leaves if peers_approved?(request)
+    end
+  end
+
+  def parent_completed(options)
+    request.update!(options.merge(:finished_at => DateTime.now))
+    EventService.new(request).request_completed
+  end
+
+  def request_completed?(decision)
+    request.number_of_finished_children == request.number_of_children || decision == Request::DENIED_STATUS
+  end
+
   def peers_approved?(request)
     peers = Request.where(:workflow_id => request.workflow_id, :parent_id => request.parent_id)
 
-    peers.each do |peer|
-      return false unless peer.decision == Request::APPROVED_STATUS
-    end
-
-    true
+    peers.any? { |peer| peer.decision != Request::APPROVED_STATUS } ? false : true
   end
 
   def start_next_leaves

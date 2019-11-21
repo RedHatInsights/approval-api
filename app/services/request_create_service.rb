@@ -30,7 +30,7 @@ class RequestCreateService
 
   def create_child_requests(request)
     if workflows.size == 1 && workflows.first.group_refs.size == 1
-      update_leaf_with_workflow(request, workflows.first, workflows.first.group_refs.first)
+      update_leaf_with_workflow(request, workflows.first.id, workflows.first.group_refs.first)
       return
     end
 
@@ -74,8 +74,7 @@ class RequestCreateService
 
     start_request(request)
 
-    sub_requests = request.children
-    sub_requests = [request] if sub_requests.empty?
+    sub_requests = request.parent? ? [request] : request.children
 
     sub_requests.each { |req| group_auto_approve(req, sleep_time) }
   end
@@ -90,19 +89,18 @@ class RequestCreateService
   end
 
   def start_request(request)
-    sub_request_ids =
-      if request.leaf?
-        [request]
-      else
-        last = request.children.last
-        Request.where(:parent_id => last.parent_id, :workflow_id => last.workflow_id).pluck(:id)
-      end
-
-    sub_request_ids.each do |rid|
+    sub_request_ids(request).each do |rid|
       ActionCreateService.new(rid).create(
         :operation    => Action::START_OPERATION,
         :processed_by => 'system'
       )
     end
+  end
+
+  def sub_request_ids(request)
+    return [request.id] if request.leaf?
+
+    last = request.children.last
+    Request.where(:parent_id => last.parent_id, :workflow_id => last.workflow_id).pluck(:id)
   end
 end
