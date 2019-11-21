@@ -75,7 +75,7 @@ module Api
       end
 
       def collection(base_query)
-        resp = ManageIQ::API::Common::PaginatedResponse.new(
+        resp = Insights::API::Common::PaginatedResponse.new(
           :base_query => filtered(scoped(base_query)),
           :request    => request,
           :limit      => params[:limit],
