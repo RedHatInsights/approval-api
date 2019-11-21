@@ -4,7 +4,6 @@ plugin 'bundler-inject', '~> 1.1'
 require File.join(Bundler::Plugin.index.load_paths("bundler-inject")[0], "bundler-inject") rescue nil
 
 gem 'acts_as_list',        '~> 1.0'
-gem 'acts_as_tree',        '~> 2.9'
 gem 'faraday',             '>= 0.17.0'
 gem 'insights-api-common', '~> 3.0'
 gem 'jbuilder',            '~> 2.0'

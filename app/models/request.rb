@@ -4,11 +4,13 @@ class Request < ApplicationRecord
   include OwnerField
 
   acts_as_tenant(:tenant)
-  acts_as_tree
 
   belongs_to :request_context, :optional => false
   belongs_to :workflow
   has_many :actions, -> { order(:id => :asc) }, :dependent => :destroy, :inverse_of => :request
+
+  belongs_to :parent,   :foreign_key => :parent_id, :class_name => 'Request', :inverse_of => :children
+  has_many   :children, :foreign_key => :parent_id, :class_name => 'Request', :inverse_of => :parent, :dependent => :destroy
 
   validates :name,     :presence  => true
   validates :state,    :inclusion => { :in => STATES }
@@ -31,6 +33,8 @@ class Request < ApplicationRecord
   end
 
   def invalidate_number_of_finished_children
+    return if number_of_children.zero?
+
     update(:number_of_finished_children => children.count { |child| Request::FINISHED_STATES.include?(child.state) })
   end
 
@@ -38,6 +42,26 @@ class Request < ApplicationRecord
     self.class.create!(:name => name, :description => description, :owner => owner, :requester_name => requester_name, :parent_id => id, :request_context_id => request_context_id).tap do
       invalidate_number_of_children
     end
+  end
+
+  def root
+    root? ? self : parent
+  end
+
+  def root?
+    parent_id.nil?
+  end
+
+  def leaf?
+    number_of_children.zero?
+  end
+
+  def pure_leaf?
+    !root? && leaf?
+  end
+
+  def pure_root?
+    root? && !leaf?
   end
 
   def group
@@ -51,5 +75,8 @@ class Request < ApplicationRecord
 
     self.state    = Request::PENDING_STATE
     self.decision = Request::UNDECIDED_STATUS
+
+    self.number_of_children = 0
+    self.number_of_finished_children = 0
   end
 end

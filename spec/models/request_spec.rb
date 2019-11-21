@@ -23,7 +23,7 @@ RSpec.describe Request, type: :model do
     context 'all children are finished' do
       let(:children) do
         [
-          FactoryBot.create(:request, :state => Request::FINISHED_STATE),
+          FactoryBot.create(:request, :state => Request::COMPLETED_STATE),
           FactoryBot.create(:request, :state => Request::CANCELED_STATE),
           FactoryBot.create(:request, :state => Request::SKIPPED_STATE)
         ]
@@ -40,7 +40,7 @@ RSpec.describe Request, type: :model do
     context 'some children are finished' do
       let(:children) do
         [
-          FactoryBot.create(:request, :state => Request::FINISHED_STATE),
+          FactoryBot.create(:request, :state => Request::COMPLETED_STATE),
           FactoryBot.create(:request, :state => Request::PENDING_STATE),
           FactoryBot.create(:request, :state => Request::PENDING_STATE)
         ]
