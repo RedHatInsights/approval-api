@@ -61,7 +61,7 @@ class Request < ApplicationRecord
   end
 
   def parent?
-    number_of_children.nonezero?
+    number_of_children.nonzero?
   end
 
   def group
