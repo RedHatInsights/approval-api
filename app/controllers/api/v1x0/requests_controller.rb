@@ -26,7 +26,7 @@ module Api
       end
 
       def index_scope(relation)
-        super(relation.includes(:children))
+        super(relation.where(:parent_id => nil))
       end
 
       private

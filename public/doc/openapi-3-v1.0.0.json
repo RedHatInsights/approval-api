@@ -201,8 +201,8 @@
                 "tags": [
                   "Request"
                 ],
-                "summary": "Return an array of approval requests, available to anyone",
-                "description": "Return an array of requests. The result depends on the x-rh-persona header",
+                "summary": "Return an array of requester made approval requests, available to anyone",
+                "description": "The result depends on the x-rh-persona header (approval/admin, approval/requseter, or approval/approver). Program generated child requests are not included.",
                 "operationId": "listRequests",
                 "parameters": [
                     {
@@ -330,8 +330,8 @@
                 "tags": [
                   "Request"
                 ],
-                "summary": "Return an array of request children by given request id",
-                "description": "Return an array of child request by given request id, available for admin/requester",
+                "summary": "Return an array of child requests of a given request id",
+                "description": "Return an array of child requests of a given request id, available for admin/requester",
                 "operationId": "listRequestsByRequest",
                 "parameters": [
                     {
@@ -1153,7 +1153,7 @@
                 }
             },
             "Request": {
-                "description": "Approval request. It may have child requests. Only a leaf node request can have workflow_id and actions",
+                "description": "Approval request. It may have child requests. Only a leaf node request can have workflow_id",
                 "type": "object",
                 "properties": {
                     "id": {
@@ -1162,13 +1162,14 @@
                     },
                     "state": {
                         "type": "string",
-                        "description": "The state of the request. Possible value: canceled, pending, skipped, notified, or finished",
+                        "description": "The state of the request. Possible value: canceled, completed, notified, skipped, or started",
                         "enum": [
                             "canceled",
+                            "completed",
+                            "notified",
                             "pending",
                             "skipped",
-                            "notified",
-                            "finished"
+                            "started"
                         ],
                         "readOnly": true
                     },
@@ -1193,16 +1194,16 @@
                         "description": "Associate workflow id. Available only if the request is a leaf node",
                         "readOnly": true
                     },
-                    "created_at": {
+                    "notified_at": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "Timestamp of creation",
+                        "description": "Timestamp of notification sent to approvers",
                         "readOnly": true
                     },
-                    "updated_at": {
+                    "finished_at": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "Timestamp of last update",
+                        "description": "Timestamp of finishing (skipped, canceled, or completed)",
                         "readOnly": true
                     },
                     "number_of_children": {
@@ -1233,6 +1234,16 @@
                     "description": {
                         "type": "string",
                         "description": "Request description",
+                        "readOnly": true
+                    },
+                    "group_name": {
+                        "type": "string",
+                        "description": "Name of approver group(s) assigned to approve this request",
+                        "readOnly": true
+                    },
+                    "parent_id": {
+                        "type": "string",
+                        "description": "Parent request id",
                         "readOnly": true
                     }
                 }
