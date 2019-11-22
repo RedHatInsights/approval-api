@@ -1,9 +1,9 @@
 require 'manageiq-messaging'
 
 class EventService
-  EVENT_REQUEST_STARTED  = 'request_started'.freeze
-  EVENT_REQUEST_FINISHED = 'request_finished'.freeze
-  EVENT_REQUEST_CANCELED = 'request_canceled'.freeze
+  EVENT_REQUEST_STARTED   = 'request_started'.freeze
+  EVENT_REQUEST_COMPLETED = 'request_finished'.freeze
+  EVENT_REQUEST_CANCELED  = 'request_canceled'.freeze
   EVENT_APPROVER_GROUP_NOTIFIED = 'approver_group_notified'.freeze
   EVENT_APPROVER_GROUP_FINISHED = 'approver_group_finished'.freeze
   EVENT_SENDER = 'approval_service'.freeze
@@ -14,31 +14,40 @@ class EventService
     self.request = request
   end
 
-  def approver_group_notified(stage)
+  # request is leaf node
+  def approver_group_notified
+    return unless request.group_name
+
     send_event(EVENT_APPROVER_GROUP_NOTIFIED,
-               :request_id => request.id,
-               :group_name => group_name(stage))
+               :request_id => request.root.id,
+               :group_name => request.group_name)
   end
 
-  def approver_group_finished(stage)
+  # request is leaf node
+  def approver_group_finished
+    return unless request.group_name
+
     send_event(EVENT_APPROVER_GROUP_FINISHED,
-               :request_id => request.id,
-               :group_name => group_name(stage),
-               :decision   => stage.decision,
-               :reason     => stage.reason)
+               :request_id => request.root.id,
+               :group_name => request.group_name,
+               :decision   => request.decision,
+               :reason     => request.reason || '')
   end
 
+  # request is root
   def request_started
     send_event(EVENT_REQUEST_STARTED, :request_id => request.id)
   end
 
-  def request_finished
-    send_event(EVENT_REQUEST_FINISHED,
+  # request is root
+  def request_completed
+    send_event(EVENT_REQUEST_COMPLETED,
                :request_id => request.id,
                :decision   => request.decision,
                :reason     => request.reason || '')
   end
 
+  # request is root
   def request_canceled
     send_event(EVENT_REQUEST_CANCELED,
                :request_id => request.id,
@@ -46,12 +55,6 @@ class EventService
   end
 
   private
-
-  def group_name(stage)
-    ContextService.new(request.context).as_org_admin do
-      stage.name # need call to RBAC to get group/stage name
-    end
-  end
 
   def topic
     @topic ||= ENV['QUEUE_NAME'] || 'approval_events'.freeze

@@ -1,12 +1,12 @@
 class ActionCreateService
-  attr_accessor :stage
+  attr_accessor :request
 
-  def initialize(stage_id)
-    self.stage = Stage.find(stage_id)
+  def initialize(request_id)
+    self.request = Request.find(request_id)
   end
 
   def create(options)
-    stage_options = validate_operation(options)
+    request_options = validate_operation(options)
 
     options = options.transform_keys(&:to_sym)
     unless options[:processed_by]
@@ -14,10 +14,10 @@ class ActionCreateService
       options[:processed_by] = requester.username
     end
 
-    Action.create!(options.merge(:stage => stage)).tap do
-      if stage_options
-        StageUpdateService.new(stage.id).update(stage_options)
-        stage.reload
+    Action.create!(options.merge(:request => request)).tap do
+      if request_options
+        RequestUpdateService.new(request.id).update(request_options)
+        request.reload
       end
     end
   end
@@ -36,47 +36,57 @@ class ActionCreateService
     nil
   end
 
-  def notify(_comments)
-    unless stage.state == Stage::PENDING_STATE
-      raise Exceptions::InvalidStateTransitionError, "Current stage is not in pending state"
+  def start(_comments)
+    unless request.state == Request::PENDING_STATE
+      raise Exceptions::InvalidStateTransitionError, "Current request is not pending state"
     end
 
-    {:state => Stage::NOTIFIED_STATE}
+    {:state => Request::STARTED_STATE}
+  end
+
+  def notify(_comments)
+    unless request.state == Request::STARTED_STATE
+      raise Exceptions::InvalidStateTransitionError, "Current request is not started state"
+    end
+
+    {:state => Request::NOTIFIED_STATE}
   end
 
   def skip(_comments)
-    unless stage.state == Stage::PENDING_STATE
-      raise Exceptions::InvalidStateTransitionError, "Current stage is not in pending state"
+    unless request.state == Request::PENDING_STATE
+      raise Exceptions::InvalidStateTransitionError, "Current request is not in pending state"
     end
 
-    {:state => Stage::SKIPPED_STATE}
+    {:state => Request::SKIPPED_STATE}
   end
 
   def approve(comments)
-    unless stage.state == Stage::NOTIFIED_STATE
-      raise Exceptions::InvalidStateTransitionError, "Current stage is not in notified state"
+    unless request.state == Request::NOTIFIED_STATE
+      raise Exceptions::InvalidStateTransitionError, "Current request is not in notified state"
     end
 
-    {:state => Stage::FINISHED_STATE, :decision => Stage::APPROVED_STATUS}.tap do |h|
+    {:state => Request::COMPLETED_STATE, :decision => Request::APPROVED_STATUS}.tap do |h|
       h[:reason] = comments if comments
     end
   end
 
   def deny(comments)
-    unless stage.state == Stage::NOTIFIED_STATE
-      raise Exceptions::InvalidStateTransitionError, "Current stage is not in notified state"
+    unless request.state == Request::NOTIFIED_STATE
+      raise Exceptions::InvalidStateTransitionError, "Current request is not in notified state"
     end
     raise Exceptions::ApprovalError, "Reason to deny the request is missing" unless comments
 
-    {:state => Stage::FINISHED_STATE, :decision => Stage::DENIED_STATUS, :reason => comments}
+    {:state => Request::COMPLETED_STATE, :decision => Request::DENIED_STATUS, :reason => comments}
   end
 
   def cancel(comments)
-    unless [Stage::PENDING_STATE, Stage::NOTIFIED_STATE].include?(stage.state)
-      raise Exceptions::InvalidStateTransitionError, "Current stage has already finished"
+    raise Exceptions::InvalidStateTransitionError, "Only root level request can be canceled" unless request.root?
+
+    if Request::FINISHED_STATES.include?(request.state)
+      raise Exceptions::InvalidStateTransitionError, "The request has already finished"
     end
 
-    {:state => Stage::CANCELED_STATE, :decision => Stage::CANCELED_STATUS}.tap do |h|
+    {:state => Request::CANCELED_STATE, :decision => Request::CANCELED_STATUS}.tap do |h|
       h[:reason] = comments if comments
     end
   end
