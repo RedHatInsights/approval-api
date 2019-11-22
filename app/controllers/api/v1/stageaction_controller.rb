@@ -1,8 +1,7 @@
 module Api
-  module V1x0
+  module V1
     class StageactionController < ActionController::Base
       include Response
-      include ExceptionHandler
 
       protect_from_forgery :with => :exception, :prepend => true
 
