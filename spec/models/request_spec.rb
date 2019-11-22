@@ -1,6 +1,7 @@
 RSpec.describe Request, type: :model do
   it { should belong_to(:request_context) }
   it { should belong_to(:workflow) }
+  it { should belong_to(:parent) }
   it { should have_many(:actions) }
   it { should have_many(:children) }
 
@@ -66,8 +67,48 @@ RSpec.describe Request, type: :model do
         :owner              => subject.owner,
         :requester_name     => subject.requester_name,
         :state              => Request::PENDING_STATE,
-        :decision           => Request::UNDECIDED_STATUS
+        :decision           => Request::UNDECIDED_STATUS,
+
+        :number_of_children          => 0,
+        :number_of_finished_children => 0
       )
+
+      expect(subject.number_of_children).to eq(1)
+      expect(subject.number_of_finished_children).to be_zero
+    end
+  end
+
+  describe '#parent? and #child?' do
+    subject { FactoryBot.create(:request, :children => children) }
+
+    before { subject.invalidate_number_of_children }
+
+    context 'no child' do
+      let(:children) { [] }
+
+      it 'is a single node' do
+        expect(subject.root?).to be_truthy
+        expect(subject.leaf?).to be_truthy
+        expect(subject.parent?).to be_falsy
+        expect(subject.child?).to be_falsy
+      end
+    end
+
+    context 'with children' do
+      let(:child) { FactoryBot.create(:request) }
+      let(:children) { [child] }
+
+      it 'detects parent and child' do
+        expect(subject.root?).to be_truthy
+        expect(subject.leaf?).to be_falsy
+        expect(subject.parent?).to be_truthy
+        expect(subject.child?).to be_falsy
+
+        expect(child.root?).to be_falsy
+        expect(child.leaf?).to be_truthy
+        expect(child.parent?).to be_falsy
+        expect(child.child?).to be_truthy
+      end
     end
   end
 end
