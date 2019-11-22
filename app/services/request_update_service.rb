@@ -42,7 +42,7 @@ class RequestUpdateService
 
     return child_completed(options) if request.child?
 
-    return parent_completed(options) if request_completed?(request, options[:decision])
+    return parent_completed(options) if request_completed?(options[:decision])
   end
 
   # Root only.
@@ -120,7 +120,7 @@ class RequestUpdateService
 
   # start the external approval process if configured
   def start_request
-    return unless bypass || request.workflow.try(:external_processing?)
+    return unless !bypass? || request.workflow.try(:external_processing?)
 
     template = request.workflow.template
     processor_class = "#{template.process_setting['processor_type']}_process_service".classify.constantize
@@ -136,7 +136,7 @@ class RequestUpdateService
 
   # complete the external approval process if configured
   def finish_request(decision)
-    return unless bypass || request.workflow.try(:external_processing?)
+    return unless !bypass? || request.workflow.try(:external_processing?)
 
     template = request.workflow.template
     processor_class = "#{template.signal_setting['processor_type']}_process_service".classify.constantize
@@ -144,7 +144,7 @@ class RequestUpdateService
   end
 
   # TODO: remove this method once BPM changes are ready
-  def bypass
+  def bypass?
     true
   end
 end

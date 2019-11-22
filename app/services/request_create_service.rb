@@ -11,7 +11,7 @@ class RequestCreateService
       :request_context => RequestContext.new(:content => options[:content])
     )
 
-    self.workflows = WorkflowFindService.new.find_by_tag_resources(options[:tag_resources]).delete_if { |wf| wf == Workflow.default_workflow }
+    self.workflows = WorkflowFindService.new.find_by_tag_resources(options[:tag_resources]).to_a.delete_if { |wf| wf == Workflow.default_workflow }
 
     Request.transaction do
       Request.create!(create_options).tap do |request|
@@ -74,9 +74,9 @@ class RequestCreateService
 
     start_request(request)
 
-    sub_requests = request.parent? ? [request] : request.children
+    sub_requests = request.parent? ? request.children : [request]
 
-    sub_requests.each { |req| group_auto_approve(req, sleep_time) }
+    sub_requests.reverse.each { |req| group_auto_approve(req, sleep_time) }
   end
 
   def group_auto_approve(request, sleep_time)
@@ -84,7 +84,7 @@ class RequestCreateService
     ActionCreateService.new(request.id).create(
       :operation    => Action::APPROVE_OPERATION,
       :processed_by => 'system',
-      :comments     => 'ok'
+      :comments     => 'System approved'
     )
   end
 
