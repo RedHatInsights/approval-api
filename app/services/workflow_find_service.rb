@@ -9,7 +9,7 @@ class WorkflowFindService
 
   # find workflows from a collection of [app_name, object_type, [namespace, key, value]]
   def find_by_tag_resources(tag_resources)
-    return [] if tag_resources.empty?
+    return [] if tag_resources.blank?
 
     query = TagLink.select(:workflow_id).distinct
     tag_resources.each_with_index do |tr, i|
