@@ -1,5 +1,5 @@
 module Api
-  module V1x0
+  module V1
     class RequestsController < ApplicationController
       include Mixins::IndexMixin
       include Mixins::RBACMixin
