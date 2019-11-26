@@ -1,6 +1,6 @@
 RSpec.describe WorkflowLinkService, :type => :request do
   around do |example|
-    ManageIQ::API::Common::Request.with_request(default_request_hash) { example.call }
+    Insights::API::Common::Request.with_request(default_request_hash) { example.call }
   end
 
   let(:workflow) { create(:workflow, :with_tenant, :group_refs => [990]) }

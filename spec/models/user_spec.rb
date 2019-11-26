@@ -4,7 +4,7 @@ RSpec.describe User do
       raw_user = double(:raw_user, :username => 'myname', :email => 'a@b', :first_name => 'First', :last_name => 'Last', :is_org_admin => true)
       user_api = double(:user_api)
       expect(user_api).to receive(:get_principal).with('myname').and_return(raw_user)
-      expect(RBAC::Service).to receive(:call).with(RBACApiClient::PrincipalApi).and_yield(user_api)
+      expect(Insights::API::Common::RBAC::Service).to receive(:call).with(RBACApiClient::PrincipalApi).and_yield(user_api)
     end
 
     it 'fetches a group with details from rbac service' do

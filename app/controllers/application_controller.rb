@@ -1,19 +1,20 @@
 class ApplicationController < ActionController::API
   include Response
-  include ExceptionHandler
-  include ManageIQ::API::Common::ApplicationControllerMixins::ApiDoc
-  include ManageIQ::API::Common::ApplicationControllerMixins::Common
-  include ManageIQ::API::Common::ApplicationControllerMixins::RequestBodyValidation
-  include ManageIQ::API::Common::ApplicationControllerMixins::RequestPath
-  include ManageIQ::API::Common::ApplicationControllerMixins::Parameters
+  include Insights::API::Common::RBAC
+  include Insights::API::Common::ApplicationControllerMixins::ExceptionHandling
+  include Insights::API::Common::ApplicationControllerMixins::ApiDoc
+  include Insights::API::Common::ApplicationControllerMixins::Common
+  include Insights::API::Common::ApplicationControllerMixins::RequestBodyValidation
+  include Insights::API::Common::ApplicationControllerMixins::RequestPath
+  include Insights::API::Common::ApplicationControllerMixins::Parameters
 
   around_action :with_current_request
 
   private
 
   def with_current_request
-    ManageIQ::API::Common::Request.with_request(request) do |current|
-      raise ManageIQ::API::Common::EntitlementError, "User not Entitled" unless check_entitled(current.entitlement)
+    Insights::API::Common::Request.with_request(request) do |current|
+      raise Insights::API::Common::EntitlementError, "User not Entitled" unless check_entitled(current.entitlement)
 
       begin
         ActsAsTenant.with_tenant(current_tenant(current.user)) { yield }

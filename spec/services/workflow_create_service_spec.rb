@@ -11,7 +11,7 @@ RSpec.describe WorkflowCreateService do
       allow(aps).to receive(:add_resource_to_groups)
     end
     it 'create a workflow with valid group ids' do
-      ManageIQ::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+      Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
         workflow = subject.create(:name => 'workflow_1', :description => 'workflow with valid groups', :group_refs => group_refs, :template_id => template.id)
 
         workflow.reload

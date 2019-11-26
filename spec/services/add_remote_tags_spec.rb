@@ -1,6 +1,6 @@
 RSpec.describe AddRemoteTags, :type => :request do
   around do |example|
-    ManageIQ::API::Common::Request.with_request(default_request_hash) { example.call }
+    Insights::API::Common::Request.with_request(default_request_hash) { example.call }
   end
 
   let(:object_id) { '123' }
@@ -51,6 +51,15 @@ RSpec.describe AddRemoteTags, :type => :request do
       it 'raises an error if the status is not 200' do
         with_modified_env test_env do
           expect { subject.process(approval_tag) }.to raise_error(RuntimeError, /Error posting tags/)
+        end
+      end
+    end
+
+    context "raises authentication error" do
+      let(:http_status) { [403, 'Authentication Error'] }
+      it 'raises an error if the status is 403' do
+        with_modified_env test_env do
+          expect { subject.process(approval_tag) }.to raise_error(Exceptions::NotAuthorizedError, /Authentication Error/)
         end
       end
     end

@@ -1,5 +1,6 @@
 require 'faraday'
 class RemoteTaggingService
+  VALID_200_CODES = [200, 201, 202, 204].freeze
   def initialize(options)
     @app_name = options[:app_name]
     @object_type = options[:object_type]
@@ -47,13 +48,12 @@ class RemoteTaggingService
 
   def post_request(url, tag)
     con = Faraday.new
-    res = con.post(url) do |session|
+    response = con.post(url) do |session|
       session.headers['Content-Type'] = 'application/json'
       headers(session)
       session.body = tag.to_json
     end
-
-    raise "Error posting tags #{res.reason_phrase}" unless res.status == 200
+    check_for_exceptions(response, "Error posting tags")
   end
 
   def get_request(url)
@@ -61,13 +61,20 @@ class RemoteTaggingService
     response = con.get(url) do |session|
       headers(session)
     end
-    raise "Error getting tags #{response.reason_phrase}" unless response.status == 200
-
+    check_for_exceptions(response, "Error getting tags")
     response
   end
 
+  def check_for_exceptions(response, message_prefix)
+    if response.status == 403
+      raise Exceptions::NotAuthorizedError, response.reason_phrase
+    else
+      raise "#{message_prefix} #{response.reason_phrase}" unless VALID_200_CODES.include?(response.status)
+    end
+  end
+
   def headers(session)
-    ManageIQ::API::Common::Request.current_forwardable.each do |k, v|
+    Insights::API::Common::Request.current_forwardable.each do |k, v|
       session.headers[k] = v
     end
   end

@@ -1,1 +1,1 @@
-ApplicationRecord.prepend(OpenApi::Serializer)
+ApplicationRecord.prepend(Insights::API::Common::OpenApi::Serializer)

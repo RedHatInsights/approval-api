@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   def put(*_args)
   end
 
-  routing_helper = ManageIQ::API::Common::Routing.new(self)
+  routing_helper = Insights::API::Common::Routing.new(self)
 
   prefix = "api"
   if ENV["PATH_PREFIX"].present? && ENV["APP_NAME"].present?
@@ -21,19 +21,13 @@ Rails.application.routes.draw do
 
       resources :actions, :only => [:show]
 
-      resources :stages, :only => [:show] do
-        resources :actions, :only => %i(create index)
-      end
-
       resources :requests, :only => %i(create index show) do
-        resources :stages, :only => [:index]
-        resources :actions, :only => [:create]
+        resources :requests, :only => [:index]
+        resources :actions, :only => %i(create index)
       end
 
       resources :workflows, :only => %i(index destroy update show)
 
-      post '/workflows/resolve', :to => "workflows#resolve", :as => 'resolve'
-      post '/workflows/unlink', :to => "workflows#unlink", :as => 'unlink_all'
       post '/workflows/:id/link', :to => "workflows#link", :as => 'link'
       post '/workflows/:id/unlink', :to => "workflows#unlink", :as => 'unlink'
 

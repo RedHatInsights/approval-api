@@ -1,5 +1,5 @@
 RSpec.describe Api::V1x0::TemplatesController, :type => :request do
-  include_context "rbac_objects"
+  include_context "approval_rbac_objects"
   # initialize test data
   let!(:templates) { create_list(:template, 10) }
   let(:template_id) { templates.first.id }
@@ -9,7 +9,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
 
   before do
     allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
-    allow(RBAC::Roles).to receive(:new).and_return(roles_obj)
+    allow(Insights::API::Common::RBAC::Roles).to receive(:new).and_return(roles_obj)
   end
 
   # Test suite for GET /templates
@@ -33,7 +33,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
     end
 
     context 'when approver role' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -47,7 +47,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
     end
 
     context 'when regular user role' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -75,7 +75,6 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
 
         expect(json).not_to be_empty
         expect(json['id']).to eq(template.id.to_s)
-        expect(json['created_at']).to eq(template.created_at.iso8601)
       end
 
       it 'admin role returns status code 200' do
@@ -102,7 +101,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
     end
 
     context 'approver role' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -117,7 +116,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
     end
 
     context 'owner role' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)

@@ -11,6 +11,10 @@ module RequestSpecHelper
     "/api/#{ver}"
   end
 
+  def first_error_detail
+    json['errors'][0]['detail']
+  end
+
   DEFAULT_USER = {
     "entitlements" => {
       "ansible"          => {

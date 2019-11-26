@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_18_142121) do
+ActiveRecord::Schema.define(version: 2019_11_05_111213) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,11 +19,11 @@ ActiveRecord::Schema.define(version: 2019_10_18_142121) do
     t.string "processed_by"
     t.string "operation"
     t.string "comments"
-    t.bigint "stage_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "tenant_id"
-    t.index ["stage_id"], name: "index_actions_on_stage_id"
+    t.bigint "request_id"
+    t.index ["request_id"], name: "index_actions_on_request_id"
     t.index ["tenant_id"], name: "index_actions_on_tenant_id"
   end
 
@@ -54,25 +54,18 @@ ActiveRecord::Schema.define(version: 2019_10_18_142121) do
     t.string "owner"
     t.bigint "parent_id"
     t.bigint "request_context_id"
+    t.string "random_access_key"
+    t.integer "number_of_children"
+    t.integer "number_of_finished_children"
+    t.string "group_name"
+    t.string "group_ref"
+    t.datetime "notified_at"
+    t.datetime "finished_at"
+    t.index ["group_ref"], name: "index_requests_on_group_ref"
     t.index ["parent_id"], name: "index_requests_on_parent_id"
+    t.index ["random_access_key"], name: "index_requests_on_random_access_key"
     t.index ["tenant_id"], name: "index_requests_on_tenant_id"
     t.index ["workflow_id"], name: "index_requests_on_workflow_id"
-  end
-
-  create_table "stages", force: :cascade do |t|
-    t.string "state"
-    t.string "decision"
-    t.string "reason"
-    t.bigint "request_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "tenant_id"
-    t.string "group_ref"
-    t.string "random_access_key"
-    t.index ["group_ref"], name: "index_stages_on_group_ref"
-    t.index ["random_access_key"], name: "index_stages_on_random_access_key"
-    t.index ["request_id"], name: "index_stages_on_request_id"
-    t.index ["tenant_id"], name: "index_stages_on_tenant_id"
   end
 
   create_table "tag_links", force: :cascade do |t|
@@ -120,6 +113,5 @@ ActiveRecord::Schema.define(version: 2019_10_18_142121) do
   end
 
   add_foreign_key "requests", "workflows"
-  add_foreign_key "stages", "requests"
   add_foreign_key "workflows", "templates"
 end

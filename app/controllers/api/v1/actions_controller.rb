@@ -1,5 +1,5 @@
 module Api
-  module V1x0
+  module V1
     class ActionsController < ApplicationController
       include Mixins::IndexMixin
       include Mixins::RBACMixin
@@ -42,8 +42,8 @@ module Api
       #   requester: can not create 'approve' and 'deny' actions
       def validate_create_action
         operation = params[:operation]
-        valid_operation = admin? || (approver? && operation != Action::CANCEL_OPERATION) ||
-                          (!admin? && !approver? && [Action::APPROVE_OPERATION, Action::DENY_OPERATION].exclude?(operation))
+        valid_operation = admin? || (approver? && [Action::MEMO_OPERATION, Action::CANCEL_OPERATION].exclude?(operation)) ||
+                          (!admin? && !approver? && [Action::MEMO_OPERATION, Action::APPROVE_OPERATION, Action::DENY_OPERATION].exclude?(operation))
         raise Exceptions::NotAuthorizedError, "Not authorized to create [#{operation}] action " unless valid_operation
       end
 

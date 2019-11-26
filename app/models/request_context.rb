@@ -4,6 +4,6 @@ class RequestContext < ApplicationRecord
   private
 
   def set_context
-    self.context = ManageIQ::API::Common::Request.current.to_h
+    self.context = Insights::API::Common::Request.current.to_h
   end
 end

@@ -95,9 +95,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -148,9 +145,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -193,9 +187,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -210,8 +201,8 @@
                 "tags": [
                   "Request"
                 ],
-                "summary": "Return an array of approval requests, available to anyone",
-                "description": "Return an array of requests. The result depends on the x-rh-persona header",
+                "summary": "Return an array of requester made approval requests, available to anyone",
+                "description": "The result depends on the x-rh-persona header (approval/admin, approval/requseter, or approval/approver). Program generated child requests are not included.",
                 "operationId": "listRequests",
                 "parameters": [
                     {
@@ -248,9 +239,6 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
                     },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
@@ -292,9 +280,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -331,9 +316,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -348,8 +330,8 @@
                 "tags": [
                   "Request"
                 ],
-                "summary": "Return an array of request children by given request id",
-                "description": "Return an array of child request by given request id, available for admin/requester",
+                "summary": "Return an array of child requests of a given request id",
+                "description": "Return an array of child requests of a given request id, available for admin/requester",
                 "operationId": "listRequestsByRequest",
                 "parameters": [
                     {
@@ -369,9 +351,6 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
                     },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
@@ -423,9 +402,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -462,9 +438,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -480,9 +453,18 @@
                   "Workflow"
                 ],
                 "summary": "Return all approval workflows, only available for admin",
-                "description": "Return all approval workflows in ascending sequence order",
+                "description": "Depends on the query parameters, either return all workflows in ascending sequence order when no parameters are provided; or return the workflows linking to the resource object whose app_name, object_type and object_id are specified by query parameters",
                 "operationId": "listWorkflows",
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/app_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/object_id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/object_type"
+                    },
                     {
                         "$ref": "#/components/parameters/limit"
                     },
@@ -514,95 +496,6 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
-                    }
-                }
-            }
-        },
-        "/workflows/resolve": {
-            "post": {
-                "tags": [
-                    "Workflow"
-                ],
-                "summary": "Get all workflows linked to a resource object.",
-                "description": "Get all workflows linked to a resource object.", 
-                "operationId": "resolveWorkflows",
-                "requestBody": {
-                   "content": {
-                       "application/json": {
-                           "schema": {
-                               "$ref": "#/components/schemas/ResourceObject"
-                           }
-                       }
-                   },
-                   "description": "Resource object used to resolve workflows.",
-                   "required": true
-                },
-                "responses": {
-                   "200": {
-                       "description": "Success",
-                       "content": {
-                           "application/json": {
-                               "schema": {
-                                   "type": "array",
-                                   "items": {
-                                       "$ref": "#/components/schemas/Workflow"
-                                   }
-                               }
-                           }
-                       }
-                   },
-                   "400": {
-                       "$ref": "#/components/responses/400BadRequestResponse"
-                   },
-                   "401": {
-                       "$ref": "#/components/responses/401UnauthorizedResponse"
-                   },
-                   "403": {
-                       "$ref": "#/components/responses/403ForbiddenResponse"
-                   },
-                   "404": {
-                       "$ref": "#/components/responses/404NotFoundResponse"
-                   }
-                }
-            }
-        },
-        "/workflows/unlink": {
-            "post": {
-                "tags": [
-                  "Workflow"
-                ],
-                "summary": "Break all links between a resource object and its assigned workflows",
-                "operationId": "unlinkAll",
-                "description": "Break all links between a resource object and its assigned workflows",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ResourceObject"
-                            }
-                        }
-                    },
-                    "description": "Parameters needed to remove a link",
-                    "required": true
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
                     },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
@@ -657,9 +550,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -709,9 +599,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -747,9 +634,6 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
                     },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
@@ -800,9 +684,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -829,9 +710,6 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
                     },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
@@ -873,9 +751,6 @@
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
-                    },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
                     },
@@ -915,9 +790,6 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400BadRequestResponse"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401UnauthorizedResponse"
                     },
                     "403": {
                         "$ref": "#/components/responses/403ForbiddenResponse"
@@ -965,7 +837,8 @@
                 "description": "Query by id",
                 "required": true,
                 "schema": {
-                    "$ref": "#/components/parameters/Identity"
+                    "type": "string",
+                    "pattern": "^\\d+$"
                 }
             },
             "template_id": {
@@ -974,7 +847,8 @@
                 "description": "Id of template",
                 "required": true,
                 "schema": {
-                    "$ref": "#/components/parameters/Identity"
+                    "type": "string",
+                    "pattern": "^\\d+$"
                 }
             },
             "workflow_id": {
@@ -983,7 +857,8 @@
                 "description": "Id of workflow",
                 "required": true,
                 "schema": {
-                    "$ref": "#/components/parameters/Identity"
+                    "type": "string",
+                    "pattern": "^\\d+$"
                 }
             },
             "request_id": {
@@ -992,7 +867,8 @@
                 "description": "Id of request",
                 "required": true,
                 "schema": {
-                    "$ref": "#/components/parameters/Identity"
+                    "type": "string",
+                    "pattern": "^\\d+$"
                 }
             },
             "limit": {
@@ -1020,6 +896,33 @@
                     "default": 0
                 }
             },
+            "app_name": {
+                "name": "app_name",
+                "in": "query",
+                "description": "Name of the application",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "object_id": {
+                "name": "object_id",
+                "in": "query",
+                "description": "Id of the resource object",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "object_type": {
+                "name": "object_type",
+                "in": "query",
+                "description": "Type of the resource object",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                }
+            },
             "filter": {
                 "in": "query",
                 "name": "filter",
@@ -1040,18 +943,11 @@
                     "type": "string",
                     "enum": ["approval/admin", "approval/approver", "approval/requester"]
                 }
-            },
-            "Identity": {
-                "type": "string",
-                "pattern": "^\\d+$"
             }
         },
         "responses": {
             "400BadRequestResponse": {
-                "description": "Bad request"
-            },
-            "401UnauthorizedResponse": {
-                "description": "Caller is not authorized to access the resource."
+                "description": "Bad request: either all the required parameters specified or the parameter value is invalid."
             },
             "403ForbiddenResponse": {
                 "description": "Caller is forbidden to perform the action."
@@ -1257,7 +1153,7 @@
                 }
             },
             "Request": {
-                "description": "Approval request. It may have child requests. Only a leaf node request can have workflow_id and actions",
+                "description": "Approval request. It may have child requests. Only a leaf node request can have workflow_id",
                 "type": "object",
                 "properties": {
                     "id": {
@@ -1266,13 +1162,14 @@
                     },
                     "state": {
                         "type": "string",
-                        "description": "The state of the request. Possible value: canceled, pending, skipped, notified, or finished",
+                        "description": "The state of the request. Possible value: canceled, completed, notified, skipped, or started",
                         "enum": [
                             "canceled",
+                            "completed",
+                            "notified",
                             "pending",
                             "skipped",
-                            "notified",
-                            "finished"
+                            "started"
                         ],
                         "readOnly": true
                     },
@@ -1297,16 +1194,16 @@
                         "description": "Associate workflow id. Available only if the request is a leaf node",
                         "readOnly": true
                     },
-                    "created_at": {
+                    "notified_at": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "Timestamp of creation",
+                        "description": "Timestamp of notification sent to approvers",
                         "readOnly": true
                     },
-                    "updated_at": {
+                    "finished_at": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "Timestamp of last update",
+                        "description": "Timestamp of finishing (skipped, canceled, or completed)",
                         "readOnly": true
                     },
                     "number_of_children": {
@@ -1337,6 +1234,16 @@
                     "description": {
                         "type": "string",
                         "description": "Request description",
+                        "readOnly": true
+                    },
+                    "group_name": {
+                        "type": "string",
+                        "description": "Name of approver group(s) assigned to approve this request",
+                        "readOnly": true
+                    },
+                    "parent_id": {
+                        "type": "string",
+                        "description": "Parent request id",
                         "readOnly": true
                     }
                 }

@@ -1,5 +1,5 @@
 module Api
-  module V1x0
+  module V1
     class RootController < ApplicationController
       def openapi
         render :json => Api::Docs["1.0"]

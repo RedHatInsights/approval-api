@@ -1,5 +1,5 @@
 module Api
-  module V1x0
+  module V1
     class RequestsController < ApplicationController
       include Mixins::IndexMixin
       include Mixins::RBACMixin
@@ -22,18 +22,20 @@ module Api
       end
 
       def index
-        collection(index_scope(Request.all))
-      end
+        requests = if params[:request_id]
+                     Request.find(params[:request_id]).children
+                   else
+                     Request.where(:parent_id => nil)
+                   end
 
-      def index_scope(relation)
-        super(relation.includes(:children))
+        collection(index_scope(requests))
       end
 
       private
 
       def rbac_scope(relation)
         ids =
-          case ManageIQ::API::Common::Request.current.headers[ManageIQ::API::Common::Request::PERSONA_KEY]
+          case Insights::API::Common::Request.current.headers[Insights::API::Common::Request::PERSONA_KEY]
           when PERSONA_ADMIN
             raise Exceptions::NotAuthorizedError, "No permission to access the complete list of requests" unless admin?
           when PERSONA_APPROVER

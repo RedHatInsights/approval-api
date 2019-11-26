@@ -1,5 +1,5 @@
 RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
-  include_context "rbac_objects"
+  include_context "approval_rbac_objects"
   # Initialize the test data
   let(:tenant) { create(:tenant) }
 
@@ -19,7 +19,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   let(:api_version) { version }
 
   before do
-    allow(RBAC::Roles).to receive(:new).and_return(roles_obj)
+    allow(Insights::API::Common::RBAC::Roles).to receive(:new).and_return(roles_obj)
     allow(roles_obj).to receive(:roles)
     allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
   end
@@ -63,7 +63,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role when template exists' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -77,7 +77,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role when template exists' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -112,7 +112,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role return workflows' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -126,7 +126,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role return workflows' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -155,7 +155,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role return workflows' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -182,7 +182,6 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
         expect(json).not_to be_empty
         expect(json['id']).to eq(workflow.id.to_s)
-        expect(json['created_at']).to eq(workflow.created_at.iso8601)
       end
 
       it 'returns status code 200' do
@@ -207,7 +206,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role when the record exists' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -221,7 +220,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role when the record exists' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -276,8 +275,8 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
       end
 
-      it 'returns status code 422' do
-        expect(response).to have_http_status(422)
+      it 'returns status code 400' do
+        expect(response).to have_http_status(400)
       end
 
       it 'returns a failure message' do
@@ -286,7 +285,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'when approver role request attributes are valid' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -300,7 +299,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'when regular user role request attributes are valid' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -361,7 +360,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role when item exists' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -375,7 +374,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role when item exists' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -404,7 +403,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role when delete' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => approver_acls) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
       before do
         allow(rs_class).to receive(:paginate).and_return(approver_acls)
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -418,7 +417,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role when delete' do
-      let(:access_obj) { instance_double(RBAC::Access, :acl => []) }
+      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(access_obj).to receive(:process).and_return(access_obj)
@@ -489,10 +488,14 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   end
 
   # TODO: resolve needs further work to query tag names
-  xdescribe 'POST /workflows/resolve' do
+  describe 'GET /workflows?resource_object_params' do
     let(:obj_a) { { :object_type => 'ServiceInventory', :app_name => 'topology', :object_id => '123'} }
     let(:obj_b) { { :object_type => 'Portfolio', :app_name => 'catalog', :object_id => '123'} }
+    let(:obj_c) { { :object_type => 'Portfolio', :object_id => '123'} }
     before do
+      allow(rs_class).to receive(:paginate).and_return([])
+      allow(roles_obj).to receive(:roles).and_return([admin_role])
+
       allow(AddRemoteTags).to receive(:new).with(obj_a).and_return(add_tag_svc)
       allow(add_tag_svc).to receive(:process).with(tag).and_return(add_tag_svc)
       allow(GetRemoteTags).to receive(:new).with(obj_a).and_return(get_tag_svc)
@@ -502,16 +505,23 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     it 'returns status code 200' do
-      post "#{api_version}/workflows/resolve", :params => obj_a, :headers => default_headers
+      get "#{api_version}/workflows", :params => obj_a, :headers => default_headers
 
       expect(response).to have_http_status(200)
-      expect(json.first["id"].to_i).to eq(id)
+      expect(json["data"].first["id"].to_i).to eq(id)
     end
 
-    it 'returns status code 204' do
-      post "#{api_version}/workflows/resolve", :params => obj_b, :headers => default_headers
+    it 'returns status code 200' do
+      get "#{api_version}/workflows", :params => obj_b, :headers => default_headers
 
-      expect(response).to have_http_status(204)
+      expect(response).to have_http_status(200)
+    end
+
+    it 'raises an user error' do
+      get "#{api_version}/workflows", :params => obj_c, :headers => default_headers
+
+      expect(first_error_detail).to match("Exceptions::UserError: Invalid resource object params")
+      expect(response).to have_http_status(400)
     end
   end
 
@@ -536,7 +546,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       headers = { 'x-rh-identity' => encoded_user_hash(false_hash), 'x-rh-insights-request-id' => 'gobbledygook' }
       get "#{api_version}/workflows", :headers => headers
 
-      expect(response).to have_http_status(:forbidden)
+      expect(response).to have_http_status(:bad_request)
     end
 
     it "allows the request through if entitlements isn't present" do
