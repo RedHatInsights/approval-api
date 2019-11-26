@@ -22,11 +22,13 @@ module Api
       end
 
       def index
-        collection(index_scope(Request.all))
-      end
+        requests = if params[:request_id]
+                     Request.find(params[:request_id]).children
+                   else
+                     Request.where(:parent_id => nil)
+                   end
 
-      def index_scope(relation)
-        super(relation.where(:parent_id => nil))
+        collection(index_scope(requests))
       end
 
       private
