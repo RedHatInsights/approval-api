@@ -1,9 +1,6 @@
-RSpec.xdescribe EventService do
+RSpec.describe EventService do
   let(:request) { create(:request, :with_context) }
-  let(:stage)   { create(:stage, :request => request) }
   subject { described_class.new(request) }
-
-  before { allow(Group).to receive(:find) }
 
   it 'sends request_started event' do
     expect(subject).to receive(:send_event).with(described_class::EVENT_REQUEST_STARTED, hash_including(:request_id))
@@ -11,8 +8,8 @@ RSpec.xdescribe EventService do
   end
 
   it 'sends request_finished event' do
-    expect(subject).to receive(:send_event).with(described_class::EVENT_REQUEST_FINISHED, hash_including(:request_id, :decision, :reason))
-    subject.request_finished
+    expect(subject).to receive(:send_event).with(described_class::EVENT_REQUEST_COMPLETED, hash_including(:request_id, :decision, :reason))
+    subject.request_completed
   end
 
   it 'sends request_canceled event' do
@@ -22,11 +19,11 @@ RSpec.xdescribe EventService do
 
   it 'sends approver_group_notified event' do
     expect(subject).to receive(:send_event).with(described_class::EVENT_APPROVER_GROUP_NOTIFIED, hash_including(:request_id, :group_name))
-    subject.approver_group_notified(stage)
+    subject.approver_group_notified
   end
 
   it 'sends approver_group_finished event' do
     expect(subject).to receive(:send_event).with(described_class::EVENT_APPROVER_GROUP_FINISHED, hash_including(:request_id, :group_name, :decision, :reason))
-    subject.approver_group_finished(stage)
+    subject.approver_group_finished
   end
 end
