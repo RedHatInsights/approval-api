@@ -1,6 +1,4 @@
 class RequestCreateService
-  require 'securerandom'
-
   attr_accessor :workflows
 
   def create(options)

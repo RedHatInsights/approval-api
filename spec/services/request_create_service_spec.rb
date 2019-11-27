@@ -60,12 +60,13 @@ RSpec.describe RequestCreateService do
         request = subject.create(:name => 'req1', :content => 'test me')
         request.reload
         expect(request).to have_attributes(
-          :name           => 'req1',
-          :content        => 'test me',
-          :requester_name => 'John Doe',
-          :owner          => 'jdoe',
-          :state          => Request::NOTIFIED_STATE,
-          :decision       => Request::UNDECIDED_STATUS
+          :name              => 'req1',
+          :content           => 'test me',
+          :requester_name    => 'John Doe',
+          :owner             => 'jdoe',
+          :state             => Request::NOTIFIED_STATE,
+          :decision          => Request::UNDECIDED_STATUS,
+          :random_access_key => be_kind_of(String)
         )
       end
     end
@@ -121,7 +122,8 @@ RSpec.describe RequestCreateService do
           :reason         => 'System approved',
 
           :number_of_children          => 3,
-          :number_of_finished_children => 3
+          :number_of_finished_children => 3,
+          :random_access_key           => nil
         )
         (0..2).each do |index|
           child = request.children[index]
