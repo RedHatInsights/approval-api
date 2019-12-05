@@ -74,7 +74,10 @@ class RequestCreateService
 
     sub_requests = request.parent? ? request.children : [request]
 
-    sub_requests.reverse.each { |req| group_auto_approve(req, sleep_time) }
+    sub_requests.reverse.each do |req|
+      req.update!(:workflow => Workflow.default_workflow) unless req.workflow_id # each leaf must have a workflow
+      group_auto_approve(req, sleep_time)
+    end
   end
 
   def group_auto_approve(request, sleep_time)
