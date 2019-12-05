@@ -4,6 +4,6 @@ FactoryBot.define do
     processed_by { Faker::Lorem.word }
     operation { :memo }
 
-    stage
+    request
   end
 end
