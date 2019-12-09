@@ -7,7 +7,6 @@ class AccessProcessService
   def initialize
     @acls = Insights::API::Common::RBAC::ACL.new
     @roles = Insights::API::Common::RBAC::Roles.new(APPROVER_ROLE_PREFIX, 'account')
-    @policies = Insights::API::Common::RBAC::Policies.new(APPROVER_ROLE_PREFIX)
   end
 
   # Need to call as org admin
@@ -56,7 +55,8 @@ class AccessProcessService
   def create_role(name, resource_id, permissions)
     acls = @acls.create(resource_id, permissions)
     @roles.add(name, acls).tap do |role|
-      @policies.add_policy(name, role.uuid)
+      group_ref = role.name.delete_prefix(APPROVER_ROLE_PREFIX)
+      Group.find(group_ref).add_role(role.uuid)
     end
   end
 
@@ -69,7 +69,8 @@ class AccessProcessService
     role.access = @acls.remove(role.access, resource_id, permissions)
 
     if @acls.resource_defintions_empty?(role.access, WORKFLOW_APPROVE_PERMISSION)
-      @policies.delete_policy(role)
+      group_ref = role.name.delete_prefix(APPROVER_ROLE_PREFIX)
+      Group.find(group_ref).delete_role(role.uuid)
       @roles.delete(role)
     else
       @roles.update(role)
