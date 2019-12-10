@@ -134,7 +134,7 @@ class RequestUpdateService
   end
 
   def notify_request
-    return if request.workflow.try(:external_processing?)
+    return if !bypass? && request.workflow.try(:external_processing?)
 
     ActionCreateService.new(request.id).create(:operation => Action::NOTIFY_OPERATION, :processed_by => 'system')
   end
