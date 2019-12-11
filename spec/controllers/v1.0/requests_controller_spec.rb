@@ -23,78 +23,26 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:group1) { double(:name => 'group1', :uuid => "123") }
   let(:group2) { double(:name => 'group2', :uuid => "456") }
   let!(:workflow_2) { create(:workflow, :name => 'workflow_2', :group_refs => [group1.uuid, group2.uuid]) }
-  let!(:user_requests) { create_list(:request, 2, :decision => 'denied', :workflow_id => workflow_2.id, :tenant_id => tenant.id) }
-  let!(:stages1) { create(:stage, :group_ref => group1.uuid, :state => 'notified', :request_id => user_requests.first.id, :tenant_id => tenant.id) }
-  let!(:stages2) { create(:stage, :group_ref => group2.uuid, :state => 'pending', :request_id => user_requests.first.id, :tenant_id => tenant.id) }
-  let!(:stages3) { create(:stage, :group_ref => group1.uuid, :state => 'notified', :request_id => user_requests.last.id, :tenant_id => tenant.id) }
-  let!(:stages4) { create(:stage, :group_ref => group2.uuid, :state => 'pending', :request_id => user_requests.last.id, :tenant_id => tenant.id) }
+  let!(:user_requests) { create_list(:request, 2, :decision => 'denied', :state => 'completed', :group_ref => group1.uuid, :workflow_id => workflow_2.id, :tenant_id => tenant.id) }
 
   let(:filter) { instance_double(RBACApiClient::ResourceDefinitionFilter, :key => 'id', :operation => 'equal', :value => workflow_2.id) }
   let(:resource_def) { instance_double(RBACApiClient::ResourceDefinition, :attribute_filter => filter) }
   let(:access) { instance_double(RBACApiClient::Access, :permission => "approval:workflows:approve", :resource_definitions => [resource_def]) }
   let(:full_approver_acls) { approver_acls << access }
   let(:roles_obj) { double }
+  let(:workflow_find_service) { double }
 
   let(:group1_role) { "approval-group-#{group1.uuid}" }
   let(:api_version) { version }
 
   before do
+    allow(WorkflowFindService).to receive(:new).and_return(workflow_find_service)
     allow(Insights::API::Common::RBAC::Roles).to receive(:new).and_return(roles_obj)
     allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
   end
 
-  # Test suite for GET /workflows/:workflow_id/requests
-  xdescribe 'GET /workflows/:workflow_id/requests' do
-    context 'when admins' do
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => headers_with_admin
-      end
-
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
-      end
-
-      it 'returns all workflow requests' do
-        expect(json['links']).not_to be_empty
-        expect(json['links']['first']).to match(/offset=0/)
-        expect(json['data'].size).to eq(6)
-      end
-    end
-
-    context 'when approver' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return(approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role])
-      end
-
-      it 'returns status code 403' do
-        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => headers_with_admin
-        expect(response).to have_http_status(403)
-      end
-    end
-
-    context 'when owner' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([])
-
-        get "#{api_version}/workflows/#{workflow_id}/requests", :headers => headers_with_admin
-      end
-
-      it 'returns status code 403' do
-        expect(response).to have_http_status(403)
-      end
-    end
-  end
-
   # Test suite for GET /requests for admin persona
-  xdescribe 'GET /requests (for admin persona)' do
+  describe 'GET /requests (for admin persona)' do
     context 'as admin role' do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
@@ -166,7 +114,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   end
 
   # Test suite for GET /requests for approval persona
-  xdescribe 'GET /requests (for approval persona)' do
+  describe 'GET /requests (for approval persona)' do
     context 'as admin role' do
       it 'returns status code 403' do
         allow(rs_class).to receive(:paginate).and_return([])
@@ -209,7 +157,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   end
 
   # Test suite for GET /requests for regular users
-  xdescribe 'GET /requests (for requesters)' do
+  describe 'GET /requests (for requesters)' do
     context 'as admin role' do
       it 'returns requests' do
         allow(rs_class).to receive(:paginate).and_return([])
@@ -256,7 +204,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
   end
 
-  xdescribe 'GET /requests for unknown persona' do
+  describe 'GET /requests for unknown persona' do
     let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
 
     it 'returns status code 403' do
@@ -270,7 +218,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   end
 
   # Test suite for GET /requests?state=
-  xdescribe 'GET /requests?state=notified' do
+  describe 'GET /requests?state=notified' do
     it 'admin role returns requests' do
       allow(rs_class).to receive(:paginate).and_return([])
       allow(roles_obj).to receive(:roles).and_return([admin_role])
@@ -296,7 +244,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
   end
 
-  xdescribe 'Accessible requests for Approver persona' do
+  describe 'Accessible requests for Approver persona' do
     let(:ctrl) { described_class.new }
     let(:group_a) { double(:name => 'group_a', :uuid => "g_a") }
     let(:group_b) { double(:name => 'group_b', :uuid => "g_b") }
@@ -305,36 +253,15 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     let(:group_e) { double(:name => 'group_e', :uuid => "g_e") }
     let!(:workflow_a) { create(:workflow, :name => 'workflow_a', :group_refs => [group_a.uuid, group_b.uuid, group_c.uuid]) }
     let!(:workflow_b) { create(:workflow, :name => 'workflow_b', :group_refs => [group_b.uuid, group_d.uuid, group_e.uuid]) }
-    let!(:approver_request1) { create(:request, :workflow_id => workflow_a.id, :tenant_id => tenant.id) }
-    let!(:approver_request2) { create(:request, :workflow_id => workflow_b.id, :tenant_id => tenant.id) }
-    let!(:stage_a) { create(:stage, :group_ref => group_a.uuid, :state => 'notified', :request_id => approver_request1.id, :tenant_id => tenant.id) }
-    let!(:stage_b) { create(:stage, :group_ref => group_b.uuid, :request_id => approver_request1.id, :tenant_id => tenant.id) }
-    let!(:stage_c) { create(:stage, :group_ref => group_c.uuid, :request_id => approver_request1.id, :tenant_id => tenant.id) }
-    let!(:stage_d) { create(:stage, :state => 'finished', :group_ref => group_b.uuid, :request_id => approver_request2.id, :tenant_id => tenant.id) }
-    let!(:stage_e) { create(:stage, :state => 'finished', :group_ref => group_d.uuid, :request_id => approver_request2.id, :tenant_id => tenant.id) }
-    let!(:stage_f) { create(:stage, :group_ref => group_e.uuid, :request_id => approver_request2.id, :tenant_id => tenant.id) }
+    let!(:approver_request1) { create(:request, :workflow_id => workflow_a.id, :group_ref => group_a.uuid, :tenant_id => tenant.id) }
+    let!(:approver_request2) { create(:request, :workflow_id => workflow_b.id, :group_ref => group_b.uuid, :state => 'notified', :tenant_id => tenant.id) }
+    let!(:actions_1) { create_list(:action, 2, :request_id => approver_request1.id, :tenant_id => tenant.id) }
+    let!(:actions_2) { create_list(:action, 2, :request_id => approver_request2.id, :tenant_id => tenant.id) }
     let!(:role_a) { "approval-group-#{group_a.uuid}" }
     let!(:role_b) { "approval-group-#{group_b.uuid}" }
     let!(:role_d) { "approval-group-#{group_d.uuid}" }
 
-    context "when filter stages with groups" do
-      it '#approver_stage_ids for standalone group' do
-        allow(roles_obj).to receive(:roles).and_return([approver_role, role_a])
-        allow(ctrl).to receive(:workflow_ids).and_return([workflow_a.id, workflow_b.id])
-
-        expect(ctrl.approver_stage_ids).to eq([stage_a.id])
-      end
-
-      it '#approver_stage_ids for shared group' do
-        allow(roles_obj).to receive(:roles).and_return([approver_role, role_b])
-        allow(ctrl).to receive(:workflow_ids).and_return([workflow_a.id, workflow_b.id])
-
-        # stage_b is still in the list waiting for processing
-        expect(ctrl.approver_stage_ids).to eq([stage_d.id])
-      end
-    end
-
-    context "when return ids based on resource type" do
+    context "when return approver ids based on resource type" do
       it '#approver_id_list for requests' do
         allow(roles_obj).to receive(:roles).and_return([approver_role, role_b])
         allow(ctrl).to receive(:workflow_ids).and_return([workflow_a.id, workflow_b.id])
@@ -342,24 +269,33 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         expect(ctrl.approver_id_list("requests")).to eq([approver_request2.id])
       end
 
-      it '#approver_id_list for next stages' do
+      it '#approver_id_list for next actions' do
         allow(roles_obj).to receive(:roles).and_return([approver_role, role_b])
         allow(ctrl).to receive(:workflow_ids).and_return([workflow_a.id, workflow_b.id])
 
-        expect(ctrl.approver_id_list("stages")).to eq([stage_d.id])
+        expect(ctrl.approver_id_list("actions")).to eq(approver_request2.actions.pluck(:id))
       end
+    end
 
-      it '#approver_id_list for previous stages' do
-        allow(roles_obj).to receive(:roles).and_return([approver_role, role_d])
+    xcontext "when return owner ids based on resource type" do
+      it '#owner_id_list for requests' do
+        allow(roles_obj).to receive(:roles).and_return([approver_role, role_b])
         allow(ctrl).to receive(:workflow_ids).and_return([workflow_a.id, workflow_b.id])
 
-        expect(ctrl.approver_id_list("stages")).to eq([stage_e.id])
+        expect(ctrl.owner_id_list("requests")).to eq([approver_request2.id])
+      end
+
+      it '#owner_id_list for next actions' do
+        allow(roles_obj).to receive(:roles).and_return([approver_role, role_b])
+        allow(ctrl).to receive(:workflow_ids).and_return([workflow_a.id, workflow_b.id])
+
+        expect(ctrl.owner_id_list("actions")).to eq(approver_request2.actions.pluck(:id))
       end
     end
   end
 
   # Test suite for GET /requests?decision=
-  xdescribe 'GET /requests?decision=approved' do
+  describe 'GET /requests?decision=approved' do
     context 'as admin role' do
       it 'admin role returns requests' do
         allow(rs_class).to receive(:paginate).and_return([])
@@ -389,7 +325,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   end
 
   # Test suite for GET /requests/:id
-  xdescribe 'GET /requests/:id' do
+  describe 'GET /requests/:id' do
     context 'admin role when the record exist' do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
@@ -402,7 +338,6 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
         expect(json).not_to be_empty
         expect(json['id']).to eq(request.id.to_s)
-        expect(json['created_at']).to eq(request.created_at.iso8601)
       end
 
       it 'returns status code 200' do
@@ -490,7 +425,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   end
 
   # Test suite for POST /requests
-  xdescribe 'POST /requests' do
+  describe 'POST /requests' do
     let(:item) { { 'disk' => '100GB' } }
     let(:valid_attributes) { { :tag_resources => tag_resources, :name => 'Visit Narnia', :content => item, :description => 'desc' } }
     let(:tag_resources) do
@@ -500,16 +435,44 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         'tags'        => [{'namespace' => 'ns1', 'name' => 'name1', 'value' => 'v1'}]
       }]
     end
+    let(:group) { double }
+    let(:workflow1) { create(:workflow, :group_refs => [group1.uuid]) }
+    let(:workflow2) { create(:workflow, :group_refs => [group2.uuid]) }
 
     context 'any role' do
+      before do
+        allow(Group).to receive(:find).and_return(group)
+        allow(group).to receive(:name).and_return('foo')
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(roles_obj).to receive(:roles).and_return([admin_role])
+      end
+
       it 'returns status code 201' do
+        allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([])
+
         with_modified_env :AUTO_APPROVAL => 'y' do
-          allow(rs_class).to receive(:paginate).and_return([])
-          allow(roles_obj).to receive(:roles).and_return([admin_role])
           post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
         end
 
         expect(response).to have_http_status(201)
+      end
+
+      it 'when tags resolve to single workflow' do
+        allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1])
+
+        post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
+
+        expect(response).to have_http_status(201)
+      end
+
+      it 'when tags resolve to multiple workflow' do
+        allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1, workflow2])
+
+        post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
+
+        expect(response).to have_http_status(201)
+        expect(Request.where(:number_of_children => 2).count).to eq 1
+        expect(Request.where.not(:parent_id => nil).count).to eq 2
       end
     end
   end

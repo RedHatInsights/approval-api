@@ -39,7 +39,8 @@ RSpec.describe RequestCreateService do
           :requester_name => 'John Doe',
           :process_ref    => '100',
           :state          => Request::NOTIFIED_STATE,
-          :decision       => Request::UNDECIDED_STATUS
+          :decision       => Request::UNDECIDED_STATUS,
+          :workflow       => nil
         )
         [0, 1].each do |index|
           stage = request.stages[index]
@@ -47,7 +48,8 @@ RSpec.describe RequestCreateService do
             :state             => Stage::PENDING_STATE,
             :decision          => Stage::UNDECIDED_STATUS,
             :reason            => nil,
-            :random_access_key => be_kind_of(String)
+            :random_access_key => be_kind_of(String),
+            :workflow          => workflow2
           )
         end
       end
@@ -60,12 +62,13 @@ RSpec.describe RequestCreateService do
         request = subject.create(:name => 'req1', :content => 'test me')
         request.reload
         expect(request).to have_attributes(
-          :name           => 'req1',
-          :content        => 'test me',
-          :requester_name => 'John Doe',
-          :owner          => 'jdoe',
-          :state          => Request::NOTIFIED_STATE,
-          :decision       => Request::UNDECIDED_STATUS
+          :name              => 'req1',
+          :content           => 'test me',
+          :requester_name    => 'John Doe',
+          :owner             => 'jdoe',
+          :state             => Request::NOTIFIED_STATE,
+          :decision          => Request::UNDECIDED_STATUS,
+          :random_access_key => be_kind_of(String)
         )
       end
     end
@@ -121,7 +124,8 @@ RSpec.describe RequestCreateService do
           :reason         => 'System approved',
 
           :number_of_children          => 3,
-          :number_of_finished_children => 3
+          :number_of_finished_children => 3,
+          :random_access_key           => nil
         )
         (0..2).each do |index|
           child = request.children[index]
@@ -157,8 +161,12 @@ RSpec.describe RequestCreateService do
         'tags'        => [{'namespace' => 'ns1', 'name' => 'name1', 'value' => 'v1'}]
       }]
     end
+    let(:workflow) { create(:workflow) }
 
-    before { allow(Thread).to receive(:new).and_yield }
+    before do
+      allow(Thread).to receive(:new).and_yield
+      allow(Workflow).to receive(:default_workflow).and_return(workflow)
+    end
 
     it 'creates a request and auto approves' do
       expect(ContextService).to receive(:new).and_return(context_service)
@@ -173,7 +181,8 @@ RSpec.describe RequestCreateService do
         :owner          => 'jdoe',
         :state          => Request::COMPLETED_STATE,
         :decision       => Request::APPROVED_STATUS,
-        :reason         => 'System approved'
+        :reason         => 'System approved',
+        :workflow       => workflow
       )
     end
   end

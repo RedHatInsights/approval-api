@@ -1,4 +1,6 @@
 class RequestUpdateService
+  require 'securerandom'
+
   attr_accessor :request
 
   def initialize(request_id)
@@ -14,7 +16,10 @@ class RequestUpdateService
   private
 
   def started(options)
-    start_request if request.leaf?
+    if request.leaf?
+      request.random_access_key = SecureRandom.hex(16)
+      start_request
+    end
 
     request.update!(options)
 
@@ -48,7 +53,7 @@ class RequestUpdateService
   # Root only.
   def canceled(options)
     skip_leaves
-    request.update!(options.merge(:finished_at => DateTime.now))
+    request.update!(options.merge(:finished_at => DateTime.now, :random_access_key => nil))
 
     EventService.new(request).request_canceled
   end
@@ -68,7 +73,7 @@ class RequestUpdateService
   end
 
   def child_completed(options)
-    request.update!(options.merge(:finished_at => DateTime.now))
+    request.update!(options.merge(:finished_at => DateTime.now, :random_access_key => nil))
     request.parent.invalidate_number_of_finished_children
     update_parent(options)
     if options[:decision] == Request::DENIED_STATUS
@@ -79,7 +84,7 @@ class RequestUpdateService
   end
 
   def parent_completed(options)
-    request.update!(options.merge(:finished_at => DateTime.now))
+    request.update!(options.merge(:finished_at => DateTime.now, :random_access_key => nil))
     EventService.new(request).request_completed
   end
 
@@ -120,7 +125,7 @@ class RequestUpdateService
 
   # start the external approval process if configured
   def start_request
-    return unless !bypass? || request.workflow.try(:external_processing?)
+    return unless !bypass? && request.workflow.try(:external_processing?)
 
     template = request.workflow.template
     processor_class = "#{template.process_setting['processor_type']}_process_service".classify.constantize
@@ -129,14 +134,14 @@ class RequestUpdateService
   end
 
   def notify_request
-    return if request.workflow.try(:external_processing?)
+    return if !bypass? && request.workflow.try(:external_processing?)
 
     ActionCreateService.new(request.id).create(:operation => Action::NOTIFY_OPERATION, :processed_by => 'system')
   end
 
   # complete the external approval process if configured
   def finish_request(decision)
-    return unless !bypass? || request.workflow.try(:external_processing?)
+    return unless !bypass? && request.workflow.try(:external_processing?)
 
     template = request.workflow.template
     processor_class = "#{template.signal_setting['processor_type']}_process_service".classify.constantize

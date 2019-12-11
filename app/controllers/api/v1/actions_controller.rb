@@ -8,9 +8,9 @@ module Api
       before_action :create_access_check, :validate_create_action, :only => %i[create]
 
       def index
-        stage = Stage.find(params.require(:stage_id))
+        req = Request.find(params.require(:request_id))
 
-        collection(index_scope(stage.actions))
+        collection(index_scope(req.actions))
       end
 
       def show
@@ -20,17 +20,8 @@ module Api
       end
 
       def create
-        stage_id = if params[:request_id]
-                     req = Request.find(params[:request_id])
-                     current_stage = req.current_stage
-                     raise Exceptions::InvalidStateTransitionError, "Request has finished its lifecycle. No more action can be added to its current stage." unless current_stage
+        action = ActionCreateService.new(params.require(:request_id)).create(params_for_create)
 
-                     current_stage.id
-                   else
-                     params.require(:stage_id)
-                   end
-
-        action = ActionCreateService.new(stage_id).create(params_for_create)
         json_response(action, :created)
       end
 
