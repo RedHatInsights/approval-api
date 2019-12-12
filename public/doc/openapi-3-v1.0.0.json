@@ -361,6 +361,42 @@
                 }
             }
         },
+        "/requests/{request_id}/content": {
+            "get": {
+                "tags": [
+                  "Request"
+                ],
+                "summary": "Return request content of a given request id",
+                "description": "Return request content of a given request id, available to all",
+                "operationId": "showRequestContent",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/request_id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RequestContent"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequestResponse"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403ForbiddenResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFoundResponse"
+                    }
+                }
+            }
+        },
         "/templates": {
             "get": {
                 "tags": [
@@ -1065,18 +1101,15 @@
                 "properties": {
                     "object_type": {
                         "type": "string",
-                        "description": "Object type",
-                        "readOnly": true
+                        "description": "Object type"
                     },
                     "app_name": {
                         "type": "string",
-                        "description": "Application name the object belongs to",
-                        "readOnly": true
+                        "description": "Application name the object belongs to"
                     },
                     "object_id": {
                         "type": "string",
-                        "description": "Id of the object",
-                        "readOnly": true
+                        "description": "Id of the object"
                     }
                 }
             },
@@ -1187,24 +1220,34 @@
                     "reason": {
                         "type": "string",
                         "description": "Reason for the decision. Optional. Present normally when the decision is denied",
-                        "readOnly": true
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "workflow_id": {
                         "type": "string",
                         "description": "Associate workflow id. Available only if the request is a leaf node",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of creation",
                         "readOnly": true
                     },
                     "notified_at": {
                         "type": "string",
                         "format": "date-time",
                         "description": "Timestamp of notification sent to approvers",
-                        "readOnly": true
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "finished_at": {
                         "type": "string",
                         "format": "date-time",
                         "description": "Timestamp of finishing (skipped, canceled, or completed)",
-                        "readOnly": true
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "number_of_children": {
                         "type": "integer",
@@ -1247,6 +1290,10 @@
                         "readOnly": true
                     }
                 }
+            },
+            "RequestContent": {
+                "type": "object",
+                "description": "The content of a request"
             },
             "Template": {
                 "type": "object",

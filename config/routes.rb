@@ -26,6 +26,8 @@ Rails.application.routes.draw do
         resources :actions, :only => %i(create index)
       end
 
+      get "/requests/:id/content", :to => "requests#show"
+
       resources :workflows, :only => %i(index destroy update show)
 
       post '/workflows/:id/link', :to => "workflows#link", :as => 'link'

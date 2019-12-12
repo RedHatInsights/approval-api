@@ -324,24 +324,27 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
   end
 
-  # Test suite for GET /requests/:id
+  # Test suite for GET /requests/:id and /requests/:id/content
   describe 'GET /requests/:id' do
     context 'admin role when the record exist' do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/requests/#{id}", :headers => default_headers
       end
 
       it 'returns the request' do
-        request = requests.first
+        get "#{api_version}/requests/#{id}", :headers => default_headers
 
+        expect(response).to have_http_status(200)
         expect(json).not_to be_empty
-        expect(json['id']).to eq(request.id.to_s)
+        expect(json['id']).to eq(requests.first.id.to_s)
       end
 
-      it 'returns status code 200' do
+      it 'returns the request content' do
+        get "#{api_version}/requests/#{id}/content", :headers => default_headers
+
         expect(response).to have_http_status(200)
+        expect(json).to eq(requests.first.content)
       end
     end
 
