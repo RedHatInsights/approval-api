@@ -117,7 +117,7 @@ module Api
 
         # Request ids owned by requester
         def owner_request_ids
-          Request.by_owner.where(:parent_id => nil).pluck(:id).sort
+          Request.by_owner.pluck(:id).sort
         end
 
         # All child request ids for approver to process
