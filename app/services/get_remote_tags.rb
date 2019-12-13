@@ -7,14 +7,7 @@ class GetRemoteTags < RemoteTaggingService
 
   def process
     response = get_request(object_url)
-    build_tags(response.body)
+    @tags = JSON.parse(response.body)['data'].collect {|tag| {:tag => tag['tag'] } }
     self
-  end
-
-  def build_tags(body)
-    data = JSON.parse(body)['data']
-    data.each do |tag|
-      @tags << { :name => tag['name'], :namespace => tag['namespace'], :value => tag['value'] }
-    end
   end
 end

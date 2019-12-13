@@ -1,6 +1,11 @@
 require 'faraday'
+require_relative 'mixins/tag_mixin'
 class RemoteTaggingService
+  include TagMixin
   VALID_200_CODES = [200, 201, 202, 204].freeze
+  # TODO Support proper pagination of tags from Faraday since
+  # we are not using the generated client here.
+  QUERY_LIMIT = 1000
   def initialize(options)
     @app_name = options[:app_name]
     @object_type = options[:object_type]
@@ -36,7 +41,7 @@ class RemoteTaggingService
   private_class_method :sources_url
 
   def object_url
-    "#{service_url}/#{@object_type.underscore.pluralize}/#{@object_id}/tags"
+    "#{service_url}/#{@object_type.underscore.pluralize}/#{@object_id}/tags?limit=#{QUERY_LIMIT}&#{approval_tag_filter}"
   end
 
   def service_url

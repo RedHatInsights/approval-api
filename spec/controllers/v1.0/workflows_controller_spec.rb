@@ -9,11 +9,10 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   let(:id) { workflows.first.id }
   let(:roles_obj) { double }
   let(:add_tag_svc) { instance_double(AddRemoteTags) }
+  let(:del_tag_svc) { instance_double(DeleteRemoteTags) }
   let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [tag]) }
   let(:tag) do
-    { :namespace => WorkflowLinkService::TAG_NAMESPACE,
-      :name      => WorkflowLinkService::TAG_NAME,
-      :value     => id.to_s }
+    { :tag => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{id}" }
   end
 
   let(:api_version) { version }
@@ -481,6 +480,8 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     let(:obj) { { :object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
 
     it 'returns status code 204' do
+      allow(DeleteRemoteTags).to receive(:new).with(obj).and_return(del_tag_svc)
+      allow(del_tag_svc).to receive(:process).with(tag).and_return(del_tag_svc)
       post "#{api_version}/workflows/#{id}/unlink", :params => obj, :headers => default_headers
 
       expect(response).to have_http_status(204)

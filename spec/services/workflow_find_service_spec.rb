@@ -5,9 +5,7 @@ RSpec.describe WorkflowFindService do
   let(:add_tag_svc) { instance_double(AddRemoteTags) }
   let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [tag]) }
   let(:tag) do
-    { :namespace => WorkflowLinkService::TAG_NAMESPACE,
-      :name      => WorkflowLinkService::TAG_NAME,
-      :value     => workflow.id.to_s }
+    { :tag => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{workflow.id}" }
   end
 
   describe 'find' do

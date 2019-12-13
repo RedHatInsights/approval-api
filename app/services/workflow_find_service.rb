@@ -7,13 +7,13 @@ class WorkflowFindService
     Workflow.where(:id => workflow_ids)
   end
 
-  # find workflows from a collection of [app_name, object_type, [namespace, key, value]]
+  # find workflows from a collection of [app_name, object_type, [tags]]
   def find_by_tag_resources(tag_resources)
     return [] if tag_resources.blank?
 
     query = nil
     tag_resources.each_with_index do |tr, i|
-      tag_names = tr['tags'].map { |tag| "/#{tag['namespace']}/#{tag['name']}=#{tag['value']}" }
+      tag_names = tr['tags'].collect{|tag| tag[:tag] }
       params = {:app_name => tr['app_name'], :object_type => tr['object_type'], :tag_name => tag_names}
       query =
         if i.zero?
@@ -26,8 +26,6 @@ class WorkflowFindService
   end
 
   def fq_tag_names(tag_attrs)
-    GetRemoteTags.new(tag_attrs).process.tags.collect do |tag|
-      "/#{tag[:namespace]}/#{tag[:name]}=#{tag[:value]}"
-    end
+    GetRemoteTags.new(tag_attrs).process.tags.collect { |tag| tag[:tag] }
   end
 end

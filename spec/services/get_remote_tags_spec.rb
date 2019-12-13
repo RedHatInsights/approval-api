@@ -6,18 +6,16 @@ RSpec.describe GetRemoteTags, :type => :request do
   let(:object_id) { '123' }
   let(:options) { {:object_type => object_type, :app_name => app_name, :object_id => object_id} }
   let(:approval_tag) do
-    { :namespace => WorkflowLinkService::TAG_NAMESPACE,
-      :name      => WorkflowLinkService::TAG_NAME,
-      :value     => "100" }
+    { :tag => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=100" }
   end
   let(:app_name) { 'catalog' }
   let(:object_type) { 'Portfolio' }
-  let(:url) { "http://localhost/api/catalog/v1.0/portfolios/#{object_id}/tags" }
+  let(:url) { "http://localhost/api/catalog/v1.0/portfolios/#{object_id}/tags?filter%5Bname%5D%5Beq%5D=/workflows&filter%5Bnamespace%5D%5Beq%5D=approval&limit=1000" }
   let(:http_status) { [200, 'Ok'] }
 
   let(:remote_tags) do
-    [{:name => 'Charkie', :namespace => 'Gnocchi', :value => 'Hundley'},
-     {:name => 'Curious George', :namespace => 'Jumpy Squirrel', :value => 'Compass'}]
+    [{:tag => '/Gnocchi/Charkie=Hundley'},
+     {:tag => '/Jumpy Squirrel/Curious George=Compass'}]
   end
 
   let(:test_env) do
