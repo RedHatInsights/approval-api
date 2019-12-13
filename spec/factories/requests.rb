@@ -7,7 +7,7 @@ FactoryBot.define do
     requester_name  { Faker::Lorem.word }
     owner           { Faker::Lorem.word }
     group_name      { Faker::Lorem.word }
-    request_context { RequestContext.new(:content => JSON.generate(items)) }
+    request_context { RequestContext.new(:content => items) }
     state           { :pending }
     decision        { :undecided }
 

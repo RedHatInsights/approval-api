@@ -18,7 +18,7 @@ module Api
 
       def show
         req = Request.find(params.require(:id))
-        json_response(req)
+        request.path.end_with?("/content") ? json_response(req.content) : json_response(req)
       end
 
       def index
