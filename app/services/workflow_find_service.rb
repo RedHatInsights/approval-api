@@ -13,7 +13,7 @@ class WorkflowFindService
 
     query = nil
     tag_resources.each_with_index do |tr, i|
-      tag_names = tr['tags'].collect{|tag| tag[:tag] }
+      tag_names = tr['tags'].collect { |tag| tag[:tag] }
       params = {:app_name => tr['app_name'], :object_type => tr['object_type'], :tag_name => tag_names}
       query =
         if i.zero?

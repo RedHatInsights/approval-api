@@ -3,7 +3,7 @@ require_relative 'mixins/tag_mixin'
 class RemoteTaggingService
   include TagMixin
   VALID_200_CODES = [200, 201, 202, 204].freeze
-  # TODO Support proper pagination of tags from Faraday since
+  # TODO: Support proper pagination of tags from Faraday since
   # we are not using the generated client here.
   QUERY_LIMIT = 1000
   def initialize(options)
