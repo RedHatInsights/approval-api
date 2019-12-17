@@ -110,7 +110,7 @@
                   "Action"
                 ],
                 "summary": "Add an action to a given request",
-                "description": "Add an action to a given request, available for admin/approver/requester",
+                "description": "Add an action to a given request, available for admin/approver/requester. Applicable operation types are based on request current state.",
                 "operationId": "createAction",
                 "parameters": [
                     {
@@ -1055,12 +1055,6 @@
                         "description": "Timestamp of creation",
                         "readOnly": true
                     },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Timestamp of update",
-                        "readOnly": true
-                    },
                     "request_id": {
                         "type": "string",
                         "description": "Associated request id",
@@ -1072,21 +1066,22 @@
                     },
                     "operation": {
                         "type": "string",
-                        "description": "Types of action, may be one of the value (approve, cancel, deny, notify, memo, or skip). The request will be updated according to the operation.",
+                        "description": "Types of action, may be one of the value (approve, cancel, deny, notify, memo, skip, or start). The request state will be updated according to the operation.",
                         "enum": [
                             "approve",
                             "cancel",
                             "deny",
                             "notify",
                             "memo",
-                            "skip"
+                            "skip",
+                            "start"
                         ],
                         "default": "memo"
                     },
                     "comments": {
                         "type": "string",
                         "description": "Comments for action",
-                        "readOnly": true
+                        "nullable": true
                     }
                 }
             },
