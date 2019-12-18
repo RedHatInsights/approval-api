@@ -32,7 +32,7 @@ RSpec.describe AddRemoteTags, :type => :request do
   shared_examples_for '#test_all' do
     before do
       stub_request(:post, url)
-        .to_return(:status => http_status, :body => approval_tag.to_json, :headers => headers)
+        .to_return(:status => http_status, :body => [approval_tag].to_json, :headers => headers)
     end
 
     it 'adds a remote tag' do

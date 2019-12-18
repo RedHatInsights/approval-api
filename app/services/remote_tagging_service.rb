@@ -51,12 +51,12 @@ class RemoteTaggingService
     match[:url].call
   end
 
-  def post_request(url, tag)
+  def post_request(url, tags)
     con = Faraday.new
     response = con.post(url) do |session|
       session.headers['Content-Type'] = 'application/json'
       headers(session)
-      session.body = tag.to_json
+      session.body = tags.to_json
     end
     check_for_exceptions(response, "Error posting tags")
   end
