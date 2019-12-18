@@ -429,7 +429,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
   # Test suite for GET /requests/:request_id/requests
   describe 'GET /requests/:request_id/requests' do
-    let(:parent_request) { create(:request, :name => "parent", :owner => "jdoe", :number_of_children => 2, :number_of_finished_children => 0, :tenant_id => tenant.id) }
+    let!(:parent_request) { create(:request, :name => "parent", :owner => "jdoe", :number_of_children => 2, :number_of_finished_children => 0, :tenant_id => tenant.id) }
     let!(:child_request_a) { create(:request, :owner => "jdoe", :parent_id => parent_request.id, :name => "child a", :workflow_id => workflow.id, :tenant_id => tenant.id) }
     let!(:child_request_b) { create(:request, :owner => "jdoe", :parent_id => parent_request.id, :name => "child b", :workflow_id => workflow.id, :tenant_id => tenant.id) }
     let(:request_id) { parent_request.id }

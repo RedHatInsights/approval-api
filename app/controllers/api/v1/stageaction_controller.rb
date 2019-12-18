@@ -39,9 +39,9 @@ module Api
           comments = params[:message]
         end
 
-        Insights::API::Common::Request.with_request(@stage.request.context.transform_keys(&:to_sym)) do
-          ActsAsTenant.with_tenant(Tenant.find(@stage.tenant_id)) do
-            ActionCreateService.new(@stage.id).create(
+        Insights::API::Common::Request.with_request(@request.context.transform_keys(&:to_sym)) do
+          ActsAsTenant.with_tenant(Tenant.find(@request.tenant_id)) do
+            ActionCreateService.new(@request.id).create(
               :operation    => operation.downcase,
               :processed_by => @approver,
               :comments     => comments
@@ -59,9 +59,9 @@ module Api
         set_resources
 
         @approver = Base64.decode64(params.require(:approver))
-        @stage = Stage.find_by(:random_access_key => params.require(:id))
+        @request = Request.find_by(:random_access_key => params.require(:id))
 
-        if @stage
+        if @request
           @order = set_order
         else
           response.body = "Your request is either expired or has been processed!"
@@ -73,7 +73,7 @@ module Api
       end
 
       def set_order
-        request = @stage.request
+        request = @request
         {
           :orderer       => request.requester_name,
           :product       => request.content["product"],

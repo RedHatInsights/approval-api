@@ -125,7 +125,7 @@ class RequestUpdateService
 
   # start the external approval process if configured
   def start_request
-    return unless !bypass? && request.workflow.try(:external_processing?)
+    return unless request.workflow.try(:external_processing?)
 
     template = request.workflow.template
     processor_class = "#{template.process_setting['processor_type']}_process_service".classify.constantize
@@ -134,22 +134,17 @@ class RequestUpdateService
   end
 
   def notify_request
-    return if !bypass? && request.workflow.try(:external_processing?)
+    return if request.workflow.try(:external_processing?)
 
     ActionCreateService.new(request.id).create(:operation => Action::NOTIFY_OPERATION, :processed_by => 'system')
   end
 
   # complete the external approval process if configured
   def finish_request(decision)
-    return unless !bypass? && request.workflow.try(:external_processing?)
+    return unless request.workflow.try(:external_processing?)
 
     template = request.workflow.template
     processor_class = "#{template.signal_setting['processor_type']}_process_service".classify.constantize
     processor_class.new(request).signal(decision)
-  end
-
-  # TODO: remove this method once BPM changes are ready
-  def bypass?
-    true
   end
 end
