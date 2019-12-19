@@ -23,6 +23,7 @@ module Api
 
       def index
         requests = if params[:request_id]
+                     resource_check('read', params[:request_id], Request) # NotAuthorizedError if current user cannot access parent request
                      Request.find(params[:request_id]).children
                    else
                      Request.where(:parent_id => nil)

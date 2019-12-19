@@ -33,7 +33,7 @@ module Api
           resource_check('read')
         end
 
-        # Klass here is allowed for Request, Stage and Action.
+        # Klass here is allowed for Request and Action.
         def resource_check(verb, id = params[:id], klass = controller_name.classify.constantize)
           return unless Insights::API::Common::RBAC::Access.enabled?
 
@@ -50,12 +50,16 @@ module Api
 
         # permission level check
         def resource_accessible?(resource, verb)
-          admin? || owner_acls(resource, verb).any? || Insights::API::Common::RBAC::Access.new(resource, verb).process.acl.any?
+          return true if admin?
+
+          approver? ? permitted?(APPROVER_PERMISSIONS, resource, verb) : permitted?(OWNER_PERMISSIONS, resource, verb)
         end
 
         # instance level check
         def resource_instance_accessible?(resource, resource_id)
-          admin? || approvable?(resource, resource_id) || owned?(resource, resource_id)
+          return true if admin?
+
+          approver? ? approvable?(resource, resource_id) : owned?(resource, resource_id)
         end
 
         def admin?
@@ -72,7 +76,7 @@ module Api
 
         # check if approver can process the #{resource} with #{id}
         def approvable?(resource, id)
-          approver? && approver_id_list(resource)&.include?(id.to_i)
+          approver_id_list(resource)&.include?(id.to_i)
         end
 
         # check if regular requester own the #{resource} with #{id}
@@ -80,7 +84,7 @@ module Api
           owner_id_list(resource)&.include?(id.to_i)
         end
 
-        # resource ids approver can approve
+        # resource ids approver can access
         def approver_id_list(resource)
           visible_request_ids = visible_request_ids_for_approver
           Rails.logger.debug { "Final accessible request ids: #{visible_request_ids}" }
@@ -107,11 +111,10 @@ module Api
           end
         end
 
-        # Owner access list for the #{resource} and action #{verb}
-        def owner_acls(resource, verb)
+        def permitted?(permissions, resource, verb)
           regexp = Regexp.new(":(#{resource}|\\*):(#{verb}|\\*)")
-          requester_acls.select do |item|
-            regexp.match(item.permission)
+          permissions.any? do |item|
+            regexp.match?(item)
           end
         end
 
@@ -121,37 +124,20 @@ module Api
         end
 
         # All child request ids for approver to process
-        def all_request_ids_for_approver
-          Request.where(:workflow_id => workflow_ids).pluck(:id).sort
-        end
-
         def visible_request_ids_for_approver
-          request_ids = all_request_ids_for_approver
-          Rails.logger.debug { "Approvable request ids: #{request_ids}" }
-
-          group_refs = assigned_group_refs
-          Rails.logger.debug { "Groups from assigned roles: #{group_refs}" }
-
           visible_states = [ApprovalStates::NOTIFIED_STATE, ApprovalStates::COMPLETED_STATE]
-          Request.where(:id => request_ids, :group_ref => group_refs, :state => visible_states).pluck(:id)
+          Request.where(:workflow_id => workflow_ids, :state => visible_states).pluck(:id)
         end
 
         def assigned_group_refs
-          assigned_roles.map { |name, _id| name.split(AccessProcessService::APPROVER_ROLE_PREFIX)[1] }.compact
+          Insights::API::Common::RBAC::Service.call(RBACApiClient::GroupApi) do |api|
+            Insights::API::Common::RBAC::Service.paginate(api, :list_groups, :scope => 'principal').collect(&:uuid)
+          end
         end
 
         # The accessible workflow ids for approver
         def workflow_ids
-          approval_access = Insights::API::Common::RBAC::Access.new('workflows', 'approve').process
-
-          Rails.logger.debug { "Approvable workflows: #{approval_access.id_list}" }
-
-          approval_access.id_list
-        end
-
-        # The access list regular requesters have
-        def requester_acls
-          Insights::API::Common::RBAC::ACL.new.create(nil, OWNER_PERMISSIONS)
+          AccessControlEntry.where(:aceable_type => 'Workflow', :permission => 'approve', :group_uuid => assigned_group_refs).pluck(:aceable_id)
         end
       end
     end
