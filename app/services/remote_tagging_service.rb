@@ -2,7 +2,7 @@ require 'faraday'
 require_relative 'mixins/tag_mixin'
 class RemoteTaggingService
   include TagMixin
-  VALID_200_CODES = [200, 201, 202, 204].freeze
+  VALID_HTTP_CODES = [200, 201, 202, 204, 304].freeze
   # TODO: Support proper pagination of tags from Faraday since
   # we are not using the generated client here.
   QUERY_LIMIT = 1000
@@ -74,7 +74,7 @@ class RemoteTaggingService
     if response.status == 403
       raise Exceptions::NotAuthorizedError, response.reason_phrase
     else
-      raise "#{message_prefix} #{response.reason_phrase}" unless VALID_200_CODES.include?(response.status)
+      raise "#{message_prefix} #{response.reason_phrase}" unless VALID_HTTP_CODES.include?(response.status)
     end
   end
 
