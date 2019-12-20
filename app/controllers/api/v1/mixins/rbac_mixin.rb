@@ -83,7 +83,7 @@ module Api
         # resource ids approver can approve
         def approver_id_list(resource)
           visible_request_ids = visible_request_ids_for_approver
-          Rails.logger.info("Final accessible request ids: #{visible_request_ids}")
+          Rails.logger.debug { "Final accessible request ids: #{visible_request_ids}" }
 
           case resource
           when "requests"
@@ -127,10 +127,10 @@ module Api
 
         def visible_request_ids_for_approver
           request_ids = all_request_ids_for_approver
-          Rails.logger.info("All approvable request ids: #{request_ids}")
+          Rails.logger.debug { "Approvable request ids: #{request_ids}" }
 
           group_refs = assigned_group_refs
-          Rails.logger.info("Groups from assigned roles: #{group_refs}")
+          Rails.logger.debug { "Groups from assigned roles: #{group_refs}" }
 
           visible_states = [ApprovalStates::NOTIFIED_STATE, ApprovalStates::COMPLETED_STATE]
           Request.where(:id => request_ids, :group_ref => group_refs, :state => visible_states).pluck(:id)
@@ -144,7 +144,7 @@ module Api
         def workflow_ids
           approval_access = Insights::API::Common::RBAC::Access.new('workflows', 'approve').process
 
-          Rails.logger.info("Approvable workflows: #{approval_access.id_list}")
+          Rails.logger.debug { "Approvable workflows: #{approval_access.id_list}" }
 
           approval_access.id_list
         end

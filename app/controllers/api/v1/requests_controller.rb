@@ -51,8 +51,6 @@ module Api
         # for admin
         return relation unless ids
 
-        Rails.logger.info("Accessible #{relation.model.table_name} ids: #{ids}")
-
         relation.where(:id => ids)
       end
     end
