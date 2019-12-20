@@ -10,9 +10,10 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   let(:roles_obj) { double }
   let(:add_tag_svc) { instance_double(AddRemoteTags) }
   let(:del_tag_svc) { instance_double(DeleteRemoteTags) }
-  let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [tag]) }
+  let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [tag_string]) }
+  let(:tag_string) { "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{id}" }
   let(:tag) do
-    { :tag => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{id}" }
+    { 'tag' => tag_string }
   end
 
   let(:api_version) { version }
@@ -507,7 +508,6 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     it 'returns status code 200' do
       get "#{api_version}/workflows", :params => obj_a, :headers => default_headers
-
       expect(response).to have_http_status(200)
       expect(json["data"].first["id"].to_i).to eq(id)
     end

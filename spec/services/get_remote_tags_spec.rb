@@ -10,12 +10,14 @@ RSpec.describe GetRemoteTags, :type => :request do
   end
   let(:app_name) { 'catalog' }
   let(:object_type) { 'Portfolio' }
-  let(:url) { "http://localhost/api/catalog/v1.0/portfolios/#{object_id}/tags?filter%5Bname%5D%5Beq%5D=/workflows&filter%5Bnamespace%5D%5Beq%5D=approval&limit=1000" }
+  let(:url) { "http://localhost/api/catalog/v1.0/portfolios/#{object_id}/tags?filter%5Bname%5D%5Beq%5D=workflows&filter%5Bnamespace%5D%5Beq%5D=approval&limit=1000" }
   let(:http_status) { [200, 'Ok'] }
+  let(:tag1_string) { '/approval/workflows=1' }
+  let(:tag2_string) { '/approval/workflows=2' }
 
   let(:remote_tags) do
-    [{:tag => '/Gnocchi/Charkie=Hundley'},
-     {:tag => '/Jumpy Squirrel/Curious George=Compass'}]
+    [{:tag => tag1_string},
+     {:tag => tag2_string}]
   end
 
   let(:test_env) do
@@ -36,7 +38,7 @@ RSpec.describe GetRemoteTags, :type => :request do
 
     it 'successfully fetches tags' do
       with_modified_env test_env do
-        expect(subject.process.tags).to match(remote_tags)
+        expect(subject.process.tags).to match([tag1_string, tag2_string])
       end
     end
   end

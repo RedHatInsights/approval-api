@@ -7,7 +7,7 @@ RSpec.describe WorkflowLinkService, :type => :request do
   let(:obj_a) { {:object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
   let(:remote_tag_svc) { instance_double(AddRemoteTags) }
   let(:tag) do
-    { :tag => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{workflow.id}" }
+    { 'tag' => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{workflow.id}" }
   end
 
   subject { described_class.new(workflow.id) }

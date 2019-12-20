@@ -41,7 +41,7 @@ class RemoteTaggingService
   private_class_method :sources_url
 
   def object_url
-    "#{service_url}/#{@object_type.underscore.pluralize}/#{@object_id}/tags?limit=#{QUERY_LIMIT}&#{approval_tag_filter}"
+    "#{service_url}/#{@object_type.underscore.pluralize}/#{@object_id}/tags"
   end
 
   def service_url
@@ -61,10 +61,11 @@ class RemoteTaggingService
     check_for_exceptions(response, "Error posting tags")
   end
 
-  def get_request(url)
+  def get_request(url, params)
     con = Faraday.new
     response = con.get(url) do |session|
       headers(session)
+      params.each { |k, v| session.params[k] = v }
     end
     check_for_exceptions(response, "Error getting tags")
     response

@@ -7,7 +7,7 @@ module TagMixin
   end
 
   def approval_tag(workflow_id)
-    { :tag => fq_tag_name(workflow_id) }
+    { 'tag' => fq_tag_name(workflow_id) }
   end
 
   def approval_tag_filter
