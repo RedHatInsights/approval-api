@@ -3,11 +3,10 @@ RSpec.describe WorkflowFindService do
   let(:obj) { {:object_type => 'inventory', :app_name => 'topology', :object_id => 'abc'} }
   let(:another_obj) { {:object_type => 'portfolio', :app_name => 'catalog', :object_id => 'abc'} }
   let(:add_tag_svc) { instance_double(AddRemoteTags) }
-  let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [tag]) }
+  let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [fq_tag_string]) }
+  let(:fq_tag_string) { "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{workflow.id}" }
   let(:tag) do
-    { :namespace => WorkflowLinkService::TAG_NAMESPACE,
-      :name      => WorkflowLinkService::TAG_NAME,
-      :value     => workflow.id.to_s }
+    { 'tag' => fq_tag_string }
   end
 
   describe 'find' do

@@ -1164,21 +1164,13 @@
             "Tag": {
                 "description": "tag details",
                 "type": "object",
-                "required": [
-                    "namespace",
-                    "name"
-                ],
                 "properties": {
-                    "namespace": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "value": {
+                    "tag": {
+			"example": "/namespace/architecture=x86_64",
                         "type": "string"
                     }
-                }
+                },
+		"additionalProperties": false
             },
             "Request": {
                 "description": "Approval request. It may have child requests. Only a leaf node request can have workflow_id",

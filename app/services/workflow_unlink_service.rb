@@ -1,4 +1,6 @@
+require_relative 'mixins/tag_mixin'
 class WorkflowUnlinkService
+  include TagMixin
   attr_accessor :workflow_id
 
   def initialize(workflow_id = nil)
@@ -6,8 +8,6 @@ class WorkflowUnlinkService
   end
 
   def unlink(tag_attrs)
-    # TODO: find linked tag and remove it from resource object's tag list
-
-    # Leave the tag link in the tag_links table!
+    DeleteRemoteTags.new(tag_attrs).process(approval_tag(workflow_id))
   end
 end

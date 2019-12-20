@@ -14,27 +14,19 @@ RSpec.shared_context "tag_resource_objects" do
   let!(:tag_link4) { create(:tag_link, :tenant => tenant2, :app_name => 'catalog', :object_type => 'Portfolio', :tag_name => wf3_tag, :workflow => workflow3) }
 
   let(:tag1) do
-    { 'namespace' => WorkflowLinkService::TAG_NAMESPACE,
-      'name'      => WorkflowLinkService::TAG_NAME,
-      'value'     => workflow1.id.to_s }
+    { :tag => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{workflow1.id}" }
   end
 
   let(:tag2) do
-    { 'namespace' => WorkflowLinkService::TAG_NAMESPACE,
-      'name'      => WorkflowLinkService::TAG_NAME,
-      'value'     => workflow2.id.to_s }
+    { :tag => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{workflow2.id}" }
   end
 
   let(:tag3) do
-    { 'namespace' => WorkflowLinkService::TAG_NAMESPACE,
-      'name'      => WorkflowLinkService::TAG_NAME,
-      'value'     => workflow3.id.to_s }
+    { :tag => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{workflow3.id}" }
   end
 
   let(:bogus_tag) do
-    { 'namespace' => 'curious',
-      'name'      => 'george',
-      'value'     => 'gnocchi' }
+    { :tag => '/curious/george=gnocchi' }
   end
 
   let(:tag_resource1) do

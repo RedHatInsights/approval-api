@@ -1,6 +1,11 @@
 require 'faraday'
+require_relative 'mixins/tag_mixin'
 class RemoteTaggingService
-  VALID_200_CODES = [200, 201, 202, 204].freeze
+  include TagMixin
+  VALID_HTTP_CODES = [200, 201, 202, 204, 304].freeze
+  # TODO: Support proper pagination of tags from Faraday since
+  # we are not using the generated client here.
+  QUERY_LIMIT = 1000
   def initialize(options)
     @app_name = options[:app_name]
     @object_type = options[:object_type]
@@ -46,20 +51,21 @@ class RemoteTaggingService
     match[:url].call
   end
 
-  def post_request(url, tag)
+  def post_request(url, tags)
     con = Faraday.new
     response = con.post(url) do |session|
       session.headers['Content-Type'] = 'application/json'
       headers(session)
-      session.body = tag.to_json
+      session.body = tags.to_json
     end
     check_for_exceptions(response, "Error posting tags")
   end
 
-  def get_request(url)
+  def get_request(url, params)
     con = Faraday.new
     response = con.get(url) do |session|
       headers(session)
+      params.each { |k, v| session.params[k] = v }
     end
     check_for_exceptions(response, "Error getting tags")
     response
@@ -69,7 +75,7 @@ class RemoteTaggingService
     if response.status == 403
       raise Exceptions::NotAuthorizedError, response.reason_phrase
     else
-      raise "#{message_prefix} #{response.reason_phrase}" unless VALID_200_CODES.include?(response.status)
+      raise "#{message_prefix} #{response.reason_phrase}" unless VALID_HTTP_CODES.include?(response.status)
     end
   end
 

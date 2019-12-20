@@ -459,7 +459,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       [{
         'app_name'    => 'app1',
         'object_type' => 'otype1',
-        'tags'        => [{'namespace' => 'ns1', 'name' => 'name1', 'value' => 'v1'}]
+        'tags'        => [{:tag => '/ns1/name1=v1'}]
       }]
     end
     let(:group) { double }
