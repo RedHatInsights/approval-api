@@ -331,9 +331,12 @@
                   "Request"
                 ],
                 "summary": "Return an array of child requests of a given request id",
-                "description": "Return an array of child requests of a given request id, available for admin/requester",
+                "description": "Return an array of child requests of a given request id. The result depends on the x-rh-persona header (approval/admin, approval/requseter, or approval/approver).",
                 "operationId": "listRequestsByRequest",
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/persona"
+                    },
                     {
                         "$ref": "#/components/parameters/request_id"
                     }
@@ -341,6 +344,14 @@
                 "responses": {
                     "200": {
                         "description": "Success",
+                        "headers": {
+                            "X-total-count": {
+                                "description": "Total number of items",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
