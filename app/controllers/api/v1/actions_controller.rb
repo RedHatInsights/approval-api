@@ -43,7 +43,7 @@ module Api
 
         # Only approver can reach here
         action_ids = approver_id_list(relation.model.table_name)
-        Rails.logger.info("approver scope for actions: #{action_ids}")
+        Rails.logger.debug { "Approver scope for actions: #{action_ids}" }
 
         relation.where(:id => action_ids)
       end
