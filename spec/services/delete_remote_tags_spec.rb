@@ -8,6 +8,7 @@ RSpec.describe DeleteRemoteTags, :type => :request do
   let(:approval_tag) do
     { :tag => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=100" }
   end
+  let(:approval_tags) { [approval_tag] }
   let(:http_status) { [200, 'Ok'] }
   let(:headers)     do
     { 'Content-Type' => 'application/json' }.merge(default_headers)
@@ -31,24 +32,24 @@ RSpec.describe DeleteRemoteTags, :type => :request do
   shared_examples_for '#test_all' do
     before do
       stub_request(:post, url)
-        .to_return(:status => http_status, :body => approval_tag.to_json, :headers => headers)
+        .to_return(:status => http_status, :body => approval_tags.to_json, :headers => headers)
     end
 
     it 'deletes a remote tag' do
       with_modified_env test_env do
-        subject.process(approval_tag)
+        subject.process(approval_tags)
       end
     end
 
     it 'raises an error if env is missing' do
-      expect { subject.process(approval_tag) }.to raise_error(RuntimeError, env_not_set)
+      expect { subject.process(approval_tags) }.to raise_error(RuntimeError, env_not_set)
     end
 
     context "raises error" do
       let(:http_status) { [404, 'Bad Request'] }
       it 'raises an error if the status is not 200' do
         with_modified_env test_env do
-          expect { subject.process(approval_tag) }.to raise_error(RuntimeError, /Error posting tags/)
+          expect { subject.process(approval_tags) }.to raise_error(RuntimeError, /Error posting tags/)
         end
       end
     end
@@ -57,7 +58,7 @@ RSpec.describe DeleteRemoteTags, :type => :request do
       let(:http_status) { [403, 'Authentication Error'] }
       it 'raises an error if the status is 403' do
         with_modified_env test_env do
-          expect { subject.process(approval_tag) }.to raise_error(Exceptions::NotAuthorizedError, /Authentication Error/)
+          expect { subject.process(approval_tags) }.to raise_error(Exceptions::NotAuthorizedError, /Authentication Error/)
         end
       end
     end

@@ -466,7 +466,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     it 'returns status code 204' do
       allow(AddRemoteTags).to receive(:new).with(obj).and_return(add_tag_svc)
-      allow(add_tag_svc).to receive(:process).with(tag).and_return(add_tag_svc)
+      allow(add_tag_svc).to receive(:process).with([tag]).and_return(add_tag_svc)
       post "#{api_version}/workflows/#{id}/link", :params => obj, :headers => default_headers
 
       expect(response).to have_http_status(204)
@@ -482,7 +482,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     it 'returns status code 204' do
       allow(DeleteRemoteTags).to receive(:new).with(obj).and_return(del_tag_svc)
-      allow(del_tag_svc).to receive(:process).with(tag).and_return(del_tag_svc)
+      allow(del_tag_svc).to receive(:process).with([tag]).and_return(del_tag_svc)
       post "#{api_version}/workflows/#{id}/unlink", :params => obj, :headers => default_headers
 
       expect(response).to have_http_status(204)
@@ -499,7 +499,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       allow(roles_obj).to receive(:roles).and_return([admin_role])
 
       allow(AddRemoteTags).to receive(:new).with(obj_a).and_return(add_tag_svc)
-      allow(add_tag_svc).to receive(:process).with(tag).and_return(add_tag_svc)
+      allow(add_tag_svc).to receive(:process).with([tag]).and_return(add_tag_svc)
       allow(GetRemoteTags).to receive(:new).with(obj_a).and_return(get_tag_svc)
       allow(GetRemoteTags).to receive(:new).with(obj_b).and_return(get_tag_svc)
       allow(get_tag_svc).to receive(:process).and_return(get_tag_svc)

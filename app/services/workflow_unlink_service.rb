@@ -8,6 +8,6 @@ class WorkflowUnlinkService
   end
 
   def unlink(tag_attrs)
-    DeleteRemoteTags.new(tag_attrs).process(approval_tag(workflow_id))
+    DeleteRemoteTags.new(tag_attrs).process([approval_tag(workflow_id)])
   end
 end
