@@ -9,7 +9,7 @@ RSpec.describe AddRemoteTags, :type => :request do
     { :tag => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=100" }
   end
 
-  let(:approval_tags)  { [approval_tag] }
+  let(:approval_tags) { [approval_tag] }
   let(:http_status) { [200, 'Ok'] }
   let(:headers)     do
     { 'Content-Type' => 'application/json' }.merge(default_headers)
