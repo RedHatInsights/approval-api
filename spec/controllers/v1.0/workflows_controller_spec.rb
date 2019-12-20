@@ -9,11 +9,11 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   let(:id) { workflows.first.id }
   let(:roles_obj) { double }
   let(:add_tag_svc) { instance_double(AddRemoteTags) }
-  let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [tag]) }
+  let(:del_tag_svc) { instance_double(DeleteRemoteTags) }
+  let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [tag_string]) }
+  let(:tag_string) { "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{id}" }
   let(:tag) do
-    { :namespace => WorkflowLinkService::TAG_NAMESPACE,
-      :name      => WorkflowLinkService::TAG_NAME,
-      :value     => id.to_s }
+    { 'tag' => tag_string }
   end
 
   let(:api_version) { version }
@@ -466,7 +466,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     it 'returns status code 204' do
       allow(AddRemoteTags).to receive(:new).with(obj).and_return(add_tag_svc)
-      allow(add_tag_svc).to receive(:process).with(tag).and_return(add_tag_svc)
+      allow(add_tag_svc).to receive(:process).with([tag]).and_return(add_tag_svc)
       post "#{api_version}/workflows/#{id}/link", :params => obj, :headers => default_headers
 
       expect(response).to have_http_status(204)
@@ -481,6 +481,8 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     let(:obj) { { :object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
 
     it 'returns status code 204' do
+      allow(DeleteRemoteTags).to receive(:new).with(obj).and_return(del_tag_svc)
+      allow(del_tag_svc).to receive(:process).with([tag]).and_return(del_tag_svc)
       post "#{api_version}/workflows/#{id}/unlink", :params => obj, :headers => default_headers
 
       expect(response).to have_http_status(204)
@@ -497,7 +499,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       allow(roles_obj).to receive(:roles).and_return([admin_role])
 
       allow(AddRemoteTags).to receive(:new).with(obj_a).and_return(add_tag_svc)
-      allow(add_tag_svc).to receive(:process).with(tag).and_return(add_tag_svc)
+      allow(add_tag_svc).to receive(:process).with([tag]).and_return(add_tag_svc)
       allow(GetRemoteTags).to receive(:new).with(obj_a).and_return(get_tag_svc)
       allow(GetRemoteTags).to receive(:new).with(obj_b).and_return(get_tag_svc)
       allow(get_tag_svc).to receive(:process).and_return(get_tag_svc)
@@ -506,7 +508,6 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     it 'returns status code 200' do
       get "#{api_version}/workflows", :params => obj_a, :headers => default_headers
-
       expect(response).to have_http_status(200)
       expect(json["data"].first["id"].to_i).to eq(id)
     end

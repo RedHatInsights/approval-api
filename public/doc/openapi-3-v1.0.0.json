@@ -110,7 +110,7 @@
                   "Action"
                 ],
                 "summary": "Add an action to a given request",
-                "description": "Add an action to a given request, available for admin/approver/requester",
+                "description": "Add an action to a given request, available for admin/approver/requester. Applicable operation types are based on request current state.",
                 "operationId": "createAction",
                 "parameters": [
                     {
@@ -331,8 +331,55 @@
                   "Request"
                 ],
                 "summary": "Return an array of child requests of a given request id",
-                "description": "Return an array of child requests of a given request id, available for admin/requester",
+                "description": "Return an array of child requests of a given request id. The result depends on the x-rh-persona header (approval/admin, approval/requseter, or approval/approver).",
                 "operationId": "listRequestsByRequest",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/persona"
+                    },
+                    {
+                        "$ref": "#/components/parameters/request_id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "headers": {
+                            "X-total-count": {
+                                "description": "Total number of items",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RequestCollection"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequestResponse"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403ForbiddenResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFoundResponse"
+                    }
+                }
+            }
+        },
+        "/requests/{request_id}/content": {
+            "get": {
+                "tags": [
+                  "Request"
+                ],
+                "summary": "Return request content of a given request id",
+                "description": "Return request content of a given request id, available to all",
+                "operationId": "showRequestContent",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/request_id"
@@ -344,7 +391,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/RequestCollection"
+                                    "$ref": "#/components/schemas/RequestContent"
                                 }
                             }
                         }
@@ -1019,12 +1066,6 @@
                         "description": "Timestamp of creation",
                         "readOnly": true
                     },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Timestamp of update",
-                        "readOnly": true
-                    },
                     "request_id": {
                         "type": "string",
                         "description": "Associated request id",
@@ -1036,21 +1077,22 @@
                     },
                     "operation": {
                         "type": "string",
-                        "description": "Types of action, may be one of the value (approve, cancel, deny, notify, memo, or skip). The request will be updated according to the operation.",
+                        "description": "Types of action, may be one of the value (approve, cancel, deny, notify, memo, skip, or start). The request state will be updated according to the operation.",
                         "enum": [
                             "approve",
                             "cancel",
                             "deny",
                             "notify",
                             "memo",
-                            "skip"
+                            "skip",
+                            "start"
                         ],
                         "default": "memo"
                     },
                     "comments": {
                         "type": "string",
                         "description": "Comments for action",
-                        "readOnly": true
+                        "nullable": true
                     }
                 }
             },
@@ -1065,18 +1107,15 @@
                 "properties": {
                     "object_type": {
                         "type": "string",
-                        "description": "Object type",
-                        "readOnly": true
+                        "description": "Object type"
                     },
                     "app_name": {
                         "type": "string",
-                        "description": "Application name the object belongs to",
-                        "readOnly": true
+                        "description": "Application name the object belongs to"
                     },
                     "object_id": {
                         "type": "string",
-                        "description": "Id of the object",
-                        "readOnly": true
+                        "description": "Id of the object"
                     }
                 }
             },
@@ -1136,21 +1175,13 @@
             "Tag": {
                 "description": "tag details",
                 "type": "object",
-                "required": [
-                    "namespace",
-                    "name"
-                ],
                 "properties": {
-                    "namespace": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "value": {
+                    "tag": {
+			"example": "/namespace/architecture=x86_64",
                         "type": "string"
                     }
-                }
+                },
+		"additionalProperties": false
             },
             "Request": {
                 "description": "Approval request. It may have child requests. Only a leaf node request can have workflow_id",
@@ -1187,24 +1218,34 @@
                     "reason": {
                         "type": "string",
                         "description": "Reason for the decision. Optional. Present normally when the decision is denied",
-                        "readOnly": true
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "workflow_id": {
                         "type": "string",
                         "description": "Associate workflow id. Available only if the request is a leaf node",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of creation",
                         "readOnly": true
                     },
                     "notified_at": {
                         "type": "string",
                         "format": "date-time",
                         "description": "Timestamp of notification sent to approvers",
-                        "readOnly": true
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "finished_at": {
                         "type": "string",
                         "format": "date-time",
                         "description": "Timestamp of finishing (skipped, canceled, or completed)",
-                        "readOnly": true
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "number_of_children": {
                         "type": "integer",
@@ -1247,6 +1288,10 @@
                         "readOnly": true
                     }
                 }
+            },
+            "RequestContent": {
+                "type": "object",
+                "description": "The content of a request"
             },
             "Template": {
                 "type": "object",

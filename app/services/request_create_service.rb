@@ -42,7 +42,11 @@ class RequestCreateService
   end
 
   def update_leaf_with_workflow(leaf_request, workflow_id, group_ref)
-    group_name = Group.find(group_ref).name if group_ref
+    group_name = if group_ref
+                   ContextService.new(leaf_request.context).as_org_admin do
+                     Group.find(group_ref).name
+                   end
+                 end
 
     leaf_request.update!(:workflow_id => workflow_id, :group_ref => group_ref, :group_name => group_name)
   end

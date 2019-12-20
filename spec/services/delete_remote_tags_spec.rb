@@ -1,4 +1,4 @@
-RSpec.describe AddRemoteTags, :type => :request do
+RSpec.describe DeleteRemoteTags, :type => :request do
   around do |example|
     Insights::API::Common::Request.with_request(default_request_hash) { example.call }
   end
@@ -8,7 +8,6 @@ RSpec.describe AddRemoteTags, :type => :request do
   let(:approval_tag) do
     { :tag => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=100" }
   end
-
   let(:approval_tags) { [approval_tag] }
   let(:http_status) { [200, 'Ok'] }
   let(:headers)     do
@@ -30,14 +29,13 @@ RSpec.describe AddRemoteTags, :type => :request do
 
   subject { described_class.new(options) }
 
-  # .with(:body => approval_tag.to_json, :headers => headers)
   shared_examples_for '#test_all' do
     before do
       stub_request(:post, url)
         .to_return(:status => http_status, :body => approval_tags.to_json, :headers => headers)
     end
 
-    it 'adds a remote tag' do
+    it 'deletes a remote tag' do
       with_modified_env test_env do
         subject.process(approval_tags)
       end
@@ -72,13 +70,13 @@ RSpec.describe AddRemoteTags, :type => :request do
 
     context 'portfolio' do
       let(:object_type) { 'Portfolio' }
-      let(:url)         { "http://localhost/api/catalog/v1.0/portfolios/#{object_id}/tag" }
+      let(:url)         { "http://localhost/api/catalog/v1.0/portfolios/#{object_id}/untag" }
       it_behaves_like "#test_all"
     end
 
     context 'portfolio_item' do
       let(:object_type) { 'PortfolioItem' }
-      let(:url)         { "http://localhost/api/catalog/v1.0/portfolio_items/#{object_id}/tag" }
+      let(:url)         { "http://localhost/api/catalog/v1.0/portfolio_items/#{object_id}/untag" }
       it_behaves_like "#test_all"
     end
   end
@@ -89,13 +87,13 @@ RSpec.describe AddRemoteTags, :type => :request do
 
     context 'credentials' do
       let(:object_type) { 'Credential' }
-      let(:url)         { "http://localhost/api/topological-inventory/v1.0/credentials/#{object_id}/tag" }
+      let(:url)         { "http://localhost/api/topological-inventory/v1.0/credentials/#{object_id}/untag" }
       it_behaves_like "#test_all"
     end
 
     context 'ServiceInventory' do
       let(:object_type) { 'ServiceInventory' }
-      let(:url)         { "http://localhost/api/topological-inventory/v1.0/service_inventories/#{object_id}/tag" }
+      let(:url)         { "http://localhost/api/topological-inventory/v1.0/service_inventories/#{object_id}/untag" }
       it_behaves_like "#test_all"
     end
   end
@@ -106,7 +104,7 @@ RSpec.describe AddRemoteTags, :type => :request do
 
     context 'source' do
       let(:object_type) { 'Source' }
-      let(:url)         { "http://localhost/api/sources/v1.0/sources/#{object_id}/tag" }
+      let(:url)         { "http://localhost/api/sources/v1.0/sources/#{object_id}/untag" }
       it_behaves_like "#test_all"
     end
   end

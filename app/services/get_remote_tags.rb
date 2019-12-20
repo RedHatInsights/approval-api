@@ -1,3 +1,4 @@
+require_relative 'mixins/tag_mixin'
 class GetRemoteTags < RemoteTaggingService
   attr_reader :tags
   def initialize(options)
@@ -6,15 +7,12 @@ class GetRemoteTags < RemoteTaggingService
   end
 
   def process
-    response = get_request(object_url)
-    build_tags(response.body)
+    params = {}
+    params['filter[name][eq]'] = TAG_NAME
+    params['filter[namespace][eq]'] = TAG_NAMESPACE
+    params['limit'] = QUERY_LIMIT
+    response = get_request(object_url, params)
+    @tags = JSON.parse(response.body)['data'].collect { |tag| tag['tag'] }
     self
-  end
-
-  def build_tags(body)
-    data = JSON.parse(body)['data']
-    data.each do |tag|
-      @tags << { :name => tag['name'], :namespace => tag['namespace'], :value => tag['value'] }
-    end
   end
 end

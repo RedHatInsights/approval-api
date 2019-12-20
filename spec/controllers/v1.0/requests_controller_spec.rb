@@ -324,24 +324,27 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
   end
 
-  # Test suite for GET /requests/:id
+  # Test suite for GET /requests/:id and /requests/:id/content
   describe 'GET /requests/:id' do
     context 'admin role when the record exist' do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/requests/#{id}", :headers => default_headers
       end
 
       it 'returns the request' do
-        request = requests.first
+        get "#{api_version}/requests/#{id}", :headers => default_headers
 
+        expect(response).to have_http_status(200)
         expect(json).not_to be_empty
-        expect(json['id']).to eq(request.id.to_s)
+        expect(json['id']).to eq(requests.first.id.to_s)
       end
 
-      it 'returns status code 200' do
+      it 'returns the request content' do
+        get "#{api_version}/requests/#{id}/content", :headers => default_headers
+
         expect(response).to have_http_status(200)
+        expect(json).to eq(requests.first.content)
       end
     end
 
@@ -424,6 +427,30 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
   end
 
+  # Test suite for GET /requests/:request_id/requests
+  describe 'GET /requests/:request_id/requests' do
+    let(:parent_request) { create(:request, :name => "parent", :owner => "jdoe", :number_of_children => 2, :number_of_finished_children => 0, :tenant_id => tenant.id) }
+    let!(:child_request_a) { create(:request, :owner => "jdoe", :parent_id => parent_request.id, :name => "child a", :workflow_id => workflow.id, :tenant_id => tenant.id) }
+    let!(:child_request_b) { create(:request, :owner => "jdoe", :parent_id => parent_request.id, :name => "child b", :workflow_id => workflow.id, :tenant_id => tenant.id) }
+    let(:request_id) { parent_request.id }
+    let(:group) { double(:group, :name => "foo") }
+
+    context "Any role" do
+      before do
+        allow(Group).to receive(:find).and_return(group)
+        allow(rs_class).to receive(:paginate).and_return([])
+        allow(roles_obj).to receive(:roles).and_return([])
+      end
+
+      it 'returns status code 200' do
+        get "#{api_version}/requests/#{request_id}/requests", :headers => default_headers
+
+        expect(response).to have_http_status(200)
+        expect(json['data'].size).to eq(2)
+      end
+    end
+  end
+
   # Test suite for POST /requests
   describe 'POST /requests' do
     let(:item) { { 'disk' => '100GB' } }
@@ -432,7 +459,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       [{
         'app_name'    => 'app1',
         'object_type' => 'otype1',
-        'tags'        => [{'namespace' => 'ns1', 'name' => 'name1', 'value' => 'v1'}]
+        'tags'        => [{:tag => '/ns1/name1=v1'}]
       }]
     end
     let(:group) { double }
