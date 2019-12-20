@@ -12,7 +12,7 @@ RSpec.describe WorkflowFindService do
   describe 'find' do
     before do
       allow(AddRemoteTags).to receive(:new).with(obj).and_return(add_tag_svc)
-      allow(add_tag_svc).to receive(:process).with(tag).and_return(add_tag_svc)
+      allow(add_tag_svc).to receive(:process).with([tag]).and_return(add_tag_svc)
       allow(GetRemoteTags).to receive(:new).with(obj).and_return(get_tag_svc)
       allow(GetRemoteTags).to receive(:new).with(another_obj).and_return(get_tag_svc)
       allow(get_tag_svc).to receive(:process).and_return(get_tag_svc)

@@ -15,7 +15,7 @@ RSpec.describe WorkflowLinkService, :type => :request do
   describe 'link' do
     before do
       allow(AddRemoteTags).to receive(:new).with(obj_a).and_return(remote_tag_svc)
-      allow(remote_tag_svc).to receive(:process).with(tag).and_return(remote_tag_svc)
+      allow(remote_tag_svc).to receive(:process).with([tag]).and_return(remote_tag_svc)
     end
 
     it 'adds a new link' do

@@ -9,7 +9,7 @@ class WorkflowLinkService
 
   def link(tag_attrs)
     TagLink.find_or_create_by!(tag_link(tag_attrs))
-    AddRemoteTags.new(tag_attrs).process(approval_tag(workflow_id))
+    AddRemoteTags.new(tag_attrs).process([approval_tag(workflow_id)])
     nil
   end
 
