@@ -24,7 +24,7 @@ class RemoteTaggingService
 
   def self.topo_url
     url = ENV.fetch('TOPOLOGICAL_INVENTORY_URL') { raise 'TOPOLOGICAL_INVENTORY_URL is not set' }
-    "#{url}/api/topological-inventory/v1.0"
+    "#{url}/api/topological-inventory/v2.0"
   end
   private_class_method :topo_url
 
