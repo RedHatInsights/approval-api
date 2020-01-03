@@ -87,13 +87,13 @@ RSpec.describe DeleteRemoteTags, :type => :request do
 
     context 'credentials' do
       let(:object_type) { 'Credential' }
-      let(:url)         { "http://localhost/api/topological-inventory/v1.0/credentials/#{object_id}/untag" }
+      let(:url)         { "http://localhost/api/topological-inventory/v2.0/credentials/#{object_id}/untag" }
       it_behaves_like "#test_all"
     end
 
     context 'ServiceInventory' do
       let(:object_type) { 'ServiceInventory' }
-      let(:url)         { "http://localhost/api/topological-inventory/v1.0/service_inventories/#{object_id}/untag" }
+      let(:url)         { "http://localhost/api/topological-inventory/v2.0/service_inventories/#{object_id}/untag" }
       it_behaves_like "#test_all"
     end
   end
