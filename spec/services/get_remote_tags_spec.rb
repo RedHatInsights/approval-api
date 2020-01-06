@@ -10,7 +10,7 @@ RSpec.describe GetRemoteTags, :type => :request do
   end
   let(:app_name) { 'catalog' }
   let(:object_type) { 'Portfolio' }
-  let(:url) { "http://localhost/api/catalog/v1.0/portfolios/#{object_id}/tags?filter%5Bname%5D%5Beq%5D=workflows&filter%5Bnamespace%5D%5Beq%5D=approval&limit=1000" }
+  let(:url) { "http://localhost/api/catalog/v1.0/portfolios/#{object_id}/tags?limit=1000" }
   let(:http_status) { [200, 'Ok'] }
   let(:tag1_string) { '/approval/workflows=1' }
   let(:tag2_string) { '/approval/workflows=2' }
