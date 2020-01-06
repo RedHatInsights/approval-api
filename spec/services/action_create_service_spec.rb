@@ -54,6 +54,14 @@ RSpec.describe ActionCreateService do
       expect(child2).to  have_attributes(:state => Request::COMPLETED_STATE,   :decision => Request::DENIED_STATUS, :reason => 'bad')
       expect(request).to have_attributes(:state => Request::COMPLETED_STATE,   :decision => Request::DENIED_STATUS, :reason => 'bad')
     end
+
+    it 'raises an error when approve on parent request' do
+      expect { svc.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
+    end
+
+    it 'raises an error when deny on parent request' do
+      expect { svc.create('operation' => Action::DENY_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
+    end
   end
 
   context 'skip operation' do
@@ -81,6 +89,10 @@ RSpec.describe ActionCreateService do
       expect(child1).to  have_attributes(:state => Request::SKIPPED_STATE,       :decision => Request::UNDECIDED_STATUS, :reason => nil)
       expect(child2).to  have_attributes(:state => Request::SKIPPED_STATE,       :decision => Request::UNDECIDED_STATUS, :reason => nil)
       expect(request).to have_attributes(:state => Request::CANCELED_STATE,      :decision => Request::CANCELED_STATUS,  :reason => 'regret')
+    end
+
+    it 'raises an error when cancel on child request' do
+      expect { svc1.create('operation' => Action::CANCEL_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
     end
   end
 
