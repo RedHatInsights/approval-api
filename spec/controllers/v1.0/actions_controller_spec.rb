@@ -3,117 +3,108 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
   let(:tenant) { create(:tenant) }
 
   let!(:template) { create(:template) }
-  let!(:workflow) { create(:workflow, :template_id => template.id) }
+  let!(:workflow) { create(:workflow, :template_id => template.id, :tenant_id => tenant.id) }
   let!(:group_ref) { "990" }
-  let!(:request) { create(:request, :with_context, :workflow_id => workflow.id, :group_ref => group_ref, :state => 'notified', :tenant_id => tenant.id) }
+  let(:group) { double(:name => 'group1', :uuid => group_ref) }
+  let!(:request) { create(:request, :with_context, :workflow_id => workflow.id, :group_ref => group_ref, :state => 'notified', :tenant_id => tenant.id, :owner => "jdoe") }
   let!(:request_id) { request.id }
 
   let!(:actions) { create_list(:action, 10, :request_id => request.id, :tenant_id => tenant.id) }
   let(:id) { actions.first.id }
 
-  let(:filter) { instance_double(RBACApiClient::ResourceDefinitionFilter, :key => 'id', :operation => 'equal', :value => workflow.id) }
-  let(:resource_def) { instance_double(RBACApiClient::ResourceDefinition, :attribute_filter => filter) }
-  let(:access) { instance_double(RBACApiClient::Access, :permission => "approval:workflows:approve", :resource_definitions => [resource_def]) }
-  let(:full_approver_acls) { approver_acls << access }
   let(:roles_obj) { double }
+
+  let(:setup_approver_role_with_acls) do
+    aces = [AccessControlEntry.new(:permission => 'approve', :group_uuid => group_ref, :tenant_id => tenant.id)]
+
+    workflow.update!(:access_control_entries => aces)
+    allow(rs_class).to receive(:paginate).and_return([group])
+    allow(roles_obj).to receive(:roles).and_return([approver_role])
+  end
+
+  let(:setup_approver_role_without_acls) do
+    allow(rs_class).to receive(:paginate).and_return([group])
+    allow(roles_obj).to receive(:roles).and_return([approver_role])
+  end
+
+  let(:setup_admin_role) do
+    allow(rs_class).to receive(:paginate).and_return([])
+    allow(roles_obj).to receive(:roles).and_return([admin_role])
+  end
+
+  let(:setup_requester_role) do
+    allow(rs_class).to receive(:paginate).and_return([])
+    allow(roles_obj).to receive(:roles).and_return([])
+  end
 
   let(:api_version) { version }
 
   before do
     allow(Insights::API::Common::RBAC::Roles).to receive(:new).and_return(roles_obj)
     allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
+    allow(rs_class).to receive(:call).with(RBACApiClient::GroupApi).and_yield(api_instance)
   end
 
-  # Test suite for GET /actions/:id
   describe 'GET /actions/:id' do
-    context 'admin role when the record exists' do
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        with_modified_env :APP_NAME => app_name do
+    context 'admin role' do
+      before { setup_admin_role }
+
+      context 'when the record exists' do
+        it 'returns status code 200' do
           get "#{api_version}/actions/#{id}", :headers => default_headers
+
+          expect(response).to have_http_status(200)
+
+          action = actions.first
+
+          expect(json).not_to be_empty
+          expect(json['id']).to eq(action.id.to_s)
+          expect(json['created_at']).to eq(action.created_at.iso8601)
         end
       end
 
-      it 'returns the action' do
-        action = actions.first
+      context 'when the record does not exist' do
+        let!(:id) { 0 }
 
-        expect(json).not_to be_empty
-        expect(json['id']).to eq(action.id.to_s)
-        expect(json['created_at']).to eq(action.created_at.iso8601)
-      end
+        it 'returns status code 404' do
+          get "#{api_version}/actions/#{id}", :headers => default_headers
 
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
+          expect(response).to have_http_status(404)
+          expect(response.body).to match(/Couldn't find Action/)
+        end
       end
     end
 
-    context 'admin role when the record does not exist' do
-      let!(:id) { 0 }
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        with_modified_env :APP_NAME => app_name do
+    context 'approver role' do
+      before { setup_approver_role_with_acls }
+
+      context 'when approver can read' do
+        it 'returns status code 200' do
           get "#{api_version}/actions/#{id}", :headers => default_headers
+
+          expect(response).to have_http_status(200)
         end
       end
 
-      it 'returns status code 404' do
-        expect(response).to have_http_status(404)
-      end
+      context 'when approver cannot read' do
+        it 'returns status code 403' do
+          AccessControlEntry.first.update(:group_uuid => 'abc')
 
-      it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find Action/)
+          get "#{api_version}/actions/#{id}", :headers => default_headers
+
+          expect(response).to have_http_status(403)
+        end
       end
     end
 
-    context 'approver role can approve' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => full_approver_acls) }
-      let(:approver_group_role) { "approval-group-#{group_ref}" }
-      before do
-        allow(rs_class).to receive(:paginate).and_return(full_approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role, approver_group_role])
-
-        with_modified_env :APP_NAME => app_name do
-          get "#{api_version}/actions/#{id}", :headers => default_headers
-        end
-      end
-
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
-      end
-    end
-
-    context 'approver role cannot read' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return(approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role])
-
-        with_modified_env :APP_NAME => app_name do
-          get "#{api_version}/actions/#{id}", :headers => default_headers
-        end
-      end
+    context 'requester role cannot read' do
+      before { setup_requester_role }
 
       it 'returns status code 403' do
-        expect(response).to have_http_status(403)
-      end
-    end
-
-    context 'owner role cannot read' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([])
         with_modified_env :APP_NAME => app_name do
           get "#{api_version}/actions/#{id}", :headers => default_headers
         end
-      end
 
-      it 'returns status code 403' do
         expect(response).to have_http_status(403)
       end
     end
@@ -121,179 +112,117 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
 
   describe "GET /requests/:request_id/actions" do
     context 'admin role when request attributes are valid' do
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        with_modified_env :APP_NAME => app_name do
-          get "#{api_version}/requests/#{request_id}/actions", :headers => default_headers
-        end
-      end
+      before { setup_admin_role }
 
       it 'returns the actions' do
+        get "#{api_version}/requests/#{request_id}/actions", :headers => default_headers
+
         expect(json['links']).not_to be_nil
         expect(json['links']['first']).to match(/offset=0/)
         expect(json['data'].size).to eq(10)
-      end
 
-      it 'returns status code 200' do
         expect(response).to have_http_status(200)
       end
     end
 
     context 'approver role can get actions' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => full_approver_acls) }
-      let(:approver_group_role) { "approval-group-#{group_ref}" }
-      before do
-        allow(rs_class).to receive(:paginate).and_return(full_approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role, approver_group_role])
-        with_modified_env :APP_NAME => app_name do
-          get "#{api_version}/requests/#{request_id}/actions", :headers => default_headers
-        end
-      end
+      before { setup_approver_role_with_acls }
 
       it 'returns the actions' do
+        get "#{api_version}/requests/#{request_id}/actions", :headers => default_headers
+
         expect(json['links']).not_to be_nil
         expect(json['links']['first']).to match(/offset=0/)
         expect(json['data'].size).to eq(10)
-      end
 
-      it 'returns status code 200' do
         expect(response).to have_http_status(200)
       end
     end
 
-    context 'approver role can not get actions' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
-      let(:approver_group_role) { "approval-group-#{group_ref}" }
-      before do
-        allow(rs_class).to receive(:paginate).and_return(approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role, approver_group_role])
-        with_modified_env :APP_NAME => app_name do
-          get "#{api_version}/requests/#{request_id}/actions", :headers => default_headers
-        end
-      end
-
-      it 'returns status code 200' do
-        expect(json['data'].size).to eq(0)
-        expect(response).to have_http_status(200)
-      end
-    end
-
-    context 'owner role can not get actions' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
-      let(:approver_group_role) { "approval-group-#{group_ref}" }
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([])
-        with_modified_env :APP_NAME => app_name do
-          get "#{api_version}/requests/#{request_id}/actions", :headers => default_headers
-        end
-      end
+    context 'approver role cannot get actions' do
+      before { setup_approver_role_without_acls }
 
       it 'returns status code 403' do
+        get "#{api_version}/requests/#{request_id}/actions", :headers => default_headers
+
+        expect(response).to have_http_status(403)
+      end
+    end
+
+    context 'requester role cannot get actions' do
+      before { setup_requester_role }
+
+      it 'returns status code 403' do
+        get "#{api_version}/requests/#{request_id}/actions", :headers => default_headers
+
         expect(response).to have_http_status(403)
       end
     end
   end
 
-  shared_examples_for "validate_operation" do
-    it "should validate operation" do
-      allow(rs_class).to receive(:paginate).and_return(acls)
-      allow(access_obj).to receive(:process).and_return(access_obj)
-      allow(roles_obj).to receive(:roles).and_return(roles)
-      post "#{api_version}/requests/#{request_id}/actions", :params => valid_attributes, :headers => default_headers
-
-      expect(response).to have_http_status(code)
-    end
-  end
-
   describe 'POST /requests/:request_id/actions' do
-    before do
-      allow(Group).to receive(:find)
-    end
+    context 'admin role' do
+      before { setup_admin_role }
 
-    context 'admin role when request attributes are valid' do
-      let(:acls) { [] }
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => acls) }
-      let(:roles) { [admin_role] }
-      let(:valid_attributes) { { :operation => 'cancel', :processed_by => 'abcd' } }
-      let(:code) { 201 }
-
-      it_behaves_like "validate_operation"
-    end
-
-    context 'approver role far valid operation' do
-      let(:acls) { approver_acls }
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => acls) }
-      let(:roles) { [approver_role] }
-      let(:valid_attributes) { { :operation => 'approve', :processed_by => 'abcd' } }
-      let(:code) { 201 }
-
-      it_behaves_like "validate_operation"
-    end
-
-    context 'approver role far invalid operation cancel' do
-      let(:acls) { approver_acls }
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => acls) }
-      let(:roles) { [approver_role] }
-      let(:valid_attributes) { { :operation => 'cancel', :processed_by => 'abcd' } }
-      let(:code) { 403 }
-
-      it_behaves_like "validate_operation"
-    end
-
-    context 'owner role for valid operation cancel' do
-      let(:acls) { [] }
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => acls) }
-      let(:roles) { [] }
-      let(:valid_attributes) { { :operation => 'cancel', :processed_by => 'abcd' } }
-      let(:code) { 201 }
-
-      it_behaves_like "validate_operation"
-    end
-
-    context 'owner role for invalid operation approve' do
-      let(:acls) { [] }
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => acls) }
-      let(:roles) { [] }
-      let(:valid_attributes) { { :operation => 'approve', :processed_by => 'abcd' } }
-      let(:code) { 403 }
-
-      it_behaves_like "validate_operation"
-    end
-  end
-
-  describe 'POST /requests/:request_id/actions' do
-    let(:req) { create(:request, :with_context, :tenant_id => tenant.id) }
-
-    before do
-      allow(Group).to receive(:find)
-      allow(rs_class).to receive(:paginate).and_return([])
-      allow(roles_obj).to receive(:roles).and_return([])
-    end
-
-    context 'when request is actionable' do
-      let(:valid_attributes) { { :operation => 'cancel', :processed_by => 'abcd' } }
-
-      it 'returns status code 201' do
-        post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => default_headers
+      it 'can add valid operation' do
+        test_attributes = { :operation => 'cancel', :processed_by => 'abcd' }
+        post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
 
         expect(response).to have_http_status(201)
-        req.reload
-        expect(req.state).to eq(Request::CANCELED_STATE)
+      end
+
+      it 'fails to add invalid operation' do
+        test_attributes = { :operation => 'bad-op', :processed_by => 'abcd' }
+        post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
+
+        expect(response).to have_http_status(400)
       end
     end
 
-    context 'when request is not actionable' do
-      let(:valid_attributes) { { :operation => 'notify', :processed_by => 'abcd' } }
+    context 'approver role for assigned request' do
+      before { setup_approver_role_with_acls }
 
-      it 'returns status code 400' do
-        post "#{api_version}/requests/#{req.id}/actions", :params => valid_attributes, :headers => default_headers
+      it 'can approve a request' do
+        test_attributes = { :operation => 'approve', :processed_by => 'abcd' }
+        post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
 
-        expect(response).to have_http_status(400)
+        expect(response).to have_http_status(201)
+      end
+
+      it 'cannot cancel a request' do
+        test_attributes = { :operation => 'cancel', :processed_by => 'abcd' }
+        post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
+
+        expect(response).to have_http_status(403)
+      end
+    end
+
+    context 'approver role for unassigned request' do
+      before { setup_approver_role_without_acls }
+
+      it 'cannot approve a request' do
+        test_attributes = { :operation => 'approve', :processed_by => 'abcd' }
+        post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
+
+        expect(response).to have_http_status(403)
+      end
+    end
+
+    context 'requester role' do
+      before { setup_requester_role }
+
+      it 'cannot approve a request' do
+        test_attributes = { :operation => 'approve', :processed_by => 'abcd' }
+        post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
+
+        expect(response).to have_http_status(403)
+      end
+
+      it 'can cancel a request' do
+        test_attributes = { :operation => 'cancel', :processed_by => 'abcd' }
+        post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
+
+        expect(response).to have_http_status(201)
       end
     end
   end
