@@ -8,8 +8,9 @@ class GetRemoteTags < RemoteTaggingService
 
   def process
     params = {}
-    params['filter[name][eq]'] = TAG_NAME
-    params['filter[namespace][eq]'] = TAG_NAMESPACE
+    # TODO: Disabled for now since the Tag object doesn't expose these properties
+    # params['filter[name][eq]'] = TAG_NAME
+    # params['filter[namespace][eq]'] = TAG_NAMESPACE
     params['limit'] = QUERY_LIMIT
     response = get_request(object_url, params)
     @tags = JSON.parse(response.body)['data'].collect { |tag| tag['tag'] }

@@ -6,18 +6,13 @@ class WorkflowCreateService
   end
 
   def create(options)
-    template.workflows.create!(options).tap do |workflow|
-      begin
-        if options[:group_refs]
-          ContextService.new(Insights::API::Common::Request.current.to_h.transform_keys(&:to_s)).as_org_admin do
-            AccessProcessService.new.add_resource_to_groups(workflow.id, options[:group_refs])
-          end
+    if options[:group_refs]
+      options[:access_control_entries] =
+        options[:group_refs].collect do |uuid|
+          AccessControlEntry.new(:group_uuid => uuid, :permission => 'approve')
         end
-      rescue Exceptions::RBACError => error
-        Rails.logger.error("Exception when creating workflow: #{error}")
-        workflow&.destroy!
-        raise error
-      end
     end
+
+    template.workflows.create!(options)
   end
 end

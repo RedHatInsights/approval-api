@@ -249,12 +249,6 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     let(:group_refs) { %w[990 991 992] }
 
     let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
-    let(:aps) { instance_double(AccessProcessService) }
-
-    before do
-      allow(AccessProcessService).to receive(:new).and_return(aps)
-      allow(aps).to receive(:add_resource_to_groups)
-    end
 
     context 'when admin role request attributes are valid' do
       before do
@@ -316,13 +310,6 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   # Test suite for PATCH /workflows/:id
   describe 'PATCH /workflows/:id' do
     let(:valid_attributes) { { :name => "test", :group_refs => %w[1000] } }
-    let(:aps) { instance_double(AccessProcessService) }
-
-    before do
-      allow(AccessProcessService).to receive(:new).and_return(aps)
-      allow(aps).to receive(:add_resource_to_groups)
-      allow(aps).to receive(:remove_resource_from_groups)
-    end
 
     context 'admin role when item exists' do
       before do

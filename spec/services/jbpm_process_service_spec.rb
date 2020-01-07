@@ -1,4 +1,4 @@
-RSpec.xdescribe JbpmProcessService do
+RSpec.describe JbpmProcessService do
   let(:template) do
     ENV['APPROVAL_PAM_SERVICE_HOST'] = 'localhost'
     ENV['APPROVAL_PAM_SERVICE_PORT'] = '8080'
@@ -22,6 +22,7 @@ RSpec.xdescribe JbpmProcessService do
   let(:jbpm) { double(:jbpm, :api_client => double(:default_headers => {})) }
 
   before do
+    allow(Group).to receive(:find)
     allow(KieClient::ProcessInstancesBPMApi).to receive(:new).and_return(jbpm)
   end
 

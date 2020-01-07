@@ -36,14 +36,18 @@ module Api
         valid_operation = admin? || (approver? && [Action::MEMO_OPERATION, Action::CANCEL_OPERATION].exclude?(operation)) ||
                           (!admin? && !approver? && [Action::MEMO_OPERATION, Action::APPROVE_OPERATION, Action::DENY_OPERATION].exclude?(operation))
         raise Exceptions::NotAuthorizedError, "Not authorized to create [#{operation}] action " unless valid_operation
+
+        resource_check('read', params[:request_id], Request) # NotAuthorizedError if current user cannot access the particular request
       end
 
       def rbac_scope(relation)
         return relation if admin?
 
         # Only approver can reach here
+        resource_check('read', params[:request_id], Request) # NotAuthorizedError if current user cannot access the particular request
+
         action_ids = approver_id_list(relation.model.table_name)
-        Rails.logger.info("approver scope for actions: #{action_ids}")
+        Rails.logger.debug { "Approver scope for actions: #{action_ids}" }
 
         relation.where(:id => action_ids)
       end

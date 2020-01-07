@@ -64,6 +64,7 @@ class ActionCreateService
     unless request.state == Request::NOTIFIED_STATE
       raise Exceptions::InvalidStateTransitionError, "Current request is not in notified state"
     end
+    raise Exceptions::InvalidStateTransitionError, "Only child level request can be approved" if request.parent?
 
     {:state => Request::COMPLETED_STATE, :decision => Request::APPROVED_STATUS}.tap do |h|
       h[:reason] = comments if comments
@@ -75,6 +76,7 @@ class ActionCreateService
       raise Exceptions::InvalidStateTransitionError, "Current request is not in notified state"
     end
     raise Exceptions::ApprovalError, "Reason to deny the request is missing" unless comments
+    raise Exceptions::InvalidStateTransitionError, "Only child level request can be denied" if request.parent?
 
     {:state => Request::COMPLETED_STATE, :decision => Request::DENIED_STATUS, :reason => comments}
   end
