@@ -3,50 +3,52 @@ RSpec.describe Template, type: :model do
   it { should validate_presence_of(:title) }
 
   describe '.seed' do
-    before do
-      ENV['APPROVAL_PAM_SERVICE_HOST'] = 'localhost'
-      ENV['APPROVAL_PAM_SERVICE_PORT'] = '8080'
-      ENV['KIE_SERVER_USERNAME']       = 'executionUser'
-      ENV['KIE_SERVER_PASSWORD']       = 'password'
-    end
-
-    after do
-      ENV['APPROVAL_PAM_SERVICE_HOST'] = nil
-      ENV['APPROVAL_PAM_SERVICE_PORT'] = nil
-      ENV['KIE_SERVER_USERNAME']       = nil
-      ENV['KIE_SERVER_PASSWORD']       = nil
+    let(:envs) do
+      {
+        :APPROVAL_PAM_SERVICE_HOST => 'localhost',
+        :APPROVAL_PAM_SERVICE_PORT => '8080',
+        :KIE_SERVER_USERNAME       => 'executionUser',
+        :KIE_SERVER_PASSWORD       => 'password'
+      }
     end
 
     it 'creates a default template' do
-      described_class.seed
-      expect(described_class.count).to eq(1)
+      RequestSpecHelper.with_modified_env envs do
+        described_class.seed
+        expect(described_class.count).to eq(1)
 
-      template = described_class.find_by(:title => 'Basic')
-      expect(template.process_setting).to include(
-        'processor_type' => 'jbpm',
-        'host'           => 'localhost:8080',
-        'username'       => 'executionUser',
-        'password'       => a_kind_of(Integer),
-        'container_id'   => 'approval',
-        'process_id'     => 'MultiStageEmails'
-      )
-      expect(template.signal_setting).to include(
-        'processor_type' => 'jbpm',
-        'host'           => 'localhost:8080',
-        'username'       => 'executionUser',
-        'password'       => a_kind_of(Integer),
-        'container_id'   => 'approval',
-        'signal_name'    => 'nextGroup',
-      )
+        template = described_class.find_by(:title => 'Basic')
+        expect(template.process_setting).to include(
+          'processor_type' => 'jbpm',
+          'host'           => 'localhost:8080',
+          'username'       => 'executionUser',
+          'password'       => a_kind_of(Integer),
+          'container_id'   => 'approval',
+          'process_id'     => 'MultiStageEmails'
+        )
+        expect(template.signal_setting).to include(
+          'processor_type' => 'jbpm',
+          'host'           => 'localhost:8080',
+          'username'       => 'executionUser',
+          'password'       => a_kind_of(Integer),
+          'container_id'   => 'approval',
+          'signal_name'    => 'nextGroup'
+        )
+      end
     end
 
     it 'skips already seeded record' do
-      described_class.seed
-      template_first_round = described_class.find_by(:title => 'Basic')
+      RequestSpecHelper.with_modified_env envs do
+        described_class.seed
+        template_first_round = described_class.find_by(:title => 'Basic')
+        expect(described_class.count).to eq(1)
 
-      described_class.seed
-      tempalte_second_round = described_class.find_by(:title => 'Basic')
-      expect(template_first_round.attributes).to eq(tempalte_second_round.attributes)
+        described_class.seed
+        expect(described_class.count).to eq(1)
+        template_second_round = described_class.find_by(:title => 'Basic')
+
+        expect(template_first_round.attributes).to eq(template_second_round.attributes)
+      end
     end
   end
 
