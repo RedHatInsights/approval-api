@@ -7,6 +7,7 @@
 
 This is a project to provide OpenAPI support inside the [Ruby on Rails](http://rubyonrails.org/) framework.
 
+
 ## Prerequisites
 You need to install ruby >= 2.2.2 and run:
 
