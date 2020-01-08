@@ -5,6 +5,7 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/01ea4517f71f0df102d2/test_coverage)](https://codeclimate.com/github/ManageIQ/approval-api/test_coverage)
 [![Security](https://hakiri.io/github/ManageIQ/approval-api/master.svg)](https://hakiri.io/github/ManageIQ/approval-api/master)
 
+
 This is a project to provide OpenAPI support inside the [Ruby on Rails](http://rubyonrails.org/) framework.
 
 ## Prerequisites
