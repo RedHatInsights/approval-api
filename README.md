@@ -1,9 +1,9 @@
 # OpenAPI for Rails 5
 
-[![Build Status](https://travis-ci.org/ManageIQ/approval-api.svg)](https://travis-ci.org/ManageIQ/approval-api)
-[![Maintainability](https://api.codeclimate.com/v1/badges/01ea4517f71f0df102d2/maintainability)](https://codeclimate.com/github/ManageIQ/approval-api/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/01ea4517f71f0df102d2/test_coverage)](https://codeclimate.com/github/ManageIQ/approval-api/test_coverage)
-[![Security](https://hakiri.io/github/ManageIQ/approval-api/master.svg)](https://hakiri.io/github/ManageIQ/approval-api/master)
+[![Build Status](https://travis-ci.org/RedHatInsights/approval-api.svg)](https://travis-ci.org/RedHatInsights/approval-api)
+[![Maintainability](https://api.codeclimate.com/v1/badges/01ea4517f71f0df102d2/maintainability)](https://codeclimate.com/github/RedHatInsights/approval-api/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/01ea4517f71f0df102d2/test_coverage)](https://codeclimate.com/github/RedHatInsights/approval-api/test_coverage)
+[![Security](https://hakiri.io/github/RedHatInsights/approval-api/master.svg)](https://hakiri.io/github/RedHatInsights/approval-api/master)
 
 This is a project to provide OpenAPI support inside the [Ruby on Rails](http://rubyonrails.org/) framework.
 
