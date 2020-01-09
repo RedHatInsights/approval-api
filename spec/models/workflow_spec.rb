@@ -98,4 +98,23 @@ RSpec.describe Workflow, :type => :model do
       end
     end
   end
+
+  describe '#external_signal? & #external_processing?' do
+    context 'no template' do
+      it 'has no external_processing' do
+        expect(workflow.external_processing?).to be_falsey
+        expect(workflow.external_signal?).to be_falsey
+      end
+    end
+
+    context 'with template' do
+      let(:template) { create(:template, :process_setting => {'a' => 'x'}, :signal_setting => {'b' => 'y'}) }
+      let(:workflow) { create(:workflow, :template => template) }
+
+      it 'has external_processing' do
+        expect(workflow.external_processing?).to be_truthy
+        expect(workflow.external_signal?).to be_truthy
+      end
+    end
+  end
 end
