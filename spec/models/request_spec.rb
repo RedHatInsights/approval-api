@@ -89,8 +89,8 @@ RSpec.describe Request, type: :model do
       it 'is a single node' do
         expect(subject.root?).to be_truthy
         expect(subject.leaf?).to be_truthy
-        expect(subject.parent?).to be_falsy
-        expect(subject.child?).to be_falsy
+        expect(subject.parent?).to be_falsey
+        expect(subject.child?).to be_falsey
       end
     end
 
@@ -100,13 +100,13 @@ RSpec.describe Request, type: :model do
 
       it 'detects parent and child' do
         expect(subject.root?).to be_truthy
-        expect(subject.leaf?).to be_falsy
+        expect(subject.leaf?).to be_falsey
         expect(subject.parent?).to be_truthy
-        expect(subject.child?).to be_falsy
+        expect(subject.child?).to be_falsey
 
-        expect(child.root?).to be_falsy
+        expect(child.root?).to be_falsey
         expect(child.leaf?).to be_truthy
-        expect(child.parent?).to be_falsy
+        expect(child.parent?).to be_falsey
         expect(child.child?).to be_truthy
       end
     end
