@@ -5,6 +5,7 @@ RSpec.describe RequestCreateService do
   let(:resolved_workflows) { [] }
 
   before do
+    allow(Thread).to receive(:new).and_yield
     allow(Group).to receive(:find).and_return(double(:group, :name => 'gname'))
     allow(WorkflowFindService).to receive(:new).and_return(double(:wfs, :find_by_tag_resources => resolved_workflows))
   end
@@ -25,28 +26,29 @@ RSpec.describe RequestCreateService do
   end
 
   context 'without auto approval' do
-    xcontext 'template has external process' do
+    context 'template has external process' do
       let(:template) { create(:template, :process_setting => {'processor_type' => 'jbpm', 'url' => 'url'}) }
       let(:resolved_workflows) { [workflow2] }
 
       it 'creates a request and immediately starts' do
-        expect(JbpmProcessService).to receive(:new).and_return(double(:jbpm, :start => 100))
+        expect(JbpmProcessService).to receive(:new).twice.and_return(double(:jbpm, :start => 100))
         request = subject.create(:name => 'req1', :content => 'test me')
         request.reload
         expect(request).to have_attributes(
           :name           => 'req1',
           :content        => 'test me',
           :requester_name => 'John Doe',
-          :process_ref    => '100',
-          :state          => Request::NOTIFIED_STATE,
+          :process_ref    => nil,
+          :state          => Request::STARTED_STATE,
           :decision       => Request::UNDECIDED_STATUS,
           :workflow       => nil
         )
         [0, 1].each do |index|
-          stage = request.stages[index]
-          expect(stage).to have_attributes(
-            :state             => Stage::PENDING_STATE,
-            :decision          => Stage::UNDECIDED_STATUS,
+          subrequest = request.children[index]
+          expect(subrequest).to have_attributes(
+            :process_ref       => '100',
+            :state             => Request::STARTED_STATE,
+            :decision          => Request::UNDECIDED_STATUS,
             :reason            => nil,
             :random_access_key => be_kind_of(String),
             :workflow          => workflow2
@@ -76,7 +78,6 @@ RSpec.describe RequestCreateService do
 
   context 'auto approval instructed by an environment variable' do
     before do
-      allow(Thread).to receive(:new).and_yield
       ENV['AUTO_APPROVAL'] = 'y'
       ENV['AUTO_APPROVAL_INTERVAL'] = '0.1'
 
@@ -164,7 +165,6 @@ RSpec.describe RequestCreateService do
     let(:workflow) { create(:workflow) }
 
     before do
-      allow(Thread).to receive(:new).and_yield
       allow(Workflow).to receive(:default_workflow).and_return(workflow)
     end
 

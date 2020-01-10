@@ -39,11 +39,11 @@ class Workflow < ApplicationRecord
   end
 
   def external_processing?
-    template.process_setting.present?
+    template&.process_setting.present?
   end
 
   def external_signal?
-    template.signal_setting.present?
+    template&.signal_setting.present?
   end
 
   private
