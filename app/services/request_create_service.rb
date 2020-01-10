@@ -11,17 +11,15 @@ class RequestCreateService
 
     self.workflows = WorkflowFindService.new.find_by_tag_resources(options[:tag_resources]).to_a.delete_if { |wf| wf == Workflow.default_workflow }
 
-    Request.transaction do
-      Request.create!(create_options).tap do |request|
-        create_child_requests(request) unless default_approve?
-
-        if default_approve? || auto_approve?
-          start_internal_approval_process(request)
-        else
-          start_request(request)
+    request =
+      Request.transaction do
+        Request.create!(create_options).tap do |req|
+          create_child_requests(req) unless default_approve?
         end
       end
-    end
+
+    prepare_request(request)
+    request
   end
 
   private
@@ -63,10 +61,14 @@ class RequestCreateService
     ENV['AUTO_APPROVAL'] && ENV['AUTO_APPROVAL'] != 'n'
   end
 
-  def start_internal_approval_process(request)
+  def prepare_request(request)
     Thread.new do
       ContextService.new(request.context).with_context do
-        auto_approve(request)
+        if default_approve? || auto_approve?
+          auto_approve(request)
+        else
+          start_request(request)
+        end
       end
     end
   end
