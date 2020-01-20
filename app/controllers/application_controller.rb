@@ -14,13 +14,16 @@ class ApplicationController < ActionController::API
 
   def with_current_request
     Insights::API::Common::Request.with_request(request) do |current|
-      raise Insights::API::Common::EntitlementError, "User not Entitled" unless check_entitled(current.entitlement)
+      if current.required_auth?
+        raise Insights::API::Common::EntitlementError, "User not Entitled" unless check_entitled(current.entitlement)
 
-      begin
         ActsAsTenant.with_tenant(current_tenant(current.user)) { yield }
-      rescue Exceptions::NoTenantError
-        json_response({ :message => 'Unauthorized' }, :unauthorized)
+      else
+        ActsAsTenant.without_tenant { yield }
       end
+
+    rescue Exceptions::NoTenantError
+      json_response({:message => 'Unauthorized'}, :unauthorized)
     end
   end
 
