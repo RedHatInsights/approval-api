@@ -71,7 +71,7 @@ module Api
         end
 
         def assigned_roles
-          @assigned_roles ||= Insights::API::Common::RBAC::Roles.new.roles
+          @assigned_roles ||= Insights::API::Common::RBAC::Roles.new('approval').roles
         end
 
         # check if approver can process the #{resource} with #{id}
