@@ -8,24 +8,21 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
   let(:template_id) { template.id }
   let!(:workflows) { create_list(:workflow, 4, :template_id => template.id) }
   let(:id) { workflows.first.id }
-  let(:roles_obj) { instance_double(Insights::API::Common::RBAC::Roles) }
+  let(:roles_obj) { instance_double(Insights::API::Common::RBAC::Roles, :roles => roles) }
 
   let(:api_version) { version }
 
   let(:graphql_source_query) { { 'query' => '{ workflows {  id template_id name  } }' } }
 
   before do
-    allow(Insights::API::Common::RBAC::Roles).to receive(:new).and_return(roles_obj)
-    allow(roles_obj).to receive(:roles)
+    allow(Insights::API::Common::RBAC::Roles).to receive(:new).with('approval').and_return(roles_obj)
     allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
+    allow(rs_class).to receive(:paginate).and_return([])
   end
 
   describe 'a simple graphql query' do
     context 'rbac allows' do
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-      end
+      let(:roles) { [admin_role] }
 
       it 'selects attributes in workflows' do
         post "#{api_version}/graphql", :headers => headers, :params => graphql_source_query
@@ -41,10 +38,7 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
     end
 
     context 'rbac rejects' do
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([])
-      end
+      let(:roles) { [] }
 
       it 'selects attributes in workflows' do
         post "#{api_version}/graphql", :headers => headers, :params => graphql_source_query
