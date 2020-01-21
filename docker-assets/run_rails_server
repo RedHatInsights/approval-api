@@ -10,5 +10,4 @@ KEY
 
 write_encryption_key
 
-bundle exec rake db:migrate db:seed
-bundle exec rails server
+bundle exec rake db:migrate db:seed && bundle exec rails server
