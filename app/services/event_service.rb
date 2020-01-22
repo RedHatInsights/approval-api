@@ -68,7 +68,7 @@ class EventService
       :port     => ENV['QUEUE_PORT'] || 9092,
       :encoding => 'json'
     ) do |client|
-      client.publish_topic(:service => topic, :sender => EVENT_SENDER, :event => event, :payload => payload)
+      client.publish_topic(:service => topic, :sender => EVENT_SENDER, :event => event, :payload => payload, :headers => request.request_context['context']['headers'])
     end
   rescue StandardError, RBACApiClient::ApiError => error
     Rails.logger.error("Event sending failed. Reason: #{error.message}")
