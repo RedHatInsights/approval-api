@@ -1,79 +1,61 @@
-<p id="notice"><%= notice %></p>
-<html>
-    <style>
-        textarea {
-            width: 90%;
-            height: 150;
-            margin: 20;
-            border: 1;
-            font-size: 22px;
-        }
-        input[type=submit] {
-          width: 90%;
-          height: 60;
-          padding: 12px 10px;
-          margin: 20;
-          box-sizing: border-box;
-          font-size: 30px;
-          font-weight: bold;
-          background-color: darkgrey;
-        }
-        #details {
-          width: 100%;
-          padding: 50px 0;
-          text-align: center;
-          background-color: #E5E7E9;
-          margin-top: 20px;
-        }
-    </style>
-    <body>
-      <%= image_tag(@resources[:approval_web_logo], :size => '300x150') %>
-        <font face="verdana"><br>
-          <font size="22" color="red"><b><%= @resources[:approval_web_product] %></font><hr>
-            <h1><font size="24">Catalog Request </font><a href="#" onclick="showDetails()">(Details)</a></h1>
-            <p>
-            <table>
-              <tr><td><b><font size="14">Ordered By</b></td><td><font size="14"> :<%= @order[:orderer] %></td></tr>
-              <tr><td><b><font size="14">Product</b></td><td><font size="14"> :<%= @order[:product] %></td></tr>
-              <tr><td><b><font size="14">Portfolio</b></td><td><font size="14"> :<%= @order[:portfolio] %></td></tr>
-              <tr><td><b><font size="14">Ordered ID</b></td><td><font size="14"> :<%= @order[:order_id] %></td></tr>
-              <tr><td><b><font size="14">Ordered Date</b></td><td><font size="14"> :<%= @order[:order_date] %></td></tr>
-              <tr><td><b><font size="14">Ordered Time</b></td><td><font size="14"> :<%= @order[:order_time] %></td></tr>
-            </table>
-
-            <div id="details" style="display:none;">
-              <font size="20">Order details</font>
-                <table>
+<%= render :partial => "header" %>
+  <main class="pf-c-page__main pf-l-page__main">
+    <section class="pf-l-page-header pf-c-page-header pf-l-page__main-section pf-c-page__main-section pf-m-light">
+      <h1 class="pf-c-title pf-m-2xl">
+        <span>
+          <%= @resources[:approval_web_product] %>
+          <span>
+          </span>
+        </span>
+      </h1>
+    </section>
+    <section class="pf-l-page__main-section pf-c-page__main-section">
+      <section class="body" style="background-color: #fff; padding: 16px">
+        <div class="pf-c-content info-panel">  
+          <h2>Catalog Request</h2>
+          <p id="notice"><%= notice %></p>
+          <%= render :partial => "request" %>
+          <br>
+          <a href="#" onclick="showDetails()">Show Details</a>
+          <div  id="details" style="display:none;" class="pf-l-grid pf-m-gutter">
+            <div class="pf-l-grid__item" style="background-color: #e9e8e9; width: 70%">
+              <div class="pf-l-split pf-m-gutter">
+                <div class="pf-l-split__item install-title">
+                  Order Details
+                </div>
+                <div class="pf-l-split__item pf-m-fill">
                   <% @order[:order_content].each do |k, v| %>
-                    <tr>
-                      <td><b><font size="10"><%= k %></b></td>
-                        <td><font size="10">: <%= v %></td>
-                    </tr>
-                <% end %>
-                </table>
+                    <div class="pf-l-grid__item">
+                      <div class="pf-l-split pf-m-gutter">
+                        <div class="pf-l-split__item install-title"><%= k %></div>
+                        <div class="pf-l-split__item pf-m-fill"><%= v %></div>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
             </div>
+          </div>
+          <p>
+          <div class="install-title">Reason/Memo</div>
+          <%= form_with method: :patch do |form| %>
+            <%= form.text_area :message, style: "width:70%" %>
+            <br><br>
+            <%= form.hidden_field :approver, value: Base64.encode64(@approver) %>
+            <%= form.submit 'Memo', class: "pf-c-button pf-m-secondary" %>
+            <%= form.submit 'Approve', class: "pf-c-button pf-m-primary" %>
+            <%= form.submit 'Deny', class: "pf-c-button pf-m-danger" %>
+          <% end %>
 
-            <br>
-            <font size="20">Reason/Memo
-            <%= form_with method: :patch do |form| %>
-              <%= form.text_area :message %>
-              <%= form.hidden_field :approver, value: Base64.encode64(@approver) %>
-              <%= form.submit 'Memo', style: "background-color: #E5E7E9" %>
-              <%= form.submit 'Approve', style: "background-color: #229954" %>
-              <%= form.submit 'Deny', style: "background-color: #E74C3C" %>
-            <% end %>
-
-            <script>
-                function showDetails() {
-                    var x = document.getElementById("details");
-                    if (x.style.display === "none") {
-                      x.style.display = "block";
-                    } else {
-                      x.style.display = "none";
-                    }
-                }
-            </script>
-        </font>
-   </body>
-</html>
-
+          <script>
+              function showDetails() {
+                  var x = document.getElementById("details");
+                  if (x.style.display === "none") {
+                    x.style.display = "block";
+                  } else {
+                    x.style.display = "none";
+                  }
+              }
+          </script>
+    </section>
+<%= render :partial => "footer" %>
