@@ -8,27 +8,34 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:headers_with_approver)  { default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => described_class::PERSONA_APPROVER) }
   let(:headers_with_requester) { default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => described_class::PERSONA_REQUESTER) }
 
-  let!(:workflow) { create(:workflow, :name => 'Test always approve') }
+  let(:workflow) { create(:workflow, :name => 'Test always approve') }
   let(:workflow_id) { workflow.id }
-  let!(:requests) do
-    Insights::API::Common::Request.with_request(:headers => default_headers, :original_url => "localhost/approval") do
+  let(:requests) do
+    Insights::API::Common::Request.with_request(default_request_hash) do
       create_list(:request, 2, :workflow_id => workflow.id, :tenant_id => tenant.id)
     end
   end
   let(:id) { requests.first.id }
-  let!(:requests_with_same_state) { create_list(:request, 2, :state => 'notified', :workflow_id => workflow.id, :tenant_id => tenant.id) }
-  let!(:requests_with_same_decision) { create_list(:request, 2, :decision => 'approved', :workflow_id => workflow.id, :tenant_id => tenant.id) }
+  let(:requests_with_same_state) { create_list(:request, 2, :state => 'notified', :workflow_id => workflow.id, :tenant_id => tenant.id) }
+  let(:requests_with_same_decision) { create_list(:request, 2, :decision => 'approved', :workflow_id => workflow.id, :tenant_id => tenant.id) }
 
-  let(:username_1) { "joe@acme.com" }
-  let(:group1) { double(:name => 'group1', :uuid => "123") }
-  let(:group2) { double(:name => 'group2', :uuid => "456") }
-  let!(:workflow_2) { create(:workflow, :name => 'workflow_2', :group_refs => [group1.uuid, group2.uuid], :tenant_id => tenant.id) }
-  let!(:user_requests) { create_list(:request, 2, :decision => 'denied', :state => 'completed', :group_ref => group1.uuid, :workflow_id => workflow_2.id, :tenant_id => tenant.id) }
+  let(:group1) { instance_double(Group, :name => 'group1', :uuid => "123") }
+  let(:group2) { instance_double(Group, :name => 'group2', :uuid => "456") }
+  let(:workflow_2) { create(:workflow, :name => 'workflow_2', :group_refs => [group1.uuid, group2.uuid], :tenant_id => tenant.id) }
+  let(:user_requests) { create_list(:request, 2, :decision => 'denied', :state => 'completed', :group_ref => group1.uuid, :workflow_id => workflow_2.id, :tenant_id => tenant.id) }
 
-  let(:roles_obj) { double }
-  let(:workflow_find_service) { double }
+  let(:roles_obj) { instance_double(Insights::API::Common::RBAC::Roles) }
+  let(:workflow_find_service) { instance_double(WorkflowFindService) }
+
+  let(:setup_requests) do
+    requests
+    requests_with_same_state
+    requests_with_same_decision
+    user_requests
+  end
 
   let(:setup_approver_role_with_acls) do
+    setup_requests
     aces = [
       AccessControlEntry.new(:permission => 'approve', :group_uuid => group1.uuid, :tenant_id => tenant.id),
       AccessControlEntry.new(:permission => 'approve', :group_uuid => group2.uuid, :tenant_id => tenant.id)
@@ -40,11 +47,13 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   end
 
   let(:setup_admin_role) do
+    setup_requests
     allow(rs_class).to receive(:paginate).and_return([])
     allow(roles_obj).to receive(:roles).and_return([admin_role])
   end
 
   let(:setup_requester_role) do
+    setup_requests
     allow(rs_class).to receive(:paginate).and_return([])
     allow(roles_obj).to receive(:roles).and_return([])
   end
@@ -219,48 +228,57 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
   end
 
-  describe 'Accessible requests for Approver persona' do
-    let(:ctrl) { described_class.new }
-    let(:group_a) { double(:name => 'group_a', :uuid => "g_a") }
-    let(:group_b) { double(:name => 'group_b', :uuid => "g_b") }
-    let(:group_c) { double(:name => 'group_c', :uuid => "g_c") }
-    let(:group_d) { double(:name => 'group_d', :uuid => "g_d") }
-    let(:group_e) { double(:name => 'group_e', :uuid => "g_e") }
-    let!(:workflow_a) { create(:workflow, :name => 'workflow_a', :group_refs => [group_a.uuid, group_b.uuid, group_c.uuid]) }
-    let!(:workflow_b) { create(:workflow, :name => 'workflow_b', :group_refs => [group_b.uuid, group_d.uuid, group_e.uuid]) }
-    let!(:approver_request1) { create(:request, :workflow_id => workflow_a.id, :group_ref => group_a.uuid, :tenant_id => tenant.id) }
-    let!(:approver_request2) { create(:request, :workflow_id => workflow_b.id, :group_ref => group_b.uuid, :state => 'notified', :tenant_id => tenant.id) }
+  describe 'Accessible requests for approvers or requesters' do
+    let(:template) { create(:template) }
+    let(:group_a) { instance_double(Group, :name => 'group_a', :uuid => "g_a") }
+    let(:group_b) { instance_double(Group, :name => 'group_b', :uuid => "g_b") }
+    let(:group_c) { instance_double(Group, :name => 'group_c', :uuid => "g_c") }
+    let(:group_d) { instance_double(Group, :name => 'group_d', :uuid => "g_d") }
+    let(:group_e) { instance_double(Group, :name => 'group_e', :uuid => "g_e") }
+    let!(:workflow_a) { WorkflowCreateService.new(template.id).create(:name => 'workflow_a', :group_refs => [group_a.uuid, group_b.uuid]) }
+    let!(:workflow_b) { WorkflowCreateService.new(template.id).create(:name => 'workflow_b', :group_refs => [group_b.uuid, group_d.uuid, group_e.uuid]) }
+    let!(:approver_request1) { create(:request, :workflow_id => workflow_a.id, :group_ref => group_a.uuid, :tenant_id => tenant.id, :owner => 'Tom') }
+    let!(:approver_request2) { create(:request, :workflow_id => workflow_b.id, :group_ref => group_b.uuid, :state => 'notified', :tenant_id => tenant.id, :owner => 'jdoe') } # default user
     let!(:actions_1) { create_list(:action, 2, :request_id => approver_request1.id, :tenant_id => tenant.id) }
     let!(:actions_2) { create_list(:action, 2, :request_id => approver_request2.id, :tenant_id => tenant.id) }
-    let!(:role_a) { "approval-group-#{group_a.uuid}" }
-    let!(:role_b) { "approval-group-#{group_b.uuid}" }
-    let!(:role_d) { "approval-group-#{group_d.uuid}" }
 
-    context "when return approver ids based on resource type" do
-      it '#approver_id_list for requests' do
-        allow(ctrl).to receive(:workflow_ids).and_return([workflow_a.id, workflow_b.id])
+    context "approver's view" do
+      context 'user in approver groups' do
+        before { allow(rs_class).to receive(:paginate).and_return([group_a, group_b]) }
 
-        expect(ctrl.approver_id_list("requests")).to eq([approver_request2.id])
+        it 'lists requests the approver can see' do
+          expect(subject.approver_id_list("requests")).to eq([approver_request2.id])
+        end
+
+        it 'lists actions the approver can see' do
+          expect(subject.approver_id_list("actions")).to eq(approver_request2.actions.pluck(:id))
+        end
       end
 
-      it '#approver_id_list for next actions' do
-        allow(ctrl).to receive(:workflow_ids).and_return([workflow_a.id, workflow_b.id])
+      context 'user not in approver groups' do
+        before { allow(rs_class).to receive(:paginate).and_return([group_c]) }
 
-        expect(ctrl.approver_id_list("actions")).to eq(approver_request2.actions.pluck(:id))
+        it 'finds no requests the approver can see' do
+          expect(subject.approver_id_list("requests")).to be_empty
+        end
+
+        it 'finds no actions the approver can see' do
+          expect(subject.approver_id_list("actions")).to be_empty
+        end
       end
     end
 
-    xcontext "when return owner ids based on resource type" do
-      it '#owner_id_list for requests' do
-        allow(ctrl).to receive(:workflow_ids).and_return([workflow_a.id, workflow_b.id])
-
-        expect(ctrl.owner_id_list("requests")).to eq([approver_request2.id])
+    context "requester's view" do
+      it 'lists requests made by the requester' do
+        Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+          expect(subject.owner_id_list("requests")).to eq([approver_request2.id])
+        end
       end
 
-      it '#owner_id_list for next actions' do
-        allow(ctrl).to receive(:workflow_ids).and_return([workflow_a.id, workflow_b.id])
-
-        expect(ctrl.owner_id_list("actions")).to eq(approver_request2.actions.pluck(:id))
+      it 'lists actions from the requests made by the requester' do
+        Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+          expect(subject.owner_id_list("actions")).to eq(approver_request2.actions.pluck(:id))
+        end
       end
     end
   end
@@ -279,15 +297,15 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         # expect(json['data'].size).to eq(2)
         expect(response).to have_http_status(200)
       end
+    end
 
-      context 'approver role' do
-        before { setup_approver_role_with_acls }
+    context 'approver role' do
+      before { setup_approver_role_with_acls }
 
-        it 'returns status code 200' do
-          get "#{api_version}/requests?filter[decision]=approved", :headers => headers_with_approver
+      it 'returns status code 200' do
+        get "#{api_version}/requests?filter[decision]=approved", :headers => headers_with_approver
 
-          expect(response).to have_http_status(200)
-        end
+        expect(response).to have_http_status(200)
       end
     end
   end
@@ -405,39 +423,38 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     let(:workflow1) { create(:workflow, :group_refs => [group1.uuid]) }
     let(:workflow2) { create(:workflow, :group_refs => [group2.uuid]) }
 
-    context 'admin role' do
-      before do
-        allow(Group).to receive(:find).and_return(group)
-        setup_admin_role
-      end
+    before do
+      allow(Thread).to receive(:new).and_yield
+      allow(Group).to receive(:find).and_return(group)
+      setup_requester_role
+    end
 
-      it 'returns status code 201 when no workflow is found' do
-        allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([])
+    it 'returns status code 201 when no workflow is found' do
+      allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([])
 
-        with_modified_env :AUTO_APPROVAL => 'y' do
-          post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
-        end
-
-        expect(response).to have_http_status(201)
-      end
-
-      it 'returns status code 201 when tags resolve to a single workflow' do
-        allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1])
-
+      with_modified_env :AUTO_APPROVAL => 'y' do
         post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
-
-        expect(response).to have_http_status(201)
       end
 
-      it 'returns status code 201 when tags resolve to multiple workflows' do
-        allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1, workflow2])
+      expect(response).to have_http_status(201)
+    end
 
-        post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
+    it 'returns status code 201 when tags resolve to a single workflow' do
+      allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1])
 
-        expect(response).to have_http_status(201)
-        expect(Request.where(:number_of_children => 2).count).to eq 1
-        expect(Request.where.not(:parent_id => nil).count).to eq 2
-      end
+      post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
+
+      expect(response).to have_http_status(201)
+    end
+
+    it 'returns status code 201 when tags resolve to multiple workflows' do
+      allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1, workflow2])
+
+      post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
+
+      expect(response).to have_http_status(201)
+      expect(Request.where(:number_of_children => 2).count).to eq 1
+      expect(Request.where.not(:parent_id => nil).count).to eq 2
     end
   end
 end
