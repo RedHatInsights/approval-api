@@ -165,17 +165,26 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       before { setup_admin_role }
 
       it 'can add valid operation' do
-        test_attributes = { :operation => 'cancel', :processed_by => 'abcd' }
+        test_attributes = {:operation => 'cancel', :processed_by => 'abcd'}
         post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
 
         expect(response).to have_http_status(201)
       end
 
-      it 'fails to add invalid operation' do
-        test_attributes = { :operation => 'bad-op', :processed_by => 'abcd' }
+      it 'cannot add invalid operation' do
+        test_attributes = {:operation => 'bad-op', :processed_by => 'abcd'}
         post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
 
         expect(response).to have_http_status(400)
+      end
+
+      it 'cannot add unauthorized operation' do
+        ['start', 'notify', 'skip'].each do |op|
+          test_attributes = {:operation => op, :processed_by => 'abcd'}
+          post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
+
+          expect(response).to have_http_status(403)
+        end
       end
     end
 
@@ -183,17 +192,19 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       before { setup_approver_role_with_acls }
 
       it 'can approve a request' do
-        test_attributes = { :operation => 'approve', :processed_by => 'abcd' }
+        test_attributes = {:operation => 'approve', :processed_by => 'abcd'}
         post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
 
         expect(response).to have_http_status(201)
       end
 
-      it 'cannot cancel a request' do
-        test_attributes = { :operation => 'cancel', :processed_by => 'abcd' }
-        post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
+      it 'cannot add unauthorized operation' do
+        ['start', 'notify', 'skip', 'cancel'].each do |op|
+          test_attributes = {:operation => op, :processed_by => 'abcd'}
+          post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
 
-        expect(response).to have_http_status(403)
+          expect(response).to have_http_status(403)
+        end
       end
     end
 
@@ -201,7 +212,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       before { setup_approver_role_without_acls }
 
       it 'cannot approve a request' do
-        test_attributes = { :operation => 'approve', :processed_by => 'abcd' }
+        test_attributes = {:operation => 'approve', :processed_by => 'abcd'}
         post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
 
         expect(response).to have_http_status(403)
@@ -211,18 +222,31 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     context 'requester role' do
       before { setup_requester_role }
 
-      it 'cannot approve a request' do
-        test_attributes = { :operation => 'approve', :processed_by => 'abcd' }
-        post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
+      it 'cannot add unauthorized operation' do
+        ['start', 'notify', 'skip', 'approve', 'deny'].each do |op|
+          test_attributes = {:operation => op, :processed_by => 'abcd'}
+          post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
 
-        expect(response).to have_http_status(403)
+          expect(response).to have_http_status(403)
+        end
       end
 
       it 'can cancel a request' do
-        test_attributes = { :operation => 'cancel', :processed_by => 'abcd' }
+        test_attributes = {:operation => 'cancel', :processed_by => 'abcd'}
         post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers
 
         expect(response).to have_http_status(201)
+      end
+
+      context 'with x-rh-random-access-key header' do
+        let!(:request) { create(:request, :with_context, :state => 'started', :tenant_id => tenant.id, :owner => "jdoe", :random_access_key => 'unique-uid') }
+
+        it 'can notify a request with matched access key' do
+          test_attributes = {:operation => 'notify', :processed_by => 'abcd'}
+          post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers.merge('x-rh-random-access-key' => request.random_access_key)
+
+          expect(response).to have_http_status(201)
+        end
       end
     end
   end

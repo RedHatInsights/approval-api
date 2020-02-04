@@ -4,6 +4,10 @@ module Api
       include Mixins::IndexMixin
       include Mixins::RBACMixin
 
+      ADMIN_OPERATIONS     = [Action::MEMO_OPERATION, Action::APPROVE_OPERATION, Action::DENY_OPERATION, Action::CANCEL_OPERATION].freeze
+      APPROVER_OPERATIONS  = [Action::MEMO_OPERATION, Action::APPROVE_OPERATION, Action::DENY_OPERATION].freeze
+      REQUESTER_OPERATIONS = [Action::CANCEL_OPERATION].freeze
+
       before_action :read_access_check, :only => %i[show]
       before_action :create_access_check, :validate_create_action, :only => %i[create]
 
@@ -27,14 +31,16 @@ module Api
 
       private
 
-      # Different roles can only create certain kind of actions
-      #   admin:     can create all kinds of actions
-      #   approver:  can not create 'cancel' action
-      #   requester: can not create 'approve' and 'deny' actions
       def validate_create_action
-        operation = params[:operation]
-        valid_operation = admin? || (approver? && [Action::MEMO_OPERATION, Action::CANCEL_OPERATION].exclude?(operation)) ||
-                          (!admin? && !approver? && [Action::MEMO_OPERATION, Action::APPROVE_OPERATION, Action::DENY_OPERATION].exclude?(operation))
+        operation = params.require(:operation)
+        uuid = request.headers['x-rh-random-access-key']
+
+        valid_operation =
+          admin? && ADMIN_OPERATIONS.include?(operation) ||
+          approver? && APPROVER_OPERATIONS.include?(operation) ||
+          requester? && REQUESTER_OPERATIONS.include?(operation) ||
+          uuid.present? && Request.find_by(:random_access_key => uuid)
+
         raise Exceptions::NotAuthorizedError, "Not authorized to create [#{operation}] action " unless valid_operation
 
         resource_check('read', params[:request_id], Request) # NotAuthorizedError if current user cannot access the particular request
