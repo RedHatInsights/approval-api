@@ -70,6 +70,10 @@ module Api
           assigned_roles.include?(APPROVER_ROLE)
         end
 
+        def requester?
+          !admin? && !approver?
+        end
+
         def assigned_roles
           @assigned_roles ||= Insights::API::Common::RBAC::Roles.new('approval').roles
         end

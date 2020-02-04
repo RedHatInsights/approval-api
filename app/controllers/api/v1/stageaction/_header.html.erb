@@ -1,0 +1,34 @@
+<html>
+  <head>
+    <link 
+      rel="stylesheet" 
+      href="https://unpkg.com/@patternfly/patternfly/patternfly.css" 
+      crossorigin="anonymous"
+    >
+    <style>
+      .install-title {
+        min-width: 100px;
+        vertical-align: middle;
+        display: table-cell;
+        font-weight: bold;
+      }
+
+      .pf-l-grid.pf-m-gutter {
+        grid-gap: var(--pf-l-grid--m-gutter--md--GridGap);
+      }
+
+      .pf-m-secondary {
+        border: 1px solid #0b51c3;
+      }
+
+    </style>
+  </head>
+  <body class="pf-m-redhat-font">
+  	<div class="pf-c-page pf-m-redhat-font">
+  	  <header class="pf-c-page__header">
+  	  	<div class="pf-c-page__header-brand ins-c-page__header-brand--loading">
+  	  	  <a class="pf-c-page__header-brand-link">
+  	  	  	<%= image_tag(@resources[:approval_web_logo], :size => '150x75') %>
+  	  	  </a>
+  	  	</div>
+  	  </header>

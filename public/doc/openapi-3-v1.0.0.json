@@ -110,7 +110,7 @@
                   "Action"
                 ],
                 "summary": "Add an action to a given request",
-                "description": "Add an action to a given request, available for admin/approver/requester. Applicable operation types are based on request current state.",
+                "description": "Add an action to a given request. Admin can do approve, deny, memo, and cancel operations; approver can do approve, deny and memo operations; while requester can do only cancel operation.",
                 "operationId": "createAction",
                 "parameters": [
                     {
