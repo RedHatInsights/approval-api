@@ -64,6 +64,32 @@ RSpec.describe ActionCreateService do
     end
   end
 
+  context 'error operation' do
+    it 'updates both leaf and root requests' do
+      action = svc1.create('operation' => Action::ERROR_OPERATION, 'processed_by' => 'man', 'comments' => 'something is wrong')
+      child1.reload
+      child2.reload
+      request.reload
+      expect(action).to  have_attributes(:operation => Action::ERROR_OPERATION, :processed_by => 'man')
+      expect(child1).to  have_attributes(:state => Request::FAILED_STATE,  :decision => Request::ERROR_STATUS)
+      expect(child2).to  have_attributes(:state => Request::SKIPPED_STATE, :decision => Request::UNDECIDED_STATUS)
+      expect(request).to have_attributes(:state => Request::FAILED_STATE,  :decision => Request::ERROR_STATUS)
+    end
+
+    it 'raises an error when error on parent request' do
+      expect { svc.create('operation' => Action::ERROR_OPERATION, 'processed_by' => 'man', 'comments' => 'bad') }.to raise_error(Exceptions::InvalidStateTransitionError)
+    end
+
+    it 'raises an error when no reason is given' do
+      expect { svc1.create('operation' => Action::ERROR_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::ApprovalError)
+    end
+
+    it 'raises an error when the request has already finished' do
+      child1.update(:state => Request::COMPLETED_STATE)
+      expect { svc1.create('operation' => Action::ERROR_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
+    end
+  end
+
   context 'skip operation' do
     it 'updates both children and parent requests' do
       child1.update(:state => Request::NOTIFIED_STATE)

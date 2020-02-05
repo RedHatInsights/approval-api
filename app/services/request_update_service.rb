@@ -50,6 +50,10 @@ class RequestUpdateService
     return parent_completed(options) if request_completed?(options[:decision])
   end
 
+  def failed(options)
+    completed(options)
+  end
+
   # Root only.
   def canceled(options)
     skip_leaves
@@ -76,7 +80,7 @@ class RequestUpdateService
     request.update!(options.merge(:finished_at => DateTime.now, :random_access_key => nil))
     request.parent.invalidate_number_of_finished_children
     update_parent(options)
-    if options[:decision] == Request::DENIED_STATUS
+    if [Request::DENIED_STATUS, Request::ERROR_STATUS].include?(options[:decision])
       skip_leaves
     else
       start_next_leaves if peers_approved?(request)
@@ -89,7 +93,7 @@ class RequestUpdateService
   end
 
   def request_completed?(decision)
-    request.number_of_finished_children == request.number_of_children || decision == Request::DENIED_STATUS
+    request.number_of_finished_children == request.number_of_children || [Request::DENIED_STATUS, Request::ERROR_STATUS].include?(decision)
   end
 
   def peers_approved?(request)

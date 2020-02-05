@@ -83,13 +83,18 @@ class ActionCreateService
 
   def cancel(comments)
     raise Exceptions::InvalidStateTransitionError, "Only root level request can be canceled" unless request.root?
-
-    if Request::FINISHED_STATES.include?(request.state)
-      raise Exceptions::InvalidStateTransitionError, "The request has already finished"
-    end
+    raise Exceptions::InvalidStateTransitionError, "The request has already finished" if request.finished?
 
     {:state => Request::CANCELED_STATE, :decision => Request::CANCELED_STATUS}.tap do |h|
       h[:reason] = comments if comments
     end
+  end
+
+  def error(comments)
+    raise Exceptions::InvalidStateTransitionError, "Current request has already finished" if request.finished?
+    raise Exceptions::ApprovalError, "Failure reason is missing" unless comments
+    raise Exceptions::InvalidStateTransitionError, "Only child level request can be flagged error" if request.parent?
+
+    {:state => Request::FAILED_STATE, :decision => Request::ERROR_STATUS, :reason => comments}
   end
 end
