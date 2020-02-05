@@ -14,7 +14,7 @@ class RequestCreateService
     request =
       Request.transaction do
         Request.create!(create_options).tap do |req|
-          create_child_requests(req) unless default_approve?
+          default_approve? ? update_leaf_with_workflow(req, nil, nil) : create_child_requests(req)
         end
       end
 
@@ -44,6 +44,8 @@ class RequestCreateService
                    ContextService.new(leaf_request.context).as_org_admin do
                      Group.find(group_ref).name
                    end
+                 else
+                   'System approval'
                  end
 
     leaf_request.update!(:workflow_id => workflow_id, :group_ref => group_ref, :group_name => group_name)

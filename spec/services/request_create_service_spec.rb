@@ -77,35 +77,33 @@ RSpec.describe RequestCreateService do
   end
 
   context 'auto approval instructed by an environment variable' do
-    before do
-      ENV['AUTO_APPROVAL'] = 'y'
-      ENV['AUTO_APPROVAL_INTERVAL'] = '0.1'
-
-    end
-
-    after do
-      ENV['AUTO_APPROVAL'] = nil
-      ENV['AUTO_APPROVAL_INTERVAL'] = nil
+    let(:envs) do
+      {
+        :AUTO_APPROVAL          => 'y',
+        :AUTO_APPROVAL_INTERVAL => '0.1'
+      }
     end
 
     context 'with one workflow and one group' do
       let(:resolved_workflows) { [workflow1] }
 
       it 'creates one single request' do
-        request = subject.create(:name => 'req1', :content => 'test me')
-        request.reload
-        expect(request).to have_attributes(
-          :name           => 'req1',
-          :content        => 'test me',
-          :requester_name => 'John Doe',
-          :owner          => 'jdoe',
-          :state          => Request::COMPLETED_STATE,
-          :decision       => Request::APPROVED_STATUS,
-          :reason         => 'System approved',
+        RequestSpecHelper.with_modified_env(envs) do
+          request = subject.create(:name => 'req1', :content => 'test me')
+          request.reload
+          expect(request).to have_attributes(
+            :name           => 'req1',
+            :content        => 'test me',
+            :requester_name => 'John Doe',
+            :owner          => 'jdoe',
+            :state          => Request::COMPLETED_STATE,
+            :decision       => Request::APPROVED_STATUS,
+            :reason         => 'System approved',
 
-          :number_of_children          => 0,
-          :number_of_finished_children => 0
-        )
+            :number_of_children          => 0,
+            :number_of_finished_children => 0
+          )
+        end
       end
     end
 
@@ -113,41 +111,43 @@ RSpec.describe RequestCreateService do
       let(:resolved_workflows) { [workflow1, workflow2] }
 
       it 'creates a request with 3 children and auto approves all' do
-        request = subject.create(:name => 'req1', :content => 'test me')
-        request.reload
-        expect(request).to have_attributes(
-          :name           => 'req1',
-          :content        => 'test me',
-          :requester_name => 'John Doe',
-          :owner          => 'jdoe',
-          :state          => Request::COMPLETED_STATE,
-          :decision       => Request::APPROVED_STATUS,
-          :reason         => 'System approved',
+        RequestSpecHelper.with_modified_env(envs) do
+          request = subject.create(:name => 'req1', :content => 'test me')
+          request.reload
+          expect(request).to have_attributes(
+            :name           => 'req1',
+            :content        => 'test me',
+            :requester_name => 'John Doe',
+            :owner          => 'jdoe',
+            :state          => Request::COMPLETED_STATE,
+            :decision       => Request::APPROVED_STATUS,
+            :reason         => 'System approved',
 
-          :number_of_children          => 3,
-          :number_of_finished_children => 3,
-          :random_access_key           => nil
-        )
-        (0..2).each do |index|
-          child = request.children[index]
-          expect(child).to have_attributes(
-            :state             => Request::COMPLETED_STATE,
-            :decision          => Request::APPROVED_STATUS,
-            :reason            => 'System approved',
-            :random_access_key => nil
+            :number_of_children          => 3,
+            :number_of_finished_children => 3,
+            :random_access_key           => nil
           )
-          expect(child.actions.first).to have_attributes(
-            :operation    => Action::START_OPERATION,
-            :processed_by => 'system',
-          )
-          expect(child.actions.second).to have_attributes(
-            :operation    => Action::NOTIFY_OPERATION,
-            :processed_by => 'system',
-          )
-          expect(child.actions.last).to have_attributes(
-            :operation => Action::APPROVE_OPERATION,
-            :comments  => 'System approved'
-          )
+          (0..2).each do |index|
+            child = request.children[index]
+            expect(child).to have_attributes(
+              :state             => Request::COMPLETED_STATE,
+              :decision          => Request::APPROVED_STATUS,
+              :reason            => 'System approved',
+              :random_access_key => nil
+            )
+            expect(child.actions.first).to have_attributes(
+              :operation    => Action::START_OPERATION,
+              :processed_by => 'system',
+            )
+            expect(child.actions.second).to have_attributes(
+              :operation    => Action::NOTIFY_OPERATION,
+              :processed_by => 'system',
+            )
+            expect(child.actions.last).to have_attributes(
+              :operation => Action::APPROVE_OPERATION,
+              :comments  => 'System approved'
+            )
+          end
         end
       end
     end
@@ -182,7 +182,8 @@ RSpec.describe RequestCreateService do
         :state          => Request::COMPLETED_STATE,
         :decision       => Request::APPROVED_STATUS,
         :reason         => 'System approved',
-        :workflow       => workflow
+        :workflow       => workflow,
+        :group_name     => 'System approval'
       )
     end
   end
