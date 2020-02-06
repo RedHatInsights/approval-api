@@ -1178,11 +1178,11 @@
                 "type": "object",
                 "properties": {
                     "tag": {
-			            "example": "/namespace/architecture=x86_64",
+                        "example": "/namespace/architecture=x86_64",
                         "type": "string"
                     }
                 },
-		        "additionalProperties": false
+                "additionalProperties": false
             },
             "Request": {
                 "description": "Approval request. It may have child requests. Only a leaf node request can have workflow_id",
@@ -1336,7 +1336,9 @@
                     },
                     "sequence": {
                         "type": "integer",
-                        "description": "an indicator of the execution order for selected workflows"
+                        "description": "an indicator of the execution order for selected workflows",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
                     },
                     "group_refs": {
                         "type": "array",

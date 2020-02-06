@@ -309,22 +309,27 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   # Test suite for PATCH /workflows/:id
   describe 'PATCH /workflows/:id' do
-    let(:valid_attributes) { { :name => "test", :group_refs => %w[1000] } }
+    let(:valid_attributes) { {:name => "test", :group_refs => %w[1000], :sequence => 2} }
 
     context 'admin role when item exists' do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
-        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
-      end
-
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
       end
 
       it 'updates the item' do
+        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
+
+        expect(response).to have_http_status(200)
         updated_item = Workflow.find(id)
-        expect(updated_item.group_refs).to match(["1000"])
+        expect(updated_item).to have_attributes(valid_attributes)
+      end
+
+      it 'returns status code 400 if sequence is not positive' do
+        valid_attributes[:sequence] = -1
+        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
+
+        expect(response).to have_http_status(400)
       end
     end
 
