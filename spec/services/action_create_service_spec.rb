@@ -81,7 +81,7 @@ RSpec.describe ActionCreateService do
     end
 
     it 'raises an error when no reason is given' do
-      expect { svc1.create('operation' => Action::ERROR_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::ApprovalError)
+      expect { svc1.create('operation' => Action::ERROR_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::UserError)
     end
 
     it 'raises an error when the request has already finished' do
@@ -142,7 +142,7 @@ RSpec.describe ActionCreateService do
 
   context 'invalid operations' do
     it 'forbids operation not prefined' do
-      expect { svc1.create('operation' => 'strange operation', 'processed_by' => 'man') }.to raise_error(Exceptions::ApprovalError)
+      expect { svc1.create('operation' => 'strange operation', 'processed_by' => 'man') }.to raise_error(Exceptions::UserError)
     end
 
     it 'forbids approve operation from pending stage' do
