@@ -27,7 +27,7 @@ class ActionCreateService
   def validate_operation(options)
     options = HashWithIndifferentAccess.new(options)
     operation = options['operation']
-    raise Exceptions::ApprovalError, "Invalid operation: #{operation}" unless Action::OPERATIONS.include?(operation)
+    raise Exceptions::UserError, "Invalid operation: #{operation}" unless Action::OPERATIONS.include?(operation)
 
     send(operation, options['comments'])
   end
@@ -75,7 +75,7 @@ class ActionCreateService
     unless request.state == Request::NOTIFIED_STATE
       raise Exceptions::InvalidStateTransitionError, "Current request is not in notified state"
     end
-    raise Exceptions::ApprovalError, "Reason to deny the request is missing" unless comments
+    raise Exceptions::UserError, "A reason has to be provided if a request is being denied" unless comments
     raise Exceptions::InvalidStateTransitionError, "Only child level request can be denied" if request.parent?
 
     {:state => Request::COMPLETED_STATE, :decision => Request::DENIED_STATUS, :reason => comments}
@@ -83,13 +83,18 @@ class ActionCreateService
 
   def cancel(comments)
     raise Exceptions::InvalidStateTransitionError, "Only root level request can be canceled" unless request.root?
-
-    if Request::FINISHED_STATES.include?(request.state)
-      raise Exceptions::InvalidStateTransitionError, "The request has already finished"
-    end
+    raise Exceptions::InvalidStateTransitionError, "The request has already finished" if request.finished?
 
     {:state => Request::CANCELED_STATE, :decision => Request::CANCELED_STATUS}.tap do |h|
       h[:reason] = comments if comments
     end
+  end
+
+  def error(comments)
+    raise Exceptions::InvalidStateTransitionError, "Current request has already finished" if request.finished?
+    raise Exceptions::UserError, "Failure reason is missing" unless comments
+    raise Exceptions::InvalidStateTransitionError, "Only child level request can be flagged error" if request.parent?
+
+    {:state => Request::FAILED_STATE, :decision => Request::ERROR_STATUS, :reason => comments}
   end
 end

@@ -8,7 +8,8 @@ class Action < ApplicationRecord
   APPROVE_OPERATION = 'approve'.freeze
   DENY_OPERATION    = 'deny'.freeze
   CANCEL_OPERATION  = 'cancel'.freeze
-  OPERATIONS = [START_OPERATION, NOTIFY_OPERATION, SKIP_OPERATION, MEMO_OPERATION, APPROVE_OPERATION, DENY_OPERATION, CANCEL_OPERATION].freeze
+  ERROR_OPERATION   = 'error'.freeze
+  OPERATIONS = [START_OPERATION, NOTIFY_OPERATION, SKIP_OPERATION, MEMO_OPERATION, APPROVE_OPERATION, DENY_OPERATION, CANCEL_OPERATION, ERROR_OPERATION].freeze
 
   validates :operation, :inclusion => { :in => OPERATIONS }
   validates :processed_by, :presence  => true

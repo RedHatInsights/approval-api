@@ -34,4 +34,14 @@ RSpec.describe RequestUpdateService do
       expect(request.state).to eq(Request::CANCELED_STATE)
     end
   end
+
+  context 'state becomes failed' do
+    it 'sends request_finished event' do
+      expect(event_service).to receive(:request_completed)
+      expect(event_service).to receive(:approver_group_finished)
+      subject.update(:state => Request::FAILED_STATE)
+      request.reload
+      expect(request.state).to eq(Request::FAILED_STATE)
+    end
+  end
 end

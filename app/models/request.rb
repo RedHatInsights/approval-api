@@ -35,7 +35,7 @@ class Request < ApplicationRecord
   def invalidate_number_of_finished_children
     return if number_of_children.zero?
 
-    update(:number_of_finished_children => children.count { |child| Request::FINISHED_STATES.include?(child.state) })
+    update(:number_of_finished_children => children.count(&:finished?))
   end
 
   def create_child
@@ -66,6 +66,10 @@ class Request < ApplicationRecord
 
   def group
     @group ||= Group.find(group_ref)
+  end
+
+  def finished?
+    FINISHED_STATES.include?(state)
   end
 
   private
