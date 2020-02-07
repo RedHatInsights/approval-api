@@ -8,7 +8,7 @@ class WorkflowCreateService
 
   def create(options)
     if options[:group_refs]
-      raise Exceptions::UserError, "Invalid groups: #{options[:group_refs]}, either not exist or no approver role assigned." if has_invalid_approver_group?(options[:group_refs])
+      raise Exceptions::UserError, "Invalid groups: #{options[:group_refs]}, either not exist or no approver role assigned." if invalid_approver_group?(options[:group_refs])
 
       options[:access_control_entries] =
         options[:group_refs].collect do |uuid|

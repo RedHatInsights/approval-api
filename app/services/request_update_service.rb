@@ -133,7 +133,11 @@ class RequestUpdateService
 
     template = request.workflow.template
     processor_class = "#{template.process_setting['processor_type']}_process_service".classify.constantize
-    ref = processor_class.new(request).start
+    bpm_service = processor_class.new(request)
+
+    return unless bpm_service.valid_request?
+
+    ref = bpm_service.start
     request.update!(:process_ref => ref)
   end
 

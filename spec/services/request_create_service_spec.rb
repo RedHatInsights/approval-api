@@ -30,11 +30,13 @@ RSpec.describe RequestCreateService do
     context 'template has external process' do
       let(:template) { create(:template, :process_setting => {'processor_type' => 'jbpm', 'url' => 'url'}) }
       let(:resolved_workflows) { [workflow2] }
+      let(:jbpm) { double(:jbpm, :start => 100) }
 
       it 'creates a request and immediately starts' do
         allow(group).to receive(:has_role?).and_return(true)
+        allow(jbpm).to receive(:valid_request?).and_return(true)
 
-        expect(JbpmProcessService).to receive(:new).twice.and_return(double(:jbpm, :start => 100))
+        expect(JbpmProcessService).to receive(:new).twice.and_return(jbpm)
         request = subject.create(:name => 'req1', :content => 'test me')
         request.reload
         expect(request).to have_attributes(

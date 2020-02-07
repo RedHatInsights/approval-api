@@ -19,6 +19,25 @@ class JbpmProcessService
     end
   end
 
+  def valid_request?
+    ContextService.new(request.context).as_org_admin do
+      group = Group.find(request.group_ref)
+
+      if request.workflow.group_refs.empty? || group.users.empty? || !group.exists? || !group.has_role?('Approval Approver')
+        ActsAsTenant.with_tenant(Tenant.find(request.tenant_id)) do
+          ActionCreateService.new(request.id).create(
+            :operation    => Action::ERROR_OPERATION,
+            :processed_by => 'system',
+            :comments     => 'Invalid groups, either not exist or no approver role assigned'
+          )
+        end
+
+        return false
+      end
+    end
+    true
+  end
+
   private
 
   def template
@@ -29,9 +48,6 @@ class JbpmProcessService
     options = nil
     ContextService.new(request.context).as_org_admin do
       group = Group.find(request.group_ref)
-      
-      # TODO: create error action when group is invalid
-      # create_error_action if request.workflow.group_refs.empty? || group.users.empty? || !group.exists? || !group.has_role?('Approval Approver')
 
       options = {
         'request'         => request,

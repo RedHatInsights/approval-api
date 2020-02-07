@@ -10,7 +10,7 @@ class WorkflowLinkService
 
   def link(tag_attrs)
     group_refs = Workflow.find(workflow_id).group_refs
-    raise Exceptions::UserError, "Invalid groups: #{group_refs}, either not exist or no approver role assigned." if has_invalid_approver_group?(group_refs)
+    raise Exceptions::UserError, "Invalid groups: #{group_refs}, either not exist or no approver role assigned." if invalid_approver_group?(group_refs)
 
     TagLink.find_or_create_by!(tag_link(tag_attrs))
     AddRemoteTags.new(tag_attrs).process([approval_tag(workflow_id)])

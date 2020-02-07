@@ -85,7 +85,7 @@ module Api
           end
         end
 
-        def has_invalid_approver_group?(groups)
+        def invalid_approver_group?(groups)
           groups.any? { |group| !valid_approver_group?(group) }
         end
 
