@@ -3,10 +3,11 @@ RSpec.describe RequestCreateService do
   let(:workflow1) { create(:workflow, :group_refs => ['ref1'], :template => template) }
   let(:workflow2) { create(:workflow, :group_refs => ['ref2', 'ref3'], :template => template) }
   let(:resolved_workflows) { [] }
+  let(:group) { double(:group, :name => 'gname') }
 
   before do
     allow(Thread).to receive(:new).and_yield
-    allow(Group).to receive(:find).and_return(double(:group, :name => 'gname'))
+    allow(Group).to receive(:find).and_return(group)
     allow(WorkflowFindService).to receive(:new).and_return(double(:wfs, :find_by_tag_resources => resolved_workflows))
   end
 
@@ -31,6 +32,8 @@ RSpec.describe RequestCreateService do
       let(:resolved_workflows) { [workflow2] }
 
       it 'creates a request and immediately starts' do
+        allow(group).to receive(:has_role?).and_return(true)
+
         expect(JbpmProcessService).to receive(:new).twice.and_return(double(:jbpm, :start => 100))
         request = subject.create(:name => 'req1', :content => 'test me')
         request.reload
@@ -55,12 +58,19 @@ RSpec.describe RequestCreateService do
           )
         end
       end
+
+      it 'creates a request with invalid group' do
+        allow(group).to receive(:has_role?).and_return(false)
+        expect { subject.create(:name => 'req1', :content => 'test me') }.to raise_error(Exceptions::UserError, /either not exist or no approver role assigned/)
+      end
     end
 
     context 'template has no external process' do
       let(:resolved_workflows) { [workflow1] }
 
       it 'creates a request in notified state' do
+        allow(group).to receive(:has_role?).and_return(true)
+
         request = subject.create(:name => 'req1', :content => 'test me')
         request.reload
         expect(request).to have_attributes(
@@ -88,6 +98,7 @@ RSpec.describe RequestCreateService do
       let(:resolved_workflows) { [workflow1] }
 
       it 'creates one single request' do
+<<<<<<< HEAD
         RequestSpecHelper.with_modified_env(envs) do
           request = subject.create(:name => 'req1', :content => 'test me')
           request.reload
@@ -104,6 +115,24 @@ RSpec.describe RequestCreateService do
             :number_of_finished_children => 0
           )
         end
+=======
+        allow(group).to receive(:has_role?).and_return(true)
+
+        request = subject.create(:name => 'req1', :content => 'test me')
+        request.reload
+        expect(request).to have_attributes(
+          :name           => 'req1',
+          :content        => 'test me',
+          :requester_name => 'John Doe',
+          :owner          => 'jdoe',
+          :state          => Request::COMPLETED_STATE,
+          :decision       => Request::APPROVED_STATUS,
+          :reason         => 'System approved',
+
+          :number_of_children          => 0,
+          :number_of_finished_children => 0
+        )
+>>>>>>> Added group validation
       end
     end
 
@@ -112,6 +141,8 @@ RSpec.describe RequestCreateService do
 
       it 'creates a request with 3 children and auto approves all' do
         RequestSpecHelper.with_modified_env(envs) do
+          allow(group).to receive(:has_role?).and_return(true)
+
           request = subject.create(:name => 'req1', :content => 'test me')
           request.reload
           expect(request).to have_attributes(

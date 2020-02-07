@@ -1,12 +1,22 @@
-RSpec.describe WorkflowFindService do
+RSpec.describe WorkflowFindService, :type => :request do
+  around do |example|
+    Insights::API::Common::Request.with_request(default_request_hash) { example.call }
+  end
+
   let(:workflow) { create(:workflow, :with_tenant, :group_refs => [990]) }
   let(:obj) { {:object_type => 'inventory', :app_name => 'topology', :object_id => 'abc'} }
   let(:another_obj) { {:object_type => 'portfolio', :app_name => 'catalog', :object_id => 'abc'} }
   let(:add_tag_svc) { instance_double(AddRemoteTags) }
   let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [fq_tag_string]) }
   let(:fq_tag_string) { "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{workflow.id}" }
+  let(:group) { double(:group, :uuid => 990) }
   let(:tag) do
     { 'tag' => fq_tag_string }
+  end
+
+  before do
+    allow(Group).to receive(:find).and_return(group)
+    allow(group).to receive(:has_role?).and_return(true)
   end
 
   describe 'find' do

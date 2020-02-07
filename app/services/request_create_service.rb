@@ -1,4 +1,5 @@
 class RequestCreateService
+  include Api::V1::Mixins::RBACMixin
   attr_accessor :workflows
 
   def create(options)
@@ -10,6 +11,10 @@ class RequestCreateService
     )
 
     self.workflows = WorkflowFindService.new.find_by_tag_resources(options[:tag_resources]).to_a.delete_if { |wf| wf == Workflow.default_workflow }
+    workflows.each do |wf|
+      group_refs = wf.group_refs
+      raise Exceptions::UserError, "Invalid groups: #{group_refs}, either not exist or no approver role assigned." if has_invalid_approver_group?(group_refs)
+    end
 
     request =
       Request.transaction do

@@ -426,6 +426,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     before do
       allow(Thread).to receive(:new).and_yield
       allow(Group).to receive(:find).and_return(group)
+      allow(group).to receive(:has_role?).and_return(true)
       setup_requester_role
     end
 

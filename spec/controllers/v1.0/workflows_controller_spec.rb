@@ -247,25 +247,27 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   # Test suite for POST /templates/:template_id/workflows
   describe 'POST /templates/:template_id/workflows' do
     let(:group_refs) { %w[990 991 992] }
-
+    let(:group) { double(:group, :uuid => 990) }
     let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
 
-    context 'when admin role request attributes are valid' do
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
-      end
+    before do
+      allow(rs_class).to receive(:paginate).and_return([])
+      allow(roles_obj).to receive(:roles).and_return([admin_role])
+      allow(Group).to receive(:find).and_return(group)
+    end
 
+    context 'when admin role request attributes are valid' do
       it 'returns status code 201' do
+        allow(group).to receive(:has_role?).and_return(true)
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
+
         expect(response).to have_http_status(201)
       end
     end
 
     context 'when a request with missing parameter' do
       before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
+        allow(group).to receive(:has_role?).and_return(true)
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
       end
 
@@ -275,6 +277,21 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
       it 'returns a failure message' do
         expect(response.body).to match(/Validation failed:/)
+      end
+    end
+
+    context 'when a request with invalid group' do
+      before do
+        allow(group).to receive(:has_role?).and_return(false)
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
+      end
+
+      it 'returns status code 400' do
+        expect(response).to have_http_status(400)
+      end
+
+      it 'returns a failure message' do
+        expect(response.body).to match(/either not exist or no approver role assigned/)
       end
     end
 

@@ -29,6 +29,9 @@ class JbpmProcessService
     options = nil
     ContextService.new(request.context).as_org_admin do
       group = Group.find(request.group_ref)
+      
+      # TODO: create error action when group is invalid
+      # create_error_action if request.workflow.group_refs.empty? || group.users.empty? || !group.exists? || !group.has_role?('Approval Approver')
 
       options = {
         'request'         => request,
