@@ -14,6 +14,7 @@ gem 'prometheus-client',   '~> 0.8.0'
 gem 'puma',                '~> 3.12.2'
 gem 'rack-cors',           '>= 1.0.4'
 gem 'rails',               '>= 5.2.2.1', '~> 5.2.2'
+gem 'sprockets',           '~> 3.7.2'
 
 gem 'kie_client', :git => "https://github.com/ManageIQ/kie-api-client-ruby", :branch => "master"
 gem 'rbac-api-client', :git => 'https://github.com/RedHatInsights/insights-rbac-api-client-ruby.git', :branch => "master"
