@@ -22,8 +22,17 @@ class JbpmProcessService
   def valid_request?
     ContextService.new(request.context).as_org_admin do
       group = Group.find(request.group_ref)
+      message = if request.workflow.group_refs.empty?
+                  "Invalid request: its workflow has no groups"
+                elsif group.nil?
+                  "Invalid request: its group does not exist"
+                elsif group.users.empty?
+                  "Invalid request: its group has no users"
+                elsif !group.has_role?('Approval Approver')
+                  "Invalid request: its group does not have approver role"
+                end
 
-      if request.workflow.group_refs.empty? || group.users.empty? || !group.exists? || !group.has_role?('Approval Approver')
+      if message
         ActsAsTenant.with_tenant(Tenant.find(request.tenant_id)) do
           ActionCreateService.new(request.id).create(
             :operation    => Action::ERROR_OPERATION,
