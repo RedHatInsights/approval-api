@@ -3,7 +3,7 @@ RSpec.describe WorkflowLinkService, :type => :request do
     Insights::API::Common::Request.with_request(default_request_hash) { example.call }
   end
 
-  let(:group) { double(:group, :name => 'gname', :uuid => 990) }
+  let(:group) { instance_double(Group, :name => 'gname', :uuid => 990, :has_role? => true) }
   let(:workflow) { create(:workflow, :with_tenant, :group_refs => [990]) }
   let(:obj_a) { {:object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
   let(:remote_tag_svc) { instance_double(AddRemoteTags) }
@@ -13,7 +13,7 @@ RSpec.describe WorkflowLinkService, :type => :request do
 
   subject { described_class.new(workflow.id) }
 
-  describe 'link' do
+  describe '#link' do
     before do
       allow(Group).to receive(:find).and_return(group)
       allow(AddRemoteTags).to receive(:new).with(obj_a).and_return(remote_tag_svc)
@@ -21,19 +21,17 @@ RSpec.describe WorkflowLinkService, :type => :request do
     end
 
     it 'adds a new link when group is valid' do
-      allow(group).to receive(:has_role?).and_return(true)
       subject.link(obj_a)
       expect(TagLink.count).to eq(1)
       expect(TagLink.first).to have_attributes(obj_a.merge(:workflow_id => workflow.id).except(:object_id))
     end
 
-    it 'adds a new link when group is invalid' do
+    it 'fails to add a new link when the group is invalid' do
       allow(group).to receive(:has_role?).and_return(false)
-      expect { subject.link(obj_a) }.to raise_error(Exceptions::UserError, /either not exist or no approver role assigned/)
+      expect { subject.link(obj_a) }.to raise_error(Exceptions::UserError, /does not have approver role/)
     end
 
-    it 'adds an existing link when group is valid' do
-      allow(group).to receive(:has_role?).and_return(true)
+    it 'adds the same link only once' do
       ActsAsTenant.with_tenant(workflow.tenant) do
         subject.link(obj_a)
         subject.link(obj_a)

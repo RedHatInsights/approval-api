@@ -78,17 +78,6 @@ module Api
           @assigned_roles ||= Insights::API::Common::RBAC::Roles.new('approval').roles
         end
 
-        def valid_approver_group?(group_uuid)
-          context = Insights::API::Common::Request.current.to_h.transform_keys(&:to_s)
-          ContextService.new(context).as_org_admin do
-            !!Group.find(group_uuid).try(:has_role?, APPROVER_ROLE)
-          end
-        end
-
-        def invalid_approver_group?(groups)
-          groups.any? { |group| !valid_approver_group?(group) }
-        end
-
         # check if approver can process the #{resource} with #{id}
         def approvable?(resource, id)
           approver_id_list(resource)&.include?(id.to_i)

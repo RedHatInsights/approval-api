@@ -1,15 +1,14 @@
 RSpec.describe WorkflowCreateService do
   let(:template) { create(:template) }
   let(:group_refs) { %w[991 992 993] }
-  let(:group) { double(:group) }
+  let(:group) { instance_double(Group, :name => 'gname', :has_role? => true) }
 
   subject { described_class.new(template.id) }
 
-  context 'create workflow' do
+  describe '#create' do
     before { allow(Group).to receive(:find).and_return(group) }
 
-    it 'create a workflow with valid group ids' do
-      allow(group).to receive(:has_role?).and_return(true)
+    it 'creates a request when group ids are valid' do
       Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
         workflow = subject.create(:name => 'workflow_1', :description => 'workflow with valid groups', :group_refs => group_refs, :template_id => template.id)
 
@@ -23,10 +22,10 @@ RSpec.describe WorkflowCreateService do
       end
     end
 
-    it 'create a workflow with invalid group ids' do
+    it 'raises an error when the group has no approver role' do
       allow(group).to receive(:has_role?).and_return(false)
       Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
-        expect { subject.create(:name => 'workflow_1', :group_refs => group_refs) }.to raise_error(Exceptions::UserError, /either not exist or no approver role assigned/)
+        expect { subject.create(:name => 'workflow_1', :group_refs => group_refs) }.to raise_error(Exceptions::UserError, /does not have approver role/)
       end
     end
   end

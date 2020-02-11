@@ -1,5 +1,7 @@
+require_relative 'mixins/group_validate_mixin'
+
 class WorkflowCreateService
-  include Api::V1::Mixins::RBACMixin
+  include GroupValidateMixin
   attr_accessor :template
 
   def initialize(template_id)
@@ -8,7 +10,7 @@ class WorkflowCreateService
 
   def create(options)
     if options[:group_refs]
-      raise Exceptions::UserError, "Invalid groups: #{options[:group_refs]}, either not exist or no approver role assigned." if invalid_approver_group?(options[:group_refs])
+      validate_approver_groups(options[:group_refs])
 
       options[:access_control_entries] =
         options[:group_refs].collect do |uuid|

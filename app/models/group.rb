@@ -11,8 +11,6 @@ class Group
       group = from_raw(api.get_group(uuid))
     end
     group
-  rescue RBACApiClient::ApiError => e
-    raise unless e.code == 404
   end
 
   def self.all(username = nil)
@@ -25,20 +23,12 @@ class Group
     groups
   end
 
-  def exists?
-    !!Group.exists?(uuid)
-  end
-
-  def self.exists?(uuid)
-    !!Group.find(uuid)
-  end
-
   def users
-    @users ||= Group.find(uuid).try(:users)
+    @users ||= Group.find(uuid).users
   end
 
   def roles
-    @roles ||= Group.find(uuid).try(:roles)
+    @roles ||= Group.find(uuid).roles
   end
 
   def has_role?(role_name)

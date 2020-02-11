@@ -1,6 +1,6 @@
-RSpec.describe WorkflowFindService, :type => :request do
+RSpec.describe WorkflowFindService do
   around do |example|
-    Insights::API::Common::Request.with_request(default_request_hash) { example.call }
+    Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) { example.call }
   end
 
   let(:workflow) { create(:workflow, :with_tenant, :group_refs => [990]) }
@@ -9,15 +9,12 @@ RSpec.describe WorkflowFindService, :type => :request do
   let(:add_tag_svc) { instance_double(AddRemoteTags) }
   let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [fq_tag_string]) }
   let(:fq_tag_string) { "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{workflow.id}" }
-  let(:group) { double(:group, :uuid => 990) }
+  let(:group) { instance_double(Group, :uuid => 990, :has_role? => true) }
   let(:tag) do
     { 'tag' => fq_tag_string }
   end
 
-  before do
-    allow(Group).to receive(:find).and_return(group)
-    allow(group).to receive(:has_role?).and_return(true)
-  end
+  before { allow(Group).to receive(:find).and_return(group) }
 
   describe 'find' do
     before do

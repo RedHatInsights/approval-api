@@ -247,7 +247,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   # Test suite for POST /templates/:template_id/workflows
   describe 'POST /templates/:template_id/workflows' do
     let(:group_refs) { %w[990 991 992] }
-    let(:group) { double(:group, :uuid => 990) }
+    let(:group) { instance_double(Group, :name => 'group', :uuid => 990, :has_role? => true) }
     let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
 
     before do
@@ -258,7 +258,6 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     context 'when admin role request attributes are valid' do
       it 'returns status code 201' do
-        allow(group).to receive(:has_role?).and_return(true)
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
 
         expect(response).to have_http_status(201)
@@ -267,7 +266,6 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     context 'when a request with missing parameter' do
       before do
-        allow(group).to receive(:has_role?).and_return(true)
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
       end
 
@@ -283,15 +281,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     context 'when a request with invalid group' do
       before do
         allow(group).to receive(:has_role?).and_return(false)
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
       end
 
       it 'returns status code 400' do
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
         expect(response).to have_http_status(400)
-      end
-
-      it 'returns a failure message' do
-        expect(response.body).to match(/either not exist or no approver role assigned/)
+        expect(response.body).to match(/does not have approver role/)
       end
     end
 
