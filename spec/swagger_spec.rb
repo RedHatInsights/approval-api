@@ -2,36 +2,40 @@ describe "Swagger stuff" do
   describe "Routing" do
     include Rails.application.routes.url_helpers
 
-    context "customizable route prefixes" do
-      before do
-        stub_const("ENV", ENV.to_h.merge("PATH_PREFIX" => random_path, "APP_NAME" => random_path_part))
-        Rails.application.reload_routes!
-      end
+    %w[1.0 1.1].each do |version|
+      context "customizable route prefixes for version #{version}" do
+        let(:route_path_name) { "api_v#{version.gsub('.','x')}_requests_url" }
 
-      after(:all) do
-        Rails.application.reload_routes!
-      end
+        before do
+          stub_const("ENV", ENV.to_h.merge("PATH_PREFIX" => random_path, "APP_NAME" => random_path_part))
+          Rails.application.reload_routes!
+        end
 
-      it "with a random prefix" do
-        expect(ENV["PATH_PREFIX"]).not_to be_nil
-        expect(ENV["APP_NAME"]).not_to be_nil
-        expect(api_v1x0_requests_url(:only_path => true)).to eq("/#{URI.encode(ENV["PATH_PREFIX"])}/#{URI.encode(ENV["APP_NAME"])}/v1.0/requests")
-      end
+        after(:all) do
+          Rails.application.reload_routes!
+        end
 
-      it "with extra slashes" do
-        ENV["PATH_PREFIX"] = "//example/path/prefix/"
-        ENV["APP_NAME"] = "/appname/"
-        Rails.application.reload_routes!
+        it "with a random prefix" do
+          expect(ENV["PATH_PREFIX"]).not_to be_nil
+          expect(ENV["APP_NAME"]).not_to be_nil
+          expect(send(route_path_name, :only_path => true)).to eq("/#{URI.encode(ENV["PATH_PREFIX"])}/#{URI.encode(ENV["APP_NAME"])}/v#{version}/requests")
+        end
 
-        expect(api_v1x0_requests_url(:only_path => true)).to eq("/example/path/prefix/appname/v1.0/requests")
-      end
+        it "with extra slashes" do
+          ENV["PATH_PREFIX"] = "//example/path/prefix/"
+          ENV["APP_NAME"] = "/appname/"
+          Rails.application.reload_routes!
 
-      it "doesn't use the APP_NAME when PATH_PREFIX is empty" do
-        ENV["PATH_PREFIX"] = ""
-        Rails.application.reload_routes!
+          expect(send(route_path_name, :only_path => true)).to eq("/example/path/prefix/appname/v#{version}/requests")
+        end
 
-        expect(ENV["APP_NAME"]).not_to be_nil
-        expect(api_v1x0_requests_url(:only_path => true)).to eq("/api/v1.0/requests")
+        it "doesn't use the APP_NAME when PATH_PREFIX is empty" do
+          ENV["PATH_PREFIX"] = ""
+          Rails.application.reload_routes!
+
+          expect(ENV["APP_NAME"]).not_to be_nil
+          expect(send(route_path_name, :only_path => true)).to eq("/api/v#{version}/requests")
+        end
       end
     end
 
