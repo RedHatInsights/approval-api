@@ -18,7 +18,7 @@
           <br>
           <a href="#" onclick="showDetails()">Show Details</a>
           <div  id="details" style="display:none;" class="pf-l-grid pf-m-gutter">
-            <div class="pf-l-grid__item" style="background-color: #e9e8e9; width: 70%">
+            <div class="pf-l-grid__item">
               <div class="pf-l-split pf-m-gutter">
                 <div class="pf-l-split__item install-title">
                   Order Details
@@ -38,15 +38,23 @@
           </div>
           <p>
           <div class="install-title">Reason/Memo</div>
-          <%= form_with method: :patch do |form| %>
-            <%= form.text_area :message, style: "width:70%" %>
-            <br><br>
-            <%= form.hidden_field :approver, value: Base64.encode64(@approver) %>
-            <%= form.submit 'Memo', class: "pf-c-button pf-m-secondary" %>
-            <%= form.submit 'Approve', class: "pf-c-button pf-m-primary" %>
-            <%= form.submit 'Deny', class: "pf-c-button pf-m-danger" %>
+          <%= form_tag({:action => 'update', :controller => 'stageaction'}, :method => :patch) do %>
+          <div class="pf-l-grid pf-m-gutter">
+            <%= text_area_tag(:message, '', :class => "pf-l-grid__item pf-m-12-col-on-xs pf-m-6-col-on-sm pf-m-6-col-on-lg pf-m-6-col-on-xl", :style => "height: 100px") %>
+          </div>
+          <br>
+          <%= hidden_field_tag('approver', Base64.encode64(@approver)) %>
+          <div class="pf-l-grid pf-m-gutter">
+            <div class="pf-l-grid__item pf-m-12-col-on-xs pf-m-2-col-on-sm pf-m-2-col-on-lg pf-m-2-col-on-xl">
+             <%= button_tag 'Memo', :class => "pf-c-button pf-m-secondary pf-m-block", :type => "submit", :name => :commit, :value => "Memo" %>
+            </div>
+            <div class="pf-l-grid__item pf-m-12-col-on-xs pf-m-2-col-on-sm pf-m-2-col-on-lg pf-m-2-col-on-xl">
+              <%= button_tag 'Approve', :class => "pf-c-button pf-m-primary pf-m-block", :type => "submit", :name => :commit, :value => "Approve" %>
+            </div>
+            <div class="pf-l-grid__item pf-m-12-col-on-xs pf-m-2-col-on-sm pf-m-2-col-on-lg pf-m-2-col-on-xl">
+              <%= button_tag 'Deny', :class => "pf-c-button pf-m-danger pf-m-block", :type => "submit", :name => :commit, :value => "Deny" %>
+            </div>
           <% end %>
-
           <script>
               function showDetails() {
                   var x = document.getElementById("details");
@@ -57,5 +65,5 @@
                   }
               }
           </script>
-    </section>
+        </section>
 <%= render :partial => "footer" %>
