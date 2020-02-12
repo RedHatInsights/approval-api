@@ -1,4 +1,7 @@
+require_relative 'mixins/group_validate_mixin'
+
 class RequestCreateService
+  include GroupValidateMixin
   attr_accessor :workflows
 
   def create(options)
@@ -10,6 +13,12 @@ class RequestCreateService
     )
 
     self.workflows = WorkflowFindService.new.find_by_tag_resources(options[:tag_resources]).to_a.delete_if { |wf| wf == Workflow.default_workflow }
+
+    workflows.each do |workflow|
+      raise Exceptions::UserError, "Workflow #{workflow.name} has no approver group" if workflow.group_refs.empty?
+
+      validate_approver_groups(workflow.group_refs)
+    end
 
     request =
       Request.transaction do

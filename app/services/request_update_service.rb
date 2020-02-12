@@ -1,4 +1,7 @@
+require_relative 'mixins/group_validate_mixin'
+
 class RequestUpdateService
+  include GroupValidateMixin
   require 'securerandom'
 
   attr_accessor :request
@@ -130,6 +133,7 @@ class RequestUpdateService
   # start the external approval process if configured
   def start_request
     return unless request.workflow.try(:external_processing?)
+    return unless runtime_validate_group(request)
 
     template = request.workflow.template
     processor_class = "#{template.process_setting['processor_type']}_process_service".classify.constantize

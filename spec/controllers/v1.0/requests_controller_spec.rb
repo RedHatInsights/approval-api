@@ -19,7 +19,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:requests_with_same_state) { create_list(:request, 2, :state => 'notified', :workflow_id => workflow.id, :tenant_id => tenant.id) }
   let(:requests_with_same_decision) { create_list(:request, 2, :decision => 'approved', :workflow_id => workflow.id, :tenant_id => tenant.id) }
 
-  let(:group1) { instance_double(Group, :name => 'group1', :uuid => "123") }
+  let(:group1) { instance_double(Group, :name => 'group1', :uuid => "123", :has_role? => true) }
   let(:group2) { instance_double(Group, :name => 'group2', :uuid => "456") }
   let(:workflow_2) { create(:workflow, :name => 'workflow_2', :group_refs => [group1.uuid, group2.uuid], :tenant_id => tenant.id) }
   let(:user_requests) { create_list(:request, 2, :decision => 'denied', :state => 'completed', :group_ref => group1.uuid, :workflow_id => workflow_2.id, :tenant_id => tenant.id) }
@@ -229,14 +229,26 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   end
 
   describe 'Accessible requests for approvers or requesters' do
+    before do
+      allow(Group).to receive(:find).and_return(group1)
+    end
+
     let(:template) { create(:template) }
     let(:group_a) { instance_double(Group, :name => 'group_a', :uuid => "g_a") }
     let(:group_b) { instance_double(Group, :name => 'group_b', :uuid => "g_b") }
     let(:group_c) { instance_double(Group, :name => 'group_c', :uuid => "g_c") }
     let(:group_d) { instance_double(Group, :name => 'group_d', :uuid => "g_d") }
     let(:group_e) { instance_double(Group, :name => 'group_e', :uuid => "g_e") }
-    let!(:workflow_a) { WorkflowCreateService.new(template.id).create(:name => 'workflow_a', :group_refs => [group_a.uuid, group_b.uuid]) }
-    let!(:workflow_b) { WorkflowCreateService.new(template.id).create(:name => 'workflow_b', :group_refs => [group_b.uuid, group_d.uuid, group_e.uuid]) }
+    let!(:workflow_a) do
+      Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+        WorkflowCreateService.new(template.id).create(:name => 'workflow_a', :group_refs => [group_a.uuid, group_b.uuid])
+      end
+    end
+    let!(:workflow_b) do
+      Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+        WorkflowCreateService.new(template.id).create(:name => 'workflow_b', :group_refs => [group_b.uuid, group_d.uuid, group_e.uuid])
+      end
+    end
     let!(:approver_request1) { create(:request, :workflow_id => workflow_a.id, :group_ref => group_a.uuid, :tenant_id => tenant.id, :owner => 'Tom') }
     let!(:approver_request2) { create(:request, :workflow_id => workflow_b.id, :group_ref => group_b.uuid, :state => 'notified', :tenant_id => tenant.id, :owner => 'jdoe') } # default user
     let!(:actions_1) { create_list(:action, 2, :request_id => approver_request1.id, :tenant_id => tenant.id) }
@@ -391,7 +403,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     let!(:child_request_a) { create(:request, :owner => "jdoe", :parent_id => parent_request.id, :name => "child a", :workflow_id => workflow.id, :tenant_id => tenant.id) }
     let!(:child_request_b) { create(:request, :owner => "jdoe", :parent_id => parent_request.id, :name => "child b", :workflow_id => workflow.id, :tenant_id => tenant.id) }
     let(:request_id) { parent_request.id }
-    let(:group) { double(:group, :name => "foo") }
+    let(:group) { instance_double(Group, :name => "foo") }
 
     context "requester role" do
       before do
@@ -419,7 +431,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         'tags'        => [{:tag => '/ns1/name1=v1'}]
       }]
     end
-    let(:group) { double(:group, :name => 'foo') }
+    let(:group) { instance_double(Group, :name => 'foo', :has_role? => true) }
     let(:workflow1) { create(:workflow, :group_refs => [group1.uuid]) }
     let(:workflow2) { create(:workflow, :group_refs => [group2.uuid]) }
 
