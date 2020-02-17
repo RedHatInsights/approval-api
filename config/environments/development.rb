@@ -6,6 +6,10 @@ Rails.application.configure do
   # since you don't have to restart the web server when you make code changes.
   config.cache_classes = false
 
+  config.public_file_server.enabled = true
+  # sets the asset path to either `/api/static` or `/api/approval/static`
+  config.assets.prefix = File.join(File::SEPARATOR, 'api', ENV['APP_NAME'].to_s, 'static')
+
   # Do not eager load code on boot.
   config.eager_load = false
 
