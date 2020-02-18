@@ -1,10 +1,11 @@
-<html>
+<!DOCTYPE html>
+<html lang="en-US">
   <head>
-    <link 
-      rel="stylesheet" 
-      href="https://unpkg.com/@patternfly/patternfly/patternfly.css" 
-      crossorigin="anonymous"
-    >
+    <meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="icon" type="image/png" href="https://access.redhat.com/webassets/avalon/g/favicon.ico">
+    <%= stylesheet_link_tag "patternfly" %>
     <style>
       .install-title {
         min-width: 100px;
@@ -12,15 +13,6 @@
         display: table-cell;
         font-weight: bold;
       }
-
-      .pf-l-grid.pf-m-gutter {
-        grid-gap: var(--pf-l-grid--m-gutter--md--GridGap);
-      }
-
-      .pf-m-secondary {
-        border: 1px solid #0b51c3;
-      }
-
     </style>
   </head>
   <body class="pf-m-redhat-font">

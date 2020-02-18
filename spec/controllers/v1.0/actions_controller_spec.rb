@@ -5,7 +5,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
   let!(:template) { create(:template) }
   let!(:workflow) { create(:workflow, :template_id => template.id, :tenant_id => tenant.id) }
   let!(:group_ref) { "990" }
-  let(:group) { double(:name => 'group1', :uuid => group_ref) }
+  let(:group) { instance_double(Group, :name => 'group1', :uuid => group_ref) }
   let!(:request) { create(:request, :with_context, :workflow_id => workflow.id, :group_ref => group_ref, :state => 'notified', :tenant_id => tenant.id, :owner => "jdoe") }
   let!(:request_id) { request.id }
 

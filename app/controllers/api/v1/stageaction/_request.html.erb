@@ -1,22 +1,17 @@
-<div class="pf-l-grid pf-m-gutter">
-  <% {
-    :orderer    => 'Ordered By',
-    :product    => 'Product',
-    :portfolio  => 'Portfolio',
-    :order_id   => 'Ordered ID',
-    :order_date => 'Ordered Date',
-    :order_time => 'Ordered Time'
-  }.each do |key, title| %>
-    <div class="pf-l-grid__item">
-
-      <div class="pf-l-split pf-m-gutter">
-        <div class="pf-l-split__item install-title">
-          <%= title %>
-        </div>
-        <div class="pf-l-split__item pf-m-fill">
-          <%= @order[key] %>
-        </div>
-      </div>
+<% {
+  :orderer    => 'Order by',
+  :product    => 'Product',
+  :portfolio  => 'Portfolio',
+  :order_id   => 'Order ID',
+  :order_date => 'Order date',
+  :order_time => 'Order time'
+}.each do |key, title| %>
+  <div class="pf-l-grid">
+    <div class="pf-l-grid__item pf-m-12-col-on-xs pf-m-3-col-on-sm pf-m-2-col-on-lg pf-m-2-col-on-xl install-title">
+      <%= title %>
     </div>
-  <% end %>
-</div>
+    <div class="pf-m-fill pf-l-grid__item pf-m-12-col-on-xs pf-m-9-col-on-sm pf-m-10-col-on-lg pf-m-10-col-on-xl">
+      <%= @order[key] %>
+    </div>
+  </div>
+<% end %>

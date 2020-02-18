@@ -1077,11 +1077,12 @@
                     },
                     "operation": {
                         "type": "string",
-                        "description": "Types of action, may be one of the value (approve, cancel, deny, notify, memo, skip, or start). The request state will be updated according to the operation.",
+                        "description": "Types of action, may be one of the value (approve, cancel, deny, error, notify, memo, skip, or start). The request state will be updated according to the operation.",
                         "enum": [
                             "approve",
                             "cancel",
                             "deny",
+                            "error",
                             "notify",
                             "memo",
                             "skip",
@@ -1177,11 +1178,11 @@
                 "type": "object",
                 "properties": {
                     "tag": {
-			"example": "/namespace/architecture=x86_64",
+                        "example": "/namespace/architecture=x86_64",
                         "type": "string"
                     }
                 },
-		"additionalProperties": false
+                "additionalProperties": false
             },
             "Request": {
                 "description": "Approval request. It may have child requests. Only a leaf node request can have workflow_id",
@@ -1193,10 +1194,11 @@
                     },
                     "state": {
                         "type": "string",
-                        "description": "The state of the request. Possible value: canceled, completed, notified, skipped, or started",
+                        "description": "The state of the request. Possible value: canceled, completed, failed, notified, skipped, or started",
                         "enum": [
                             "canceled",
                             "completed",
+                            "failed",
                             "notified",
                             "pending",
                             "skipped",
@@ -1206,12 +1208,13 @@
                     },
                     "decision": {
                         "type": "string",
-                        "description": "Approval decision. Possible value: undecided, approved, canceled, or denied",
+                        "description": "Approval decision. Possible value: undecided, approved, canceled, denied, or error",
                         "enum": [
                             "undecided",
                             "approved",
                             "canceled",
-                            "denied"
+                            "denied",
+                            "error"
                         ],
                         "readOnly": true
                     },
@@ -1333,7 +1336,9 @@
                     },
                     "sequence": {
                         "type": "integer",
-                        "description": "an indicator of the execution order for selected workflows"
+                        "description": "an indicator of the execution order for selected workflows",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
                     },
                     "group_refs": {
                         "type": "array",

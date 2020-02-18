@@ -4,6 +4,7 @@ ActionDispatch::ExceptionWrapper.rescue_responses.merge!(
   "ActiveRecord::RecordInvalid"             => :bad_request,
   "ActionController::ParameterMissing"      => :bad_request,
   "Exceptions::InvalidStateTransitionError" => :bad_request,
+  "Exceptions::UserError"                   => :bad_request,
   "Exceptions::NotAuthorizedError"          => :forbidden,
   "Exceptions::RBACError"                   => :service_unavailable,
   "Exceptions::KieError"                    => :service_unavailable

@@ -233,7 +233,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       end
     end
 
-    context 'when env BYPASS_RBAC is enabled' do
+    xcontext 'when env BYPASS_RBAC is enabled' do
       it 'returns status code 200' do
         with_modified_env :BYPASS_RBAC => 'y' do
           get "#{api_version}/workflows/#{id}", :headers => default_headers
@@ -247,25 +247,25 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   # Test suite for POST /templates/:template_id/workflows
   describe 'POST /templates/:template_id/workflows' do
     let(:group_refs) { %w[990 991 992] }
-
+    let(:group) { instance_double(Group, :name => 'group', :uuid => 990, :has_role? => true) }
     let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
 
-    context 'when admin role request attributes are valid' do
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
-      end
+    before do
+      allow(rs_class).to receive(:paginate).and_return([])
+      allow(roles_obj).to receive(:roles).and_return([admin_role])
+      allow(Group).to receive(:find).and_return(group)
+    end
 
+    context 'when admin role request attributes are valid' do
       it 'returns status code 201' do
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
+
         expect(response).to have_http_status(201)
       end
     end
 
     context 'when a request with missing parameter' do
       before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
       end
 
@@ -275,6 +275,18 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
       it 'returns a failure message' do
         expect(response.body).to match(/Validation failed:/)
+      end
+    end
+
+    context 'when a request with invalid group' do
+      before do
+        allow(group).to receive(:has_role?).and_return(false)
+      end
+
+      it 'returns status code 400' do
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
+        expect(response).to have_http_status(400)
+        expect(response.body).to match(/does not have approver role/)
       end
     end
 
@@ -309,22 +321,27 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   # Test suite for PATCH /workflows/:id
   describe 'PATCH /workflows/:id' do
-    let(:valid_attributes) { { :name => "test", :group_refs => %w[1000] } }
+    let(:valid_attributes) { {:name => "test", :group_refs => %w[1000], :sequence => 2} }
 
     context 'admin role when item exists' do
       before do
         allow(rs_class).to receive(:paginate).and_return([])
         allow(roles_obj).to receive(:roles).and_return([admin_role])
-        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
-      end
-
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
       end
 
       it 'updates the item' do
+        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
+
+        expect(response).to have_http_status(200)
         updated_item = Workflow.find(id)
-        expect(updated_item.group_refs).to match(["1000"])
+        expect(updated_item).to have_attributes(valid_attributes)
+      end
+
+      it 'returns status code 400 if sequence is not positive' do
+        valid_attributes[:sequence] = -1
+        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
+
+        expect(response).to have_http_status(400)
       end
     end
 
