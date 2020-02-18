@@ -12,16 +12,16 @@
     <section class="pf-l-page__main-section pf-c-page__main-section">
       <section class="body" style="background-color: #fff; padding: 16px">
         <div class="pf-c-content info-panel">  
-          <h2>Catalog Request</h2>
+          <h2>Catalog request</h2>
           <p id="notice"><%= notice %></p>
           <%= render :partial => "request" %>
           <br>
-          <a href="#" onclick="showDetails()">Show Details</a>
+          <a href="#" onclick="showDetails()">Show details</a>
           <div  id="details" style="display:none;" class="pf-l-grid pf-m-gutter">
             <div class="pf-l-grid__item">
               <div class="pf-l-split pf-m-gutter">
                 <div class="pf-l-split__item install-title">
-                  Order Details
+                  Order details
                 </div>
                 <div class="pf-l-split__item pf-m-fill">
                   <% @order[:order_content].each do |k, v| %>
