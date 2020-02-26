@@ -8,21 +8,21 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:headers_with_approver)  { default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => described_class::PERSONA_APPROVER) }
   let(:headers_with_requester) { default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => described_class::PERSONA_REQUESTER) }
 
-  let(:workflow) { create(:workflow, :name => 'Test always approve') }
+  let(:workflow) { create(:workflow, :name => 'Test always approve', :tenant => tenant) }
   let(:workflow_id) { workflow.id }
   let(:requests) do
     Insights::API::Common::Request.with_request(default_request_hash) do
-      create_list(:request, 2, :workflow_id => workflow.id, :tenant_id => tenant.id)
+      create_list(:request, 2, :workflow => workflow, :tenant => tenant)
     end
   end
   let(:id) { requests.first.id }
-  let(:requests_with_same_state) { create_list(:request, 2, :state => 'notified', :workflow_id => workflow.id, :tenant_id => tenant.id) }
-  let(:requests_with_same_decision) { create_list(:request, 2, :decision => 'approved', :workflow_id => workflow.id, :tenant_id => tenant.id) }
+  let(:requests_with_same_state) { create_list(:request, 2, :state => 'notified', :workflow => workflow, :tenant => tenant) }
+  let(:requests_with_same_decision) { create_list(:request, 2, :decision => 'approved', :workflow => workflow, :tenant => tenant) }
 
   let(:group1) { instance_double(Group, :name => 'group1', :uuid => "123", :has_role? => true) }
   let(:group2) { instance_double(Group, :name => 'group2', :uuid => "456") }
-  let(:workflow_2) { create(:workflow, :name => 'workflow_2', :group_refs => [group1.uuid, group2.uuid], :tenant_id => tenant.id) }
-  let(:user_requests) { create_list(:request, 2, :decision => 'denied', :state => 'completed', :group_ref => group1.uuid, :workflow_id => workflow_2.id, :tenant_id => tenant.id) }
+  let(:workflow_2) { create(:workflow, :name => 'workflow_2', :group_refs => [group1.uuid, group2.uuid], :tenant => tenant) }
+  let(:user_requests) { create_list(:request, 2, :decision => 'denied', :state => 'completed', :group_ref => group1.uuid, :workflow => workflow_2, :tenant => tenant) }
 
   let(:roles_obj) { instance_double(Insights::API::Common::RBAC::Roles) }
   let(:workflow_find_service) { instance_double(WorkflowFindService) }
@@ -37,8 +37,8 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:setup_approver_role_with_acls) do
     setup_requests
     aces = [
-      AccessControlEntry.new(:permission => 'approve', :group_uuid => group1.uuid, :tenant_id => tenant.id),
-      AccessControlEntry.new(:permission => 'approve', :group_uuid => group2.uuid, :tenant_id => tenant.id)
+      AccessControlEntry.new(:permission => 'approve', :group_uuid => group1.uuid, :tenant => tenant),
+      AccessControlEntry.new(:permission => 'approve', :group_uuid => group2.uuid, :tenant => tenant)
     ]
 
     workflow_2.update!(:access_control_entries => aces)
@@ -249,10 +249,10 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         WorkflowCreateService.new(template.id).create(:name => 'workflow_b', :group_refs => [group_b.uuid, group_d.uuid, group_e.uuid])
       end
     end
-    let!(:approver_request1) { create(:request, :workflow_id => workflow_a.id, :group_ref => group_a.uuid, :tenant_id => tenant.id, :owner => 'Tom') }
-    let!(:approver_request2) { create(:request, :workflow_id => workflow_b.id, :group_ref => group_b.uuid, :state => 'notified', :tenant_id => tenant.id, :owner => 'jdoe') } # default user
-    let!(:actions_1) { create_list(:action, 2, :request_id => approver_request1.id, :tenant_id => tenant.id) }
-    let!(:actions_2) { create_list(:action, 2, :request_id => approver_request2.id, :tenant_id => tenant.id) }
+    let!(:approver_request1) { create(:request, :workflow => workflow_a, :group_ref => group_a.uuid, :tenant => tenant, :owner => 'Tom') }
+    let!(:approver_request2) { create(:request, :workflow => workflow_b, :group_ref => group_b.uuid, :state => 'notified', :tenant => tenant, :owner => 'jdoe') } # default user
+    let!(:actions_1) { create_list(:action, 2, :request => approver_request1, :tenant => tenant) }
+    let!(:actions_2) { create_list(:action, 2, :request => approver_request2, :tenant => tenant) }
 
     context "approver's view" do
       context 'user in approver groups' do
@@ -399,9 +399,9 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
   # Test suite for GET /requests/:request_id/requests
   describe 'GET /requests/:request_id/requests' do
-    let!(:parent_request) { create(:request, :name => "parent", :owner => "jdoe", :number_of_children => 2, :number_of_finished_children => 0, :tenant_id => tenant.id) }
-    let!(:child_request_a) { create(:request, :owner => "jdoe", :parent_id => parent_request.id, :name => "child a", :workflow_id => workflow.id, :tenant_id => tenant.id) }
-    let!(:child_request_b) { create(:request, :owner => "jdoe", :parent_id => parent_request.id, :name => "child b", :workflow_id => workflow.id, :tenant_id => tenant.id) }
+    let!(:parent_request) { create(:request, :name => "parent", :owner => "jdoe", :number_of_children => 2, :number_of_finished_children => 0, :tenant => tenant) }
+    let!(:child_request_a) { create(:request, :owner => "jdoe", :parent => parent_request, :name => "child a", :workflow => workflow, :tenant => tenant) }
+    let!(:child_request_b) { create(:request, :owner => "jdoe", :parent => parent_request, :name => "child b", :workflow => workflow, :tenant => tenant) }
     let(:request_id) { parent_request.id }
     let(:group) { instance_double(Group, :name => "foo") }
 

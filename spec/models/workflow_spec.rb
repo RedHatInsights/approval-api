@@ -38,23 +38,6 @@ RSpec.describe Workflow, :type => :model do
     end
   end
 
-  describe '.seed' do
-    after { Workflow.instance_variable_set(:@default_workflow, nil) }
-
-    it 'creates a default workflow' do
-      described_class.seed
-      expect(described_class.count).to be(1)
-      expect(described_class.first.template).to be_nil
-    end
-
-    it 'cannot be destroyed' do
-      described_class.seed
-      default_workflow = described_class.default_workflow
-      expect { default_workflow.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
-      expect(default_workflow.errors[:base]).to include(described_class::MSG_PROTECTED_RECORD)
-    end
-  end
-
   context "with same name in different tenants" do
     let(:another_tenant) { create(:tenant) }
     let(:another_workflow) do
@@ -78,18 +61,6 @@ RSpec.describe Workflow, :type => :model do
       before do
         ActsAsTenant.with_tenant(tenant) { workflow }
       end
-
-      it "create a workflow with same name" do
-        ActsAsTenant.with_tenant(tenant) do
-          expect { Workflow.create!(:name => workflow.name) }.to raise_error(ActiveRecord::RecordInvalid, 'Validation failed: Name has already been taken')
-        end
-      end
-    end
-  end
-
-  context "with same name in no tenant" do
-    describe "create workflow" do
-      before { workflow }
 
       it "create a workflow with same name" do
         ActsAsTenant.with_tenant(tenant) do

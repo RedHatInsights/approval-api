@@ -5,7 +5,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   let!(:template) { create(:template) }
   let(:template_id) { template.id }
-  let!(:workflows) { create_list(:workflow, 16, :template_id => template.id) }
+  let!(:workflows) { create_list(:workflow, 16, :template => template, :tenant => tenant) }
   let(:id) { workflows.first.id }
   let(:roles_obj) { double }
   let(:add_tag_svc) { instance_double(AddRemoteTags) }
@@ -443,22 +443,6 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       allow(roles_obj).to receive(:roles).and_return([admin_role])
       delete "#{api_version}/workflows/#{id}", :headers => default_headers
     end
-
-    it 'returns status code 403' do
-      expect(response).to have_http_status(403)
-    end
-  end
-
-  describe 'DELETE /workflows/:id of default workflow' do
-    before do
-      allow(rs_class).to receive(:paginate).and_return([])
-      allow(roles_obj).to receive(:roles).and_return([admin_role])
-
-      Workflow.seed
-      delete "#{api_version}/workflows/#{Workflow.default_workflow.id}", :headers => default_headers
-    end
-
-    after { Workflow.instance_variable_set(:@default_workflow, nil) }
 
     it 'returns status code 403' do
       expect(response).to have_http_status(403)
