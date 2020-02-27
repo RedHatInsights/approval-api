@@ -19,7 +19,7 @@ class ApplicationController < ActionController::API
       if current.required_auth?
         raise Insights::API::Common::EntitlementError, "User not Entitled" unless check_entitled(current.entitlement)
 
-        ActsAsTenant.with_tenant(current_tenant(current.user)) { yield.tap { Rails.logger.info("Request ended #{request.original_url}") } }
+        ActsAsTenant.with_tenant(current_tenant(current)) { yield.tap { Rails.logger.info("Request ended #{request.original_url}") } }
       else
         ActsAsTenant.without_tenant { yield.tap {Rails.logger.info("Request ended #{request.original_url}")} }
       end
@@ -29,8 +29,8 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def current_tenant(current_user)
-    tenant = Tenant.find_or_create_by(:external_tenant => current_user.tenant) if current_user.tenant.present?
+  def current_tenant(request)
+    tenant = Tenant.find_or_create_by(:external_tenant => request.tenant) if request.tenant.present?
     return tenant if tenant
     raise  Exceptions::NoTenantError
   end
