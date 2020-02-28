@@ -12,7 +12,7 @@ class RequestCreateService
       :request_context => RequestContext.new(:content => options[:content])
     )
 
-    self.workflows = WorkflowFindService.new.find_by_tag_resources(options[:tag_resources]).to_a.delete_if { |wf| wf == Workflow.default_workflow }
+    self.workflows = WorkflowFindService.new.find_by_tag_resources(options[:tag_resources]).to_a
 
     workflows.each do |workflow|
       raise Exceptions::UserError, "Workflow #{workflow.name} has no approver group" if workflow.group_refs.empty?
@@ -91,10 +91,7 @@ class RequestCreateService
 
     sub_requests = request.parent? ? request.children : [request]
 
-    sub_requests.reverse.each do |req|
-      req.update!(:workflow => Workflow.default_workflow) unless req.workflow_id # each leaf must have a workflow
-      group_auto_approve(req, sleep_time)
-    end
+    sub_requests.reverse.each { |req| group_auto_approve(req, sleep_time) }
   end
 
   def group_auto_approve(request, sleep_time)

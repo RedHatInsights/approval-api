@@ -169,11 +169,6 @@ RSpec.describe RequestCreateService do
         'tags'        => [{:tag => '/ns1/name1=v1'}]
       }]
     end
-    let(:workflow) { create(:workflow) }
-
-    before do
-      allow(Workflow).to receive(:default_workflow).and_return(workflow)
-    end
 
     it 'creates a request and auto approves' do
       expect(ContextService).to receive(:new).and_return(context_service)
@@ -189,7 +184,7 @@ RSpec.describe RequestCreateService do
         :state          => Request::COMPLETED_STATE,
         :decision       => Request::APPROVED_STATUS,
         :reason         => 'System approved',
-        :workflow       => workflow,
+        :workflow       => nil,
         :group_name     => 'System approval'
       )
     end
