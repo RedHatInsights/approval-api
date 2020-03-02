@@ -25,7 +25,7 @@ class ContextService
 
   def switch_context(new_context)
     Insights::API::Common::Request.with_request(new_context.transform_keys(&:to_sym)) do |current|
-      ActsAsTenant.with_tenant(Tenant.find_by(:external_tenant => current.user.tenant)) { yield }
+      ActsAsTenant.with_tenant(Tenant.find_by(:external_tenant => current.tenant)) { yield }
     end
   end
 end
