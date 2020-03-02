@@ -1,3 +1,4 @@
+require 'manageiq/password'
 module Api
   module V1
     class StageactionController < ActionController::Base
@@ -58,9 +59,7 @@ module Api
         set_view_path
         set_resources
 
-        @approver = Base64.decode64(params.require(:approver))
-        @request = Request.find_by(:random_access_key => params.require(:id))
-
+        @request, @approver = decrypt_request(params.require(:id))
         if @request
           @order = set_order
         else
@@ -70,6 +69,11 @@ module Api
       rescue ActionController::ParameterMissing => e
         response.body = e.message
         render :status => :internal_server_error, :action => :result
+      end
+
+      def decrypt_request(id_str)
+        random_access_key, approver = ManageIQ::Password.decrypt(id_str).split(';')
+        [Request.find_by(:random_access_key => random_access_key), approver]
       end
 
       def set_order
