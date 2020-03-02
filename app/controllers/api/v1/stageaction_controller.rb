@@ -79,6 +79,7 @@ module Api
           :product       => request.content["product"],
           :portfolio     => request.content["portfolio"],
           :order_id      => request.content["order_id"],
+          :platform      => request.content["platform"],
           :order_date    => request.created_at.getutc.strftime("%d %B %Y"),
           :order_time    => request.created_at.getutc.strftime("%H:%M UTC"),
           :order_content => request.content["params"]
