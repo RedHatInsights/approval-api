@@ -1077,12 +1077,11 @@
                     },
                     "operation": {
                         "type": "string",
-                        "description": "Types of action, may be one of the value (approve, cancel, deny, error, notify, memo, skip, or start). The request state will be updated according to the operation.",
+                        "description": "Types of action, may be one of the value (approve, cancel, deny, notify, memo, skip, or start). The request state will be updated according to the operation.",
                         "enum": [
                             "approve",
                             "cancel",
                             "deny",
-                            "error",
                             "notify",
                             "memo",
                             "skip",
@@ -1194,11 +1193,10 @@
                     },
                     "state": {
                         "type": "string",
-                        "description": "The state of the request. Possible value: canceled, completed, failed, notified, skipped, or started",
+                        "description": "The state of the request. Possible value: canceled, completed, notified, skipped, or started",
                         "enum": [
                             "canceled",
                             "completed",
-                            "failed",
                             "notified",
                             "pending",
                             "skipped",
@@ -1208,13 +1206,12 @@
                     },
                     "decision": {
                         "type": "string",
-                        "description": "Approval decision. Possible value: undecided, approved, canceled, denied, or error",
+                        "description": "Approval decision. Possible value: undecided, approved, canceled, or denied",
                         "enum": [
                             "undecided",
                             "approved",
                             "canceled",
-                            "denied",
-                            "error"
+                            "denied"
                         ],
                         "readOnly": true
                     },

@@ -1,8 +1,7 @@
-RSpec.describe Api::V1x0::RootController, :type => :request do
+RSpec.describe Api::V1x0::RootController, :type => [:request, :v1x1] do
   let(:encoded_user) { encoded_user_hash }
-  let(:api_version) { version }
 
-  context "v1.0" do
+  context "v1" do
     it "#openapi.json" do
       get "#{api_version}/openapi.json"
 
