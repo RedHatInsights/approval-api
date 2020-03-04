@@ -239,11 +239,12 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       end
 
       context 'with x-rh-random-access-key header' do
-        let!(:request) { create(:request, :with_context, :state => 'started', :tenant_id => tenant.id, :owner => "jdoe", :random_access_key => 'unique-uid') }
+        let(:random_access_key) { RandomAccessKey.new(:access_key => 'unique-uid', :approver_name => 'Joe Smith') }
+        let!(:request) { create(:request, :with_context, :state => 'started', :tenant_id => tenant.id, :owner => "jdoe", :random_access_keys => [random_access_key]) }
 
         it 'can notify a request with matched access key' do
           test_attributes = {:operation => 'notify', :processed_by => 'abcd'}
-          post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers.merge('x-rh-random-access-key' => request.random_access_key)
+          post "#{api_version}/requests/#{request_id}/actions", :params => test_attributes, :headers => default_headers.merge('x-rh-random-access-key' => random_access_key.access_key)
 
           expect(response).to have_http_status(201)
         end

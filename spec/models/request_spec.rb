@@ -4,6 +4,7 @@ RSpec.describe Request, type: :model do
   it { should belong_to(:parent) }
   it { should have_many(:actions) }
   it { should have_many(:children) }
+  it { should have_many(:random_access_keys) }
 
   it { should validate_presence_of(:name) }
 

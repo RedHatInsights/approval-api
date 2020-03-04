@@ -2,7 +2,6 @@ require_relative 'mixins/group_validate_mixin'
 
 class RequestUpdateService
   include GroupValidateMixin
-  require 'securerandom'
 
   attr_accessor :request
 
@@ -20,7 +19,6 @@ class RequestUpdateService
 
   def started(options)
     if request.leaf?
-      request.random_access_key = SecureRandom.hex(16)
       start_request
     end
 
@@ -60,7 +58,8 @@ class RequestUpdateService
   # Root only.
   def canceled(options)
     skip_leaves
-    request.update!(options.merge(:finished_at => DateTime.now, :random_access_key => nil))
+    request.random_access_keys.destroy_all
+    request.update!(options.merge(:finished_at => DateTime.now))
 
     EventService.new(request).request_canceled
   end
@@ -80,7 +79,8 @@ class RequestUpdateService
   end
 
   def child_completed(options)
-    request.update!(options.merge(:finished_at => DateTime.now, :random_access_key => nil))
+    request.random_access_keys.destroy_all
+    request.update!(options.merge(:finished_at => DateTime.now))
     request.parent.invalidate_number_of_finished_children
     update_parent(options)
     if [Request::DENIED_STATUS, Request::ERROR_STATUS].include?(options[:decision])
@@ -91,7 +91,8 @@ class RequestUpdateService
   end
 
   def parent_completed(options)
-    request.update!(options.merge(:finished_at => DateTime.now, :random_access_key => nil))
+    request.random_access_keys.destroy_all
+    request.update!(options.merge(:finished_at => DateTime.now))
     EventService.new(request).request_completed
   end
 
