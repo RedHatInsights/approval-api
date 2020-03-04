@@ -6,7 +6,7 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
 
   let!(:template) { create(:template) }
   let(:template_id) { template.id }
-  let!(:workflows) { create_list(:workflow, 4, :template_id => template.id) }
+  let!(:workflows) { create_list(:workflow, 4, :template => template, :tenant => tenant) }
   let(:id) { workflows.first.id }
   let(:roles_obj) { instance_double(Insights::API::Common::RBAC::Roles, :roles => roles) }
 
