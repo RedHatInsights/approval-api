@@ -18,11 +18,11 @@ class RequestUpdateService
   private
 
   def started(options)
-    request.update!(options)
-
     if request.leaf?
       start_request
     end
+
+    request.update!(options)
 
     EventService.new(request).request_started if request.root?
 
@@ -150,6 +150,7 @@ class RequestUpdateService
 
   # complete the external approval process if configured
   def finish_request(decision)
+    return if request_completed?(decision)
     return unless request.process_ref.present? && request.workflow.try(:external_processing?)
 
     template = request.workflow.template
