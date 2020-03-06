@@ -10,6 +10,9 @@ class JbpmProcessService
     Kie::Service.call(KieClient::ProcessInstancesBPMApi, options) do |bpm|
       bpm.start_process(options['container_id'], options['process_id'], :body => process_options)
     end
+  rescue Exceptions::KieError => err
+    RequestUpdateService.new(request.id).update(:state => Request::FAILED_STATE, :reason => err.message, :decision => Request::ERROR_STATUS)
+    raise
   end
 
   def signal(decision)
@@ -17,6 +20,9 @@ class JbpmProcessService
     Kie::Service.call(KieClient::ProcessInstancesBPMApi, options) do |bpm|
       bpm.signal_process_instance(options['container_id'], request.process_ref, options['signal_name'], :body => signal_options(decision))
     end
+  rescue Exceptions::KieError => err
+    RequestUpdateService.new(request.id).update(:state => Request::FAILED_STATE, :reason => err.message, :decision => Request::ERROR_STATUS)
+    raise
   end
 
   private
