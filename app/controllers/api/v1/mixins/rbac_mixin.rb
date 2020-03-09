@@ -52,7 +52,7 @@ module Api
         def resource_accessible?(resource, verb)
           return true if admin?
 
-          approver? ? permitted?(APPROVER_PERMISSIONS, resource, verb) : permitted?(OWNER_PERMISSIONS, resource, verb)
+          permitted?(OWNER_PERMISSIONS, resource, verb) || approver? && permitted?(APPROVER_PERMISSIONS, resource, verb)
         end
 
         # instance level check
