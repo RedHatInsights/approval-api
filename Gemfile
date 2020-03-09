@@ -21,7 +21,7 @@ gem 'rbac-api-client', :git => 'https://github.com/RedHatInsights/insights-rbac-
 
 group :development, :test do
   gem 'climate_control'
-  gem 'simplecov'
+  gem 'simplecov', '~> 0.17.1'
   gem 'webmock'
 end
 
