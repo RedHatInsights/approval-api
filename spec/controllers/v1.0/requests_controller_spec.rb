@@ -438,35 +438,50 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     before do
       allow(Thread).to receive(:new).and_yield
       allow(Group).to receive(:find).and_return(group)
-      setup_requester_role
     end
 
-    it 'returns status code 201 when no workflow is found' do
-      allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([])
+    context 'requester role' do
+      before { setup_requester_role }
 
-      with_modified_env :AUTO_APPROVAL => 'y' do
-        post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
+      it 'returns status code 201 when no workflow is found' do
+        allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([])
+
+        with_modified_env :AUTO_APPROVAL => 'y' do
+          post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
+        end
+
+        expect(response).to have_http_status(201)
       end
 
-      expect(response).to have_http_status(201)
+      it 'returns status code 201 when tags resolve to a single workflow' do
+        allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1])
+
+        post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
+
+        expect(response).to have_http_status(201)
+      end
+
+      it 'returns status code 201 when tags resolve to multiple workflows' do
+        allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1, workflow2])
+
+        post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
+
+        expect(response).to have_http_status(201)
+        expect(Request.where(:number_of_children => 2).count).to eq 1
+        expect(Request.where.not(:parent_id => nil).count).to eq 2
+      end
     end
 
-    it 'returns status code 201 when tags resolve to a single workflow' do
-      allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1])
+    context 'approver role' do
+      before { setup_approver_role_with_acls }
 
-      post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
+      it 'returns status code 201' do
+        allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1])
 
-      expect(response).to have_http_status(201)
-    end
+        post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
 
-    it 'returns status code 201 when tags resolve to multiple workflows' do
-      allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1, workflow2])
-
-      post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
-
-      expect(response).to have_http_status(201)
-      expect(Request.where(:number_of_children => 2).count).to eq 1
-      expect(Request.where.not(:parent_id => nil).count).to eq 2
+        expect(response).to have_http_status(201)
+      end
     end
   end
 end
