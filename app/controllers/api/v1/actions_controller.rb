@@ -39,7 +39,7 @@ module Api
           admin? && ADMIN_OPERATIONS.include?(operation) ||
           approver? && APPROVER_OPERATIONS.include?(operation) ||
           requester? && REQUESTER_OPERATIONS.include?(operation) ||
-          uuid.present? && Request.find_by(:random_access_key => uuid)
+          uuid.present? && RandomAccessKey.find_by(:access_key => uuid)
 
         raise Exceptions::NotAuthorizedError, "Not authorized to create [#{operation}] action " unless valid_operation
 

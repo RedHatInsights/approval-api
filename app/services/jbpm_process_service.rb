@@ -33,10 +33,25 @@ class JbpmProcessService
       options = {
         'request'         => request,
         'request_context' => request.request_context.as_json,
-        'groups'          => [group].as_json
+        'groups'          => enhance_groups([group].as_json)
       }
     end
     options
+  end
+
+  def enhance_groups(groups_json)
+    random_access_keys = []
+    groups_json.each do |group_json|
+      group_json['users']&.each do |user_json|
+        full_name = "#{user_json['first_name']} #{user_json['last_name']}"
+        random_access_key = RandomAccessKey.new(:approver_name => full_name)
+        user_json['random_access_key'] = random_access_key.access_key
+        random_access_keys << random_access_key
+      end
+    end
+    request.random_access_keys = random_access_keys
+
+    groups_json
   end
 
   def signal_options(decision)

@@ -51,7 +51,6 @@ RSpec.describe RequestCreateService do
             :state             => Request::STARTED_STATE,
             :decision          => Request::UNDECIDED_STATUS,
             :reason            => nil,
-            :random_access_key => be_kind_of(String),
             :workflow          => workflow2
           )
         end
@@ -76,8 +75,7 @@ RSpec.describe RequestCreateService do
           :requester_name    => 'John Doe',
           :owner             => 'jdoe',
           :state             => Request::NOTIFIED_STATE,
-          :decision          => Request::UNDECIDED_STATUS,
-          :random_access_key => be_kind_of(String)
+          :decision          => Request::UNDECIDED_STATUS
         )
       end
     end
@@ -106,7 +104,6 @@ RSpec.describe RequestCreateService do
             :state                       => Request::COMPLETED_STATE,
             :decision                    => Request::APPROVED_STATUS,
             :reason                      => 'System approved',
-
             :number_of_children          => 0,
             :number_of_finished_children => 0
           )
@@ -129,18 +126,15 @@ RSpec.describe RequestCreateService do
             :state                       => Request::COMPLETED_STATE,
             :decision                    => Request::APPROVED_STATUS,
             :reason                      => 'System approved',
-
             :number_of_children          => 3,
-            :number_of_finished_children => 3,
-            :random_access_key           => nil
+            :number_of_finished_children => 3
           )
           (0..2).each do |index|
             child = request.children[index]
             expect(child).to have_attributes(
               :state             => Request::COMPLETED_STATE,
               :decision          => Request::APPROVED_STATUS,
-              :reason            => 'System approved',
-              :random_access_key => nil
+              :reason            => 'System approved'
             )
             expect(child.actions.first).to have_attributes(
               :operation    => Action::START_OPERATION,
