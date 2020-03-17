@@ -8,21 +8,16 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
   let(:template_id) { template.id }
   let!(:workflows) { create_list(:workflow, 4, :template => template, :tenant => tenant) }
   let(:id) { workflows.first.id }
-  let(:roles_obj) { instance_double(Insights::API::Common::RBAC::Roles, :roles => roles) }
 
   let(:api_version) { version }
 
   let(:graphql_source_query) { { 'query' => '{ workflows {  id template_id name  } }' } }
 
-  before do
-    allow(Insights::API::Common::RBAC::Roles).to receive(:new).with('approval').and_return(roles_obj)
-    allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
-    allow(rs_class).to receive(:paginate).and_return([])
-  end
+  before { allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance) }
 
   describe 'a simple graphql query' do
     context 'rbac allows' do
-      let(:roles) { [admin_role] }
+      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
 
       it 'selects attributes in workflows' do
         post "#{api_version}/graphql", :headers => headers, :params => graphql_source_query
@@ -38,7 +33,7 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
     end
 
     context 'rbac rejects' do
-      let(:roles) { [] }
+      before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
 
       it 'selects attributes in workflows' do
         post "#{api_version}/graphql", :headers => headers, :params => graphql_source_query

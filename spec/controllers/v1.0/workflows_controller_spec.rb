@@ -7,7 +7,6 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   let(:template_id) { template.id }
   let!(:workflows) { create_list(:workflow, 16, :template => template, :tenant => tenant) }
   let(:id) { workflows.first.id }
-  let(:roles_obj) { double }
   let(:add_tag_svc) { instance_double(AddRemoteTags) }
   let(:del_tag_svc) { instance_double(DeleteRemoteTags) }
   let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [tag_string]) }
@@ -18,25 +17,21 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   let(:api_version) { version }
 
-  before do
-    allow(Insights::API::Common::RBAC::Roles).to receive(:new).and_return(roles_obj)
-    allow(roles_obj).to receive(:roles)
-    allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
-  end
+  before { allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance) }
 
   describe 'GET /templates/:template_id/workflows' do
     context 'admin role when template exists' do
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
 
       it 'returns status code 200' do
+        get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
+
         expect(response).to have_http_status(200)
       end
 
       it 'returns all template workflows' do
+        get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
+
         expect(json['links']).not_to be_empty
         expect(json['links']['first']).to match(/limit=5&offset=0/)
         expect(json['links']['last']).to match(/limit=5&offset=15/)
@@ -47,45 +42,37 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     context 'admin role when template does not exist' do
       let!(:template_id) { 0 }
 
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
 
       it 'returns status code 404' do
+        get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
+
         expect(response).to have_http_status(404)
       end
 
       it 'returns a not found message' do
+        get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
+
         expect(response.body).to match(/Couldn't find Template/)
       end
     end
 
     context 'approver role when template exists' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return(approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role])
-        get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
 
       it 'returns status code 403' do
+        get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
+
         expect(response).to have_http_status(403)
       end
     end
 
     context 'regular user role when template exists' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([])
-        get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
 
       it 'returns status code 403' do
+        get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
+
         expect(response).to have_http_status(403)
       end
     end
@@ -93,17 +80,17 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   describe 'GET /workflows' do
     context 'admin role return workflows' do
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
 
       it 'returns status code 200' do
+        get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
+
         expect(response).to have_http_status(200)
       end
 
       it 'returns all workflows' do
+        get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
+
         expect(json['links']).not_to be_empty
         expect(json['links']['first']).to match(/limit=5&offset=0/)
         expect(json['links']['last']).to match(/limit=5&offset=15/)
@@ -112,29 +99,21 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role return workflows' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return(approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role])
-        get "#{api_version}/workflows", :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
 
       it 'returns status code 403' do
+        get "#{api_version}/workflows", :headers => default_headers
+
         expect(response).to have_http_status(403)
       end
     end
 
     context 'regular user role return workflows' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([])
-        get "#{api_version}/workflows", :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
 
       it 'returns status code 403' do
+        get "#{api_version}/workflows", :headers => default_headers
+
         expect(response).to have_http_status(403)
       end
     end
@@ -142,28 +121,22 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   describe "GET /workflows with filter" do
     context 'admin role return workflows' do
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/workflows?filter[id]=#{id}", :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
 
       it 'returns only the filtered result' do
+        get "#{api_version}/workflows?filter[id]=#{id}", :headers => default_headers
+
         expect(json["meta"]["count"]).to eq 1
         expect(json["data"].first["id"]).to eq id.to_s
       end
     end
 
     context 'approver role return workflows' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return(approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role])
-        get "#{api_version}/workflows?filter[id]=#{id}", :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
 
       it 'returns status code 403' do
+        get "#{api_version}/workflows?filter[id]=#{id}", :headers => default_headers
+
         expect(response).to have_http_status(403)
       end
     end
@@ -171,13 +144,11 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   describe 'GET /workflows/:id' do
     context 'admin role when the record exists' do
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/workflows/#{id}", :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
 
       it 'returns the workflow' do
+        get "#{api_version}/workflows/#{id}", :headers => default_headers
+
         workflow = workflows.first
 
         expect(json).not_to be_empty
@@ -185,50 +156,45 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       end
 
       it 'returns status code 200' do
+        get "#{api_version}/workflows/#{id}", :headers => default_headers
+
         expect(response).to have_http_status(200)
       end
     end
 
     context 'admin role when the record does not exist' do
       let!(:id) { 0 }
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        get "#{api_version}/workflows/#{id}", :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
 
       it 'returns status code 404' do
+        get "#{api_version}/workflows/#{id}", :headers => default_headers
+
         expect(response).to have_http_status(404)
       end
+
       it 'returns a not found message' do
+        get "#{api_version}/workflows/#{id}", :headers => default_headers
+
         expect(response.body).to match(/Couldn't find Workflow/)
       end
     end
 
     context 'approver role when the record exists' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return(approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role])
-        get "#{api_version}/workflows/#{id}", :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
 
       it 'returns status code 403' do
+        get "#{api_version}/workflows/#{id}", :headers => default_headers
+
         expect(response).to have_http_status(403)
       end
     end
 
     context 'regular user role when the record exists' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([])
-        get "#{api_version}/workflows/#{id}", :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
 
       it 'returns status code 403' do
+        get "#{api_version}/workflows/#{id}", :headers => default_headers
+
         expect(response).to have_http_status(403)
       end
     end
@@ -250,13 +216,11 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     let(:group) { instance_double(Group, :name => 'group', :uuid => 990, :has_role? => true) }
     let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
 
-    before do
-      allow(rs_class).to receive(:paginate).and_return([])
-      allow(roles_obj).to receive(:roles).and_return([admin_role])
-      allow(Group).to receive(:find).and_return(group)
-    end
+    before { allow(Group).to receive(:find).and_return(group) }
 
     context 'when admin role request attributes are valid' do
+      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+
       it 'returns status code 201' do
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
 
@@ -265,55 +229,51 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'when a request with missing parameter' do
-      before do
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
 
       it 'returns status code 400' do
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
+
         expect(response).to have_http_status(400)
       end
 
       it 'returns a failure message' do
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
+
         expect(response.body).to match(/Validation failed:/)
       end
     end
 
     context 'when a request with invalid group' do
       before do
+        allow(rs_class).to receive(:paginate).and_return(admin_acls)
         allow(group).to receive(:has_role?).and_return(false)
       end
 
       it 'returns status code 400' do
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
+
         expect(response).to have_http_status(400)
         expect(response.body).to match(/does not have approver role/)
       end
     end
 
     context 'when approver role request attributes are valid' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return(approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role])
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
 
       it 'returns status code 403' do
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
+
         expect(response).to have_http_status(403)
       end
     end
 
     context 'when regular user role request attributes are valid' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([])
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
 
       it 'returns status code 403' do
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
+
         expect(response).to have_http_status(403)
       end
     end
@@ -324,10 +284,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     let(:valid_attributes) { {:name => "test", :group_refs => %w[1000], :sequence => 2} }
 
     context 'admin role when item exists' do
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
 
       it 'updates the item' do
         patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
@@ -348,45 +305,37 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     context 'admin role when the item does not exist' do
       let!(:id) { 0 }
 
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
 
       it 'returns status code 404' do
+        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
+
         expect(response).to have_http_status(404)
       end
 
       it 'returns a not found message' do
+        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
+
         expect(response.body).to match(/Couldn't find Workflow/)
       end
     end
 
     context 'approver role when item exists' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return(approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role])
-        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
 
       it 'returns status code 403' do
+        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
+
         expect(response).to have_http_status(403)
       end
     end
 
     context 'regular user role when item exists' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([])
-        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
 
       it 'returns status code 403' do
+        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
+
         expect(response).to have_http_status(403)
       end
     end
@@ -395,41 +344,31 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   # Test suite for DELETE /workflows/:id
   describe 'DELETE /workflows/:id' do
     context 'admin role when delete' do
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(roles_obj).to receive(:roles).and_return([admin_role])
-        delete "#{api_version}/workflows/#{id}", :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
 
       it 'returns status code 204' do
+        delete "#{api_version}/workflows/#{id}", :headers => default_headers
+
         expect(response).to have_http_status(204)
       end
     end
 
     context 'approver role when delete' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => approver_acls) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return(approver_acls)
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([approver_role])
-        delete "#{api_version}/workflows/#{id}", :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
 
       it 'returns status code 403' do
+        delete "#{api_version}/workflows/#{id}", :headers => default_headers
+
         expect(response).to have_http_status(403)
       end
     end
 
     context 'regular user role when delete' do
-      let(:access_obj) { instance_double(Insights::API::Common::RBAC::Access, :acl => []) }
-      before do
-        allow(rs_class).to receive(:paginate).and_return([])
-        allow(access_obj).to receive(:process).and_return(access_obj)
-        allow(roles_obj).to receive(:roles).and_return([])
-        delete "#{api_version}/workflows/#{id}", :headers => default_headers
-      end
+      before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
 
       it 'returns status code 403' do
+        delete "#{api_version}/workflows/#{id}", :headers => default_headers
+
         expect(response).to have_http_status(403)
       end
     end
@@ -438,13 +377,11 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   describe 'DELETE /workflows/:id with associated request' do
     let!(:request) { create(:request, :workflow => workflows.first) }
 
-    before do
-      allow(rs_class).to receive(:paginate).and_return([])
-      allow(roles_obj).to receive(:roles).and_return([admin_role])
-      delete "#{api_version}/workflows/#{id}", :headers => default_headers
-    end
+    before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
 
     it 'returns status code 403' do
+      delete "#{api_version}/workflows/#{id}", :headers => default_headers
+
       expect(response).to have_http_status(403)
     end
   end
@@ -483,8 +420,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     let(:obj_b) { { :object_type => 'Portfolio', :app_name => 'catalog', :object_id => '123'} }
     let(:obj_c) { { :object_type => 'Portfolio', :object_id => '123'} }
     before do
-      allow(rs_class).to receive(:paginate).and_return([])
-      allow(roles_obj).to receive(:roles).and_return([admin_role])
+      allow(rs_class).to receive(:paginate).and_return(admin_acls)
 
       allow(AddRemoteTags).to receive(:new).with(obj_a).and_return(add_tag_svc)
       allow(add_tag_svc).to receive(:process).with([tag]).and_return(add_tag_svc)
@@ -496,6 +432,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     it 'returns status code 200' do
       get "#{api_version}/workflows", :params => obj_a, :headers => default_headers
+
       expect(response).to have_http_status(200)
       expect(json["data"].first["id"].to_i).to eq(id)
     end
@@ -515,20 +452,18 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   end
 
   describe 'Entitlement enforcement' do
+    before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+
     let(:false_hash) do
       false_hash = default_user_hash
       false_hash["entitlements"]["ansible"]["is_entitled"] = false
       false_hash
     end
+
     let(:missing_hash) do
       missing_hash = default_user_hash
       missing_hash.delete("entitlements")
       missing_hash
-    end
-
-    before do
-      allow(rs_class).to receive(:paginate).and_return([])
-      allow(roles_obj).to receive(:roles).and_return([admin_role])
     end
 
     it "fails if the ansible entitlement is false" do
