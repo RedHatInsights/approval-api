@@ -15,34 +15,32 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
   let(:actions2) { create_list(:action, 10, :request => request2, :tenant => tenant) }
   let(:id2) { actions2.first.id }
 
-  let(:roles_obj) { instance_double(Insights::API::Common::RBAC::Roles) }
-
-  let(:setup_approver_role) do
-    allow(rs_class).to receive(:paginate).and_return([group])
-    allow(roles_obj).to receive(:roles).and_return([approver_role])
+  let(:setup_admin_acls) do
+    allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, hash_including(:limit), any_args).and_return(admin_acls)
+    allow(rs_class).to receive(:paginate).with(api_instance, :list_groups, :scope => 'principal').and_return([group])
   end
 
-  let(:setup_admin_role) do
-    allow(rs_class).to receive(:paginate).and_return([])
-    allow(roles_obj).to receive(:roles).and_return([admin_role])
+  let(:setup_approver_acls) do
+    allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, hash_including(:limit), any_args).and_return(approver_acls)
+    allow(rs_class).to receive(:paginate).with(api_instance, :list_groups, :scope => 'principal').and_return([group])
   end
 
   let(:setup_requester_role) do
-    allow(rs_class).to receive(:paginate).and_return([])
-    allow(roles_obj).to receive(:roles).and_return([])
+    allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, hash_including(:limit), any_args).and_return(requester_acls)
+    allow(rs_class).to receive(:paginate).with(api_instance, :list_groups, :scope => 'principal').and_return([])
   end
 
   let(:api_version) { version }
 
   before do
-    allow(Insights::API::Common::RBAC::Roles).to receive(:new).and_return(roles_obj)
     allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi, {}).and_yield(api_instance)
     allow(rs_class).to receive(:call).with(RBACApiClient::GroupApi, {}).and_yield(api_instance)
   end
 
   describe 'GET /actions/:id' do
     context 'admin role' do
-      before { setup_admin_role }
+      #before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+      before { setup_admin_acls }
 
       context 'when the record exists' do
         it 'returns status code 200' do
@@ -71,7 +69,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'approver role' do
-      before { setup_approver_role }
+      before { setup_approver_acls }
 
       context 'when approver can read' do
         it 'returns status code 200' do
@@ -108,7 +106,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     context 'admin role when request attributes are valid' do
       before do
         id
-        setup_admin_role
+        setup_admin_acls
       end
 
       it 'returns the actions' do
@@ -123,7 +121,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'approver role' do
-      before { setup_approver_role}
+      before { setup_approver_acls}
 
       context 'approver can read actions' do
         before { id }
@@ -166,7 +164,8 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
 
   describe 'POST /requests/:request_id/actions' do
     context 'admin role' do
-      before { setup_admin_role }
+      #before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+      before { setup_admin_acls }
 
       it 'can add valid operation' do
         test_attributes = {:operation => 'cancel', :processed_by => 'abcd'}
@@ -193,7 +192,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'approver role for assigned request' do
-      before { setup_approver_role }
+      before { setup_approver_acls }
 
       it 'can approve a request' do
         test_attributes = {:operation => 'approve', :processed_by => 'abcd'}
@@ -213,7 +212,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'approver role for unassigned request' do
-      before { setup_approver_role }
+      before { setup_approver_acls }
 
       it 'cannot approve a request' do
         test_attributes = {:operation => 'approve', :processed_by => 'abcd'}

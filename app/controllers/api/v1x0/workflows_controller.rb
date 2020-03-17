@@ -1,22 +1,19 @@
 module Api
   module V1x0
     class WorkflowsController < ApplicationController
-      include Api::V1x0::Mixins::IndexMixin
-      include Api::V1x0::Mixins::RBACMixin
-
-      before_action :create_access_check, :only => %i[create]
-      before_action :update_access_check, :only => %i[update]
-      before_action :destroy_access_check, :only => %i[destroy]
+      include Mixins::IndexMixin
 
       def create
+        authorize Workflow
+
         workflow = WorkflowCreateService.new(params.require(:template_id)).create(params_for_create)
         json_response(workflow, :created)
       end
 
-      # TODO: remove 'approval:workflows:read' from approver acls list in RBAC Insight
       def show
-        raise Exceptions::NotAuthorizedError, "Not Authorized for workflows" if Insights::API::Common::RBAC::Access.enabled? && !admin?
+        authorize Workflow
 
+        workflow = Workflow.find(params.require(:id))
         json_response(Workflow.find(params.require(:id)))
       end
 
@@ -30,11 +27,13 @@ module Api
                      Workflow.all
                    end
 
-        collection(index_scope(relation))
+        collection(policy_scope(relation))
       end
 
       def destroy
+        authorize Workflow
         workflow = Workflow.find(params.require(:id))
+
         workflow.destroy!
         head :no_content
       rescue ActiveRecord::InvalidForeignKey => e
@@ -58,6 +57,8 @@ module Api
       end
 
       def update
+        authorize Workflow
+
         workflow = Workflow.find(params.require(:id))
         # TODO: need to change params_for_update when using insights-api-commons
         WorkflowUpdateService.new(workflow.id).update(params_for_create)
@@ -66,13 +67,6 @@ module Api
       end
 
       private
-
-      # TODO: remove 'approval:workflows:read' from approver acls list in RBAC Insight
-      def rbac_scope(relation)
-        raise Exceptions::NotAuthorizedError, "Not Authorized for #{relation.model.table_name}" unless admin?
-
-        relation
-      end
 
       def collection(base_query)
         resp = Insights::API::Common::PaginatedResponse.new(
