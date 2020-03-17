@@ -6,7 +6,7 @@ module Kie
       yield init(klass)
     rescue KieClient::ApiError => err
       Rails.logger.error("KieClient::ApiError #{err.message} ")
-      raise Exceptions::KieError, err.message
+      raise Exceptions::KieError, "KieClient::ApiError: #{err.message}"
     end
 
     private_class_method def self.setup(options)

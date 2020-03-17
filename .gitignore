@@ -14,3 +14,5 @@
 /tmp/
 bundler.d/*
 /v2_key
+/.sonar/sonar-scanner.properties
+/.scannerwork/

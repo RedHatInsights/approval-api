@@ -8,6 +8,7 @@ class Request < ApplicationRecord
   belongs_to :request_context, :optional => false
   belongs_to :workflow
   has_many :actions, -> { order(:id => :asc) }, :dependent => :destroy, :inverse_of => :request
+  has_many :random_access_keys, :dependent => :destroy, :inverse_of => :request
 
   belongs_to :parent,   :foreign_key => :parent_id, :class_name => 'Request', :inverse_of => :children
   has_many   :children, :foreign_key => :parent_id, :class_name => 'Request', :inverse_of => :parent, :dependent => :destroy

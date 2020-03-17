@@ -58,8 +58,9 @@ module Api
         set_view_path
         set_resources
 
-        @approver = Base64.decode64(params.require(:approver))
-        @request = Request.find_by(:random_access_key => params.require(:id))
+        access_key = RandomAccessKey.find_by(:access_key => params.require(:id))
+        @request = access_key&.request
+        @approver = access_key&.approver_name
 
         if @request
           @order = set_order

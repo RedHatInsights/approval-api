@@ -10,6 +10,9 @@ class JbpmProcessService
     Kie::Service.call(KieClient::ProcessInstancesBPMApi, options) do |bpm|
       bpm.start_process(options['container_id'], options['process_id'], :body => process_options)
     end
+  rescue Exceptions::KieError => err
+    ActionCreateService.new(request.id).create(:operation => Action::ERROR_OPERATION, :processed_by => 'system', :comments => err.message)
+    raise
   end
 
   def signal(decision)
@@ -17,6 +20,9 @@ class JbpmProcessService
     Kie::Service.call(KieClient::ProcessInstancesBPMApi, options) do |bpm|
       bpm.signal_process_instance(options['container_id'], request.process_ref, options['signal_name'], :body => signal_options(decision))
     end
+  rescue Exceptions::KieError => err
+    ActionCreateService.new(request.id).create(:operation => Action::ERROR_OPERATION, :processed_by => 'system', :comments => err.message)
+    raise
   end
 
   private
@@ -33,10 +39,25 @@ class JbpmProcessService
       options = {
         'request'         => request,
         'request_context' => request.request_context.as_json,
-        'groups'          => [group].as_json
+        'groups'          => enhance_groups([group].as_json)
       }
     end
     options
+  end
+
+  def enhance_groups(groups_json)
+    random_access_keys = []
+    groups_json.each do |group_json|
+      group_json['users']&.each do |user_json|
+        full_name = "#{user_json['first_name']} #{user_json['last_name']}"
+        random_access_key = RandomAccessKey.new(:approver_name => full_name)
+        user_json['random_access_key'] = random_access_key.access_key
+        random_access_keys << random_access_key
+      end
+    end
+    request.random_access_keys = random_access_keys
+
+    groups_json
   end
 
   def signal_options(decision)
