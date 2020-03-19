@@ -1,8 +1,8 @@
 module Api
-  module V1
+  module V1x0
     class RequestsController < ApplicationController
-      include Mixins::IndexMixin
-      include Mixins::RBACMixin
+      include Api::V1x0::Mixins::IndexMixin
+      include Api::V1x0::Mixins::RBACMixin
 
       PERSONA_ADMIN     = 'approval/admin'.freeze
       PERSONA_APPROVER  = 'approval/approver'.freeze

@@ -1,8 +1,8 @@
 module Api
-  module V1
+  module V1x0
     class WorkflowsController < ApplicationController
-      include Mixins::IndexMixin
-      include Mixins::RBACMixin
+      include Api::V1x0::Mixins::IndexMixin
+      include Api::V1x0::Mixins::RBACMixin
 
       before_action :create_access_check, :only => %i[create]
       before_action :update_access_check, :only => %i[update]
