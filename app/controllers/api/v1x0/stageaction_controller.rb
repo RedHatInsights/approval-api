@@ -1,5 +1,5 @@
 module Api
-  module V1
+  module V1x0
     class StageactionController < ActionController::Base
       include Response
 

@@ -1,8 +1,8 @@
 module Api
-  module V1
+  module V1x0
     class TemplatesController < ApplicationController
-      include Mixins::IndexMixin
-      include Mixins::RBACMixin
+      include Api::V1x0::Mixins::IndexMixin
+      include Api::V1x0::Mixins::RBACMixin
 
       before_action :read_access_check, :only => %i[show]
 

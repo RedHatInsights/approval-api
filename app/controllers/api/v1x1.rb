@@ -5,11 +5,11 @@ module Api
         render :json => Api::Docs["1.1"]
       end
     end
-    class ActionsController     < Api::V1::ActionsController; end
+    class ActionsController     < Api::V1x0::ActionsController; end
     class GraphqlController     < Api::V1x0::GraphqlController; end
-    class RequestsController    < Api::V1::RequestsController; end
-    class StageactionController < Api::V1::StageactionController; end
-    class TemplatesController   < Api::V1::TemplatesController; end
-    class WorkflowsController   < Api::V1::WorkflowsController; end
+    class RequestsController    < Api::V1x0::RequestsController; end
+    class StageactionController < Api::V1x0::StageactionController; end
+    class TemplatesController   < Api::V1x0::TemplatesController; end
+    class WorkflowsController   < Api::V1x0::WorkflowsController; end
   end
 end
