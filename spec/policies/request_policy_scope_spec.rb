@@ -2,7 +2,7 @@ describe RequestPolicy::Scope do
   include_context "approval_rbac_objects"
 
   let(:requests) { create_list(:request, 3) }
-  let(:user) { instance_double(UserContext, :controller_name => 'Request') }
+  let(:user) { instance_double(UserContext) }
   let(:subject) { described_class.new(user, Request.all) }
 
   before do

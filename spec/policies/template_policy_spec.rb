@@ -2,7 +2,7 @@ describe TemplatePolicy do
   include_context "approval_rbac_objects"
 
   let(:templates) { create_list(:template, 3) }
-  let(:user) { instance_double(UserContext, :controller_name => 'Template') }
+  let(:user) { instance_double(UserContext) }
   let(:subject) { described_class.new(user, Template) }
 
   before do
@@ -23,7 +23,7 @@ describe TemplatePolicy do
       let(:acls) { approver_acls }
 
       it 'returns templates' do
-        expect { subject.query? }.to raise_error(Exceptions::NotAuthorizedError)
+        expect(subject.query?).to be_falsey
       end
     end
 
@@ -31,7 +31,7 @@ describe TemplatePolicy do
       let(:acls) { requester_acls }
 
       it 'returns templates' do
-        expect { subject.query? }.to raise_error(Exceptions::NotAuthorizedError)
+        expect(subject.query?).to be_falsey
       end
     end
   end

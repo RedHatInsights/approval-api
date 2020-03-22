@@ -1,5 +1,5 @@
 class ApplicationPolicy
-  include Insights::API::Common::RBAC
+  include Mixins::RBACMixin
 
   attr_reader :user, :record
 
@@ -37,6 +37,8 @@ class ApplicationPolicy
   end
 
   class Scope
+    include Mixins::RBACMixin
+
     attr_reader :user, :scope
 
     def initialize(user, scope)

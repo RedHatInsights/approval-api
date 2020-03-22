@@ -5,13 +5,15 @@ module Api
 
       def create
         authorize Request
+
         req = RequestCreateService.new.create(params_for_create)
         json_response(req, :created)
       end
 
       def show
-        authorize Request
         req = Request.find(params.require(:id))
+        authorize req
+
         request.path.end_with?("/content") ? json_response(req.content) : json_response(req)
       end
 
