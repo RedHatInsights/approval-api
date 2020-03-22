@@ -1,21 +1,21 @@
 module Mixins
   module RBACMixin
+    include Insights::API::Common::RBAC
     include ApprovalPermissions
 
     ADMIN_VERB    = 'admin'.freeze
     APPROVER_VERB = 'approve'.freeze
 
     # Klass here is allowed for Request and Action.
-    def resource_check(verb, id = @user.params[:id], klass = @user.controller_name.classify.constantize)
-      permission_check(verb, klass)
-
-      resource_instance_accessible?(klass.table_name, id) ? true : (raise Exceptions::NotAuthorizedError, "#{verb.titleize} access not authorized for #{klass} with id: #{id}")
+    def resource_check(verb, id = @record.id, klass = @record.class)
+      permission_check(verb, klass) ? resource_instance_accessible?(klass.table_name, id) : false
     end
 
-    def permission_check(verb, klass = @user.controller_name.classify.constantize)
+    def permission_check(verb, resource = @record)
       return true unless Insights::API::Common::RBAC::Access.enabled?
 
-      Insights::API::Common::RBAC::Access.new(klass.table_name, verb).process.accessible? ? true : (raise Exceptions::NotAuthorizedError, "#{verb.titleize} access not authorized for #{klass.table_name}")
+      klass = resource_class(resource)
+      Insights::API::Common::RBAC::Access.new(klass.table_name, verb).process.accessible?
     end
 
     # instance level check
@@ -25,20 +25,22 @@ module Mixins
       approver? ? approvable?(resource, resource_id) : owned?(resource, resource_id)
     end
 
-    def admin?(klass = @user.controller_name.classify.constantize)
+    def admin?(resource = @record)
       return false unless Insights::API::Common::RBAC::Access.enabled?
 
-      Insights::API::Common::RBAC::Access.new(klass.table_name, ADMIN_VERB).process.accessible? ? true : false
+      klass = resource_class(resource)
+      Insights::API::Common::RBAC::Access.new(klass.table_name, ADMIN_VERB).process.accessible?
     end
 
-    def approver?(klass = @user.controller_name.classify.constantize)
+    def approver?(resource = @record)
       return false unless Insights::API::Common::RBAC::Access.enabled?
 
-      Insights::API::Common::RBAC::Access.new(klass.table_name, APPROVER_VERB).process.accessible? ? true : false
+      klass = resource_class(resource)
+      Insights::API::Common::RBAC::Access.new(klass.table_name, APPROVER_VERB).process.accessible?
     end
 
-    def requester?(klass = @user.controller_name.classify.constantize)
-      !admin?(klass) && !approver?(klass)
+    def requester?(resource = @record)
+      !admin?(resource) && !approver?(resource)
     end
 
     # check if approver can process the #{resource} with #{id}
@@ -97,6 +99,18 @@ module Mixins
     # The accessible workflow ids for approver
     def workflow_ids
       AccessControlEntry.where(:aceable_type => 'Workflow', :permission => 'approve', :group_uuid => assigned_group_refs).pluck(:aceable_id)
+    end
+
+    def resource_class(resource)
+      if resource.class == Class
+        resource
+      elsif resource.respond_to?(:model)
+        resource.model
+      elsif resource.instance_of?(resource.class)
+        resource.class
+      else
+        raise ArgumentError, "Unknown resource type: #{resource} in permission check"
+      end
     end
   end
 end

@@ -9,8 +9,7 @@ module Api
       end
 
       def index
-        templates = Template.all
-        collection(policy_scope(templates))
+        collection(policy_scope(Template))
       end
     end
   end

@@ -45,8 +45,7 @@ class ApplicationController < ActionController::API
   def pundit_user
     UserContext.new(
       Insights::API::Common::Request.current!,
-      params,
-      controller_name
+      params
     )
   end
 end

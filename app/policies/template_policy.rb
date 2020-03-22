@@ -1,23 +1,12 @@
 class TemplatePolicy < ApplicationPolicy
-  include Mixins::RBACMixin
-
-  class Scope
-    include Mixins::RBACMixin
-
-    attr_reader :user, :scope
-
-    def initialize(user, scope)
-      @user  = user
-      @scope = scope
-    end
-
+  class Scope < ApplicationPolicy::Scope
     def resolve
-      scope.all if permission_check('read')
+      permission_check('read', scope) ? scope.all : (raise Exceptions::NotAuthorizedError, "Read access not authorized for #{scope}")
     end
   end
 
   # define for graphql
   def query?
-    permission_check('read', record)
+    permission_check('read')
   end
 end

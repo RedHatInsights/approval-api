@@ -2,7 +2,7 @@ describe WorkflowPolicy::Scope do
   include_context "approval_rbac_objects"
 
   let(:workflows) { create_list(:workflow, 3) }
-  let(:user) { instance_double(UserContext, :controller_name => 'Workflow') }
+  let(:user) { instance_double(UserContext) }
   let(:subject) { described_class.new(user, Workflow) }
 
   before do
@@ -23,7 +23,7 @@ describe WorkflowPolicy::Scope do
       let(:acls) { approver_acls }
 
       it 'raises an error' do
-        expect { subject.resolve }.to raise_error(Exceptions::NotAuthorizedError)
+        expect { subject.resolve }.to raise_error(Exceptions::NotAuthorizedError, "Read access not authorized for Workflow")
       end
     end
 
@@ -31,7 +31,7 @@ describe WorkflowPolicy::Scope do
       let(:acls) { requester_acls }
 
       it 'raises an error' do
-        expect { subject.resolve }.to raise_error(Exceptions::NotAuthorizedError)
+        expect { subject.resolve }.to raise_error(Exceptions::NotAuthorizedError, "Read access not authorized for Workflow")
       end
     end
   end

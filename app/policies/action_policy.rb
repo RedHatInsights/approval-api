@@ -1,26 +1,13 @@
 class ActionPolicy < ApplicationPolicy
-  include Mixins::RBACMixin
 
   ADMIN_OPERATIONS     = [Action::MEMO_OPERATION, Action::APPROVE_OPERATION, Action::DENY_OPERATION, Action::CANCEL_OPERATION].freeze
   APPROVER_OPERATIONS  = [Action::MEMO_OPERATION, Action::APPROVE_OPERATION, Action::DENY_OPERATION].freeze
   REQUESTER_OPERATIONS = [Action::CANCEL_OPERATION].freeze
 
-  class Scope
-    include Mixins::RBACMixin
-
-    attr_reader :user, :scope
-
-    def initialize(user, scope)
-      @user  = user
-      @scope = scope
-    end
-
+  class Scope < ApplicationPolicy::Scope
     def resolve
-      permission_check('read')
-      return scope.all if admin?
-
-      # Only approver can reach here
-      resource_check('read', user.params[:request_id], Request) # NotAuthorizedError if current user cannot access the particular request
+      raise Exceptions::NotAuthorizedError, "Read access not authorized for #{scope}" unless permission_check('read', scope)
+      return scope.all if admin?(scope.model)
 
       action_ids = approver_id_list(scope.model.table_name)
       Rails.logger.debug { "Approver scope for actions: #{action_ids}" }
@@ -39,7 +26,7 @@ class ActionPolicy < ApplicationPolicy
   end
 
   def query?
-    permission_check('read', record)
+    permission_check('read')
   end
 
   private
@@ -52,10 +39,7 @@ class ActionPolicy < ApplicationPolicy
       admin? && ADMIN_OPERATIONS.include?(operation) ||
       approver? && APPROVER_OPERATIONS.include?(operation) ||
       requester? && REQUESTER_OPERATIONS.include?(operation) ||
-      uuid.present? && Request.find_by(:random_access_key => uuid)
 
-    raise Exceptions::NotAuthorizedError, "Not authorized to create [#{operation}] action " unless valid_operation
-
-    resource_check('read', user.params[:request_id], Request) # NotAuthorizedError if current user cannot access the particular request
+      uuid.present? && Request.find(user.params[:request_id]).try(:random_access_keys).any? { |key| key.access_key == uuid }
   end
 end

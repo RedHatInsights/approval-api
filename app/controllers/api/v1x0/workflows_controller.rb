@@ -11,10 +11,10 @@ module Api
       end
 
       def show
-        authorize Workflow
-
         workflow = Workflow.find(params.require(:id))
-        json_response(Workflow.find(params.require(:id)))
+        authorize workflow
+
+        json_response(workflow)
       end
 
       def index
@@ -31,8 +31,8 @@ module Api
       end
 
       def destroy
-        authorize Workflow
         workflow = Workflow.find(params.require(:id))
+        authorize workflow
 
         workflow.destroy!
         head :no_content
@@ -57,9 +57,9 @@ module Api
       end
 
       def update
-        authorize Workflow
-
         workflow = Workflow.find(params.require(:id))
+        authorize workflow
+
         # TODO: need to change params_for_update when using insights-api-commons
         WorkflowUpdateService.new(workflow.id).update(params_for_create)
 

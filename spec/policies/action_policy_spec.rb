@@ -3,8 +3,7 @@ describe ActionPolicy do
 
   let(:request) { create(:request) }
   let(:actions) { create_list(:action, 3, :request => request) }
-  let(:user) { instance_double(UserContext, :params => params, :controller_name => 'Action') }
-  let(:subject) { described_class.new(user, Action) }
+  let(:user) { instance_double(UserContext) }
 
   before do
     allow(rs_class).to receive(:call).with(RBACApiClient::GroupApi).and_yield(api_instance)
@@ -15,75 +14,91 @@ describe ActionPolicy do
 
   describe 'with admin role' do
     let(:acls) { admin_acls }
-    let(:params) { { :id => actions.first.id } }
 
-    #before { allow(subject).to receive(:validate_create_action).and_return(true) }
+    context 'when action resource is model class' do
+      let(:subject) { described_class.new(user, Action) }
 
-    it '#create?' do
-      expect(subject.create?).to be_truthy
+      it '#create?' do
+        expect(subject.create?).to be_truthy
+      end
+
+      it '#query?' do
+        expect(subject.query?).to be_truthy
+      end
     end
 
-    it '#show?' do
-      expect(subject.show?).to be_truthy
-    end
+    context 'when action resource is instance' do
+      let(:subject) { described_class.new(user, actions.first) }
 
-    it '#query?' do
-      expect(subject.query?).to be_truthy
+      it '#show?' do
+        expect(subject.show?).to be_truthy
+      end
     end
   end
 
   describe 'with approver role' do
-    let(:params) { { :id => actions.first.id } }
     let(:acls) { approver_acls }
 
     before do
       allow(subject).to receive(:approver_id_list).and_return([actions.first.id, actions.last.id])
     end
 
-    # also be a regular requester
-    it '#create?' do
-      expect(subject.create?).to be_truthy
-    end
+    context 'when action resource is model class' do
+      let(:subject) { described_class.new(user, Action) }
 
-    context 'when id is in the approver_id_list' do
-      let(:params) { { :id => actions.first.id } }
+      it '#create?' do
+        expect(subject.create?).to be_truthy
+      end
 
-      it '#show? with the id in the list' do
-        expect(subject.show?).to be_truthy
+      it '#query?' do
+        expect(subject.query?).to be_truthy
       end
     end
 
-    context 'when id is not in the approver_id_list' do
-      let(:params) { { :id => actions.second.id } }
+    context 'when action resource is instance' do
+      context 'when id is in the approver_id_list' do
+        let(:subject) { described_class.new(user, actions.first) }
 
-      it '#show? with the id not in the list' do
-        expect { subject.show? }.to raise_error(Exceptions::NotAuthorizedError)
+        it '#show?' do
+          expect(subject.show?).to be_truthy
+        end
       end
-    end
 
-    it '#query?' do
-      expect(subject.query?).to be_truthy
+      context 'when id is not in the approver_id_list' do
+        let(:subject) { described_class.new(user, actions.second) }
+
+        it '#show? with the id not in the list' do
+          expect(subject.show?).to be_falsey
+        end
+      end
     end
   end
 
   describe 'with requester role' do
     let(:acls) { requester_acls }
-    let(:params) { { :id => actions.first.id } }
 
     before do
       allow(subject).to receive(:owner_id_list).and_return([actions.first.id, actions.last.id])
     end
 
-    it '#create?' do
-      expect(subject.create?).to be_truthy
+    context 'when action resource is model class' do
+      let(:subject) { described_class.new(user, Action) }
+
+      it '#create?' do
+        expect(subject.create?).to be_truthy
+      end
+
+      it '#query?' do
+        expect(subject.query?).to be_falsey
+      end
     end
 
-    it '#show?' do
-      expect { subject.show? }.to raise_error(Exceptions::NotAuthorizedError)
-    end
+    context 'when action resource is instance' do
+      let(:subject) { described_class.new(user, actions.first) }
 
-    it '#query?' do
-      expect { subject.show? }.to raise_error(Exceptions::NotAuthorizedError)
+      it '#show?' do
+        expect(subject.show?).to be_falsey
+      end
     end
   end
 end

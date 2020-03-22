@@ -2,7 +2,7 @@ describe WorkflowPolicy do
   include_context "approval_rbac_objects"
 
   let(:workflows) { create_list(:workflow, 3) }
-  let(:user) { instance_double(UserContext, :controller_name => 'Workflow') }
+  let(:user) { instance_double(UserContext) }
   let(:subject) { described_class.new(user, Workflow) }
 
   before do
@@ -38,23 +38,23 @@ describe WorkflowPolicy do
     let(:acls) { approver_acls }
 
     it '#create?' do
-      expect { subject.create? }.to raise_error(Exceptions::NotAuthorizedError)
+      expect(subject.create?).to be_falsey
     end
 
     it '#show?' do
-      expect { subject.show? }.to raise_error(Exceptions::NotAuthorizedError)
+      expect(subject.show?).to be_falsey
     end
 
     it '#update?' do
-      expect { subject.update? }.to raise_error(Exceptions::NotAuthorizedError)
+      expect(subject.update?).to be_falsey
     end
 
     it '#destroy?' do
-      expect { subject.destroy? }.to raise_error(Exceptions::NotAuthorizedError)
+      expect(subject.destroy?).to be_falsey
     end
 
     it '#query?' do
-      expect { subject.query? }.to raise_error(Exceptions::NotAuthorizedError)
+      expect(subject.query?).to be_falsey
     end
   end
 
@@ -62,23 +62,23 @@ describe WorkflowPolicy do
     let(:acls) { requester_acls }
 
     it '#create?' do
-      expect { subject.create? }.to raise_error(Exceptions::NotAuthorizedError)
+      expect(subject.create?).to be_falsey
     end
 
     it '#show?' do
-      expect { subject.show? }.to raise_error(Exceptions::NotAuthorizedError)
+      expect(subject.show?).to be_falsey
     end
 
     it '#update?' do
-      expect { subject.update? }.to raise_error(Exceptions::NotAuthorizedError)
+      expect(subject.update?).to be_falsey
     end
 
     it '#destroy?' do
-      expect { subject.destroy? }.to raise_error(Exceptions::NotAuthorizedError)
+      expect(subject.destroy?).to be_falsey
     end
 
     it '#query?' do
-      expect { subject.query? }.to raise_error(Exceptions::NotAuthorizedError)
+      expect(subject.query?).to be_falsey
     end
   end
 end

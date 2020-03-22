@@ -4,7 +4,7 @@ describe ActionPolicy::Scope do
   let(:request) { create(:request) }
   let(:actions) { create_list(:action, 3, :request => request) }
   let(:params) { { :request_id => request.id } }
-  let(:user) { instance_double(UserContext, :params => params, :controller_name => 'Action') }
+  let(:user) { instance_double(UserContext, :params => params) }
   let(:subject) { described_class.new(user, Action.all) }
 
   before do

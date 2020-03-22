@@ -1,16 +1,5 @@
 class RequestPolicy < ApplicationPolicy
-  include Mixins::RBACMixin
-
-  class Scope
-    include Mixins::RBACMixin
-
-    attr_reader :user, :scope
-
-    def initialize(user, scope)
-      @user  = user
-      @scope = scope
-    end
-
+  class Scope < ApplicationPolicy::Scope
     def resolve
       return scope.all unless Insights::API::Common::RBAC::Access.enabled?
       model = scope.class == Class ? scope : scope.model
@@ -32,11 +21,11 @@ class RequestPolicy < ApplicationPolicy
 
   # only for child requests
   def index?
-    resource_check('read', user.params[:request_id])
+    resource_check('read', record.id, record.class)
   end
  
   # define for graphql
   def query?
-    permission_check('read', record)
+    permission_check('read')
   end
 end
