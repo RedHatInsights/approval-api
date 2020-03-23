@@ -13,8 +13,8 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:group2) { instance_double(Group, :name => 'group2', :uuid => "456") }
   let(:group3) { instance_double(Group, :name => 'group3', :uuid => "789") }
 
-  let(:workflow1) { create(:workflow, :name => 'wf1', :group_refs => [group3.uuid], :tenant => tenant) }
-  let(:workflow2) { create(:workflow, :name => 'wf2', :group_refs => [group1.uuid, group2.uuid], :tenant => tenant) }
+  let(:workflow1) { create(:workflow, :name => 'wf1', :group_refs => [{'name' => group3.name, 'uuid' => group3.uuid}], :tenant => tenant) }
+  let(:workflow2) { create(:workflow, :name => 'wf2', :group_refs => [{'name' => group1.name, 'uuid' => group1.uuid}, {'name' => group2.name, 'uuid' => group2.uuid}], :tenant => tenant) }
 
   let(:notified_request) do
     Insights::API::Common::Request.with_request(default_request_hash) { create(:request, :state => 'notified', :tenant => tenant) }

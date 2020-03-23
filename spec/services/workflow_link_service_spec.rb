@@ -3,8 +3,8 @@ RSpec.describe WorkflowLinkService, :type => :request do
     Insights::API::Common::Request.with_request(default_request_hash) { example.call }
   end
 
-  let(:group) { instance_double(Group, :name => 'gname', :uuid => 990, :has_role? => true) }
-  let(:workflow) { create(:workflow, :with_tenant, :group_refs => [990]) }
+  let(:group) { instance_double(Group, :name => 'gname', :uuid => '990', :has_role? => true) }
+  let(:workflow) { create(:workflow, :with_tenant, :group_refs => [{'name' => 'gname', 'uuid' => '990'}]) }
   let(:obj_a) { {:object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
   let(:remote_tag_svc) { instance_double(AddRemoteTags) }
   let(:tag) do

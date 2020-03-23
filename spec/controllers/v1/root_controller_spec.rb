@@ -1,4 +1,4 @@
-RSpec.describe Api::V1x0::RootController, :type => [:request, :v1x1] do
+RSpec.describe Api::V1x0::RootController, :type => [:request, :v1x2] do
   let(:encoded_user) { encoded_user_hash }
 
   context "v1" do

@@ -11,9 +11,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   let(:del_tag_svc) { instance_double(DeleteRemoteTags) }
   let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [tag_string]) }
   let(:tag_string) { "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{id}" }
-  let(:tag) do
-    { 'tag' => tag_string }
-  end
+  let(:tag) { 'tag' => tag_string }
 
   let(:api_version) { version }
 
@@ -212,7 +210,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   # Test suite for POST /templates/:template_id/workflows
   describe 'POST /templates/:template_id/workflows' do
-    let(:group_refs) { %w[990 991 992] }
+    let(:group_refs) { [{'name' => 'n990', 'uuid' => '990'}, {'name' => 'n991', 'uuid' => '991'}, {'name' => 'n992', 'uuid' => '992'}] }
     let(:group) { instance_double(Group, :name => 'group', :uuid => 990, :has_role? => true) }
     let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
 
@@ -281,10 +279,14 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   # Test suite for PATCH /workflows/:id
   describe 'PATCH /workflows/:id' do
-    let(:valid_attributes) { {:name => "test", :group_refs => %w[1000], :sequence => 2} }
+    let(:valid_attributes) { {:name => "test", :group_refs => [{'name' => 'n1000', 'uuid' => '1000'}], :sequence => 2} }
+    let(:group) { instance_double(Group, :name => 'n1000', :uuid => '1000', :has_role? => true) }
 
     context 'admin role when item exists' do
-      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+      before do
+        allow(rs_class).to receive(:paginate).and_return(admin_acls)
+        allow(Group).to receive(:find).and_return(group)
+      end
 
       it 'updates the item' do
         patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers

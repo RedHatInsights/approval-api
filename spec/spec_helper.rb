@@ -20,6 +20,7 @@ RSpec.configure do |config|
   # Version tracking for specs
   config.include V1Helper, :type => :v1
   config.include V1x1Helper, :type => :v1x1
+  config.include V1x2Helper, :type => :v1x2
   # ------------------------ #
 
   # rspec-mocks config goes here. You can use an alternate test double
