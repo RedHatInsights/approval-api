@@ -45,12 +45,18 @@ module Api
       end
 
       def link
+        workflow = Workflow.find(params.require(:id))
+        authorize workflow
+
         WorkflowLinkService.new(params.require(:id)).link(params_for_create.to_unsafe_h)
 
         head :no_content
       end
 
       def unlink
+        workflow = Workflow.find(params.require(:id))
+        authorize workflow
+
         WorkflowUnlinkService.new(params[:id]).unlink(resource_object_params)
 
         head :no_content

@@ -21,6 +21,14 @@ class WorkflowPolicy < ApplicationPolicy
     permission_check('destroy')
   end
 
+  def link?
+    permission_check('link')
+  end
+
+  def unlink?
+    permission_check('unlink')
+  end
+
   def query?
     permission_check('read')
   end

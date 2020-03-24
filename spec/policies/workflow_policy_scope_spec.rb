@@ -30,8 +30,8 @@ describe WorkflowPolicy::Scope do
     context 'when requester role' do
       let(:acls) { requester_acls }
 
-      it 'raises an error' do
-        expect { subject.resolve }.to raise_error(Exceptions::NotAuthorizedError, "Read access not authorized for Workflow")
+      it 'returns workflows' do
+        expect(subject.resolve).to match_array(workflows)
       end
     end
   end
