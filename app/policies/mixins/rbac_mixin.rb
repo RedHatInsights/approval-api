@@ -3,10 +3,6 @@ module Mixins
     include Insights::API::Common::RBAC
     include ApprovalPermissions
 
-    ADMIN_VERB    = 'admin'.freeze
-    APPROVER_VERB = 'approve'.freeze
-
-    # Klass here is allowed for Request and Action.
     def resource_check(verb, id = @record.id, klass = @record.class)
       permission_check(verb, klass) ? resource_instance_accessible?(klass.table_name, id) : false
     end
@@ -15,28 +11,28 @@ module Mixins
       return true unless Insights::API::Common::RBAC::Access.enabled?
 
       klass = resource_class(resource)
-      Insights::API::Common::RBAC::Access.new(klass.table_name, verb).process.accessible?
+      access.accessible?(klass.table_name, verb, 'approval')
     end
 
     # instance level check
     def resource_instance_accessible?(resource, resource_id)
       return true if admin?
 
-      approver? ? approvable?(resource, resource_id) : owned?(resource, resource_id)
+      approver? && approvable?(resource, resource_id) || requester? && owned?(resource, resource_id)
     end
 
     def admin?(resource = @record)
       return false unless Insights::API::Common::RBAC::Access.enabled?
 
       klass = resource_class(resource)
-      Insights::API::Common::RBAC::Access.new(klass.table_name, ADMIN_VERB).process.accessible?
+      access.scopes(klass.table_name, 'read').include?('admin')
     end
 
     def approver?(resource = @record)
       return false unless Insights::API::Common::RBAC::Access.enabled?
 
       klass = resource_class(resource)
-      Insights::API::Common::RBAC::Access.new(klass.table_name, APPROVER_VERB).process.accessible?
+      access.scopes(klass.table_name, 'read').include?('group')
     end
 
     def requester?(resource = @record)
@@ -99,6 +95,10 @@ module Mixins
     # The accessible workflow ids for approver
     def workflow_ids
       AccessControlEntry.where(:aceable_type => 'Workflow', :permission => 'approve', :group_uuid => assigned_group_refs).pluck(:aceable_id)
+    end
+
+    def access
+      @access ||= Insights::API::Common::RBAC::Access.new('approval').process
     end
 
     def resource_class(resource)

@@ -348,12 +348,12 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     context 'approver role' do
       before { setup_approver_role }
 
-      it 'returns status code 201' do
+      it 'returns status code 403' do
         allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1])
 
         post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
 
-        expect(response).to have_http_status(201)
+        expect(response).to have_http_status(403)
       end
     end
   end

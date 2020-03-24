@@ -70,10 +70,10 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     context 'regular user role when template exists' do
       before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
 
-      it 'returns status code 403' do
+      it 'returns status code 200' do
         get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
 
-        expect(response).to have_http_status(403)
+        expect(response).to have_http_status(200)
       end
     end
   end
@@ -111,10 +111,10 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     context 'regular user role return workflows' do
       before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
 
-      it 'returns status code 403' do
+      it 'returns status code 200' do
         get "#{api_version}/workflows", :headers => default_headers
 
-        expect(response).to have_http_status(403)
+        expect(response).to have_http_status(200)
       end
     end
   end
@@ -192,10 +192,10 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     context 'regular user role when the record exists' do
       before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
 
-      it 'returns status code 403' do
+      it 'returns status code 200' do
         get "#{api_version}/workflows/#{id}", :headers => default_headers
 
-        expect(response).to have_http_status(403)
+        expect(response).to have_http_status(200)
       end
     end
 
@@ -389,9 +389,13 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   describe 'POST /workflows/:id/link' do
     let(:obj) { { :object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
 
-    it 'returns status code 204' do
+    before do
       allow(AddRemoteTags).to receive(:new).with(obj).and_return(add_tag_svc)
       allow(add_tag_svc).to receive(:process).with([tag]).and_return(add_tag_svc)
+    end
+
+    it 'returns status code 204 for admin' do
+      allow(rs_class).to receive(:paginate).and_return(admin_acls)
       post "#{api_version}/workflows/#{id}/link", :params => obj, :headers => default_headers
 
       expect(response).to have_http_status(204)
@@ -400,17 +404,49 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       expect(TagLink.first.app_name).to eq(obj[:app_name])
       expect(TagLink.first.object_type).to eq(obj[:object_type])
     end
+
+    it 'returns status code 403 for approver' do
+      allow(rs_class).to receive(:paginate).and_return(approver_acls)
+      post "#{api_version}/workflows/#{id}/link", :params => obj, :headers => default_headers
+
+      expect(response).to have_http_status(403)
+    end
+
+    it 'returns status code 403 for regular user' do
+      allow(rs_class).to receive(:paginate).and_return(requester_acls)
+      post "#{api_version}/workflows/#{id}/link", :params => obj, :headers => default_headers
+
+      expect(response).to have_http_status(403)
+    end
   end
 
   describe 'POST /workflows/:id/unlink' do
     let(:obj) { { :object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
 
-    it 'returns status code 204' do
+    before do
       allow(DeleteRemoteTags).to receive(:new).with(obj).and_return(del_tag_svc)
       allow(del_tag_svc).to receive(:process).with([tag]).and_return(del_tag_svc)
+    end
+
+    it 'returns status code 204' do
+      allow(rs_class).to receive(:paginate).and_return(admin_acls)
       post "#{api_version}/workflows/#{id}/unlink", :params => obj, :headers => default_headers
 
       expect(response).to have_http_status(204)
+    end
+
+    it 'returns status code 403 for approver' do
+      allow(rs_class).to receive(:paginate).and_return(approver_acls)
+      post "#{api_version}/workflows/#{id}/unlink", :params => obj, :headers => default_headers
+
+      expect(response).to have_http_status(403)
+    end
+
+    it 'returns status code 403 for regular user' do
+      allow(rs_class).to receive(:paginate).and_return(requester_acls)
+      post "#{api_version}/workflows/#{id}/unlink", :params => obj, :headers => default_headers
+
+      expect(response).to have_http_status(403)
     end
   end
 

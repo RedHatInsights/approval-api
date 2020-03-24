@@ -45,7 +45,7 @@ describe RequestPolicy do
       let(:subject) { described_class.new(user, Request) }
 
       it '#create?' do
-        expect(subject.create?).to be_truthy
+        expect(subject.create?).to be_falsey
       end
 
       it '#query?' do

@@ -66,7 +66,7 @@ describe WorkflowPolicy do
     end
 
     it '#show?' do
-      expect(subject.show?).to be_falsey
+      expect(subject.show?).to be_truthy
     end
 
     it '#update?' do
@@ -78,7 +78,7 @@ describe WorkflowPolicy do
     end
 
     it '#query?' do
-      expect(subject.query?).to be_falsey
+      expect(subject.query?).to be_truthy
     end
   end
 end
