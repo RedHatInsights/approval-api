@@ -103,7 +103,7 @@ RSpec.describe RequestCreateService do
             :owner                       => 'jdoe',
             :state                       => Request::COMPLETED_STATE,
             :decision                    => Request::APPROVED_STATUS,
-            :reason                      => 'System approved',
+            :reason                      => described_class::AUTO_APPROVED_REASON,
             :number_of_children          => 0,
             :number_of_finished_children => 0
           )
@@ -125,7 +125,7 @@ RSpec.describe RequestCreateService do
             :owner                       => 'jdoe',
             :state                       => Request::COMPLETED_STATE,
             :decision                    => Request::APPROVED_STATUS,
-            :reason                      => 'System approved',
+            :reason                      => described_class::AUTO_APPROVED_REASON,
             :number_of_children          => 3,
             :number_of_finished_children => 3
           )
@@ -134,7 +134,7 @@ RSpec.describe RequestCreateService do
             expect(child).to have_attributes(
               :state             => Request::COMPLETED_STATE,
               :decision          => Request::APPROVED_STATUS,
-              :reason            => 'System approved'
+              :reason            => described_class::AUTO_APPROVED_REASON
             )
             expect(child.actions.first).to have_attributes(
               :operation    => Action::START_OPERATION,
@@ -146,7 +146,7 @@ RSpec.describe RequestCreateService do
             )
             expect(child.actions.last).to have_attributes(
               :operation => Action::APPROVE_OPERATION,
-              :comments  => 'System approved'
+              :comments  => described_class::AUTO_APPROVED_REASON
             )
           end
         end
@@ -177,7 +177,7 @@ RSpec.describe RequestCreateService do
         :owner          => 'jdoe',
         :state          => Request::COMPLETED_STATE,
         :decision       => Request::APPROVED_STATUS,
-        :reason         => 'System approved',
+        :reason         => described_class::AUTO_APPROVED_REASON,
         :workflow       => nil,
         :group_name     => 'System approval'
       )
