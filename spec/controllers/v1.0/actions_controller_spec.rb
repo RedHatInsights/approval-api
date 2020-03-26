@@ -33,8 +33,8 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
   let(:api_version) { version }
 
   before do
-    allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi, {}).and_yield(api_instance)
-    allow(rs_class).to receive(:call).with(RBACApiClient::GroupApi, {}).and_yield(api_instance)
+    allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
+    allow(rs_class).to receive(:call).with(RBACApiClient::GroupApi, any_args).and_yield(api_instance)
   end
 
   describe 'GET /actions/:id' do

@@ -55,7 +55,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
   before do
     allow(WorkflowFindService).to receive(:new).and_return(workflow_find_service)
-    allow(rs_class).to receive(:call).with(RBACApiClient::GroupApi, {}).and_yield(api_instance)
+    allow(rs_class).to receive(:call).with(RBACApiClient::GroupApi, any_args).and_yield(api_instance)
     allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
   end
 

@@ -2,12 +2,20 @@ class RequestPolicy < ApplicationPolicy
   class Scope < ApplicationPolicy::Scope
     def resolve
       return scope.all unless Insights::API::Common::RBAC::Access.enabled?
-      model = scope.class == Class ? scope : scope.model
 
-      return scope.where(:parent_id => nil) if admin?(model)
+      # parent request index
+      if scope.class == Class
+        return scope.where(:parent_id => nil) if admin?(scope)
+        return scope.where(:id => approver_id_list(scope.table_name)) if approver?(scope)
 
-      ids = approver?(model) ? approver_id_list(model.table_name) : owner_id_list(model.table_name)
-      scope.where(:id => ids)
+        scope.where(:parent_id => nil, :id => owner_id_list(scope.table_name))
+      # child request index
+      else
+        return scope if admin?(scope.model)
+        return scope.where(:id => approver_id_list(scope.model.table_name)) if approver?(scope.model)
+
+        scope.where(:id => owner_id_list(scope.model.table_name))
+      end
     end
   end
 

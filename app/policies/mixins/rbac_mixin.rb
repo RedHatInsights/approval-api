@@ -3,6 +3,9 @@ module Mixins
     include Insights::API::Common::RBAC
     include ApprovalPermissions
 
+    APPROVER_VISIBLE_STATES = [ApprovalStates::NOTIFIED_STATE, ApprovalStates::COMPLETED_STATE].freeze
+    APP_NAME = ENV['APP_NAME'] || 'approval'.freeze
+
     def resource_check(verb, id = @record.id, klass = @record.class)
       permission_check(verb, klass) ? resource_instance_accessible?(klass.table_name, id) : false
     end
@@ -11,7 +14,7 @@ module Mixins
       return true unless Insights::API::Common::RBAC::Access.enabled?
 
       klass = resource_class(resource)
-      access.accessible?(klass.table_name, verb, 'approval')
+      access.accessible?(klass.table_name, verb, APP_NAME)
     end
 
     # instance level check
@@ -25,14 +28,14 @@ module Mixins
       return false unless Insights::API::Common::RBAC::Access.enabled?
 
       klass = resource_class(resource)
-      access.scopes(klass.table_name, 'read').include?('admin')
+      access.admin_scope?(klass.table_name, 'read', APP_NAME)
     end
 
     def approver?(resource = @record)
       return false unless Insights::API::Common::RBAC::Access.enabled?
 
       klass = resource_class(resource)
-      access.scopes(klass.table_name, 'read').include?('group')
+      access.group_scope?(klass.table_name, 'read', APP_NAME)
     end
 
     def requester?(resource = @record)
@@ -82,8 +85,7 @@ module Mixins
 
     # All child request ids for approver to process
     def visible_request_ids_for_approver
-      visible_states = [ApprovalStates::NOTIFIED_STATE, ApprovalStates::COMPLETED_STATE]
-      Request.where(:workflow_id => workflow_ids, :state => visible_states).pluck(:id)
+      Request.where(:group_ref => assigned_group_refs, :state => APPROVER_VISIBLE_STATES).pluck(:id)
     end
 
     def assigned_group_refs
@@ -92,13 +94,8 @@ module Mixins
       end
     end
 
-    # The accessible workflow ids for approver
-    def workflow_ids
-      AccessControlEntry.where(:aceable_type => 'Workflow', :permission => 'approve', :group_uuid => assigned_group_refs).pluck(:aceable_id)
-    end
-
     def access
-      @access ||= Insights::API::Common::RBAC::Access.new('approval').process
+      @access ||= Insights::API::Common::RBAC::Access.new(APP_NAME).process
     end
 
     def resource_class(resource)

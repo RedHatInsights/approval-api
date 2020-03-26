@@ -18,7 +18,6 @@ module Api
       end
 
       def index
-        binding.pry
         collection(policy_scope(requests_prefilter))
       end
 
