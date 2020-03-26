@@ -7,7 +7,7 @@ RSpec.describe WorkflowGetService do
 
   describe '#get' do
     before do
-      allow(Insights::API::Common::RBAC::Service).to receive(:call).with(RBACApiClient::GroupApi).and_yield(group_api)
+      allow(Insights::API::Common::RBAC::Service).to receive(:call).with(RBACApiClient::GroupApi, {}).and_yield(group_api)
     end
 
     context 'group exists' do
