@@ -6,11 +6,19 @@ class ContextService
   end
 
   def with_context(&block)
-    switch_context(context, &block)
+    switch_context(context, false, &block)
   end
 
   def as_org_admin(&block)
-    switch_context(org_admin_context, &block)
+    if ENV['RBAC_PSK']
+      begin
+        switch_context(context, true, &block)
+      ensure
+        Thread.current[:rbac_extra_headers] = nil
+      end
+    else
+      switch_context(org_admin_context, false, &block)
+    end
   end
 
   private
@@ -23,9 +31,21 @@ class ContextService
     end
   end
 
-  def switch_context(new_context)
+  def service_to_service_headers
+    {
+      'x-rh-rbac-psk'       => ENV['RBAC_PSK'],
+      'x-rh-rbac-account'   => ActsAsTenant.current_tenant.external_tenant,
+      'x-rh-rbac-client-id' => 'approval',
+      'x-rh-identity'       => nil
+    }
+  end
+
+  def switch_context(new_context, extra_headers)
     Insights::API::Common::Request.with_request(new_context.transform_keys(&:to_sym)) do |current|
-      ActsAsTenant.with_tenant(Tenant.find_by(:external_tenant => current.tenant)) { yield }
+      ActsAsTenant.with_tenant(Tenant.find_by(:external_tenant => current.tenant)) do
+        Thread.current[:rbac_extra_headers] = service_to_service_headers if extra_headers
+        yield
+     end
     end
   end
 end

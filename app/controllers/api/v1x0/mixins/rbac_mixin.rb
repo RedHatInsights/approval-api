@@ -134,7 +134,7 @@ module Api
         end
 
         def assigned_group_refs
-          Insights::API::Common::RBAC::Service.call(RBACApiClient::GroupApi) do |api|
+          Insights::API::Common::RBAC::Service.call(RBACApiClient::GroupApi, Thread.current[:rbac_extra_headers] || {}) do |api|
             Insights::API::Common::RBAC::Service.paginate(api, :list_groups, :scope => 'principal').collect(&:uuid)
           end
         end

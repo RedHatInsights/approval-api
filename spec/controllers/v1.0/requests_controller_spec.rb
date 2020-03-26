@@ -61,7 +61,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   before do
     allow(WorkflowFindService).to receive(:new).and_return(workflow_find_service)
     allow(Insights::API::Common::RBAC::Roles).to receive(:new).and_return(roles_obj)
-    allow(rs_class).to receive(:call).with(RBACApiClient::GroupApi).and_yield(api_instance)
+    allow(rs_class).to receive(:call).with(RBACApiClient::GroupApi, {}).and_yield(api_instance)
   end
 
   describe 'GET /requests (for admin persona)' do

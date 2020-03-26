@@ -36,8 +36,8 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
 
   before do
     allow(Insights::API::Common::RBAC::Roles).to receive(:new).and_return(roles_obj)
-    allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
-    allow(rs_class).to receive(:call).with(RBACApiClient::GroupApi).and_yield(api_instance)
+    allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi, {}).and_yield(api_instance)
+    allow(rs_class).to receive(:call).with(RBACApiClient::GroupApi, {}).and_yield(api_instance)
   end
 
   describe 'GET /actions/:id' do
