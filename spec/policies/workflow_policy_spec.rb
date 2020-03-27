@@ -2,16 +2,13 @@ describe WorkflowPolicy do
   include_context "approval_rbac_objects"
 
   let(:workflows) { create_list(:workflow, 3) }
-  let(:user) { instance_double(UserContext) }
+  let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => accessible_flag) }
+  let(:user) { instance_double(UserContext, :access => access) }
   let(:subject) { described_class.new(user, Workflow) }
 
-  before do
-    allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
-    allow(rs_class).to receive(:paginate).and_return(acls)
-  end
-
   describe 'with admin role' do
-    let(:acls) { admin_acls }
+    let(:accessible_flag) { true }
+    before { allow(access).to receive(:admin_scope?).and_return(true) }
 
     it '#create?' do
       expect(subject.create?).to be_truthy
@@ -35,7 +32,7 @@ describe WorkflowPolicy do
   end
 
   describe 'with approver role' do
-    let(:acls) { approver_acls }
+    let(:accessible_flag) { false }
 
     it '#create?' do
       expect(subject.create?).to be_falsey
@@ -59,26 +56,32 @@ describe WorkflowPolicy do
   end
 
   describe 'with requester role' do
-    let(:acls) { requester_acls }
+    context 'when permission_check is true' do
+      let(:accessible_flag) { true }
 
-    it '#create?' do
-      expect(subject.create?).to be_falsey
+      it '#show?' do
+        expect(subject.show?).to be_truthy
+      end
+
+      it '#query?' do
+        expect(subject.query?).to be_truthy
+      end
     end
 
-    it '#show?' do
-      expect(subject.show?).to be_truthy
-    end
+    context 'when permission_check is false' do
+      let(:accessible_flag) { false }
 
-    it '#update?' do
-      expect(subject.update?).to be_falsey
-    end
+      it '#create?' do
+        expect(subject.create?).to be_falsey
+      end
 
-    it '#destroy?' do
-      expect(subject.destroy?).to be_falsey
-    end
+      it '#update?' do
+        expect(subject.update?).to be_falsey
+      end
 
-    it '#query?' do
-      expect(subject.query?).to be_truthy
+      it '#destroy?' do
+        expect(subject.destroy?).to be_falsey
+      end
     end
   end
 end

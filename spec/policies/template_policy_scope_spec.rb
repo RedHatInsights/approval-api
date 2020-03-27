@@ -2,17 +2,14 @@ describe TemplatePolicy::Scope do
   include_context "approval_rbac_objects"
 
   let(:templates) { create_list(:template, 3) }
-  let(:user) { instance_double(UserContext) }
+  let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => accessible_flag) }
+  let(:user) { instance_double(UserContext, :access => access) }
   let(:subject) { described_class.new(user, Template) }
-
-  before do
-    allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
-    allow(rs_class).to receive(:paginate).and_return(acls)
-  end
 
   describe '#resolve' do
     context 'when admin role' do
-      let(:acls) { admin_acls }
+      let(:accessible_flag) { true }
+      before { allow(access).to receive(:admin_scope?).and_return(true) }
 
       it 'returns templates' do
         expect(subject.resolve).to match_array(templates)
@@ -20,7 +17,7 @@ describe TemplatePolicy::Scope do
     end
 
     context 'when approver role' do
-      let(:acls) { approver_acls }
+      let(:accessible_flag) { false }
 
       it 'returns templates' do
         expect { subject.resolve }.to raise_error(Exceptions::NotAuthorizedError)
@@ -28,7 +25,7 @@ describe TemplatePolicy::Scope do
     end
 
     context 'when requester role' do
-      let(:acls) { requester_acls }
+      let(:accessible_flag) { false }
 
       it 'returns templates' do
         expect { subject.resolve }.to raise_error(Exceptions::NotAuthorizedError)

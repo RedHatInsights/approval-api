@@ -18,16 +18,12 @@ module Api
       end
 
       def index
-        collection(policy_scope(requests_prefilter))
-      end
+        return collection(policy_scope(Request)) unless params[:request_id]
 
-      private
+        req = Request.find(params.require(:request_id))
+        authorize req
 
-      def requests_prefilter
-        return Request unless params[:request_id]
-
-        authorize Request.find(params.require(:request_id))
-        Request.find(params[:request_id]).children
+        collection(policy_scope(req.children))
       end
    end
   end

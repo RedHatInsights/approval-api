@@ -36,9 +36,9 @@ class ActionPolicy < ApplicationPolicy
     uuid = user.request.headers['x-rh-random-access-key']
 
     valid_operation =
-      admin? && ADMIN_OPERATIONS.include?(operation) ||
-      approver? && APPROVER_OPERATIONS.include?(operation) ||
-      requester? && REQUESTER_OPERATIONS.include?(operation) ||
+      admin?(record, 'create') && ADMIN_OPERATIONS.include?(operation) ||
+      approver?(record, 'create') && APPROVER_OPERATIONS.include?(operation) ||
+      requester?(record, 'create') && REQUESTER_OPERATIONS.include?(operation) ||
 
       uuid.present? && Request.find(user.params[:request_id]).try(:random_access_keys).any? { |key| key.access_key == uuid }
   end

@@ -17,8 +17,7 @@ module Api
         {
           "^.*$" => {
             "base_query" => lambda do |model_class, _ctx|
-              authorize model_class
-              model_class
+              policy_scope(model_class)
             end
           }
         }

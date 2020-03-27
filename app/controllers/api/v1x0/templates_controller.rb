@@ -4,7 +4,9 @@ module Api
       include Mixins::IndexMixin
 
       def show
-        template = policy_scope(Template).find(params.require(:id))
+        template = Template.find(params.require(:id))
+        authorize template
+
         json_response(template)
       end
 
