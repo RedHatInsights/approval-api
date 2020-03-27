@@ -39,7 +39,6 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
 
   describe 'GET /actions/:id' do
     context 'admin role' do
-      #before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
       before { setup_admin_acls }
 
       context 'when the record exists' do

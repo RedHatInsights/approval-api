@@ -11,10 +11,7 @@ class RequestPolicy < ApplicationPolicy
         scope.where(:parent_id => nil, :id => owner_id_list(scope.table_name))
       # child request index
       else
-        return scope if admin?(scope.model)
-        return scope.where(:id => approver_id_list(scope.model.table_name)) if approver?(scope.model)
-
-        scope.where(:id => owner_id_list(scope.model.table_name))
+        scope
       end
     end
   end

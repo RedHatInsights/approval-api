@@ -3,18 +3,15 @@ describe ActionPolicy::Scope do
 
   let(:request) { create(:request) }
   let(:actions) { create_list(:action, 3, :request => request) }
+  let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => accessible_flag) }
   let(:params) { { :request_id => request.id } }
-  let(:user) { instance_double(UserContext, :params => params) }
+  let(:user) { instance_double(UserContext, :params => params, :access => access) }
   let(:subject) { described_class.new(user, Action.all) }
-
-  before do
-    allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
-    allow(rs_class).to receive(:paginate).and_return(acls)
-  end
 
   describe '#resolve' do
     context 'when admin role' do
-      let(:acls) { admin_acls }
+      let(:accessible_flag) { true }
+      before { allow(access).to receive(:admin_scope?).and_return(true) }
 
       it 'returns actions' do
         expect(subject.resolve).to match_array(actions)
@@ -22,10 +19,12 @@ describe ActionPolicy::Scope do
     end
 
     context 'when approver role' do
-      let(:acls) { approver_acls }
+      let(:accessible_flag) { true }
 
       before do
         allow(subject).to receive(:approver_id_list).and_return([actions.first.id, actions.last.id, request.id])
+        allow(access).to receive(:admin_scope?).and_return(false)
+        allow(access).to receive(:group_scope?).and_return(true)
       end
 
       it 'returns actions' do
@@ -34,7 +33,7 @@ describe ActionPolicy::Scope do
     end
 
     context 'when requester role' do
-      let(:acls) { requester_acls }
+      let(:accessible_flag) { false }
 
       it 'raises an error' do
         expect { subject.resolve }.to raise_error(Exceptions::NotAuthorizedError)

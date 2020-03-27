@@ -7,39 +7,36 @@ module Mixins
     APP_NAME = ENV['APP_NAME'] || 'approval'.freeze
 
     def resource_check(verb, id = @record.id, klass = @record.class)
-      permission_check(verb, klass) ? resource_instance_accessible?(klass.table_name, id) : false
+      permission_check(verb, klass) ? resource_instance_accessible?(klass, verb, id) : false
     end
 
     def permission_check(verb, resource = @record)
       return true unless Insights::API::Common::RBAC::Access.enabled?
 
       klass = resource_class(resource)
-      access.accessible?(klass.table_name, verb, APP_NAME)
+      @user.access.accessible?(klass.table_name, verb, APP_NAME)
     end
 
     # instance level check
-    def resource_instance_accessible?(resource, resource_id)
-      return true if admin?
+    def resource_instance_accessible?(resource, verb, resource_id)
+      return true if admin?(resource, verb)
 
-      approver? && approvable?(resource, resource_id) || requester? && owned?(resource, resource_id)
+      approver?(resource, verb) && approvable?(resource.table_name, resource_id) || requester?(resource, verb) && owned?(resource.table_name, resource_id)
     end
 
-    def admin?(resource = @record)
-      return false unless Insights::API::Common::RBAC::Access.enabled?
-
+    def admin?(resource = @record, verb = 'read')
       klass = resource_class(resource)
-      access.admin_scope?(klass.table_name, 'read', APP_NAME)
+      @user.access.admin_scope?(klass.table_name, verb, APP_NAME)
     end
 
-    def approver?(resource = @record)
-      return false unless Insights::API::Common::RBAC::Access.enabled?
-
+    def approver?(resource = @record, verb = 'read')
       klass = resource_class(resource)
-      access.group_scope?(klass.table_name, 'read', APP_NAME)
+      @user.access.group_scope?(klass.table_name, verb, APP_NAME)
     end
 
-    def requester?(resource = @record)
-      !admin?(resource) && !approver?(resource)
+    def requester?(resource = @record, verb = 'read')
+      klass = resource_class(resource)
+      @user.access.user_scope?(klass.table_name, verb, APP_NAME)
     end
 
     # check if approver can process the #{resource} with #{id}
@@ -92,10 +89,6 @@ module Mixins
       Insights::API::Common::RBAC::Service.call(RBACApiClient::GroupApi) do |api|
         Insights::API::Common::RBAC::Service.paginate(api, :list_groups, :scope => 'principal').collect(&:uuid)
       end
-    end
-
-    def access
-      @access ||= Insights::API::Common::RBAC::Access.new(APP_NAME).process
     end
 
     def resource_class(resource)

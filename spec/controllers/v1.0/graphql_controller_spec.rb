@@ -13,11 +13,14 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
 
   let(:graphql_source_query) { { 'query' => '{ workflows {  id template_id name  } }' } }
 
-  before { allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance) }
+  before do
+    allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
+    allow(rs_class).to receive(:paginate).and_return(acls)
+  end
 
   describe 'a simple graphql query' do
     context 'rbac allows' do
-      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+      let!(:acls) { admin_acls }
 
       it 'selects attributes in workflows' do
         post "#{api_version}/graphql", :headers => headers, :params => graphql_source_query
@@ -33,7 +36,7 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
     end
 
     xcontext 'rbac rejects' do
-      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
+      let!(:acls) { approver_acls }
 
       it 'selects attributes in workflows' do
         post "#{api_version}/graphql", :headers => headers, :params => graphql_source_query

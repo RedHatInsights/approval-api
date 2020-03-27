@@ -2,17 +2,16 @@ describe RequestPolicy::Scope do
   include_context "approval_rbac_objects"
 
   let(:requests) { create_list(:request, 3) }
-  let(:user) { instance_double(UserContext) }
-  let(:subject) { described_class.new(user, Request.all) }
+  let(:sub_requests) { create_list(:request, 2, :parent_id => requests.first.id) }
+  let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => true) }
+  let(:user) { instance_double(UserContext, :access => access) }
+  let(:subject) { described_class.new(user, scope) }
 
-  before do
-    allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance)
-    allow(rs_class).to receive(:paginate).and_return(acls)
-  end
+  describe '#resolve /requests' do
+    let(:scope) { Request }
 
-  describe '#resolve' do
     context 'when admin role' do
-      let(:acls) { admin_acls }
+      before { allow(access).to receive(:admin_scope?).and_return(true) }
 
       it 'returns requests' do
         expect(subject.resolve).to match_array(requests)
@@ -20,10 +19,10 @@ describe RequestPolicy::Scope do
     end
 
     context 'when approver role' do
-      let(:acls) { approver_acls }
-
       before do
         allow(subject).to receive(:approver_id_list).and_return([requests.first.id, requests.last.id])
+        allow(access).to receive(:admin_scope?).and_return(false)
+        allow(access).to receive(:group_scope?).and_return(true)
       end
 
       it 'returns requests' do
@@ -32,15 +31,42 @@ describe RequestPolicy::Scope do
     end
 
     context 'when requester role' do
-      let(:acls) { requester_acls }
-
       before do
         allow(subject).to receive(:owner_id_list).and_return([requests.second.id])
+        allow(access).to receive(:admin_scope?).and_return(false)
+        allow(access).to receive(:group_scope?).and_return(false)
+        allow(access).to receive(:user_scope?).and_return(true)
       end
 
       it 'returns requests' do
-        expect(subject.resolve).to eq(Request.where(:id => [requests.second.id]))
+        expect(subject.resolve.count).to eq(1)
+        expect(subject.resolve.first).to eq(requests.second)
       end
     end
+  end
+
+  describe '#resolve /requests/#{id}/requests' do
+    let(:scope) { sub_requests }
+
+    context 'when admin role' do
+      before { allow(access).to receive(:admin_scope?).and_return(true) }
+
+      it 'returns requests' do
+        expect(subject.resolve).to match_array(sub_requests)
+      end
+    end
+
+    context 'when regular user role' do
+      before do
+        allow(access).to receive(:admin_scope?).and_return(false)
+        allow(access).to receive(:group_scope?).and_return(false)
+        allow(access).to receive(:user_scope?).and_return(true)
+      end
+
+      it 'returns requests' do
+        expect(subject.resolve).to match_array(sub_requests)
+      end
+    end
+
   end
 end
