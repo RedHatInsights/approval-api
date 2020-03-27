@@ -1345,7 +1345,8 @@
                         "description": "Group reference ids associated with workflow",
                         "items": {
                             "$ref": "#/components/schemas/GroupRef"
-                        }
+                        },
+                        "uniqueItems": true
                     }
                 }
             },

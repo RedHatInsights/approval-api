@@ -214,6 +214,11 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     let(:group) { instance_double(Group, :name => 'group', :uuid => 990, :has_role? => true) }
     let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
 
+    before do
+      allow(rs_class).to receive(:paginate).and_return(admin_acls)
+      allow(Group).to receive(:find).and_return(group)
+    end
+
     before { allow(Group).to receive(:find).and_return(group) }
 
     context 'when admin role request attributes are valid' do
@@ -222,23 +227,27 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       it 'returns status code 201' do
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
 
+        expect(json['group_refs'].size).to eq(3)
         expect(response).to have_http_status(201)
       end
     end
 
-    context 'when a request with missing parameter' do
-      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+    context 'when groups_refs contains duplicated group' do
+      let(:group_refs) { [{'name' => 'n990', 'uuid' => '990'}, {'name' => 'n991', 'uuid' => '991'}, {'name' => 'n99x', 'uuid' => '990'}] }
 
       it 'returns status code 400' do
-        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
+        post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
 
         expect(response).to have_http_status(400)
       end
+    end
 
-      it 'returns a failure message' do
+    context 'when a request with missing parameter' do
+      it 'returns status code 400' do
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes.slice(:description, :group_refs), :headers => default_headers
 
         expect(response.body).to match(/Validation failed:/)
+        expect(response).to have_http_status(400)
       end
     end
 

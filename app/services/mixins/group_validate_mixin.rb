@@ -2,6 +2,9 @@ module GroupValidateMixin
   APPROVER_ROLE = 'Approval Approver'.freeze
 
   def validate_approver_groups(group_refs, raise_error = true)
+    not_uniq = group_refs.uniq! { |ref| ref['uuid'] }
+    raise Exceptions::UserError, 'Duplicated group UUID was detected' if not_uniq && raise_error
+
     group_refs.collect do |group_ref|
       if raise_error
         validate_approver_group_and_raise(group_ref['uuid'])

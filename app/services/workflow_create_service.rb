@@ -9,14 +9,7 @@ class WorkflowCreateService
   end
 
   def create(options)
-    if options[:group_refs]
-      validate_approver_groups(options[:group_refs])
-
-      options[:access_control_entries] =
-        options[:group_refs].collect do |uuid|
-          AccessControlEntry.new(:group_uuid => uuid, :permission => 'approve')
-        end
-    end
+    options[:group_refs] = validate_approver_groups(options[:group_refs]) if options[:group_refs]
 
     template.workflows.create!(options)
   end
