@@ -1,42 +1,40 @@
 module Mixins
   module RBACMixin
-    include Insights::API::Common::RBAC
     include ApprovalPermissions
 
     APPROVER_VISIBLE_STATES = [ApprovalStates::NOTIFIED_STATE, ApprovalStates::COMPLETED_STATE].freeze
-    APP_NAME = ENV['APP_NAME'] || 'approval'.freeze
 
     def resource_check(verb, id = @record.id, klass = @record.class)
-      permission_check(verb, klass) ? resource_instance_accessible?(klass, verb, id) : false
+      return true unless @user.rbac_enabled?
+
+      if admin?(klass, verb)
+        true
+      elsif approver?(klass, verb)
+        approvable?(klass.table_name, id)
+      elsif requester?(klass, verb)
+        owned?(klass.table_name, id)
+      else
+        Rails.logger.info("No scope is defined for verb: #{verb}, id: #{id}, klass: #{klass}")
+        false
+      end
     end
 
-    def permission_check(verb, resource = @record)
-      return true unless Insights::API::Common::RBAC::Access.enabled?
+    def permission_check(verb, klass = @record.class)
+      return true unless @user.rbac_enabled?
 
-      klass = resource_class(resource)
-      @user.access.accessible?(klass.table_name, verb, APP_NAME)
+      access.accessible?(klass.table_name, verb)
     end
 
-    # instance level check
-    def resource_instance_accessible?(resource, verb, resource_id)
-      return true if admin?(resource, verb)
-
-      approver?(resource, verb) && approvable?(resource.table_name, resource_id) || requester?(resource, verb) && owned?(resource.table_name, resource_id)
+    def admin?(klass = @record.class, verb = 'read')
+      scopes(klass, verb).include?("admin")
     end
 
-    def admin?(resource = @record, verb = 'read')
-      klass = resource_class(resource)
-      @user.access.admin_scope?(klass.table_name, verb, APP_NAME)
+    def approver?(klass = @record.class, verb = 'read')
+      scopes(klass, verb).include?("group")
     end
 
-    def approver?(resource = @record, verb = 'read')
-      klass = resource_class(resource)
-      @user.access.group_scope?(klass.table_name, verb, APP_NAME)
-    end
-
-    def requester?(resource = @record, verb = 'read')
-      klass = resource_class(resource)
-      @user.access.user_scope?(klass.table_name, verb, APP_NAME)
+    def requester?(klass = @record.class, verb = 'read')
+      scopes(klass, verb).include?("user")
     end
 
     # check if approver can process the #{resource} with #{id}
@@ -82,25 +80,15 @@ module Mixins
 
     # All child request ids for approver to process
     def visible_request_ids_for_approver
-      Request.where(:group_ref => assigned_group_refs, :state => APPROVER_VISIBLE_STATES).pluck(:id)
+      Request.where(:group_ref => @user.group_uuids, :state => APPROVER_VISIBLE_STATES).pluck(:id)
     end
 
-    def assigned_group_refs
-      Insights::API::Common::RBAC::Service.call(RBACApiClient::GroupApi) do |api|
-        Insights::API::Common::RBAC::Service.paginate(api, :list_groups, :scope => 'principal').collect(&:uuid)
-      end
+    def scopes(klass, verb)
+      access.scopes(klass.table_name, verb)
     end
-
-    def resource_class(resource)
-      if resource.class == Class
-        resource
-      elsif resource.respond_to?(:model)
-        resource.model
-      elsif resource.instance_of?(resource.class)
-        resource.class
-      else
-        raise ArgumentError, "Unknown resource type: #{resource} in permission check"
-      end
+    
+    def access
+      @user.access
     end
   end
 end

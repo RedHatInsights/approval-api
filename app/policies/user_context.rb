@@ -1,9 +1,22 @@
 class UserContext
-  attr_reader :request, :params, :access
+  attr_reader :request, :params
 
-  def initialize(request, params, access)
+  def initialize(request, params)
     @request = request
     @params = params
-    @access = access
+  end
+
+  def access 
+    @access ||= Insights::API::Common::RBAC::Access.new.process
+  end
+
+  def group_uuids
+    @group_uuids ||= Insights::API::Common::RBAC::Service.call(RBACApiClient::GroupApi) do |api|
+      Insights::API::Common::RBAC::Service.paginate(api, :list_groups, :scope => 'principal').collect(&:uuid)
+    end
+  end
+
+  def rbac_enabled?
+    @rbac_enabled ||= Insights::API::Common::RBAC::Access.enabled?
   end
 end

@@ -11,6 +11,6 @@ class TemplatePolicy < ApplicationPolicy
 
   # define for graphql
   def query?
-    permission_check('read')
+    permission_check('read', record)
   end
 end

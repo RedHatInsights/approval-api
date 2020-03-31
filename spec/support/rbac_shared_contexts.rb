@@ -14,7 +14,7 @@ RSpec.shared_context "approval_rbac_objects" do
   let(:workflow_create_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:create", :resource_definitions => [admin_resource_def]) }
   let(:workflow_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:read", :resource_definitions => [admin_resource_def]) }
   let(:workflow_update_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:update", :resource_definitions => [admin_resource_def]) }
-  let(:workflow_destroy_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:destroy", :resource_definitions => [admin_resource_def]) }
+  let(:workflow_destroy_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:delete", :resource_definitions => [admin_resource_def]) }
   let(:request_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:requests:read", :resource_definitions => [admin_resource_def]) }
   let(:request_create_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:requests:create", :resource_definitions => [admin_resource_def]) }
   let(:action_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:actions:read", :resource_definitions => [admin_resource_def]) }

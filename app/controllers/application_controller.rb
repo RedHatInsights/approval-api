@@ -43,10 +43,6 @@ class ApplicationController < ActionController::API
   end
 
   def pundit_user
-    UserContext.new(
-      Insights::API::Common::Request.current!,
-      params,
-      Insights::API::Common::RBAC::Access.new('approval').process
-    )
+    @user ||= UserContext.new(Insights::API::Common::Request.current!, params)
   end
 end

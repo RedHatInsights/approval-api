@@ -5,13 +5,13 @@ describe ActionPolicy::Scope do
   let(:actions) { create_list(:action, 3, :request => request) }
   let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => accessible_flag) }
   let(:params) { { :request_id => request.id } }
-  let(:user) { instance_double(UserContext, :params => params, :access => access) }
+  let(:user) { instance_double(UserContext, :params => params, :access => access, :rbac_enabled? => true) }
   let(:subject) { described_class.new(user, Action.all) }
 
   describe '#resolve' do
     context 'when admin role' do
       let(:accessible_flag) { true }
-      before { allow(access).to receive(:admin_scope?).and_return(true) }
+      before { allow(access).to receive(:scopes).and_return(['admin']) }
 
       it 'returns actions' do
         expect(subject.resolve).to match_array(actions)
@@ -23,8 +23,7 @@ describe ActionPolicy::Scope do
 
       before do
         allow(subject).to receive(:approver_id_list).and_return([actions.first.id, actions.last.id, request.id])
-        allow(access).to receive(:admin_scope?).and_return(false)
-        allow(access).to receive(:group_scope?).and_return(true)
+        allow(access).to receive(:scopes).and_return(['group'])
       end
 
       it 'returns actions' do

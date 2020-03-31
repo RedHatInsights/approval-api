@@ -6,18 +6,23 @@ class ActionPolicy < ApplicationPolicy
 
   class Scope < ApplicationPolicy::Scope
     def resolve
-      raise Exceptions::NotAuthorizedError, "Read access not authorized for #{scope}" unless permission_check('read', scope)
-      return scope.all if admin?(scope.model)
+      raise Exceptions::NotAuthorizedError, "Read access not authorized for #{scope}" unless permission_check('read', scope.model)
 
-      action_ids = approver_id_list(scope.model.table_name)
-      Rails.logger.debug { "Approver scope for actions: #{action_ids}" }
-
-      scope.where(:id => action_ids)
+      if admin?(scope.model)
+        scope.all
+      elsif approver?(scope.model)
+        scope.where(:id => approver_id_list(scope.model.table_name))
+      elsif requester?(scope.model)
+        scope.where(:id => owner_id_list(scope.table_name))
+      else
+        Rails.logger.error("Error in request resolve: scope does not include admin, group, or user. List of scopes: #{scope.model}")
+        scope.none
+      end
     end
   end
 
   def create?
-    permission_check('create')
+    permission_check('create', record)
     validate_create_action
   end
 
@@ -26,7 +31,7 @@ class ActionPolicy < ApplicationPolicy
   end
 
   def query?
-    permission_check('read')
+    permission_check('read', record)
   end
 
   private
