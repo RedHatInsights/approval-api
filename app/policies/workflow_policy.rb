@@ -6,7 +6,7 @@ class WorkflowPolicy < ApplicationPolicy
   end
 
   def create?
-    permission_check('create')
+    permission_check('create', record)
   end
 
   def show?
@@ -18,7 +18,7 @@ class WorkflowPolicy < ApplicationPolicy
   end
 
   def destroy?
-    permission_check('destroy')
+    permission_check('delete')
   end
 
   def link?
@@ -30,6 +30,6 @@ class WorkflowPolicy < ApplicationPolicy
   end
 
   def query?
-    permission_check('read')
+    permission_check('read', record)
   end
 end

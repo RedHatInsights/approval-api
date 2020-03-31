@@ -18,12 +18,15 @@ module Api
       end
 
       def index
-        return collection(policy_scope(Request)) unless params[:request_id]
+        relation = if params[:request_id]
+                     req = Request.find(params.require(:request_id))
+                     authorize req
+                     req.children
+                   else
+                     Request
+                   end
 
-        req = Request.find(params.require(:request_id))
-        authorize req
-
-        collection(policy_scope(req.children))
+        collection(policy_scope(relation))
       end
    end
   end

@@ -3,13 +3,13 @@ describe TemplatePolicy do
 
   let(:templates) { create_list(:template, 3) }
   let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => accessible_flag) }
-  let(:user) { instance_double(UserContext, :access => access) }
-  let(:subject) { described_class.new(user, Template) }
+  let(:user) { instance_double(UserContext, :rbac_enabled? => true, :access => access) }
+
+  subject { described_class.new(user, Template) }
 
   describe '#query?' do
     context 'when admin role' do
       let(:accessible_flag) { true }
-      before { allow(access).to receive(:admin_scope?).and_return(true) }
 
       it 'returns templates' do
         expect(subject.query?).to be_truthy

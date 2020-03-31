@@ -4,14 +4,14 @@ describe RequestPolicy::Scope do
   let(:requests) { create_list(:request, 3) }
   let(:sub_requests) { create_list(:request, 2, :parent_id => requests.first.id) }
   let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => true) }
-  let(:user) { instance_double(UserContext, :access => access) }
+  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true) }
   let(:subject) { described_class.new(user, scope) }
 
   describe '#resolve /requests' do
     let(:scope) { Request }
 
     context 'when admin role' do
-      before { allow(access).to receive(:admin_scope?).and_return(true) }
+      before { allow(access).to receive(:scopes).and_return(['admin']) }
 
       it 'returns requests' do
         expect(subject.resolve).to match_array(requests)
@@ -21,8 +21,7 @@ describe RequestPolicy::Scope do
     context 'when approver role' do
       before do
         allow(subject).to receive(:approver_id_list).and_return([requests.first.id, requests.last.id])
-        allow(access).to receive(:admin_scope?).and_return(false)
-        allow(access).to receive(:group_scope?).and_return(true)
+        allow(access).to receive(:scopes).and_return(['group'])
       end
 
       it 'returns requests' do
@@ -33,9 +32,7 @@ describe RequestPolicy::Scope do
     context 'when requester role' do
       before do
         allow(subject).to receive(:owner_id_list).and_return([requests.second.id])
-        allow(access).to receive(:admin_scope?).and_return(false)
-        allow(access).to receive(:group_scope?).and_return(false)
-        allow(access).to receive(:user_scope?).and_return(true)
+        allow(access).to receive(:scopes).and_return(['user'])
       end
 
       it 'returns requests' do
@@ -49,7 +46,7 @@ describe RequestPolicy::Scope do
     let(:scope) { sub_requests }
 
     context 'when admin role' do
-      before { allow(access).to receive(:admin_scope?).and_return(true) }
+      before { allow(access).to receive(:scopes).and_return(['admin']) }
 
       it 'returns requests' do
         expect(subject.resolve).to match_array(sub_requests)
@@ -57,11 +54,7 @@ describe RequestPolicy::Scope do
     end
 
     context 'when regular user role' do
-      before do
-        allow(access).to receive(:admin_scope?).and_return(false)
-        allow(access).to receive(:group_scope?).and_return(false)
-        allow(access).to receive(:user_scope?).and_return(true)
-      end
+      before { allow(access).to receive(:scopes).and_return(['user']) }
 
       it 'returns requests' do
         expect(subject.resolve).to match_array(sub_requests)

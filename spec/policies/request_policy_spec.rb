@@ -3,11 +3,11 @@ describe RequestPolicy do
 
   let(:requests) { create_list(:request, 3) }
   let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => accessible_flag) }
-  let(:user) { instance_double(UserContext, :access => access) }
+  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true) }
 
   describe 'with admin role' do
     let(:accessible_flag) { true }
-    before { allow(access).to receive(:admin_scope?).and_return(true) }
+    before { allow(access).to receive(:scopes).and_return(['admin']) }
 
     context 'when record is model class' do
       let(:subject) { described_class.new(user, Request) }
@@ -33,9 +33,7 @@ describe RequestPolicy do
   describe 'with approver role' do
     before do
       allow(subject).to receive(:approver_id_list).and_return([requests.first.id, requests.last.id])
-      allow(access).to receive(:admin_scope?).and_return(false)
-      allow(access).to receive(:group_scope?).and_return(true)
-      allow(access).to receive(:user_scope?).and_return(false)
+      allow(access).to receive(:scopes).and_return(['group'])
     end
 
     context 'when record is model class' do
@@ -80,9 +78,7 @@ describe RequestPolicy do
 
     before do
       allow(subject).to receive(:owner_id_list).and_return([requests.first.id, requests.last.id])
-      allow(access).to receive(:admin_scope?).and_return(false)
-      allow(access).to receive(:group_scope?).and_return(false)
-      allow(access).to receive(:user_scope?).and_return(true)
+      allow(access).to receive(:scopes).and_return(['user'])
     end
 
     context 'when record is model class' do

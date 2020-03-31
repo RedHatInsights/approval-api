@@ -5,7 +5,7 @@ module Api
 
       def index
         req = Request.find(params.require(:request_id))
-        authorize(req, :policy_class => RequestPolicy)
+        authorize req
 
         collection(policy_scope(req.actions))
       end
@@ -22,7 +22,7 @@ module Api
 
         # make sure have permission to read the request
         req = Request.find(params.require(:request_id))
-        authorize(req, 'show?', :policy_class => RequestPolicy)
+        authorize(req, 'show?')
 
         action = ActionCreateService.new(params.require(:request_id)).create(params_for_create)
         json_response(action, :created)

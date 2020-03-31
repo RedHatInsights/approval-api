@@ -3,7 +3,7 @@ describe TemplatePolicy::Scope do
 
   let(:templates) { create_list(:template, 3) }
   let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => accessible_flag) }
-  let(:user) { instance_double(UserContext, :access => access) }
+  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true) }
   let(:subject) { described_class.new(user, Template) }
 
   describe '#resolve' do
