@@ -9,12 +9,9 @@ module Mixins
 
       if admin?(klass, verb)
         true
-      elsif approver?(klass, verb)
-        approvable?(klass.table_name, id)
-      elsif requester?(klass, verb)
-        owned?(klass.table_name, id)
+      elsif approver?(klass, verb) && approvable?(klass.table_name, id) || requester?(klass, verb) && owned?(klass.table_name, id)
+        true
       else
-        Rails.logger.info("No scope is defined for verb: #{verb}, id: #{id}, klass: #{klass}")
         false
       end
     end
