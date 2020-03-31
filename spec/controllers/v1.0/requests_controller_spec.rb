@@ -5,6 +5,10 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:owner) { default_user_hash['identity']['user']['username'] }
   let(:tenant) { create(:tenant) }
 
+  let(:headers_with_admin)     { default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/admin') }
+  let(:headers_with_approver)  { default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/approver') }
+  let(:headers_with_requester) { default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/requester') }
+
   let(:group1) { instance_double(Group, :name => 'group1', :uuid => "123", :has_role? => true) }
   let(:group2) { instance_double(Group, :name => 'group2', :uuid => "456") }
   let(:group3) { instance_double(Group, :name => 'group3', :uuid => "789") }
@@ -64,7 +68,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before { setup_admin_role }
 
       it 'lists all requests' do
-        get "#{api_version}/requests", :headers => default_headers
+        get "#{api_version}/requests", :headers => headers_with_admin
 
         expect(response).to have_http_status(200)
         expect(json['links']).not_to be_empty
@@ -98,7 +102,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before { setup_approver_role }
 
       it 'returns status code 200' do
-        get "#{api_version}/requests", :headers => default_headers
+        get "#{api_version}/requests", :headers => headers_with_approver
 
         expect(response).to have_http_status(200)
         expect(json['links']).not_to be_empty
@@ -112,7 +116,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before { setup_requester_role }
 
       it 'returns status code 200' do
-        get "#{api_version}/requests", :headers => default_headers
+        get "#{api_version}/requests", :headers => headers_with_requester
 
         expect(response).to have_http_status(200)
         expect(json['data'].size).to eq(1)
@@ -125,7 +129,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before { setup_admin_role }
 
       it 'returns status code 200' do
-        get "#{api_version}/requests?filter[state]=notified", :headers => default_headers
+        get "#{api_version}/requests?filter[state]=notified", :headers => headers_with_admin
 
         expect(json['links']).not_to be_empty
         expect(json['links']['first']).to match(/offset=0/)
@@ -139,7 +143,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before { setup_approver_role }
 
       it 'returns status code 200' do
-        get "#{api_version}/requests?filter[state]=notified", :headers => default_headers
+        get "#{api_version}/requests?filter[state]=notified", :headers => headers_with_approver
 
         expect(json['data'].size).to eq(0)
         expect(response).to have_http_status(200)
@@ -152,7 +156,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before { setup_admin_role }
 
       it 'returns status code 200' do
-        get "#{api_version}/requests?filter[decision]=denied", :headers => default_headers
+        get "#{api_version}/requests?filter[decision]=denied", :headers => headers_with_admin
 
         expect(json['links']).not_to be_empty
         expect(json['links']['first']).to match(/offset=0/)
@@ -167,14 +171,14 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before { setup_approver_role }
 
       it 'returns status code 200 with decision = approved' do
-        get "#{api_version}/requests?filter[decision]=approved", :headers => default_headers
+        get "#{api_version}/requests?filter[decision]=approved", :headers => headers_with_approver
 
         expect(json['data'].size).to be_zero
         expect(response).to have_http_status(200)
       end
 
       it 'returns status code 200 with decision = denied' do
-        get "#{api_version}/requests?filter[decision]=denied", :headers => default_headers
+        get "#{api_version}/requests?filter[decision]=denied", :headers => headers_with_approver
 
         expect(json['data'].size).to eq(1)
         expect(json['data'].first).to include('id' => denied_request_sub2.id.to_s)
@@ -190,7 +194,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
       context 'when the record exist' do
         it 'returns the request' do
-          get "#{api_version}/requests/#{notified_request.id}", :headers => default_headers
+          get "#{api_version}/requests/#{notified_request.id}", :headers => headers_with_admin
 
           expect(response).to have_http_status(200)
           expect(json).not_to be_empty
@@ -198,7 +202,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         end
 
         it 'returns the request content' do
-          get "#{api_version}/requests/#{notified_request.id}/content", :headers => default_headers
+          get "#{api_version}/requests/#{notified_request.id}/content", :headers => headers_with_admin
 
           expect(response).to have_http_status(200)
           expect(json).to eq(notified_request.content)
@@ -209,7 +213,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         let!(:id) { 0 }
 
         it 'returns status code 404' do
-          get "#{api_version}/requests/#{id}", :headers => default_headers
+          get "#{api_version}/requests/#{id}", :headers => headers_with_admin
 
           expect(response).to have_http_status(404)
           expect(response.body).to match(/Couldn't find Request/)
@@ -222,7 +226,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
       context 'approver can approve' do
         it 'returns status code 200' do
-          get "#{api_version}/requests/#{denied_request_sub2.id}", :headers => default_headers
+          get "#{api_version}/requests/#{denied_request_sub2.id}", :headers => headers_with_approver
 
           expect(response).to have_http_status(200)
         end
@@ -230,7 +234,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
       context 'approver cannot approve' do
         it 'returns status code 403' do
-          get "#{api_version}/requests/#{denied_request.id}", :headers => default_headers
+          get "#{api_version}/requests/#{denied_request.id}", :headers => headers_with_approver
 
           expect(response).to have_http_status(403)
         end
@@ -242,7 +246,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
       context 'requester owns the request' do
         it 'returns status code 200' do
-          get "#{api_version}/requests/#{notified_request.id}", :headers => default_headers
+          get "#{api_version}/requests/#{notified_request.id}", :headers => headers_with_requester
 
           expect(response).to have_http_status(200)
         end
@@ -250,7 +254,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
       context 'requester does not own the requests' do
         it 'returns status code 403' do
-          get "#{api_version}/requests/#{denied_request.id}", :headers => default_headers
+          get "#{api_version}/requests/#{denied_request.id}", :headers => headers_with_requester
 
           expect(response).to have_http_status(403)
         end
@@ -264,7 +268,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before { setup_admin_role }
 
       it 'returns status code 200' do
-        get "#{api_version}/requests/#{denied_request.id}/requests", :headers => default_headers
+        get "#{api_version}/requests/#{denied_request.id}/requests", :headers => headers_with_admin
 
         expect(response).to have_http_status(200)
         expect(json['data'].size).to eq(2)
@@ -275,7 +279,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before { setup_approver_role }
 
       it 'returns status code 403' do
-        get "#{api_version}/requests/#{denied_request.id}/requests", :headers => default_headers
+        get "#{api_version}/requests/#{denied_request.id}/requests", :headers => headers_with_approver
 
         expect(response).to have_http_status(403)
       end
@@ -285,7 +289,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before { setup_requester_role }
 
       it 'returns status code 200' do
-        get "#{api_version}/requests/#{notified_request.id}/requests", :headers => default_headers
+        get "#{api_version}/requests/#{notified_request.id}/requests", :headers => headers_with_requester
 
         expect(response).to have_http_status(200)
         expect(json['data'].size).to eq(2)
@@ -320,7 +324,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([])
 
         with_modified_env :AUTO_APPROVAL => 'y' do
-          post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
+          post "#{api_version}/requests", :params => valid_attributes, :headers => headers_with_requester
         end
 
         expect(response).to have_http_status(201)
@@ -329,7 +333,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       it 'returns status code 201 when tags resolve to a single workflow' do
         allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1])
 
-        post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
+        post "#{api_version}/requests", :params => valid_attributes, :headers => headers_with_requester
 
         expect(response).to have_http_status(201)
       end
@@ -337,7 +341,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       it 'returns status code 201 when tags resolve to multiple workflows' do
         allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1, workflow2])
 
-        post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
+        post "#{api_version}/requests", :params => valid_attributes, :headers => headers_with_requester
 
         expect(response).to have_http_status(201)
         request = Request.find(json['id'])
@@ -351,7 +355,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       it 'returns status code 403' do
         allow(workflow_find_service).to receive(:find_by_tag_resources).and_return([workflow1])
 
-        post "#{api_version}/requests", :params => valid_attributes, :headers => default_headers
+        post "#{api_version}/requests", :params => valid_attributes, :headers => headers_with_approver
 
         expect(response).to have_http_status(403)
       end

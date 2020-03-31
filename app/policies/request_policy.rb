@@ -1,22 +1,24 @@
 class RequestPolicy < ApplicationPolicy
   class Scope < ApplicationPolicy::Scope
+    PERSONA_ADMIN     = 'approval/admin'.freeze
+    PERSONA_APPROVER  = 'approval/approver'.freeze
+    PERSONA_REQUESTER = 'approval/requester'.freeze
+
     def resolve
       return scope.all unless user.rbac_enabled?
+      klass = scope == Request ? scope : scope.model
 
-      if scope.class == Class
-        scopes = access.scopes(scope.table_name, 'read')
-        if scopes.include?("admin")
-          scope.where(:parent_id => nil)
-        elsif scopes.include?("group")
-          scope.where(:id => approver_id_list(scope.table_name))
-        elsif scopes.include?("user")
-          scope.where(:parent_id => nil, :id => owner_id_list(scope.table_name))
-        else
-          Rails.logger.error("Error in request resolve: scope does not include admin, group, or user. List of scopes: #{scopes}")
-          scope.none
-        end
+      case Insights::API::Common::Request.current.headers[Insights::API::Common::Request::PERSONA_KEY]
+      when PERSONA_ADMIN
+        raise Exceptions::NotAuthorizedError, "No permission to access the complete list of requests" unless admin?(klass)
+        scope == Request ? scope.where(:parent_id => nil) : scope
+      when PERSONA_APPROVER
+        raise Exceptions::NotAuthorizedError, "No permission to access requests assigned to approvers" unless approver?(klass)
+        scope.where(:id => approver_id_list(scope.table_name))
+      when PERSONA_REQUESTER, nil
+        scope == Request ? scope.where(:parent_id => nil, :id => owner_id_list(scope.table_name)) : scope
       else
-        scope
+        raise Exceptions::NotAuthorizedError, "Unknown persona"
       end
     end
   end
