@@ -1,8 +1,8 @@
 module Api
-  module V1
+  module V1x0
     class ActionsController < ApplicationController
-      include Mixins::IndexMixin
-      include Mixins::RBACMixin
+      include Api::V1x0::Mixins::IndexMixin
+      include Api::V1x0::Mixins::RBACMixin
 
       ADMIN_OPERATIONS     = [Action::MEMO_OPERATION, Action::APPROVE_OPERATION, Action::DENY_OPERATION, Action::CANCEL_OPERATION].freeze
       APPROVER_OPERATIONS  = [Action::MEMO_OPERATION, Action::APPROVE_OPERATION, Action::DENY_OPERATION].freeze

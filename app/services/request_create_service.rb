@@ -4,6 +4,8 @@ class RequestCreateService
   include GroupValidateMixin
   attr_accessor :workflows
 
+  AUTO_APPROVED_REASON = 'Auto-approved'.freeze
+
   def create(options)
     requester = Insights::API::Common::Request.current.user
     options = options.transform_keys(&:to_sym)
@@ -99,7 +101,7 @@ class RequestCreateService
     ActionCreateService.new(request.id).create(
       :operation    => Action::APPROVE_OPERATION,
       :processed_by => 'system',
-      :comments     => 'System approved'
+      :comments     => AUTO_APPROVED_REASON
     )
   end
 

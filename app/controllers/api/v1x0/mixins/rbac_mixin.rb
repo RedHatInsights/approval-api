@@ -1,11 +1,12 @@
 module Api
-  module V1
+  module V1x0
     module Mixins
       module RBACMixin
         include ApprovalPermissions
 
         ADMIN_ROLE = 'Approval Administrator'.freeze
         APPROVER_ROLE = 'Approval Approver'.freeze
+        APPROVER_VISIBLE_STATES = [ApprovalStates::NOTIFIED_STATE, ApprovalStates::COMPLETED_STATE].freeze
 
         # create action only needs class level permission check
         def create_access_check
@@ -129,19 +130,13 @@ module Api
 
         # All child request ids for approver to process
         def visible_request_ids_for_approver
-          visible_states = [ApprovalStates::NOTIFIED_STATE, ApprovalStates::COMPLETED_STATE]
-          Request.where(:workflow_id => workflow_ids, :state => visible_states).pluck(:id)
+          Request.where(:group_ref => assigned_group_refs, :state => APPROVER_VISIBLE_STATES).pluck(:id)
         end
 
         def assigned_group_refs
-          Insights::API::Common::RBAC::Service.call(RBACApiClient::GroupApi) do |api|
+          Insights::API::Common::RBAC::Service.call(RBACApiClient::GroupApi, Thread.current[:rbac_extra_headers] || {}) do |api|
             Insights::API::Common::RBAC::Service.paginate(api, :list_groups, :scope => 'principal').collect(&:uuid)
           end
-        end
-
-        # The accessible workflow ids for approver
-        def workflow_ids
-          AccessControlEntry.where(:aceable_type => 'Workflow', :permission => 'approve', :group_uuid => assigned_group_refs).pluck(:aceable_id)
         end
       end
     end
