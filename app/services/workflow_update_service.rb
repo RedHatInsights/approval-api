@@ -1,4 +1,7 @@
+require_relative 'mixins/group_validate_mixin'
+
 class WorkflowUpdateService
+  include GroupValidateMixin
   attr_accessor :workflow
 
   def initialize(workflow_id)
@@ -6,10 +9,9 @@ class WorkflowUpdateService
   end
 
   def update(options)
-    options[:access_control_entries] =
-      (options[:group_refs] || []).collect do |uuid|
-        AccessControlEntry.new(:group_uuid => uuid, :permission => 'approve')
-      end
+    if options[:group_refs]
+      options[:group_refs] = validate_approver_groups(options[:group_refs])
+    end
 
     workflow.update!(options)
   end

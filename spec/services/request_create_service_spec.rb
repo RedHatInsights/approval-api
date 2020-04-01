@@ -1,7 +1,7 @@
 RSpec.describe RequestCreateService do
   let(:template) { create(:template) }
-  let(:workflow1) { create(:workflow, :group_refs => ['ref1'], :template => template) }
-  let(:workflow2) { create(:workflow, :group_refs => ['ref2', 'ref3'], :template => template) }
+  let(:workflow1) { create(:workflow, :group_refs => [{'uuid' => 'ref1'}], :template => template) }
+  let(:workflow2) { create(:workflow, :group_refs => [{'uuid' => 'ref2'}, {'uuid' => 'ref3'}], :template => template) }
   let(:resolved_workflows) { [] }
   let(:group) { instance_double(Group, :name => 'gname', :has_role? => true, :users => ['user']) }
 
