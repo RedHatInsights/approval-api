@@ -11,7 +11,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   let(:del_tag_svc) { instance_double(DeleteRemoteTags) }
   let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [tag_string]) }
   let(:tag_string) { "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{id}" }
-  let(:tag) { 'tag' => tag_string }
+  let(:tag) { {'tag' => tag_string} }
 
   let(:api_version) { version }
 
