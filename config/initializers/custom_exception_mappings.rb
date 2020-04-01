@@ -6,6 +6,7 @@ ActionDispatch::ExceptionWrapper.rescue_responses.merge!(
   "Exceptions::InvalidStateTransitionError"    => :bad_request,
   "Exceptions::UserError"                      => :bad_request,
   "Exceptions::NotAuthorizedError"             => :forbidden,
+  "Pundit::NotAuthorizedError"                 => :forbidden,
   "Exceptions::RBACError"                      => :service_unavailable,
   "Exceptions::KieError"                       => :service_unavailable,
   "Insights::API::Common::RBAC::NetworkError"  => :service_unavailable,
