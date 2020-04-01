@@ -6,6 +6,7 @@ describe RequestPolicy::Scope do
   let!(:sub_requests) { create_list(:request, 2, :parent_id => requests.first.id) }
   let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => true) }
   let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true, :group_uuids => group_uuids) }
+
   let(:subject) { described_class.new(user, scope) }
   let(:headers_with_admin) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/admin') }
   let(:headers_with_approver) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/approver') }
@@ -13,7 +14,8 @@ describe RequestPolicy::Scope do
   let(:headers) { {:headers => req_headers, :original_url=>'url'} }
 
   describe '#resolve /requests' do
-    let(:scope) { Request }
+    let(:params) { {} }
+    let(:scope) { Request.all }
 
     context 'when admin role' do
       let(:req_headers) { headers_with_admin }
@@ -21,7 +23,7 @@ describe RequestPolicy::Scope do
 
       it 'returns requests' do
         Insights::API::Common::Request.with_request(headers) do
-          expect(subject.resolve).to match_array(requests)
+          expect(subject.resolve.count).to eq(Request.where(:parent_id => nil).count)
         end
       end
     end
@@ -59,7 +61,8 @@ describe RequestPolicy::Scope do
   end
 
   describe '#resolve /requests/#{id}/requests' do
-    let!(:scope) { requests.first.children }
+    let!(:scope) { request.children }
+    let(:params) { {:request_id => request.id} }
 
     context 'when admin role' do
       let(:req_headers) { headers_with_admin }

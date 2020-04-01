@@ -36,6 +36,20 @@ class ApplicationPolicy
     false
   end
 
+  def query?
+    permission_check('read', record)
+  end
+
+  def user_capabilities
+    capabilities = {}
+
+    (self.class.instance_methods(false).select {|method| method.to_s.end_with?("?")}).each do |method|
+      capabilities[method.to_s.delete_suffix('?')] = self.send(method)
+    end
+
+    capabilities
+  end
+
   class Scope
     include Mixins::RBACMixin
 

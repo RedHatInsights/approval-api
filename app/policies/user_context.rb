@@ -1,7 +1,7 @@
 class UserContext
   attr_reader :request, :params
 
-  def initialize(request, params)
+  def initialize(request, params = nil)
     @request = request
     @params = params
   end

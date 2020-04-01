@@ -7,6 +7,10 @@ class Template < ApplicationRecord
 
   before_destroy :delete_passwords
 
+  def metadata
+    {:user_capabilities => TemplatePolicy.new(user_context, self).user_capabilities}
+  end
+
   def self.seed
     template = find_or_create_by!(:title => 'Basic')
     template.update_attributes(

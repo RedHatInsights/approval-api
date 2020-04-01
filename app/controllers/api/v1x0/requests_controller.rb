@@ -19,11 +19,9 @@ module Api
 
       def index
         relation = if params[:request_id]
-                     req = Request.find(params.require(:request_id))
-                     authorize req, :show?
-                     req.children
+                     Request.find(params.require(:request_id)).children
                    else
-                     Request
+                     Request.all
                    end
 
         collection(policy_scope(relation))

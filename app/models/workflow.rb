@@ -25,4 +25,8 @@ class Workflow < ApplicationRecord
   def external_signal?
     template&.signal_setting.present?
   end
+
+  def metadata
+    {:user_capabilities => WorkflowPolicy.new(user_context, self).user_capabilities}
+  end
 end

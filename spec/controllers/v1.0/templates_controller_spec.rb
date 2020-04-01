@@ -21,6 +21,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
         expect(json['links']['first']).to match(/limit=5&offset=0/)
         expect(json['data'].size).to eq(5)
         expect(response).to have_http_status(200)
+        expect(json['data'].first['metadata']).to have_key("user_capabilities")
       end
     end
 
@@ -56,6 +57,7 @@ RSpec.describe Api::V1x0::TemplatesController, :type => :request do
         template = templates.first
         expect(json).not_to be_empty
         expect(json['id']).to eq(template.id.to_s)
+        expect(json["metadata"]["user_capabilities"]).to eq("show" => true)
       end
 
       it 'admin role returns status code 200' do

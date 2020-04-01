@@ -19,8 +19,8 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:notified_request) do
     Insights::API::Common::Request.with_request(default_request_hash) { create(:request, :state => 'notified', :tenant => tenant) }
   end
-  let(:notified_request_sub1) { create(:request, :state => 'notified', :parent => notified_request, :owner => owner, :workflow => workflow1, :group_ref => group3.uuid, :tenant => tenant)}
-  let(:notified_request_sub2) { create(:request, :state => 'pending', :parent => notified_request, :owner => owner, :workflow => workflow2, :group_ref => group2.uuid, :tenant => tenant)}
+  let(:notified_request_sub1) { create(:request, :state => 'pending', :parent => notified_request, :owner => owner, :workflow => workflow1, :group_ref => group3.uuid, :tenant => tenant)}
+  let(:notified_request_sub2) { create(:request, :state => 'notified', :parent => notified_request, :owner => owner, :workflow => workflow2, :group_ref => group2.uuid, :tenant => tenant)}
 
   let(:denied_request) { create(:request, :state => 'completed', :decision => 'denied', :reason => 'bad', :tenant => tenant) }
   let(:denied_request_sub1) { create(:request, :state => 'completed', :decision => 'approved', :parent => denied_request, :workflow => workflow2, :group_ref => group1.uuid, :tenant => tenant)}
@@ -76,6 +76,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         expect(json['data'].size).to eq(2)
         expect(json['data'].first).to include('id' => denied_request.id.to_s)
         expect(json['data'].second).to include('id' => notified_request.id.to_s)
+        expect(json['data'].first['metadata']).to have_key("user_capabilities")
 
         # it 'sets the context'
         expect(notified_request.context.keys).to eq %w[headers original_url]
@@ -107,7 +108,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         expect(response).to have_http_status(200)
         expect(json['links']).not_to be_empty
         expect(json['links']['first']).to match(/offset=0/)
-        expect(json['data'].size).to eq(1)
+        expect(json['data'].size).to eq(2)
         expect(json['data'].first).to include('id' => denied_request_sub2.id.to_s)
       end
     end
@@ -145,7 +146,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       it 'returns status code 200' do
         get "#{api_version}/requests?filter[state]=notified", :headers => headers_with_approver
 
-        expect(json['data'].size).to eq(0)
+        expect(json['data'].size).to eq(1)
         expect(response).to have_http_status(200)
       end
     end
@@ -199,6 +200,14 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
           expect(response).to have_http_status(200)
           expect(json).not_to be_empty
           expect(json['id']).to eq(notified_request.id.to_s)
+          expect(json['metadata']['user_capabilities']).to eq(
+            "approve" => true,
+            "cancel"  => true,
+            "create"  => true,
+            "deny"    => true,
+            "memo"    => true,
+            "show"    => true
+          )
         end
 
         it 'returns the request content' do
@@ -225,10 +234,32 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before { setup_approver_role }
 
       context 'approver can approve' do
-        it 'returns status code 200' do
+        it 'returns status code 200 for completed request' do
           get "#{api_version}/requests/#{denied_request_sub2.id}", :headers => headers_with_approver
 
           expect(response).to have_http_status(200)
+          expect(json['metadata']['user_capabilities']).to eq(
+            "approve" => false,
+            "cancel"  => false,
+            "create"  => false,
+            "deny"    => false,
+            "memo"    => true,
+            "show"    => true
+          )
+        end
+
+        it 'returns status code 200 for approvable request' do
+          get "#{api_version}/requests/#{notified_request_sub2.id}", :headers => headers_with_approver
+
+          expect(response).to have_http_status(200)
+          expect(json['metadata']['user_capabilities']).to eq(
+            "approve" => true,
+            "cancel"  => false,
+            "create"  => false,
+            "deny"    => true,
+            "memo"    => true,
+            "show"    => true
+          )
         end
       end
 
@@ -249,6 +280,14 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
           get "#{api_version}/requests/#{notified_request.id}", :headers => headers_with_requester
 
           expect(response).to have_http_status(200)
+          expect(json['metadata']['user_capabilities']).to eq(
+            "approve" => false,
+            "cancel"  => true,
+            "create"  => true,
+            "deny"    => false,
+            "memo"    => true,
+            "show"    => true
+          )
         end
       end
 

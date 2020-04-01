@@ -72,6 +72,10 @@ class Request < ApplicationRecord
     FINISHED_STATES.include?(state)
   end
 
+  def metadata
+    {:user_capabilities => RequestPolicy.new(user_context, self).user_capabilities}
+  end
+
   private
 
   def set_defaults
