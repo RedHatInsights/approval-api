@@ -20,7 +20,7 @@ module Api
       def index
         relation = if params[:request_id]
                      req = Request.find(params.require(:request_id))
-                     authorize req
+                     authorize req, :show?
                      req.children
                    else
                      Request

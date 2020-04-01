@@ -19,7 +19,6 @@ class Request < ApplicationRecord
 
   scope :decision,       ->(decision)       { where(:decision => decision) }
   scope :state,          ->(state)          { where(:state => state) }
-  scope :owner,          ->(owner)          { where(:owner => owner) }
   scope :requester_name, ->(requester_name) { where(:requester_name => requester_name) }
   scope :group_ref,      ->(group_ref)      { where(:group_ref => group_ref) }
   default_scope { order(:created_at => :desc) }
