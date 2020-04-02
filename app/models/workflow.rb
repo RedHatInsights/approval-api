@@ -27,6 +27,6 @@ class Workflow < ApplicationRecord
   end
 
   def metadata
-    {:user_capabilities => WorkflowPolicy.new(user_context, self).user_capabilities}
+    user_context.nil? ? super : {:user_capabilities => WorkflowPolicy.new(user_context, self).user_capabilities}
   end
 end

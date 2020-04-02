@@ -8,7 +8,7 @@ class Template < ApplicationRecord
   before_destroy :delete_passwords
 
   def metadata
-    {:user_capabilities => TemplatePolicy.new(user_context, self).user_capabilities}
+    user_context.nil? ? super : {:user_capabilities => TemplatePolicy.new(user_context, self).user_capabilities}
   end
 
   def self.seed

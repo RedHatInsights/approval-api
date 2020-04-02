@@ -21,7 +21,7 @@ module Api
         relation = if params[:request_id]
                      Request.find(params.require(:request_id)).children
                    else
-                     Request.all
+                     Request
                    end
 
         collection(policy_scope(relation))

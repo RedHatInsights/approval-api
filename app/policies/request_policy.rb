@@ -14,10 +14,10 @@ class RequestPolicy < ApplicationPolicy
       else
         case Insights::API::Common::Request.current.headers[Insights::API::Common::Request::PERSONA_KEY]
         when PERSONA_ADMIN
-          raise Exceptions::NotAuthorizedError, "No permission to access the complete list of requests" unless admin?(scope.model)
+          raise Exceptions::NotAuthorizedError, "No permission to access the complete list of requests" unless admin?(scope)
           scope.where(:parent_id => nil)
         when PERSONA_APPROVER
-          raise Exceptions::NotAuthorizedError, "No permission to access requests assigned to approvers" unless approver?(scope.model)
+          raise Exceptions::NotAuthorizedError, "No permission to access requests assigned to approvers" unless approver?(scope)
           approver_visible_requests(scope)
         when PERSONA_REQUESTER, nil
           scope.by_owner.where(:parent_id => nil)

@@ -9,6 +9,6 @@ class ApplicationRecord < ActiveRecord::Base
   end
 
   def user_context
-    @user_context ||= UserContext.new(Insights::API::Common::Request.current!)
+    Thread.current[:user]
   end
 end

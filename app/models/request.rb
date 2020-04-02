@@ -73,7 +73,7 @@ class Request < ApplicationRecord
   end
 
   def metadata
-    {:user_capabilities => RequestPolicy.new(user_context, self).user_capabilities}
+    user_context.nil? ? super : {:user_capabilities => RequestPolicy.new(user_context, self).user_capabilities}
   end
 
   private
