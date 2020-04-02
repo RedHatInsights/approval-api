@@ -28,10 +28,12 @@ RSpec.shared_context "approval_rbac_objects" do
   let(:requester_request_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:requests:read", :resource_definitions => [user_resource_def]) }
   let(:requester_request_create_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:requests:create", :resource_definitions => [user_resource_def]) }
   let(:requester_action_create_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:actions:create", :resource_definitions => [user_resource_def]) }
+  let(:requester_action_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:actions:read", :resource_definitions => [user_resource_def]) }
   let(:requester_workflow_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:read", :resource_definitions => [admin_resource_def]) }
 
   let(:admin_acls) { [template_read_acl, workflow_create_acl, workflow_read_acl, workflow_destroy_acl, workflow_update_acl, request_create_acl,
                       workflow_link_acl, workflow_unlink_acl, request_read_acl, action_create_acl, action_read_acl] }
   let(:approver_acls) { [approver_request_read_acl, approver_action_create_acl, approver_action_read_acl] }
-  let(:requester_acls) { [requester_request_read_acl, requester_request_create_acl, requester_action_create_acl, requester_workflow_read_acl] }
+  let(:requester_acls) { [requester_request_read_acl, requester_request_create_acl, requester_action_create_acl, requester_action_read_acl,
+                          requester_workflow_read_acl] }
 end

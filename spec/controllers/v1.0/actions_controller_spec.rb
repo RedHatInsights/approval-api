@@ -88,15 +88,15 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       end
     end
 
-    context 'requester role cannot read' do
+    context 'requester role can read' do
       before { setup_requester_role }
 
-      it 'returns status code 403' do
+      it 'returns status code 200' do
         with_modified_env :APP_NAME => app_name do
           get "#{api_version}/actions/#{id}", :headers => default_headers
         end
 
-        expect(response).to have_http_status(403)
+        expect(response).to have_http_status(200)
       end
     end
   end
@@ -147,16 +147,16 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
       end
     end
 
-    context 'requester role cannot get actions' do
+    context 'requester role can get actions' do
       before do
         id
         setup_requester_role
       end
 
-      it 'returns status code 403' do
+      it 'returns status code 200' do
         get "#{api_version}/requests/#{request.id}/actions", :headers => default_headers
 
-        expect(response).to have_http_status(403)
+        expect(response).to have_http_status(200)
       end
     end
   end
