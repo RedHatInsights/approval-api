@@ -79,7 +79,8 @@ module Api
           :base_query => filtered(scoped(base_query)),
           :request    => request,
           :limit      => params[:limit],
-          :offset     => params[:offset]
+          :offset     => params[:offset],
+          :sort_by    => params[:sort_by]
         ).response
 
         json_response(resp)
