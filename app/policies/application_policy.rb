@@ -36,10 +36,6 @@ class ApplicationPolicy
     false
   end
 
-  def query?
-    permission_check('read', record)
-  end
-
   def user_capabilities
     capabilities = {}
 

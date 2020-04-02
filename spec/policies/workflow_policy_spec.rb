@@ -15,10 +15,6 @@ describe WorkflowPolicy do
       it '#create?' do
         expect(subject.create?).to be_truthy
       end
-
-      it '#query?' do
-        expect(subject.query?).to be_truthy
-      end
     end
 
     context 'with instance' do
@@ -47,10 +43,6 @@ describe WorkflowPolicy do
       it '#create?' do
         expect(subject.create?).to be_falsey
       end
-
-      it '#query?' do
-        expect(subject.query?).to be_falsey
-      end
     end
 
     context 'with instance' do
@@ -78,10 +70,6 @@ describe WorkflowPolicy do
 
       it '#show?' do
         expect(subject.show?).to be_truthy
-      end
-
-      it '#query?' do
-        expect(described_class.new(user, Workflow).query?).to be_truthy
       end
     end
 
