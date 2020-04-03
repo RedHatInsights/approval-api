@@ -9,7 +9,7 @@ class RequestPolicy < ApplicationPolicy
 
       if user.params[:request_id]
         req = Request.find(user.params[:request_id])
-        raise Exceptions::NotAuthorizedError, "Read access not authorized for request #{req.id}" unless resource_check('read', req.id, Request)
+        raise Exceptions::NotAuthorizedError, "Read access not authorized for request #{req.id}" unless resource_check('read', req)
         scope
       else
         case Insights::API::Common::Request.current.headers[Insights::API::Common::Request::PERSONA_KEY]
@@ -49,7 +49,9 @@ class RequestPolicy < ApplicationPolicy
 
     actions = if admin?(record.class)
                 Action::ADMIN_OPERATIONS & valid_actions_on_state
-              elsif approver?(record.class)
+              elsif approver?(record.class) && requester?(record.class)
+                Action::APPROVER_OPERATIONS & Action::REQUESTER_OPERATIONS & valid_actions_on_state
+              elsif approver?(record.class) && !requester?(record.class)
                 Action::APPROVER_OPERATIONS & valid_actions_on_state
               else
                 Action::REQUESTER_OPERATIONS & valid_actions_on_state

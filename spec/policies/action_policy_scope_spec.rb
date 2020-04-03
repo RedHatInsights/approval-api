@@ -3,7 +3,10 @@ describe ActionPolicy::Scope do
 
   let(:request) { create(:request) }
   let(:actions) { create_list(:action, 3, :request => request) }
-  let(:subject) { described_class.new(instance_double(UserContext), query) }
+  let(:access) { instance_double(Insights::API::Common::RBAC::Access, :scopes => ['admin']) }
+  let(:params) { { :request_id => request.id } }
+  let(:user) { instance_double(UserContext, :params => params, :access => access, :rbac_enabled? => true) }
+  let(:subject) { described_class.new(user, query) }
 
   describe '#resolve' do
     context 'when query is a scope' do

@@ -2,10 +2,13 @@ describe RequestPolicy::Scope do
   include_context "approval_rbac_objects"
 
   let(:group_uuids) { ['group-uuid'] }
-  let!(:requests) { create_list(:request, 3) }
-  let!(:sub_requests) { create_list(:request, 2, :parent_id => requests.first.id) }
+  let(:request) do
+    Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) { create(:request, :state => 'notified') }
+  end
+  let!(:requests) { create_list(:request, 2) }
+  let!(:sub_requests) { create_list(:request, 2, :parent_id => request.id) }
   let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => true) }
-  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true, :group_uuids => group_uuids) }
+  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true, :params => params, :group_uuids => group_uuids) }
 
   let(:subject) { described_class.new(user, scope) }
   let(:headers_with_admin) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/admin') }
@@ -51,10 +54,8 @@ describe RequestPolicy::Scope do
 
       it 'returns requests' do
         Insights::API::Common::Request.with_request(headers) do
-          requests.second.update(:owner => Insights::API::Common::Request.current.user.username)
-
           expect(subject.resolve.count).to eq(1)
-          expect(subject.resolve.first).to eq(requests.second)
+          expect(subject.resolve.first).to eq(request)
         end
       end
     end
