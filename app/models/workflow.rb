@@ -1,6 +1,7 @@
 class Workflow < ApplicationRecord
   acts_as_tenant(:tenant)
 
+  attribute :metadata, ActiveRecord::Type::Json.new
   acts_as_list :scope => [:tenant_id], :column => 'sequence'
   default_scope { order(:sequence => :asc) }
 
@@ -24,9 +25,5 @@ class Workflow < ApplicationRecord
 
   def external_signal?
     template&.signal_setting.present?
-  end
-
-  def metadata
-    user_context.nil? ? super : {:user_capabilities => WorkflowPolicy.new(user_context, self).user_capabilities}
   end
 end

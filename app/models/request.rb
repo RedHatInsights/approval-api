@@ -4,6 +4,7 @@ class Request < ApplicationRecord
   include OwnerField
 
   acts_as_tenant(:tenant)
+  attribute :metadata, ActiveRecord::Type::Json.new
 
   belongs_to :request_context, :optional => false
   belongs_to :workflow
@@ -70,10 +71,6 @@ class Request < ApplicationRecord
 
   def finished?
     FINISHED_STATES.include?(state)
-  end
-
-  def metadata
-    user_context.nil? ? super : {:user_capabilities => RequestPolicy.new(user_context, self).user_capabilities}
   end
 
   private

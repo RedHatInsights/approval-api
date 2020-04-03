@@ -1,15 +1,12 @@
 class Template < ApplicationRecord
   acts_as_tenant(:tenant, :has_global_records => true)
 
+  attribute :metadata, ActiveRecord::Type::Json.new
   has_many :workflows, -> { order(:id => :asc) }, :inverse_of => :template
 
   validates :title, :presence => :title
 
   before_destroy :delete_passwords
-
-  def metadata
-    user_context.nil? ? super : {:user_capabilities => TemplatePolicy.new(user_context, self).user_capabilities}
-  end
 
   def self.seed
     template = find_or_create_by!(:title => 'Basic')
