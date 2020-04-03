@@ -1,7 +1,8 @@
 class Template < ApplicationRecord
+  include Metadata
+
   acts_as_tenant(:tenant, :has_global_records => true)
 
-  attribute :metadata, ActiveRecord::Type::Json.new
   has_many :workflows, -> { order(:id => :asc) }, :inverse_of => :template
 
   validates :title, :presence => :title
@@ -56,5 +57,9 @@ class Template < ApplicationRecord
 
     signal_password_id = signal_setting.try(:[], 'password')
     Encryption.destroy(signal_password_id) if signal_password_id
+  end
+
+  def policy_name
+    TemplatePolicy
   end
 end

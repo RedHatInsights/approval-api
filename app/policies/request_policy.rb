@@ -47,15 +47,7 @@ class RequestPolicy < ApplicationPolicy
              Action::DENY_OPERATION    => false,
              Action::MEMO_OPERATION    => true }
 
-    actions = if admin?(record.class)
-                Action::ADMIN_OPERATIONS & valid_actions_on_state
-              elsif approver?(record.class) && requester?(record.class)
-                Action::APPROVER_OPERATIONS & Action::REQUESTER_OPERATIONS & valid_actions_on_state
-              elsif approver?(record.class) && !requester?(record.class)
-                Action::APPROVER_OPERATIONS & valid_actions_on_state
-              else
-                Action::REQUESTER_OPERATIONS & valid_actions_on_state
-              end
+   actions = valide_actions_on_roles & valid_actions_on_state
 
     # only child request can be approved/denied
     actions -= [Action::APPROVE_OPERATION, Action::DENY_OPERATION] if record.parent?
@@ -67,6 +59,8 @@ class RequestPolicy < ApplicationPolicy
     hash
   end
 
+  private
+
   def valid_actions_on_state(state = record.state)
     {
       Request::PENDING_STATE   => [Action::START_OPERATION, Action::SKIP_OPERATION, Action::CANCEL_OPERATION, Action::ERROR_OPERATION],
@@ -77,5 +71,29 @@ class RequestPolicy < ApplicationPolicy
       Request::COMPLETED_STATE => [Action::MEMO_OPERATION],
       Request::CANCELED_STATE  => [Action::MEMO_OPERATION]
     }[state]
+  end
+
+  def valide_actions_on_roles
+    admin     = admin?(record.class)
+    approver  = approver?(record.class)
+    requester = requester?(record.class)
+
+    if admin && approver && requester
+      Action::ADMIN_OPERATIONS | Action::APPROVER_OPERATIONS | Action::REQUESTER_OPERATIONS
+    elsif !admin && approver && requester
+      Action::APPROVER_OPERATIONS | Action::REQUESTER_OPERATIONS
+    elsif admin && !approver && requester
+      Action::ADMIN_OPERATIONS | Action::REQUESTER_OPERATIONS
+    elsif admin && approver && !requester
+      Action::ADMIN_OPERATIONS | Action::APPROVER_OPERATIONS
+    elsif admin
+      Action::ADMIN_OPERATIONS
+    elsif approver
+      Action::APPROVER_OPERATIONS
+    elsif requester
+      Action::REQUESTER_OPERATIONS
+    else
+      raise Exceptions::NotAuthorizedError, "No proper role is found for #{record}"
+    end
   end
 end

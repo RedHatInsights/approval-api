@@ -2,9 +2,9 @@ class Request < ApplicationRecord
   include ApprovalStates
   include ApprovalDecisions
   include OwnerField
+  include Metadata
 
   acts_as_tenant(:tenant)
-  attribute :metadata, ActiveRecord::Type::Json.new
 
   belongs_to :request_context, :optional => false
   belongs_to :workflow
@@ -83,5 +83,9 @@ class Request < ApplicationRecord
 
     self.number_of_children = 0
     self.number_of_finished_children = 0
+  end
+
+  def policy_name
+    RequestPolicy
   end
 end
