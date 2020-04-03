@@ -6,18 +6,9 @@ class ActionPolicy < ApplicationPolicy
 
   class Scope < ApplicationPolicy::Scope
     def resolve
-      raise Exceptions::NotAuthorizedError, "Read access not authorized for #{scope}" unless permission_check('read', scope.model)
-
-      if admin?(scope.model)
-        scope.all
-      elsif approver?(scope.model)
-        scope.where(:id => approver_id_list(scope.model.table_name))
-      elsif requester?(scope.model)
-        scope.where(:id => owner_id_list(scope.table_name))
-      else
-        Rails.logger.error("Error in request resolve: scope does not include admin, group, or user. List of scopes: #{scope.model}")
-        scope.none
-      end
+      # Must through a request
+      raise Exceptions::NotAuthorizedError, "Not authorized to directly access actions" if scope == Action
+      scope
     end
   end
 

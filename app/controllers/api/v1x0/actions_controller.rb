@@ -5,7 +5,7 @@ module Api
 
       def index
         req = Request.find(params.require(:request_id))
-        authorize req
+        authorize req, :show?
 
         collection(policy_scope(req.actions))
       end

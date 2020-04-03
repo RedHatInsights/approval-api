@@ -14,9 +14,9 @@ class RequestPolicy < ApplicationPolicy
         scope == Request ? scope.where(:parent_id => nil) : scope
       when PERSONA_APPROVER
         raise Exceptions::NotAuthorizedError, "No permission to access requests assigned to approvers" unless approver?(klass)
-        scope.where(:id => approver_id_list(scope.table_name))
+        approver_visible_requests(scope)
       when PERSONA_REQUESTER, nil
-        scope == Request ? scope.where(:parent_id => nil, :id => owner_id_list(scope.table_name)) : scope
+        scope == Request ? scope.by_owner.where(:parent_id => nil) : scope
       else
         raise Exceptions::NotAuthorizedError, "Unknown persona"
       end
@@ -32,11 +32,6 @@ class RequestPolicy < ApplicationPolicy
     resource_check('read')
   end
 
-  # only for child requests
-  def index?
-    resource_check('read', record.id, record.class)
-  end
- 
   # define for graphql
   def query?
     permission_check('read', record)
