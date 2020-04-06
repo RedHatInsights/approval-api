@@ -140,6 +140,16 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
   end
 
+  describe 'GET /workflows with sort_by' do
+    before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+
+    it "allows sorting via parameter" do
+      get "#{api_version}/workflows?sort_by=name", :headers => default_headers
+
+      expect(json["data"].map { |workflow| workflow["name"] }.sort).to eq workflows.map(&:name).sort
+    end
+  end
+
   describe 'GET /workflows/:id' do
     context 'admin role when the record exists' do
       before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }

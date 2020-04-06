@@ -216,6 +216,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/filter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort_by"
                     }
                 ],
                 "responses": {
@@ -425,6 +428,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/filter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort_by"
                     }
                 ],
                 "responses": {
@@ -520,6 +526,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/filter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort_by"
                     }
                 ],
                 "responses": {
@@ -573,6 +582,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/filter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort_by"
                     }
                 ],
                 "responses": {
@@ -979,6 +991,15 @@
                 "explode": true,
                 "schema": {
                     "type": "object"
+                }
+            },
+            "sort_by": {
+                "name": "sort_by",
+                "in": "query",
+                "description": "Parameter to sort collection",
+                "required": false,
+                "schema": {
+                    "type": "string"
                 }
             },
             "persona": {
