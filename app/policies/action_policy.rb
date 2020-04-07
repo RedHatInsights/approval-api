@@ -1,15 +1,14 @@
 class ActionPolicy < ApplicationPolicy
   class Scope < ApplicationPolicy::Scope
     def resolve
-      # Must through a request
-      raise Exceptions::NotAuthorizedError, "Not authorized to directly access actions" if scope == Action
-
       if user.params[:request_id]
         req = Request.find(user.params[:request_id])
         raise Exceptions::NotAuthorizedError, "Read access not authorized for request #{req.id}" unless resource_check('read', req)
-      end
 
-      scope
+        req.actions
+      else # Both GraphQL and direct access are not allowed 
+        raise Exceptions::NotAuthorizedError, "Not authorized to directly access actions"
+      end
     end
   end
 

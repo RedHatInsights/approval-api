@@ -58,8 +58,4 @@ class Template < ApplicationRecord
     signal_password_id = signal_setting.try(:[], 'password')
     Encryption.destroy(signal_password_id) if signal_password_id
   end
-
-  def policy_name
-    TemplatePolicy
-  end
 end

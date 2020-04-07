@@ -18,7 +18,7 @@ describe RequestPolicy::Scope do
 
   describe '#resolve /requests' do
     let(:params) { {} }
-    let(:scope) { Request.all }
+    let(:scope) { Request }
 
     context 'when admin role' do
       let(:req_headers) { headers_with_admin }
@@ -42,6 +42,51 @@ describe RequestPolicy::Scope do
       it 'returns requests' do
         Insights::API::Common::Request.with_request(headers) do
           expect(subject.resolve.sort).to eq(Request.where(:id => [sub_requests.first.id, requests.last.id]).sort)
+        end
+      end
+    end
+
+    context 'when requester role' do
+      let(:req_headers) { headers_with_requester }
+      before do
+        allow(access).to receive(:scopes).and_return(['user'])
+      end
+
+      it 'returns requests' do
+        Insights::API::Common::Request.with_request(headers) do
+          expect(subject.resolve.count).to eq(1)
+          expect(subject.resolve.first).to eq(request)
+        end
+      end
+    end
+  end
+
+  describe '#resolve GraphQL' do
+    let(:params) { {} }
+    let(:scope) { Request.all }
+
+    context 'when admin role' do
+      let(:req_headers) { headers_with_admin }
+      before { allow(access).to receive(:scopes).and_return(['admin']) }
+
+      it 'returns requests' do
+        Insights::API::Common::Request.with_request(headers) do
+          expect(subject.resolve.count).to eq(Request.count)
+        end
+      end
+    end
+
+    context 'when approver role' do
+      let(:req_headers) { headers_with_approver }
+      before do
+        sub_requests.first.update(:group_ref => group_uuids.first, :state => 'completed')
+        requests.last.update(:group_ref => group_uuids.first, :state => 'notified')
+        allow(access).to receive(:scopes).and_return(['group'])
+      end
+
+      it 'returns requests' do
+        Insights::API::Common::Request.with_request(headers) do
+          expect { subject.resolve }.to raise_error(Exceptions::NotAuthorizedError, "Approver not allowed to access requests via GraphQL")
         end
       end
     end

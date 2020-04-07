@@ -26,8 +26,4 @@ class Workflow < ApplicationRecord
   def external_signal?
     template&.signal_setting.present?
   end
-
-  def policy_name
-    WorkflowPolicy
-  end
 end

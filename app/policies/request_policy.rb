@@ -10,17 +10,20 @@ class RequestPolicy < ApplicationPolicy
       if user.params[:request_id]
         req = Request.find(user.params[:request_id])
         raise Exceptions::NotAuthorizedError, "Read access not authorized for request #{req.id}" unless resource_check('read', req)
-        scope
+        req.children
+      # GraphQL comes in with model_class.all, whose scope is respond to model call
+      # Regular root requests call comes in with model class itself
       else
         case Insights::API::Common::Request.current.headers[Insights::API::Common::Request::PERSONA_KEY]
         when PERSONA_ADMIN
           raise Exceptions::NotAuthorizedError, "No permission to access the complete list of requests" unless admin?(scope)
-          scope.where(:parent_id => nil)
+          scope.respond_to?(:model) ? scope : scope.where(:parent_id => nil)
         when PERSONA_APPROVER
           raise Exceptions::NotAuthorizedError, "No permission to access requests assigned to approvers" unless approver?(scope)
-          approver_visible_requests(scope)
+          scope.respond_to?(:model) ? (raise Exceptions::NotAuthorizedError, "Approver not allowed to access requests via GraphQL") :
+                                      approver_visible_requests(scope)
         when PERSONA_REQUESTER, nil
-          scope.by_owner.where(:parent_id => nil)
+          scope.respond_to?(:model) ? scope.by_owner : scope.by_owner.where(:parent_id => nil)
         else
           raise Exceptions::NotAuthorizedError, "Unknown persona"
         end
@@ -74,26 +77,11 @@ class RequestPolicy < ApplicationPolicy
   end
 
   def valide_actions_on_roles
-    admin     = admin?(record.class)
-    approver  = approver?(record.class)
-    requester = requester?(record.class)
+    operations = []
+    operations |= Action::ADMIN_OPERATIONS if admin?(record.class)
+    operations |= Action::APPROVER_OPERATIONS if approver?(record.class)
+    operations |= Action::REQUESTER_OPERATIONS if requester?(record.class)
 
-    if admin && approver && requester
-      Action::ADMIN_OPERATIONS | Action::APPROVER_OPERATIONS | Action::REQUESTER_OPERATIONS
-    elsif !admin && approver && requester
-      Action::APPROVER_OPERATIONS | Action::REQUESTER_OPERATIONS
-    elsif admin && !approver && requester
-      Action::ADMIN_OPERATIONS | Action::REQUESTER_OPERATIONS
-    elsif admin && approver && !requester
-      Action::ADMIN_OPERATIONS | Action::APPROVER_OPERATIONS
-    elsif admin
-      Action::ADMIN_OPERATIONS
-    elsif approver
-      Action::APPROVER_OPERATIONS
-    elsif requester
-      Action::REQUESTER_OPERATIONS
-    else
-      raise Exceptions::NotAuthorizedError, "No proper role is found for #{record}"
-    end
+    operations
   end
 end

@@ -9,7 +9,11 @@ module Metadata
     end
 
     def user_capabilities
-      user_context.nil? ? { } : policy_name.new(user_context, self).user_capabilities
+      user_context.nil? ? { } : policy_class.new(user_context, self).user_capabilities
+    end
+
+    def policy_class
+      "#{self.class}Policy".constantize
     end
   end
 end

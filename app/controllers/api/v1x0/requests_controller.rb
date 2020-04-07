@@ -18,13 +18,7 @@ module Api
       end
 
       def index
-        relation = if params[:request_id]
-                     Request.find(params.require(:request_id)).children
-                   else
-                     Request
-                   end
-
-        collection(policy_scope(relation))
+        collection(policy_scope(Request))
       end
    end
   end

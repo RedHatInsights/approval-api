@@ -84,8 +84,4 @@ class Request < ApplicationRecord
     self.number_of_children = 0
     self.number_of_finished_children = 0
   end
-
-  def policy_name
-    RequestPolicy
-  end
 end

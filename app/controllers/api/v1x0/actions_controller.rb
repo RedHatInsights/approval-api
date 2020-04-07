@@ -4,8 +4,7 @@ module Api
       include Mixins::IndexMixin
 
       def index
-        req = Request.find(params.require(:request_id))
-        collection(policy_scope(req.actions))
+        collection(policy_scope(Action))
       end
 
       def show
