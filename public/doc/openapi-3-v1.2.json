@@ -1310,6 +1310,12 @@
                         "type": "string",
                         "description": "Parent request id",
                         "readOnly": true
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "title": "Metadata",
+                      "description": "JSON Metadata about the request",
+                      "readOnly": true
                     }
                 }
             },
@@ -1331,6 +1337,12 @@
                     },
                     "description": {
                         "type": "string",
+                        "readOnly": true
+                    },
+                    "metadata": {
+                        "type": "object",
+                        "title": "Metadata",
+                        "description": "JSON Metadata about the template",
                         "readOnly": true
                     }
                 }
@@ -1368,6 +1380,12 @@
                             "$ref": "#/components/schemas/GroupRef"
                         },
                         "uniqueItems": true
+                    },
+                    "metadata": {
+                        "type": "object",
+                        "title": "Metadata",
+                        "description": "JSON Metadata about the workflow",
+                        "readOnly": true
                     }
                 }
             },

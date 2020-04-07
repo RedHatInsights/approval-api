@@ -93,6 +93,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         expect(json['links']['first']).to match(/limit=5&offset=0/)
         expect(json['links']['last']).to match(/limit=5&offset=15/)
         expect(json['data'].size).to eq(5)
+        expect(json['data'].first['metadata']).to have_key("user_capabilities")
       end
     end
 
@@ -161,6 +162,14 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
         expect(json).not_to be_empty
         expect(json['id']).to eq(workflow.id.to_s)
+        expect(json["metadata"]["user_capabilities"]).to eq(
+          "create"  => true,
+          "destroy" => true,
+          "link"    => true,
+          "show"    => true,
+          "unlink"  => true,
+          "update"  => true
+        )
       end
 
       it 'returns status code 200' do
@@ -204,6 +213,14 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
         get "#{api_version}/workflows/#{id}", :headers => default_headers
 
         expect(response).to have_http_status(200)
+        expect(json["metadata"]["user_capabilities"]).to eq(
+          "create"  => false,
+          "destroy" => false,
+          "link"    => false,
+          "show"    => true,
+          "unlink"  => false,
+          "update"  => false
+        )
       end
     end
 

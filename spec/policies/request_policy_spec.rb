@@ -17,10 +17,6 @@ describe RequestPolicy do
       it '#create?' do
         expect(subject.create?).to be_truthy
       end
-
-      it '#query?' do
-        expect(subject.query?).to be_truthy
-      end
     end
 
     context 'when record is an instance' do
@@ -43,15 +39,6 @@ describe RequestPolicy do
 
       it '#create?' do
         expect(subject.create?).to be_falsey
-      end
-    end
-
-    context 'when record is model class' do
-      let(:subject) { described_class.new(user, Request) }
-      let(:accessible_flag) { true }
-
-      it '#query?' do
-        expect(subject.query?).to be_truthy
       end
     end
 
@@ -87,10 +74,6 @@ describe RequestPolicy do
 
       it '#create?' do
         expect(subject.create?).to be_truthy
-      end
-
-      it '#query?' do
-        expect(subject.query?).to be_truthy
       end
     end
 

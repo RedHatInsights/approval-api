@@ -20,10 +20,6 @@ describe ActionPolicy do
       it '#create?' do
         expect(subject.create?).to be_truthy
       end
-
-      it '#query?' do
-        expect(subject.query?).to be_truthy
-      end
     end
 
     context 'when action resource is instance' do
@@ -45,10 +41,6 @@ describe ActionPolicy do
 
       it '#create?' do
         expect(subject.create?).to be_truthy
-      end
-
-      it '#query?' do
-        expect(subject.query?).to be_truthy
       end
     end
 
@@ -79,10 +71,6 @@ describe ActionPolicy do
 
       it '#create?' do
         expect(subject.create?).to be_truthy
-      end
-
-      it '#query?' do
-        expect(subject.query?).to be_truthy
       end
     end
 

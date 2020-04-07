@@ -10,13 +10,9 @@ module Mixins
       klass = record.class
       return permission_check(verb, klass) unless [Request, Action].include?(klass)
 
-      if admin?(klass, verb)
-        true
-      elsif approver?(klass, verb) && approver_accessible?(record) || requester?(klass, verb) && requester_accessible?(record)
-        true
-      else
-        false
-      end
+      admin?(klass, verb) ||
+        approver?(klass, verb) && approver_accessible?(record) ||
+        requester?(klass, verb) && requester_accessible?(record)
     end
 
     def permission_check(verb, klass = @record.class)

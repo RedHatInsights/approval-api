@@ -2,6 +2,7 @@ class Request < ApplicationRecord
   include ApprovalStates
   include ApprovalDecisions
   include OwnerField
+  include Metadata
 
   acts_as_tenant(:tenant)
 

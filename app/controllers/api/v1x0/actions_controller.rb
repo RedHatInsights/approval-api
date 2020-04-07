@@ -4,10 +4,7 @@ module Api
       include Mixins::IndexMixin
 
       def index
-        req = Request.find(params.require(:request_id))
-        authorize req, :show?
-
-        collection(policy_scope(req.actions))
+        collection(policy_scope(Action))
       end
 
       def show
