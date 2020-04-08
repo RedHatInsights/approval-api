@@ -16,7 +16,7 @@ module Api
       def overlay
         {
           "^.*$" => {
-            "base_query" => lambda do |model_class, _ctx|
+            "base_query" => lambda do |model_class, graphql_args, _ctx|
               policy_scope(model_class.all)
             end
           }

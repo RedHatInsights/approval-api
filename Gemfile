@@ -5,7 +5,7 @@ require File.join(Bundler::Plugin.index.load_paths("bundler-inject")[0], "bundle
 
 gem 'acts_as_list',        '~> 1.0'
 gem 'faraday',             '>= 0.17.0'
-gem 'insights-api-common', '~> 3.10'
+gem 'insights-api-common', :git => "https://github.com/mkanoor/manageiq-api-common.git", :branch => "support_args"
 gem 'jbuilder',            '~> 2.0'
 gem 'manageiq-loggers',    '~> 0.2'
 gem 'manageiq-messaging',  '~> 0.1'
