@@ -93,13 +93,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             }
@@ -143,13 +143,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             },
@@ -185,13 +185,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             }
@@ -241,13 +241,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             },
@@ -281,13 +281,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             }
@@ -317,13 +317,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             }
@@ -364,13 +364,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             }
@@ -400,13 +400,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             }
@@ -453,13 +453,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             }
@@ -489,13 +489,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             }
@@ -551,13 +551,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             }
@@ -607,13 +607,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             },
@@ -656,13 +656,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             }
@@ -692,13 +692,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             },
@@ -741,13 +741,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             },
@@ -768,13 +768,13 @@
                         "description": "Workflow Deleted"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             }
@@ -808,13 +808,13 @@
                         "description": "Success"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             }
@@ -848,13 +848,13 @@
                         "description": "Success"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400BadRequestResponse"
+                        "$ref": "#/components/schemas/400BadRequestResponse"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/403ForbiddenResponse"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404NotFoundResponse"
+                        "$ref": "#/components/schemas/404NotFoundResponse"
                     }
                 }
             }
@@ -1011,20 +1011,6 @@
                     "type": "string",
                     "enum": ["approval/admin", "approval/approver", "approval/requester"]
                 }
-            }
-        },
-        "responses": {
-            "400BadRequestResponse": {
-                "description": "Bad request: either all the required parameters specified or the parameter value is invalid."
-            },
-            "403ForbiddenResponse": {
-                "description": "Caller is forbidden to perform the action."
-            },
-            "404NotFoundResponse": {
-                "description": "The requested resource is not found."
-            },
-            "DefaultUnexpectedResponse": {
-                "description": "An unexpected response."
             }
         },
         "securitySchemes": {
@@ -1516,6 +1502,75 @@
                         "type": "integer",
                         "title": "Offset from beginning of the result set",
                         "description": "This is the offset from beginning of the result set"
+                    }
+                }
+            },
+            "400BadRequestResponse": {
+                "type": "object",
+                "description": "Bad request: either all the required parameters specified or the parameter value is invalid.",
+                "properties": {
+                    "errors": {
+                        "type": "Array",
+                        "description": "Errors resulting from the API query",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "status": {
+                                    "type": "integer",
+                                    "example": 400
+                                },
+                                "details": {
+                                    "type": "string",
+                                    "example": "Bad Request"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "403ForbiddenResponse": {
+                "type": "object",
+                "description": "Caller is forbidden to perform the action.",
+                "properties": {
+                    "errors": {
+                        "type": "Array",
+                        "description": "Errors resulting from the API query",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "status": {
+                                    "type": "integer",
+                                    "example": 403
+                                },
+                                "details": {
+                                    "type": "string",
+                                    "example": "Forbidden Request"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "404NotFoundResponse": {
+                "type": "object",
+                "description": "The requested resource is not found.",
+                "properties": {
+                    "errors": {
+                        "type": "Array",
+                        "description": "Errors resulting from the API query",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "status": {
+                                    "type": "integer",
+                                    "example": 404
+                                },
+                                "details": {
+                                    "type": "string",
+                                    "example": "Record not found"
+                                }
+                            }
+                        }
                     }
                 }
             }
