@@ -93,13 +93,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             }
@@ -143,13 +143,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             },
@@ -185,13 +185,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             }
@@ -241,13 +241,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             },
@@ -281,13 +281,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             }
@@ -317,13 +317,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             }
@@ -364,13 +364,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             }
@@ -400,13 +400,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             }
@@ -453,13 +453,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             }
@@ -489,13 +489,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             }
@@ -551,13 +551,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             }
@@ -607,13 +607,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             },
@@ -656,13 +656,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             }
@@ -692,13 +692,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             },
@@ -741,13 +741,13 @@
                         }
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             },
@@ -768,13 +768,13 @@
                         "description": "Workflow Deleted"
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             }
@@ -808,13 +808,13 @@
                         "description": "Success"
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             }
@@ -848,13 +848,13 @@
                         "description": "Success"
                     },
                     "400": {
-                        "$ref": "#/components/schemas/400BadRequestResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "403": {
-                        "$ref": "#/components/schemas/403ForbiddenResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     },
                     "404": {
-                        "$ref": "#/components/schemas/404NotFoundResponse"
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
                     }
                 }
             }
@@ -1505,72 +1505,32 @@
                     }
                 }
             },
-            "400BadRequestResponse": {
+            "HttpApiErrorCollection": {
                 "type": "object",
-                "description": "Bad request: either all the required parameters specified or the parameter value is invalid.",
+                "description": "API Error collection",
                 "properties": {
                     "errors": {
                         "type": "Array",
-                        "description": "Errors resulting from the API query",
+                        "description": "Error list from the API query",
                         "items": {
-                            "type": "object",
-                            "properties": {
-                                "status": {
-                                    "type": "integer",
-                                    "example": 400
-                                },
-                                "details": {
-                                    "type": "string",
-                                    "example": "Bad Request"
-                                }
-                            }
+                            "$ref": "#/components/schemas/HttpApiError"
                         }
                     }
                 }
             },
-            "403ForbiddenResponse": {
+            "HttpApiError": {
                 "type": "object",
-                "description": "Caller is forbidden to perform the action.",
+                "description": "API Error",
                 "properties": {
-                    "errors": {
-                        "type": "Array",
-                        "description": "Errors resulting from the API query",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "status": {
-                                    "type": "integer",
-                                    "example": 403
-                                },
-                                "details": {
-                                    "type": "string",
-                                    "example": "Forbidden Request"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "404NotFoundResponse": {
-                "type": "object",
-                "description": "The requested resource is not found.",
-                "properties": {
-                    "errors": {
-                        "type": "Array",
-                        "description": "Errors resulting from the API query",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "status": {
-                                    "type": "integer",
-                                    "example": 404
-                                },
-                                "details": {
-                                    "type": "string",
-                                    "example": "Record not found"
-                                }
-                            }
-                        }
+                    "status": {
+                        "type": "string",
+                        "description": "HTTP status code",
+                        "example": "400"
+                    },
+                    "details": {
+                        "type": "string",
+                        "description": "Error details",
+                        "example": "Bad Request"
                     }
                 }
             }
