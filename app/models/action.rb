@@ -11,6 +11,10 @@ class Action < ApplicationRecord
   ERROR_OPERATION   = 'error'.freeze
   OPERATIONS = [START_OPERATION, NOTIFY_OPERATION, SKIP_OPERATION, MEMO_OPERATION, APPROVE_OPERATION, DENY_OPERATION, CANCEL_OPERATION, ERROR_OPERATION].freeze
 
+  ADMIN_OPERATIONS     = [MEMO_OPERATION, APPROVE_OPERATION, DENY_OPERATION, CANCEL_OPERATION].freeze
+  APPROVER_OPERATIONS  = [MEMO_OPERATION, APPROVE_OPERATION, DENY_OPERATION].freeze
+  REQUESTER_OPERATIONS = [CANCEL_OPERATION].freeze
+
   validates :operation, :inclusion => { :in => OPERATIONS }
   validates :processed_by, :presence  => true
   belongs_to :request, :inverse_of => :actions

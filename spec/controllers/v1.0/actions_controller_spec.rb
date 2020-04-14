@@ -11,7 +11,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
   let(:id) { actions.first.id }
 
   let(:group2) { instance_double(Group, :name => 'group2', :uuid => 'ref2') }
-  let(:request2) { create(:request, :with_context, :workflow => workflow, :group_ref => group2.uuid, :state => 'notified', :tenant => tenant, :owner => "jdoe") }
+  let(:request2) { create(:request, :with_context, :workflow => workflow, :group_ref => group2.uuid, :state => 'notified', :tenant => tenant, :owner => "jdoe2") }
   let(:actions2) { create_list(:action, 10, :request => request2, :tenant => tenant) }
   let(:id2) { actions2.first.id }
 
@@ -25,7 +25,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     allow(rs_class).to receive(:paginate).with(api_instance, :list_groups, :scope => 'principal').and_return([group])
   end
 
-  let(:setup_requester_role) do
+  let(:setup_requester_acls) do
     allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, hash_including(:limit), any_args).and_return(requester_acls)
     allow(rs_class).to receive(:paginate).with(api_instance, :list_groups, :scope => 'principal').and_return([])
   end
@@ -89,14 +89,23 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'requester role cannot read' do
-      before { setup_requester_role }
+      before { setup_requester_acls }
 
-      it 'returns status code 403' do
-        with_modified_env :APP_NAME => app_name do
+      context 'action that requester can read' do
+        it 'returns status code 200' do
           get "#{api_version}/actions/#{id}", :headers => default_headers
-        end
 
-        expect(response).to have_http_status(403)
+          expect(json['id']).to eq(id.to_s)
+          expect(response).to have_http_status(200)
+        end
+      end
+
+      context 'action that requester cannot read' do
+        it 'returns status code 403' do
+          get "#{api_version}/actions/#{id2}", :headers => default_headers
+
+          expect(response).to have_http_status(403)
+        end
       end
     end
   end
@@ -148,22 +157,33 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'requester role cannot get actions' do
-      before do
-        id
-        setup_requester_role
+      before { setup_requester_acls }
+
+      context 'request that the requester made' do
+        before { id }
+
+        it 'gets actions of the request' do
+          get "#{api_version}/requests/#{request.id}/actions", :headers => default_headers
+
+          expect(response).to have_http_status(200)
+          expect(json['data'].first['id']).to eq(id.to_s)
+        end
       end
 
-      it 'returns status code 403' do
-        get "#{api_version}/requests/#{request.id}/actions", :headers => default_headers
+      context 'request that the requester did not make' do
+        before { id2 }
 
-        expect(response).to have_http_status(403)
+        it 'gets actions of the request' do
+          get "#{api_version}/requests/#{request2.id}/actions", :headers => default_headers
+
+          expect(response).to have_http_status(403)
+        end
       end
     end
   end
 
   describe 'POST /requests/:request_id/actions' do
     context 'admin role' do
-      #before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
       before { setup_admin_acls }
 
       it 'can add valid operation' do
@@ -222,7 +242,7 @@ RSpec.describe Api::V1x0::ActionsController, :type => :request do
     end
 
     context 'requester role' do
-      before { setup_requester_role }
+      before { setup_requester_acls }
 
       it 'cannot add unauthorized operation' do
         ['start', 'notify', 'skip', 'approve', 'deny'].each do |op|

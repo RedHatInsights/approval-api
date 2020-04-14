@@ -1,4 +1,5 @@
 class Workflow < ApplicationRecord
+  include Metadata
   acts_as_tenant(:tenant)
 
   acts_as_list :scope => [:tenant_id], :column => 'sequence'

@@ -8,9 +8,4 @@ class TemplatePolicy < ApplicationPolicy
   def show?
     permission_check('read')
   end
-
-  # define for graphql
-  def query?
-    permission_check('read', record)
-  end
 end

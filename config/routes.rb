@@ -10,10 +10,11 @@ Rails.application.routes.draw do
   end
 
   scope :as => :api, :module => "api", :path => prefix do
-    routing_helper.redirect_major_version("v1.1", prefix)
+    routing_helper.redirect_major_version("v1.2", prefix)
 
     draw(:v1x0)
     draw(:v1x1)
+    draw(:v1x2)
   end
   draw(:public)
 end

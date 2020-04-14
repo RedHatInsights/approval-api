@@ -5,6 +5,7 @@ class RequestCreateService
   attr_accessor :workflows
 
   AUTO_APPROVED_REASON = 'Auto-approved'.freeze
+  SYSTEM_APPROVAL = 'System approval'.freeze
 
   def create(options)
     requester = Insights::API::Common::Request.current.user
@@ -19,7 +20,7 @@ class RequestCreateService
     workflows.each do |workflow|
       raise Exceptions::UserError, "Workflow #{workflow.name} has no approver group" if workflow.group_refs.empty?
 
-      validate_approver_groups(workflow.group_refs)
+      validate_and_update_approver_groups(workflow)
     end
 
     request =
@@ -51,15 +52,9 @@ class RequestCreateService
   end
 
   def update_leaf_with_workflow(leaf_request, workflow_id, group_ref)
-    group_name = if group_ref
-                   ContextService.new(leaf_request.context).as_org_admin do
-                     Group.find(group_ref).name
-                   end
-                 else
-                   'System approval'
-                 end
+    group_name = group_ref.try(:[], 'name') || SYSTEM_APPROVAL
 
-    leaf_request.update!(:workflow_id => workflow_id, :group_ref => group_ref, :group_name => group_name)
+    leaf_request.update!(:workflow_id => workflow_id, :group_ref => group_ref.try(:[], 'uuid'), :group_name => group_name)
   end
 
   def update_root_group_name(request)

@@ -11,7 +11,7 @@ class WorkflowLinkService
   end
 
   def link(tag_attrs)
-    validate_approver_groups(Workflow.find(workflow_id).group_refs)
+    validate_and_update_approver_groups(Workflow.find(workflow_id))
 
     TagLink.find_or_create_by!(tag_link(tag_attrs))
     AddRemoteTags.new(tag_attrs).process([approval_tag(workflow_id)])

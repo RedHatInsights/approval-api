@@ -16,7 +16,8 @@ module Api
             :base_query => filtered(scoped(base_query)),
             :request    => request,
             :limit      => pagination_limit,
-            :offset     => pagination_offset
+            :offset     => pagination_offset,
+            :sort_by    => query_sort_by
           ).response
 
           json_response(resp)

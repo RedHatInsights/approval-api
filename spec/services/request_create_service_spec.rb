@@ -1,7 +1,7 @@
 RSpec.describe RequestCreateService do
   let(:template) { create(:template) }
-  let(:workflow1) { create(:workflow, :group_refs => ['ref1'], :template => template) }
-  let(:workflow2) { create(:workflow, :group_refs => ['ref2', 'ref3'], :template => template) }
+  let(:workflow1) { create(:workflow, :group_refs => [{'uuid' => 'ref1'}], :template => template) }
+  let(:workflow2) { create(:workflow, :group_refs => [{'uuid' => 'ref2'}, {'uuid' => 'ref3'}], :template => template) }
   let(:resolved_workflows) { [] }
   let(:group) { instance_double(Group, :name => 'gname', :has_role? => true, :users => ['user']) }
 
@@ -36,23 +36,30 @@ RSpec.describe RequestCreateService do
         request = subject.create(:name => 'req1', :content => 'test me')
         request.reload
         expect(request).to have_attributes(
-          :name           => 'req1',
-          :content        => 'test me',
-          :requester_name => 'John Doe',
-          :process_ref    => nil,
-          :state          => Request::STARTED_STATE,
-          :decision       => Request::UNDECIDED_STATUS,
-          :workflow       => nil
+          :name                        => 'req1',
+          :content                     => 'test me',
+          :requester_name              => 'John Doe',
+          :process_ref                 => nil,
+          :state                       => Request::STARTED_STATE,
+          :decision                    => Request::UNDECIDED_STATUS,
+          :workflow                    => nil,
+          :group_ref                   => nil,
+          :group_name                  => 'gname,gname',
+          :number_of_children          => 2,
+          :number_of_finished_children => 0
         )
         [0, 1].each do |index|
           subrequest = request.children[index]
           expect(subrequest).to have_attributes(
-            :process_ref       => '100',
-            :state             => Request::STARTED_STATE,
-            :decision          => Request::UNDECIDED_STATUS,
-            :reason            => nil,
-            :workflow          => workflow2
+            :process_ref => '100',
+            :state       => Request::STARTED_STATE,
+            :decision    => Request::UNDECIDED_STATUS,
+            :reason      => nil,
+            :workflow    => workflow2,
+            :group_name  => 'gname'
           )
+          expect(request.children.first.group_ref).to eq('ref3');
+          expect(request.children.second.group_ref).to eq('ref2');
         end
       end
 
@@ -70,12 +77,16 @@ RSpec.describe RequestCreateService do
         request = subject.create(:name => 'req1', :content => 'test me')
         request.reload
         expect(request).to have_attributes(
-          :name              => 'req1',
-          :content           => 'test me',
-          :requester_name    => 'John Doe',
-          :owner             => 'jdoe',
-          :state             => Request::NOTIFIED_STATE,
-          :decision          => Request::UNDECIDED_STATUS
+          :name                        => 'req1',
+          :content                     => 'test me',
+          :requester_name              => 'John Doe',
+          :owner                       => 'jdoe',
+          :state                       => Request::NOTIFIED_STATE,
+          :decision                    => Request::UNDECIDED_STATUS,
+          :group_ref                   => 'ref1',
+          :group_name                  => 'gname',
+          :number_of_children          => 0,
+          :number_of_finished_children => 0
         )
       end
     end
@@ -104,6 +115,8 @@ RSpec.describe RequestCreateService do
             :state                       => Request::COMPLETED_STATE,
             :decision                    => Request::APPROVED_STATUS,
             :reason                      => described_class::AUTO_APPROVED_REASON,
+            :group_ref                   => 'ref1',
+            :group_name                  => 'gname',
             :number_of_children          => 0,
             :number_of_finished_children => 0
           )
@@ -126,15 +139,18 @@ RSpec.describe RequestCreateService do
             :state                       => Request::COMPLETED_STATE,
             :decision                    => Request::APPROVED_STATUS,
             :reason                      => described_class::AUTO_APPROVED_REASON,
+            :group_ref                   => nil,
+            :group_name                  => 'gname,gname,gname',
             :number_of_children          => 3,
             :number_of_finished_children => 3
           )
           (0..2).each do |index|
             child = request.children[index]
             expect(child).to have_attributes(
-              :state             => Request::COMPLETED_STATE,
-              :decision          => Request::APPROVED_STATUS,
-              :reason            => described_class::AUTO_APPROVED_REASON
+              :state      => Request::COMPLETED_STATE,
+              :decision   => Request::APPROVED_STATUS,
+              :reason     => described_class::AUTO_APPROVED_REASON,
+              :group_name => 'gname'
             )
             expect(child.actions.first).to have_attributes(
               :operation    => Action::START_OPERATION,
@@ -149,6 +165,9 @@ RSpec.describe RequestCreateService do
               :comments  => described_class::AUTO_APPROVED_REASON
             )
           end
+          expect(request.children.first.group_ref).to eq('ref3');
+          expect(request.children.second.group_ref).to eq('ref2');
+          expect(request.children.last.group_ref).to eq('ref1');
         end
       end
     end
@@ -179,7 +198,7 @@ RSpec.describe RequestCreateService do
         :decision       => Request::APPROVED_STATUS,
         :reason         => described_class::AUTO_APPROVED_REASON,
         :workflow       => nil,
-        :group_name     => 'System approval'
+        :group_name     => described_class::SYSTEM_APPROVAL
       )
     end
   end

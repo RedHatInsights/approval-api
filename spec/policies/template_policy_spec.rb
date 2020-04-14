@@ -1,18 +1,18 @@
 describe TemplatePolicy do
   include_context "approval_rbac_objects"
 
-  let(:templates) { create_list(:template, 3) }
+  let(:template) { create(:template) }
   let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => accessible_flag) }
   let(:user) { instance_double(UserContext, :rbac_enabled? => true, :access => access) }
 
-  subject { described_class.new(user, Template) }
+  subject { described_class.new(user, template) }
 
-  describe '#query?' do
+  describe '#show?' do
     context 'when admin role' do
       let(:accessible_flag) { true }
 
       it 'returns templates' do
-        expect(subject.query?).to be_truthy
+        expect(subject.show?).to be_truthy
       end
     end
 
@@ -20,7 +20,7 @@ describe TemplatePolicy do
       let(:accessible_flag) { false }
 
       it 'returns templates' do
-        expect(subject.query?).to be_falsey
+        expect(subject.show?).to be_falsey
       end
     end
 
@@ -28,7 +28,7 @@ describe TemplatePolicy do
       let(:accessible_flag) { false }
 
       it 'returns templates' do
-        expect(subject.query?).to be_falsey
+        expect(subject.show?).to be_falsey
       end
     end
   end

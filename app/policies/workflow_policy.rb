@@ -6,7 +6,8 @@ class WorkflowPolicy < ApplicationPolicy
   end
 
   def create?
-    permission_check('create', record)
+    klass = record.class == Workflow ? record.class : record
+    permission_check('create', klass)
   end
 
   def show?
@@ -27,9 +28,5 @@ class WorkflowPolicy < ApplicationPolicy
 
   def unlink?
     permission_check('unlink')
-  end
-
-  def query?
-    permission_check('read', record)
   end
 end

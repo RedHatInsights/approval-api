@@ -1,4 +1,6 @@
 class Template < ApplicationRecord
+  include Metadata
+
   acts_as_tenant(:tenant, :has_global_records => true)
 
   has_many :workflows, -> { order(:id => :asc) }, :inverse_of => :template

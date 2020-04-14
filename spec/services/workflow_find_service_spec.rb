@@ -3,13 +3,13 @@ RSpec.describe WorkflowFindService do
     Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) { example.call }
   end
 
-  let(:workflow) { create(:workflow, :with_tenant, :group_refs => [990]) }
+  let(:workflow) { create(:workflow, :with_tenant, :group_refs => [{'name' => 'n999', 'uuid' => '990'}]) }
   let(:obj) { {:object_type => 'inventory', :app_name => 'topology', :object_id => 'abc'} }
   let(:another_obj) { {:object_type => 'portfolio', :app_name => 'catalog', :object_id => 'abc'} }
   let(:add_tag_svc) { instance_double(AddRemoteTags) }
   let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [fq_tag_string]) }
   let(:fq_tag_string) { "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{workflow.id}" }
-  let(:group) { instance_double(Group, :uuid => 990, :has_role? => true) }
+  let(:group) { instance_double(Group, :name => 'n999', :uuid => '990', :has_role? => true) }
   let(:tag) do
     { 'tag' => fq_tag_string }
   end
