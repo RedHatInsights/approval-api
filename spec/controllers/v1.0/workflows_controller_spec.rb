@@ -236,7 +236,10 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   # Test suite for POST /templates/:template_id/workflows
   describe 'POST /templates/:template_id/workflows' do
-    let(:group_refs) { [{'name' => 'n990', 'uuid' => '990'}, {'name' => 'n991', 'uuid' => '991'}, {'name' => 'n992', 'uuid' => '992'}] }
+    let(:uuid_1) { SecureRandom.uuid }
+    let(:uuid_2) { SecureRandom.uuid }
+    let(:uuid_3) { SecureRandom.uuid }
+    let(:group_refs) { [{'name' => 'n990', 'uuid' => uuid_1}, {'name' => 'n991', 'uuid' => uuid_2}, {'name' => 'n992', 'uuid' => uuid_3}] }
     let(:group) { instance_double(Group, :name => 'group', :uuid => 990, :has_role? => true) }
     let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
 
@@ -255,7 +258,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'when groups_refs contains duplicated group' do
-      let(:group_refs) { [{'name' => 'n990', 'uuid' => '990'}, {'name' => 'n991', 'uuid' => '991'}, {'name' => 'n99x', 'uuid' => '990'}] }
+      let(:group_refs) { [{'name' => 'n990', 'uuid' => uuid_1}, {'name' => 'n991', 'uuid' => uuid_2}, {'name' => 'n99x', 'uuid' => uuid_1}] }
 
       it 'returns status code 400' do
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
@@ -310,7 +313,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   # Test suite for PATCH /workflows/:id
   describe 'PATCH /workflows/:id' do
-    let(:valid_attributes) { {:name => "test", :group_refs => [{'name' => 'n1000', 'uuid' => '1000'}], :sequence => 2} }
+    let(:valid_attributes) { {:name => "test", :group_refs => [{'name' => 'n1000', 'uuid' => SecureRandom.uuid}], :sequence => 2} }
     let(:group) { instance_double(Group, :name => 'n1000', :uuid => '1000', :has_role? => true) }
 
     context 'admin role when item exists' do
