@@ -25,7 +25,7 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
   describe 'a simple graphql query' do
     context 'rbac allows' do
       let(:headers) { headers_with_admin }
-      before { allow(Insights::API::Common::RBAC::Service).to receive(:paginate).and_return(admin_acls) }
+      before { admin_access }
 
       it 'selects attributes in workflows' do
         post "#{api_version}/graphql", :headers => headers, :params => graphql_source_query
@@ -42,7 +42,7 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
 
     context 'rbac rejects' do
       let(:headers) { headers_with_approver }
-      before { allow(Insights::API::Common::RBAC::Service).to receive(:paginate).and_return(approver_acls) }
+      before { approver_access }
 
       it 'selects attributes in workflows' do
         post "#{api_version}/graphql", :headers => headers, :params => graphql_source_query
@@ -52,7 +52,7 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
 
     context 'requests with admin role' do
       let(:headers) { headers_with_admin }
-      before { allow(Insights::API::Common::RBAC::Service).to receive(:paginate).and_return(admin_acls) }
+      before { admin_access }
 
       it 'return requests' do
         post "#{api_version}/graphql", :headers => headers, :params => graphql_requests_query
@@ -70,7 +70,7 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
 
     context 'requests with apporver role' do
       let(:headers) { headers_with_approver }
-      before { allow(Insights::API::Common::RBAC::Service).to receive(:paginate).and_return(approver_acls) }
+      before { approver_access }
 
       it 'return 403' do
         post "#{api_version}/graphql", :headers => headers, :params => graphql_requests_query
@@ -80,7 +80,7 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
 
     context 'requests with user role' do
       let(:headers) { headers_with_requester }
-      before { allow(Insights::API::Common::RBAC::Service).to receive(:paginate).and_return(requester_acls) }
+      before { user_access }
 
       it 'return empty requests' do
         post "#{api_version}/graphql", :headers => headers, :params => graphql_requests_query

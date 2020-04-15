@@ -39,20 +39,17 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
 
   let(:setup_approver_role) do
     setup_requests
-    allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, hash_including(:limit), any_args).and_return(approver_acls)
-    allow(rs_class).to receive(:paginate).with(api_instance, :list_groups, :scope => 'principal').and_return([group2])
+    approver_access
   end
 
   let(:setup_admin_role) do
     setup_requests
-    allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, hash_including(:limit), any_args).and_return(admin_acls)
-    allow(rs_class).to receive(:paginate).with(api_instance, :list_groups, :scope => 'principal').and_return([])
+    admin_access
   end
 
   let(:setup_requester_role) do
     setup_requests
-    allow(rs_class).to receive(:paginate).with(api_instance, :get_principal_access, hash_including(:limit), any_args).and_return(requester_acls)
-    allow(rs_class).to receive(:paginate).with(api_instance, :list_groups, :scope => 'principal').and_return([])
+    user_access
   end
 
   let(:api_version) { version }
@@ -103,6 +100,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before { setup_approver_role }
 
       it 'returns status code 200' do
+        allow(user).to receive(:group_uuids).and_return([group2.uuid])
         get "#{api_version}/requests", :headers => headers_with_approver
 
         expect(response).to have_http_status(200)
@@ -144,6 +142,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
       before { setup_approver_role }
 
       it 'returns status code 200' do
+        allow(user).to receive(:group_uuids).and_return([group2.uuid])
         get "#{api_version}/requests?filter[state]=notified", :headers => headers_with_approver
 
         expect(json['data'].size).to eq(1)
@@ -169,7 +168,10 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'approver role' do
-      before { setup_approver_role }
+      before do
+        setup_approver_role
+        allow(user).to receive(:group_uuids).and_return([group2.uuid])
+      end
 
       it 'returns status code 200 with decision = approved' do
         get "#{api_version}/requests?filter[decision]=approved", :headers => headers_with_approver
@@ -231,7 +233,10 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'approver role' do
-      before { setup_approver_role }
+      before do
+        setup_approver_role
+        allow(user).to receive(:group_uuids).and_return([group2.uuid])
+      end
 
       context 'approver can approve' do
         it 'returns status code 200 for completed request' do
@@ -304,6 +309,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   # Test suite for GET /requests/:request_id/requests
   describe 'GET /requests/:request_id/requests' do
     context 'admin role' do
+      let(:params) { { :request_id => "#{denied_request.id}" } }
       before { setup_admin_role }
 
       it 'returns status code 200' do
@@ -315,7 +321,11 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context 'approver role' do
-      before { setup_approver_role }
+      let(:params) { { :request_id => "#{denied_request.id}" } }
+      before do
+        setup_approver_role
+        allow(user).to receive(:group_uuids).and_return([group2.uuid])
+      end
 
       it 'returns status code 403' do
         get "#{api_version}/requests/#{denied_request.id}/requests", :headers => headers_with_approver
@@ -325,6 +335,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
     end
 
     context "requester role" do
+      let(:params) { { :request_id => "#{notified_request.id}" } }
       before { setup_requester_role }
 
       it 'returns status code 200' do

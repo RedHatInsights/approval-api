@@ -3,36 +3,48 @@ RSpec.shared_context "approval_rbac_objects" do
   let(:rs_class) { class_double("Insights::API::Common::RBAC::Service").as_stubbed_const(:transfer_nested_constants => true) }
   let(:api_instance) { double }
 
-  let(:admin_filter) { instance_double(RBACApiClient::ResourceDefinitionFilter, :key => 'scope', :operation => 'equal', :value => 'admin') }
-  let(:admin_resource_def) { instance_double(RBACApiClient::ResourceDefinition, :attribute_filter => admin_filter) }
-  let(:group_filter) { instance_double(RBACApiClient::ResourceDefinitionFilter, :key => 'scope', :operation => 'equal', :value => 'group') }
-  let(:approver_resource_def) { instance_double(RBACApiClient::ResourceDefinition, :attribute_filter => group_filter) }
-  let(:user_filter) { instance_double(RBACApiClient::ResourceDefinitionFilter, :key => 'scope', :operation => 'equal', :value => 'user') }
-  let(:user_resource_def) { instance_double(RBACApiClient::ResourceDefinition, :attribute_filter => user_filter) }
+  let(:params) { {} }
+  let(:access) { instance_double(Insights::API::Common::RBAC::Access) }
+  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true, :params => params) }
 
-  let(:template_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:templates:read", :resource_definitions => [admin_resource_def]) }
-  let(:workflow_create_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:create", :resource_definitions => [admin_resource_def]) }
-  let(:workflow_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:read", :resource_definitions => [admin_resource_def]) }
-  let(:workflow_update_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:update", :resource_definitions => [admin_resource_def]) }
-  let(:workflow_destroy_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:delete", :resource_definitions => [admin_resource_def]) }
-  let(:request_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:requests:read", :resource_definitions => [admin_resource_def]) }
-  let(:request_create_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:requests:create", :resource_definitions => [admin_resource_def]) }
-  let(:action_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:actions:read", :resource_definitions => [admin_resource_def]) }
-  let(:action_create_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:actions:create", :resource_definitions => [admin_resource_def]) }
-  let(:workflow_link_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:link", :resource_definitions => [admin_resource_def]) }
-  let(:workflow_unlink_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:unlink", :resource_definitions => [admin_resource_def]) }
+  let(:admin_access) do
+    allow(UserContext).to receive(:new).and_return(user)
+    allow(user).to receive(:access).and_return(access)
+    allow(access).to receive(:accessible?).and_return(true)
+    allow(access).to receive(:scopes).and_return(['admin'])
+  end
 
-  let(:approver_request_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:requests:read", :resource_definitions => [approver_resource_def]) }
-  let(:approver_action_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:actions:read", :resource_definitions => [approver_resource_def]) }
-  let(:approver_action_create_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:actions:create", :resource_definitions => [approver_resource_def]) }
-  let(:requester_request_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:requests:read", :resource_definitions => [user_resource_def]) }
-  let(:requester_request_create_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:requests:create", :resource_definitions => [user_resource_def]) }
-  let(:requester_action_create_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:actions:create", :resource_definitions => [user_resource_def]) }
-  let(:requester_action_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:actions:read", :resource_definitions => [user_resource_def]) }
-  let(:requester_workflow_read_acl) { instance_double(RBACApiClient::Access, :permission => "#{app_name}:workflows:read", :resource_definitions => [admin_resource_def]) }
+  let(:approver_access) do
+    allow(UserContext).to receive(:new).and_return(user)
+    allow(user).to receive(:access).and_return(access)
+    allow(access).to receive(:scopes).and_return(['group'])
+    allow(access).to receive(:accessible?).with('requests', 'read').and_return(true)
+    allow(access).to receive(:accessible?).with('actions', 'create').and_return(true)
+    allow(access).to receive(:accessible?).with('actions', 'read').and_return(true)
+    allow(access).to receive(:accessible?).with('templates', 'read').and_return(false)
+    allow(access).to receive(:accessible?).with('workflows', 'create').and_return(false)
+    allow(access).to receive(:accessible?).with('workflows', 'read').and_return(false)
+    allow(access).to receive(:accessible?).with('workflows', 'delete').and_return(false)
+    allow(access).to receive(:accessible?).with('workflows', 'update').and_return(false)
+    allow(access).to receive(:accessible?).with('workflows', 'link').and_return(false)
+    allow(access).to receive(:accessible?).with('workflows', 'unlink').and_return(false)
+    allow(access).to receive(:accessible?).with('requests', 'create').and_return(false)
+  end
 
-  let(:admin_acls) { [template_read_acl, workflow_create_acl, workflow_read_acl, workflow_destroy_acl, workflow_update_acl, request_create_acl,
-                      workflow_link_acl, workflow_unlink_acl, request_read_acl, action_create_acl, action_read_acl] }
-  let(:approver_acls) { [approver_request_read_acl, approver_action_create_acl, approver_action_read_acl] }
-  let(:requester_acls) { [requester_request_read_acl, requester_request_create_acl, requester_action_create_acl, requester_action_read_acl, requester_workflow_read_acl] }
+  let(:user_access) do
+    allow(UserContext).to receive(:new).and_return(user)
+    allow(user).to receive(:access).and_return(access)
+    allow(access).to receive(:scopes).and_return(['user'])
+    allow(access).to receive(:accessible?).with('requests', 'read').and_return(true)
+    allow(access).to receive(:accessible?).with('actions', 'create').and_return(true)
+    allow(access).to receive(:accessible?).with('actions', 'read').and_return(true)
+    allow(access).to receive(:accessible?).with('templates', 'read').and_return(false)
+    allow(access).to receive(:accessible?).with('workflows', 'create').and_return(false)
+    allow(access).to receive(:accessible?).with('workflows', 'read').and_return(true)
+    allow(access).to receive(:accessible?).with('workflows', 'delete').and_return(false)
+    allow(access).to receive(:accessible?).with('workflows', 'update').and_return(false)
+    allow(access).to receive(:accessible?).with('workflows', 'link').and_return(false)
+    allow(access).to receive(:accessible?).with('workflows', 'unlink').and_return(false)
+    allow(access).to receive(:accessible?).with('requests', 'create').and_return(true)
+  end
 end
