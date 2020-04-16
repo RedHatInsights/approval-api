@@ -1388,7 +1388,8 @@
                     },
                     "uuid": {
                         "type": "string",
-                        "description": "Group UUID"
+                        "description": "Group UUID",
+                        "format": "uuid"
                     }
                 }
             },
