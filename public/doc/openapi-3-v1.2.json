@@ -1511,7 +1511,7 @@
                 "description": "API Error collection",
                 "properties": {
                     "errors": {
-                        "type": "Array",
+                        "type": "array",
                         "description": "Error list from the API query",
                         "items": {
                             "$ref": "#/components/schemas/HttpApiError"
