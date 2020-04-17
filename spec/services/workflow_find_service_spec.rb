@@ -9,7 +9,7 @@ RSpec.describe WorkflowFindService do
   let(:add_tag_svc) { instance_double(AddRemoteTags) }
   let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [fq_tag_string]) }
   let(:fq_tag_string) { "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{workflow.id}" }
-  let(:group) { instance_double(Group, :name => 'n999', :uuid => '990', :has_role? => true) }
+  let(:group) { instance_double(Group, :name => 'n999', :uuid => '990', :can_approve? => true) }
   let(:tag) do
     { 'tag' => fq_tag_string }
   end

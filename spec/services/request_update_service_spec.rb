@@ -2,7 +2,7 @@ RSpec.describe RequestUpdateService do
   let(:request) { create(:request, :with_tenant) }
   subject { described_class.new(request.id) }
   let!(:event_service) { EventService.new(request) }
-  let(:group) { instance_double(Group, :name => 'group1', :has_role? => true, :users => ['user']) }
+  let(:group) { instance_double(Group, :name => 'group1', :can_approve? => true, :users => ['user']) }
 
   before { allow(EventService).to receive(:new).with(request).and_return(event_service) }
 
@@ -61,7 +61,7 @@ RSpec.describe RequestUpdateService do
       let(:msg) { "Group #{group.name} does not have approver role" }
 
       it 'returns false' do
-        allow(group).to receive(:has_role?).and_return(false)
+        allow(group).to receive(:can_approve?).and_return(false)
 
         expect(request.actions.count).to eq(0)
         expect(subject.runtime_validate_group(request)).to be_falsey
