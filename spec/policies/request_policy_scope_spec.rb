@@ -69,7 +69,6 @@ describe RequestPolicy::Scope do
 
     before do
       allow(subject).to receive(:graphql_query_by_id?).and_return(false)
-      allow(subject).to receive(:graphql_query_by_filter?).and_return(true)
       allow(subject).to receive(:graphql_collection_query).and_return(scope)
     end
 
@@ -115,7 +114,7 @@ describe RequestPolicy::Scope do
   end
 
   describe '#resolve /requests/#{id}/requests' do
-    let!(:scope) { request.children }
+    let!(:scope) { request.requests }
     let(:params) { {:request_id => request.id} }
     let(:graphql_params) { nil }
 

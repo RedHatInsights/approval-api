@@ -58,7 +58,7 @@ class RequestCreateService
   end
 
   def update_root_group_name(request)
-    request.update!(:group_name => request.children.map(&:group_name).reverse.join(","))
+    request.update!(:group_name => request.requests.map(&:group_name).reverse.join(","))
   end
 
   def default_approve?
@@ -86,7 +86,7 @@ class RequestCreateService
 
     start_request(request)
 
-    sub_requests = request.parent? ? request.children : [request]
+    sub_requests = request.parent? ? request.requests : [request]
 
     sub_requests.reverse.each { |req| group_auto_approve(req, sleep_time) }
   end
@@ -112,7 +112,7 @@ class RequestCreateService
   def sub_request_ids(request)
     return [request.id] if request.leaf?
 
-    last = request.children.last
+    last = request.requests.last
     Request.where(:parent_id => last.parent_id, :workflow_id => last.workflow_id).pluck(:id)
   end
 end

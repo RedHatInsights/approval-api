@@ -14,12 +14,15 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
   let(:api_version) { version }
 
   let(:graphql_simple_query) { { 'query' => '{ workflows {  id template_id name  } }' } }
-  let(:graphql_id_query) { { 'query' => "{ requests(id: #{parent_request.id}) { id requests { id parent_id actions { id operation } } description parent_id } }" } }
+  let(:graphql_id_query) { { 'query' => "{ requests(id: #{id}) { id requests { id parent_id actions { id operation } } description parent_id } }" } }
   let(:graphql_filter_query) { { 'query' => "{ requests(filter: { parent_id: #{parent_request.id} }) { id actions { id operation } description parent_id } }" } }
 
   let(:headers_with_admin) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/admin') }
   let(:headers_with_approver) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/approver') }
   let(:headers_with_requester) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/requester') }
+  let(:user_request) do
+    Insights::API::Common::Request.with_request(default_request_hash) { create(:request, :tenant => tenant) }
+  end
 
   before do
     allow(Insights::API::Common::RBAC::Service).to receive(:call).with(RBACApiClient::AccessApi).and_yield(double)
@@ -60,10 +63,11 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
 
   describe 'a graphql query with id params' do
     let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true, :params => params, :graphql_params => graphql_params) }
-    let(:graphql_params) { double("graphql_params", :id => "#{parent_request.id}", :filter => nil) }
 
     context 'requests with admin role' do
       let(:headers) { headers_with_admin }
+      let(:graphql_params) { double("graphql_params", :id => "#{parent_request.id}", :filter => nil) }
+      let(:id) { parent_request.id }
       before { admin_access }
 
       it 'return requests' do
@@ -87,6 +91,8 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
 
     context 'requests with apporver role' do
       let(:headers) { headers_with_approver }
+      let(:graphql_params) { double("graphql_params", :id => "#{parent_request.id}", :filter => nil) }
+      let(:id) { parent_request.id }
       before { approver_access }
 
       it 'return 403' do
@@ -99,12 +105,27 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
 
     context 'requests with user role' do
       let(:headers) { headers_with_requester }
+      let(:graphql_params) { double("graphql_params", :id => "#{parent_request.id}", :filter => nil) }
+      let(:id) { parent_request.id }
       before { user_access }
 
       it 'return empty requests' do
         post "#{api_version}/graphql", :headers => headers, :params => graphql_id_query
 
         expect(response.status).to eq(403)
+      end
+    end
+
+    context 'requests with user role' do
+      let(:headers) { headers_with_requester }
+      let(:graphql_params) { double("graphql_params", :id => "#{user_request.id}", :filter => nil) }
+      let(:id) { user_request.id }
+      before { user_access }
+
+      it 'return empty requests' do
+        post "#{api_version}/graphql", :headers => headers, :params => graphql_id_query
+
+        expect(response.status).to eq(200)
       end
     end
   end

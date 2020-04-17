@@ -11,7 +11,7 @@ class RequestPolicy < ApplicationPolicy
       if user.params[:request_id]
         req = Request.find(user.params[:request_id])
         raise Exceptions::NotAuthorizedError, "Read access not authorized for request #{req.id}" unless resource_check('read', req)
-        req.children
+        req.requests
       else
         case Insights::API::Common::Request.current.headers[Insights::API::Common::Request::PERSONA_KEY]
         when PERSONA_ADMIN

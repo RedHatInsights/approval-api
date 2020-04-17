@@ -69,20 +69,12 @@ class ApplicationPolicy
       scope.where(:id => id)
     end
 
-    def graphql_filter_query
-      scope.where(user.graphql_params.filter)
-    end
-
     def graphql_collection_query
-      graphql_query_by_filter? ? graphql_filter_query : scope.all
+      scope.where(user.graphql_params&.filter)
     end
 
     def graphql_query_by_id?
       graphql_query? && user.graphql_params.id.present?
-    end
-
-    def graphql_query_by_filter?
-      graphql_query? && user.graphql_params.filter.present?
     end
 
     def graphql_query?
