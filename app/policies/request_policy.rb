@@ -6,24 +6,23 @@ class RequestPolicy < ApplicationPolicy
 
     def resolve
       return scope.all unless user.rbac_enabled?
+      return graphql_id_query if graphql_query_by_id?
 
       if user.params[:request_id]
         req = Request.find(user.params[:request_id])
         raise Exceptions::NotAuthorizedError, "Read access not authorized for request #{req.id}" unless resource_check('read', req)
         req.children
-      # GraphQL comes in with model_class.all, whose scope is respond to model call
-      # Regular root requests call comes in with model class itself
       else
         case Insights::API::Common::Request.current.headers[Insights::API::Common::Request::PERSONA_KEY]
         when PERSONA_ADMIN
           raise Exceptions::NotAuthorizedError, "No permission to access the complete list of requests" unless admin?(scope)
-          scope.respond_to?(:model) ? scope : scope.where(:parent_id => nil)
+          graphql_query? ? graphql_collection_query : scope.where(:parent_id => nil)
         when PERSONA_APPROVER
           raise Exceptions::NotAuthorizedError, "No permission to access requests assigned to approvers" unless approver?(scope)
-          scope.respond_to?(:model) ? (raise Exceptions::NotAuthorizedError, "Approver not allowed to access requests via GraphQL") :
+          graphql_query? ? (raise Exceptions::NotAuthorizedError, "Approver not allowed to access requests via GraphQL") :
                                       approver_visible_requests(scope)
         when PERSONA_REQUESTER, nil
-          scope.respond_to?(:model) ? scope.by_owner : scope.by_owner.where(:parent_id => nil)
+          graphql_query? ? graphql_collection_query.by_owner : scope.by_owner.where(:parent_id => nil)
         else
           raise Exceptions::NotAuthorizedError, "Unknown persona"
         end

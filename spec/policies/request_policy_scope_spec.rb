@@ -8,7 +8,7 @@ describe RequestPolicy::Scope do
   let!(:requests) { create_list(:request, 2) }
   let!(:sub_requests) { create_list(:request, 2, :parent_id => request.id) }
   let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => true) }
-  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true, :params => params, :group_uuids => group_uuids) }
+  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true, :params => params, :group_uuids => group_uuids, :graphql_params => graphql_params) }
 
   let(:subject) { described_class.new(user, scope) }
   let(:headers_with_admin) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/admin') }
@@ -19,6 +19,7 @@ describe RequestPolicy::Scope do
   describe '#resolve /requests' do
     let(:params) { {} }
     let(:scope) { Request }
+    let(:graphql_params) { nil }
 
     context 'when admin role' do
       let(:req_headers) { headers_with_admin }
@@ -64,6 +65,13 @@ describe RequestPolicy::Scope do
   describe '#resolve GraphQL' do
     let(:params) { {} }
     let(:scope) { Request.all }
+    let(:graphql_params) { double }
+
+    before do
+      allow(subject).to receive(:graphql_query_by_id?).and_return(false)
+      allow(subject).to receive(:graphql_query_by_filter?).and_return(true)
+      allow(subject).to receive(:graphql_collection_query).and_return(scope)
+    end
 
     context 'when admin role' do
       let(:req_headers) { headers_with_admin }
@@ -109,6 +117,7 @@ describe RequestPolicy::Scope do
   describe '#resolve /requests/#{id}/requests' do
     let!(:scope) { request.children }
     let(:params) { {:request_id => request.id} }
+    let(:graphql_params) { nil }
 
     context 'when admin role' do
       let(:req_headers) { headers_with_admin }

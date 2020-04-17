@@ -1,6 +1,8 @@
 class ActionPolicy < ApplicationPolicy
   class Scope < ApplicationPolicy::Scope
     def resolve
+      return graphql_id_query if graphql_query_by_id?
+
       if user.params[:request_id]
         req = Request.find(user.params[:request_id])
         raise Exceptions::NotAuthorizedError, "Read access not authorized for request #{req.id}" unless resource_check('read', req)

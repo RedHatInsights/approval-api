@@ -59,5 +59,34 @@ class ApplicationPolicy
     def resolve
       scope.all
     end
+
+    def graphql_id_query
+      id = user.graphql_params.id
+
+      item = scope.find(id)
+      raise Exceptions::NotAuthorizedError, "Read access not authorized for request #{item.id}" unless resource_check('read', item)
+
+      scope.where(:id => id)
+    end
+
+    def graphql_filter_query
+      scope.where(user.graphql_params.filter)
+    end
+
+    def graphql_collection_query
+      graphql_query_by_filter? ? graphql_filter_query : scope.all
+    end
+
+    def graphql_query_by_id?
+      graphql_query? && user.graphql_params.id.present?
+    end
+
+    def graphql_query_by_filter?
+      graphql_query? && user.graphql_params.filter.present?
+    end
+
+    def graphql_query?
+      !!user.graphql_params
+    end
   end
 end

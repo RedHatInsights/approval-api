@@ -11,8 +11,9 @@ class Request < ApplicationRecord
   has_many :actions, -> { order(:id => :asc) }, :dependent => :destroy, :inverse_of => :request
   has_many :random_access_keys, :dependent => :destroy, :inverse_of => :request
 
-  belongs_to :parent,   :foreign_key => :parent_id, :class_name => 'Request', :inverse_of => :children
-  has_many   :children, :foreign_key => :parent_id, :class_name => 'Request', :inverse_of => :parent, :dependent => :destroy
+  belongs_to :parent,   :foreign_key => :parent_id, :class_name => 'Request', :inverse_of => :requests
+  has_many   :requests, :foreign_key => :parent_id, :class_name => 'Request', :inverse_of => :parent, :dependent => :destroy
+  alias_method :children, :requests
 
   validates :name,     :presence  => true
   validates :state,    :inclusion => { :in => STATES }
