@@ -112,4 +112,10 @@ RSpec.describe Request, type: :model do
       end
     end
   end
+
+  context '.policy_class' do
+    it "is RequestPolicy" do
+      expect(Request.policy_class).to eq(RequestPolicy)
+    end
+  end
 end
