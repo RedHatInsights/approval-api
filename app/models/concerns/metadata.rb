@@ -18,6 +18,8 @@ module Metadata
   private
 
   def user_capabilities
-    user_context.nil? ? { } : self.class.policy_class.new(user_context, self).user_capabilities
+    return nil if user_context.nil?
+
+    self.class.policy_class.new(user_context, self).user_capabilities
   end
 end
