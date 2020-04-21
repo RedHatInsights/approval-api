@@ -39,8 +39,8 @@ class ApplicationPolicy
   def user_capabilities
     capabilities = {}
 
-    (self.class.instance_methods(false).select {|method| method.to_s.end_with?("?")}).each do |method|
-      capabilities[method.to_s.delete_suffix('?')] = self.send(method)
+    (self.class.instance_methods(false).select { |method| method.to_s.end_with?("?") }).each do |method|
+      capabilities[method.to_s.delete_suffix('?')] = send(method)
     end
 
     capabilities
@@ -57,6 +57,14 @@ class ApplicationPolicy
     end
 
     def resolve
+      return scope.all unless user.rbac_enabled?
+
+      graphql_query_by_id? ? graphql_id_query : resolve_scope
+    end
+
+    def resolve_scope
+      raise Exceptions::NotAuthorizedError, "Read access not authorized for #{scope}" unless permission_check('read', scope)
+
       scope.all
     end
 
@@ -66,19 +74,11 @@ class ApplicationPolicy
       item = scope.find(id)
       raise Exceptions::NotAuthorizedError, "Read access not authorized for request #{item.id}" unless resource_check('read', item)
 
-      scope.where(:id => id)
-    end
-
-    def graphql_collection_query
-      scope.where(user.graphql_params&.filter)
+      scope
     end
 
     def graphql_query_by_id?
-      graphql_query? && user.graphql_params.id.present?
-    end
-
-    def graphql_query?
-      !!user.graphql_params
+      !!user.graphql_params&.id
     end
   end
 end

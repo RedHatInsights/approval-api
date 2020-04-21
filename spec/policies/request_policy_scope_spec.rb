@@ -65,49 +65,68 @@ describe RequestPolicy::Scope do
   describe '#resolve GraphQL' do
     let(:params) { {} }
     let(:scope) { Request.all }
-    let(:graphql_params) { double }
 
-    before do
-      allow(subject).to receive(:graphql_query_by_id?).and_return(false)
-      allow(subject).to receive(:graphql_collection_query).and_return(scope)
-    end
+    context 'when graphql_query_by_id is not true' do
+      let(:graphql_params) { double }
+      before do
+        allow(subject).to receive(:graphql_query_by_id?).and_return(false)
+      end
 
-    context 'when admin role' do
-      let(:req_headers) { headers_with_admin }
-      before { allow(access).to receive(:scopes).and_return(['admin']) }
+      context 'when admin role' do
+        let(:req_headers) { headers_with_admin }
+        before { allow(access).to receive(:scopes).and_return(['admin']) }
 
-      it 'returns requests' do
-        Insights::API::Common::Request.with_request(headers) do
-          expect(subject.resolve.count).to eq(Request.count)
+        it 'returns requests' do
+          Insights::API::Common::Request.with_request(headers) do
+            expect(subject.resolve.count).to eq(Request.where(:parent_id => nil).count)
+          end
+        end
+      end
+
+      context 'when approver role' do
+        let(:req_headers) { headers_with_approver }
+        before do
+          sub_requests.first.update(:group_ref => group_uuids.first, :state => 'completed')
+          requests.last.update(:group_ref => group_uuids.first, :state => 'notified')
+          allow(access).to receive(:scopes).and_return(['group'])
+        end
+
+        it 'returns requests' do
+          Insights::API::Common::Request.with_request(headers) do
+            expect(subject.resolve.count).to eq(2)
+          end
+        end
+      end
+
+      context 'when requester role' do
+        let(:req_headers) { headers_with_requester }
+        before do
+          allow(access).to receive(:scopes).and_return(['user'])
+        end
+
+        it 'returns requests' do
+          Insights::API::Common::Request.with_request(headers) do
+            expect(subject.resolve.count).to eq(1)
+            expect(subject.resolve.first).to eq(request)
+          end
         end
       end
     end
 
-    context 'when approver role' do
-      let(:req_headers) { headers_with_approver }
+    context 'when graphql_query_by_id is true' do
+      let(:graphql_params) { double("graphql_params", :id => request.id) }
       before do
-        sub_requests.first.update(:group_ref => group_uuids.first, :state => 'completed')
-        requests.last.update(:group_ref => group_uuids.first, :state => 'notified')
-        allow(access).to receive(:scopes).and_return(['group'])
+        allow(subject).to receive(:graphql_query_by_id?).and_return(true)
       end
 
-      it 'returns requests' do
-        Insights::API::Common::Request.with_request(headers) do
-          expect { subject.resolve }.to raise_error(Exceptions::NotAuthorizedError, "Approver not allowed to access requests via GraphQL")
-        end
-      end
-    end
+      context 'when admin role' do
+        let(:req_headers) { headers_with_admin }
+        before { allow(access).to receive(:scopes).and_return(['admin']) }
 
-    context 'when requester role' do
-      let(:req_headers) { headers_with_requester }
-      before do
-        allow(access).to receive(:scopes).and_return(['user'])
-      end
-
-      it 'returns requests' do
-        Insights::API::Common::Request.with_request(headers) do
-          expect(subject.resolve.count).to eq(1)
-          expect(subject.resolve.first).to eq(request)
+        it 'returns requests' do
+          Insights::API::Common::Request.with_request(headers) do
+            expect(subject.resolve.count).to eq(5)
+          end
         end
       end
     end

@@ -15,7 +15,6 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
 
   let(:graphql_simple_query) { { 'query' => '{ workflows {  id template_id name  } }' } }
   let(:graphql_id_query) { { 'query' => "{ requests(id: #{id}) { id requests { id parent_id actions { id operation } } description parent_id } }" } }
-  let(:graphql_filter_query) { { 'query' => "{ requests(filter: { parent_id: #{parent_request.id} }) { id actions { id operation } description parent_id } }" } }
 
   let(:headers_with_admin) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/admin') }
   let(:headers_with_approver) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/approver') }
@@ -30,7 +29,7 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
   end
 
   describe 'a simple graphql query' do
-    let(:graphql_params) { double("graphql_params", :id => nil, :filter => nil) }
+    let(:graphql_params) { double("graphql_params", :id => nil) }
 
     context 'rbac allows' do
       let(:headers) { headers_with_admin }
@@ -66,7 +65,7 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
 
     context 'requests with admin role' do
       let(:headers) { headers_with_admin }
-      let(:graphql_params) { double("graphql_params", :id => "#{parent_request.id}", :filter => nil) }
+      let(:graphql_params) { double("graphql_params", :id => "#{parent_request.id}") }
       let(:id) { parent_request.id }
       before { admin_access }
 
@@ -91,7 +90,7 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
 
     context 'requests with apporver role' do
       let(:headers) { headers_with_approver }
-      let(:graphql_params) { double("graphql_params", :id => "#{parent_request.id}", :filter => nil) }
+      let(:graphql_params) { double("graphql_params", :id => "#{parent_request.id}") }
       let(:id) { parent_request.id }
       before { approver_access }
 
@@ -103,9 +102,9 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
       end
     end
 
-    context 'requests with user role' do
+    context 'requests with id not in the list' do
       let(:headers) { headers_with_requester }
-      let(:graphql_params) { double("graphql_params", :id => "#{parent_request.id}", :filter => nil) }
+      let(:graphql_params) { double("graphql_params", :id => "#{parent_request.id}") }
       let(:id) { parent_request.id }
       before { user_access }
 
@@ -116,9 +115,9 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
       end
     end
 
-    context 'requests with user role' do
+    context 'requests with id in the list' do
       let(:headers) { headers_with_requester }
-      let(:graphql_params) { double("graphql_params", :id => "#{user_request.id}", :filter => nil) }
+      let(:graphql_params) { double("graphql_params", :id => "#{user_request.id}") }
       let(:id) { user_request.id }
       before { user_access }
 
@@ -126,28 +125,6 @@ RSpec.describe Api::V1x0::GraphqlController, :type => :request do
         post "#{api_version}/graphql", :headers => headers, :params => graphql_id_query
 
         expect(response.status).to eq(200)
-      end
-    end
-  end
-
-  describe 'a graphql query with filter params' do
-    let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true, :params => params, :graphql_params => graphql_params) }
-    let(:graphql_params) { double("graphql_params", :id => nil, :filter => { :parent_id => "#{parent_request.id}" }) }
-
-    context 'requests with admin role' do
-      let(:headers) { headers_with_admin }
-      before { admin_access }
-
-      it 'return requests' do
-        post "#{api_version}/graphql", :headers => headers, :params => graphql_filter_query
-
-        expect(response.status).to eq(200)
-
-        results = JSON.parse(response.body).fetch_path("data", "requests")
-        expect(results.size).to eq(2)
-        results.each do |hash|
-          expect(hash.keys).to contain_exactly('id', 'actions', 'description', 'parent_id')
-        end
       end
     end
   end

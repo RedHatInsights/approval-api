@@ -4,25 +4,24 @@ class RequestPolicy < ApplicationPolicy
     PERSONA_APPROVER  = 'approval/approver'.freeze
     PERSONA_REQUESTER = 'approval/requester'.freeze
 
-    def resolve
-      return scope.all unless user.rbac_enabled?
-      return graphql_id_query if graphql_query_by_id?
-
+    def resolve_scope
       if user.params[:request_id]
         req = Request.find(user.params[:request_id])
         raise Exceptions::NotAuthorizedError, "Read access not authorized for request #{req.id}" unless resource_check('read', req)
+
         req.requests
       else
         case Insights::API::Common::Request.current.headers[Insights::API::Common::Request::PERSONA_KEY]
         when PERSONA_ADMIN
           raise Exceptions::NotAuthorizedError, "No permission to access the complete list of requests" unless admin?(scope)
-          graphql_query? ? graphql_collection_query : scope.where(:parent_id => nil)
+
+          scope.root_requests
         when PERSONA_APPROVER
           raise Exceptions::NotAuthorizedError, "No permission to access requests assigned to approvers" unless approver?(scope)
-          graphql_query? ? (raise Exceptions::NotAuthorizedError, "Approver not allowed to access requests via GraphQL") :
-                                      approver_visible_requests(scope)
+
+          approver_visible_requests(scope)
         when PERSONA_REQUESTER, nil
-          graphql_query? ? graphql_collection_query.by_owner : scope.by_owner.where(:parent_id => nil)
+          scope.by_owner.root_requests
         else
           raise Exceptions::NotAuthorizedError, "Unknown persona"
         end
@@ -44,12 +43,12 @@ class RequestPolicy < ApplicationPolicy
   end
 
   def valid_actions_hash
-    hash = { Action::APPROVE_OPERATION => false,
-             Action::CANCEL_OPERATION  => false,
-             Action::DENY_OPERATION    => false,
-             Action::MEMO_OPERATION    => true }
+    hash = {Action::APPROVE_OPERATION => false,
+            Action::CANCEL_OPERATION  => false,
+            Action::DENY_OPERATION    => false,
+            Action::MEMO_OPERATION    => true}
 
-   actions = valide_actions_on_roles & valid_actions_on_state
+    actions = valid_actions_on_roles & valid_actions_on_state
 
     # only child request can be approved/denied
     actions -= [Action::APPROVE_OPERATION, Action::DENY_OPERATION] if record.parent?
@@ -75,7 +74,7 @@ class RequestPolicy < ApplicationPolicy
     }[state]
   end
 
-  def valide_actions_on_roles
+  def valid_actions_on_roles
     operations = []
     operations |= Action::ADMIN_OPERATIONS if admin?(record.class)
     operations |= Action::APPROVER_OPERATIONS if approver?(record.class)

@@ -22,6 +22,7 @@ class Request < ApplicationRecord
   scope :state,          ->(state)          { where(:state => state) }
   scope :requester_name, ->(requester_name) { where(:requester_name => requester_name) }
   scope :group_ref,      ->(group_ref)      { where(:group_ref => group_ref) }
+  scope :root_requests,  ->                 { where(:parent_id => nil) }
   default_scope { order(:created_at => :desc) }
 
   delegate :content, :to => :request_context
