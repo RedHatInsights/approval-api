@@ -65,4 +65,10 @@ RSpec.describe Template, type: :model do
       expect(Encryption.where(:id => password_id2)).not_to exist
     end
   end
+
+  context '.policy_class' do
+    it "is TemplatePolicy" do
+      expect(Template.policy_class).to eq(TemplatePolicy)
+    end
+  end
 end
