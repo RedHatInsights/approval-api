@@ -1,12 +1,12 @@
 class ActionPolicy < ApplicationPolicy
   class Scope < ApplicationPolicy::Scope
-    def resolve
+    def resolve_scope
       if user.params[:request_id]
         req = Request.find(user.params[:request_id])
         raise Exceptions::NotAuthorizedError, "Read access not authorized for request #{req.id}" unless resource_check('read', req)
 
         req.actions
-      else # Both GraphQL and direct access are not allowed 
+      else # Both GraphQL and direct access are not allowed
         raise Exceptions::NotAuthorizedError, "Not authorized to directly access actions"
       end
     end
@@ -26,11 +26,9 @@ class ActionPolicy < ApplicationPolicy
     operation = user.params.require(:operation)
     uuid = user.request.headers['x-rh-random-access-key']
 
-    valid_operation =
-      admin?(record, 'create') && Action::ADMIN_OPERATIONS.include?(operation) ||
+    admin?(record, 'create') && Action::ADMIN_OPERATIONS.include?(operation) ||
       approver?(record, 'create') && Action::APPROVER_OPERATIONS.include?(operation) ||
       requester?(record, 'create') && Action::REQUESTER_OPERATIONS.include?(operation) ||
-
       uuid.present? && Request.find(user.params[:request_id]).try(:random_access_keys).any? { |key| key.access_key == uuid }
   end
 end

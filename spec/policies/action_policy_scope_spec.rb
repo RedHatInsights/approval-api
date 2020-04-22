@@ -4,7 +4,7 @@ describe ActionPolicy::Scope do
   let(:request) { create(:request) }
   let(:actions) { create_list(:action, 3, :request => request) }
   let(:access) { instance_double(Insights::API::Common::RBAC::Access, :scopes => ['admin']) }
-  let(:user) { instance_double(UserContext, :params => params, :access => access, :rbac_enabled? => true) }
+  let(:user) { instance_double(UserContext, :params => params, :access => access, :rbac_enabled? => true, :graphql_params => nil) }
   let(:subject) { described_class.new(user, query) }
 
   describe '#resolve' do

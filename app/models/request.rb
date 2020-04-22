@@ -11,8 +11,8 @@ class Request < ApplicationRecord
   has_many :actions, -> { order(:id => :asc) }, :dependent => :destroy, :inverse_of => :request
   has_many :random_access_keys, :dependent => :destroy, :inverse_of => :request
 
-  belongs_to :parent,   :foreign_key => :parent_id, :class_name => 'Request', :inverse_of => :children
-  has_many   :children, :foreign_key => :parent_id, :class_name => 'Request', :inverse_of => :parent, :dependent => :destroy
+  belongs_to :parent,   :foreign_key => :parent_id, :class_name => 'Request', :inverse_of => :requests
+  has_many   :requests, :foreign_key => :parent_id, :class_name => 'Request', :inverse_of => :parent, :dependent => :destroy
 
   validates :name,     :presence  => true
   validates :state,    :inclusion => { :in => STATES }
@@ -22,6 +22,7 @@ class Request < ApplicationRecord
   scope :state,          ->(state)          { where(:state => state) }
   scope :requester_name, ->(requester_name) { where(:requester_name => requester_name) }
   scope :group_ref,      ->(group_ref)      { where(:group_ref => group_ref) }
+  scope :root_requests,  ->                 { where(:parent_id => nil) }
   default_scope { order(:created_at => :desc) }
 
   delegate :content, :to => :request_context
@@ -30,13 +31,13 @@ class Request < ApplicationRecord
   after_initialize :set_defaults
 
   def invalidate_number_of_children
-    update(:number_of_children => children.size)
+    update(:number_of_children => requests.size)
   end
 
   def invalidate_number_of_finished_children
     return if number_of_children.zero?
 
-    update(:number_of_finished_children => children.count(&:finished?))
+    update(:number_of_finished_children => requests.count(&:finished?))
   end
 
   def create_child

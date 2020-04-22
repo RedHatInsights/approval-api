@@ -3,7 +3,7 @@ describe WorkflowPolicy::Scope do
 
   let(:workflows) { create_list(:workflow, 3) }
   let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => accessible_flag) }
-  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true) }
+  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true, :graphql_params => nil) }
   let(:subject) { described_class.new(user, Workflow) }
 
   describe '#resolve' do

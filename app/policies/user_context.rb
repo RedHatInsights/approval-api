@@ -15,6 +15,14 @@ class UserContext
       Insights::API::Common::RBAC::Service.paginate(api, :list_groups, :scope => 'principal').collect(&:uuid)
     end
   end
+  
+  def graphql_params=(val)
+    @graphql_params = val
+  end
+
+  def graphql_params
+    @graphql_params
+  end
 
   def rbac_enabled?
     @rbac_enabled ||= Insights::API::Common::RBAC::Access.enabled?

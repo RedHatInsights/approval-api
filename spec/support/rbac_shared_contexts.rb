@@ -5,7 +5,7 @@ RSpec.shared_context "approval_rbac_objects" do
 
   let(:params) { {} }
   let(:access) { instance_double(Insights::API::Common::RBAC::Access) }
-  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true, :params => params) }
+  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true, :params => params, :graphql_params => nil) }
 
   let(:admin_access) do
     allow(UserContext).to receive(:new).and_return(user)

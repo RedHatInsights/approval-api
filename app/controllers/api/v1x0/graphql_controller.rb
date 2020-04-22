@@ -17,7 +17,8 @@ module Api
         {
           "^.*$" => {
             "base_query" => lambda do |model_class, graphql_args, _ctx|
-              policy_scope(model_class.all)
+              UserContext.current_user_context.graphql_params = graphql_args
+              policy_scope(model_class)
             end
           }
         }
