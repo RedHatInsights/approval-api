@@ -116,7 +116,7 @@ class RequestUpdateService
   end
 
   def leaves
-    request.root.children.reverse # sort from oldest to latest
+    request.root.requests.reverse # sort from oldest to latest
   end
 
   def next_pending_leaves

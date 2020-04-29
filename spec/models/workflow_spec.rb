@@ -88,4 +88,10 @@ RSpec.describe Workflow, :type => :model do
       end
     end
   end
+
+  context '.policy_class' do
+    it "is WorkflowPolicy" do
+      expect(Workflow.policy_class).to eq(WorkflowPolicy)
+    end
+  end
 end

@@ -15,11 +15,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   let(:api_version) { version }
 
-  before { allow(rs_class).to receive(:call).with(RBACApiClient::AccessApi).and_yield(api_instance) }
-
   describe 'GET /templates/:template_id/workflows' do
     context 'admin role when template exists' do
-      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+      before { admin_access }
 
       it 'returns status code 200' do
         get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
@@ -39,8 +37,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     context 'admin role when template does not exist' do
       let!(:template_id) { 0 }
-
-      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+      before { admin_access }
 
       it 'returns status code 404' do
         get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
@@ -56,7 +53,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role when template exists' do
-      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
+      before { approver_access }
 
       it 'returns status code 403' do
         get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
@@ -66,7 +63,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role when template exists' do
-      before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
+      before { user_access }
 
       it 'returns status code 200' do
         get "#{api_version}/templates/#{template_id}/workflows", :headers => default_headers
@@ -78,7 +75,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   describe 'GET /workflows' do
     context 'admin role return workflows' do
-      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+      before { admin_access }
 
       it 'returns status code 200' do
         get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
@@ -98,7 +95,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role return workflows' do
-      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
+      before { approver_access }
 
       it 'returns status code 403' do
         get "#{api_version}/workflows", :headers => default_headers
@@ -108,7 +105,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role return workflows' do
-      before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
+      before { user_access }
 
       it 'returns status code 200' do
         get "#{api_version}/workflows", :headers => default_headers
@@ -120,7 +117,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   describe "GET /workflows with filter" do
     context 'admin role return workflows' do
-      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+      before { admin_access }
 
       it 'returns only the filtered result' do
         get "#{api_version}/workflows?filter[id]=#{id}", :headers => default_headers
@@ -131,7 +128,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role return workflows' do
-      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
+      before { approver_access }
 
       it 'returns status code 403' do
         get "#{api_version}/workflows?filter[id]=#{id}", :headers => default_headers
@@ -142,7 +139,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   end
 
   describe 'GET /workflows with sort_by' do
-    before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+    before { admin_access }
 
     it "allows sorting via parameter" do
       get "#{api_version}/workflows?sort_by=name", :headers => default_headers
@@ -153,7 +150,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   describe 'GET /workflows/:id' do
     context 'admin role when the record exists' do
-      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+      before { admin_access }
 
       it 'returns the workflow' do
         get "#{api_version}/workflows/#{id}", :headers => default_headers
@@ -181,7 +178,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     context 'admin role when the record does not exist' do
       let!(:id) { 0 }
-      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+      before { admin_access }
 
       it 'returns status code 404' do
         get "#{api_version}/workflows/#{id}", :headers => default_headers
@@ -197,7 +194,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role when the record exists' do
-      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
+      before { approver_access }
 
       it 'returns status code 403' do
         get "#{api_version}/workflows/#{id}", :headers => default_headers
@@ -207,7 +204,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role when the record exists' do
-      before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
+      before { user_access }
 
       it 'returns status code 200' do
         get "#{api_version}/workflows/#{id}", :headers => default_headers
@@ -224,7 +221,9 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
       end
     end
 
-    xcontext 'when env BYPASS_RBAC is enabled' do
+    context 'when env BYPASS_RBAC is enabled' do
+      before { user_access }
+
       it 'returns status code 200' do
         with_modified_env :BYPASS_RBAC => 'y' do
           get "#{api_version}/workflows/#{id}", :headers => default_headers
@@ -237,20 +236,19 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   # Test suite for POST /templates/:template_id/workflows
   describe 'POST /templates/:template_id/workflows' do
-    let(:group_refs) { [{'name' => 'n990', 'uuid' => '990'}, {'name' => 'n991', 'uuid' => '991'}, {'name' => 'n992', 'uuid' => '992'}] }
+    let(:uuid_1) { SecureRandom.uuid }
+    let(:uuid_2) { SecureRandom.uuid }
+    let(:uuid_3) { SecureRandom.uuid }
+    let(:group_refs) { [{'name' => 'n990', 'uuid' => uuid_1}, {'name' => 'n991', 'uuid' => uuid_2}, {'name' => 'n992', 'uuid' => uuid_3}] }
     let(:group) { instance_double(Group, :name => 'group', :uuid => 990, :has_role? => true) }
     let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
 
     before do
-      allow(rs_class).to receive(:paginate).and_return(admin_acls)
+      admin_access
       allow(Group).to receive(:find).and_return(group)
     end
 
-    before { allow(Group).to receive(:find).and_return(group) }
-
     context 'when admin role request attributes are valid' do
-      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
-
       it 'returns status code 201' do
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
 
@@ -260,7 +258,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'when groups_refs contains duplicated group' do
-      let(:group_refs) { [{'name' => 'n990', 'uuid' => '990'}, {'name' => 'n991', 'uuid' => '991'}, {'name' => 'n99x', 'uuid' => '990'}] }
+      let(:group_refs) { [{'name' => 'n990', 'uuid' => uuid_1}, {'name' => 'n991', 'uuid' => uuid_2}, {'name' => 'n99x', 'uuid' => uuid_1}] }
 
       it 'returns status code 400' do
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
@@ -280,7 +278,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
     context 'when a request with invalid group' do
       before do
-        allow(rs_class).to receive(:paginate).and_return(admin_acls)
+        admin_access
         allow(group).to receive(:has_role?).and_return(false)
       end
 
@@ -293,7 +291,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'when approver role request attributes are valid' do
-      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
+      before { approver_access }
 
       it 'returns status code 403' do
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
@@ -303,7 +301,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'when regular user role request attributes are valid' do
-      before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
+      before { user_access }
 
       it 'returns status code 403' do
         post "#{api_version}/templates/#{template_id}/workflows", :params => valid_attributes, :headers => default_headers
@@ -315,12 +313,12 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
 
   # Test suite for PATCH /workflows/:id
   describe 'PATCH /workflows/:id' do
-    let(:valid_attributes) { {:name => "test", :group_refs => [{'name' => 'n1000', 'uuid' => '1000'}], :sequence => 2} }
+    let(:valid_attributes) { {:name => "test", :group_refs => [{'name' => 'n1000', 'uuid' => SecureRandom.uuid}], :sequence => 2} }
     let(:group) { instance_double(Group, :name => 'n1000', :uuid => '1000', :has_role? => true) }
 
     context 'admin role when item exists' do
       before do
-        allow(rs_class).to receive(:paginate).and_return(admin_acls)
+        admin_access
         allow(Group).to receive(:find).and_return(group)
       end
 
@@ -343,7 +341,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     context 'admin role when the item does not exist' do
       let!(:id) { 0 }
 
-      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+      before { admin_access }
 
       it 'returns status code 404' do
         patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
@@ -359,7 +357,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role when item exists' do
-      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
+      before { approver_access }
 
       it 'returns status code 403' do
         patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
@@ -369,7 +367,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role when item exists' do
-      before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
+      before { user_access }
 
       it 'returns status code 403' do
         patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
@@ -382,7 +380,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   # Test suite for DELETE /workflows/:id
   describe 'DELETE /workflows/:id' do
     context 'admin role when delete' do
-      before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+      before { admin_access }
 
       it 'returns status code 204' do
         delete "#{api_version}/workflows/#{id}", :headers => default_headers
@@ -392,7 +390,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'approver role when delete' do
-      before { allow(rs_class).to receive(:paginate).and_return(approver_acls) }
+      before { approver_access }
 
       it 'returns status code 403' do
         delete "#{api_version}/workflows/#{id}", :headers => default_headers
@@ -402,7 +400,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     context 'regular user role when delete' do
-      before { allow(rs_class).to receive(:paginate).and_return(requester_acls) }
+      before { user_access }
 
       it 'returns status code 403' do
         delete "#{api_version}/workflows/#{id}", :headers => default_headers
@@ -415,7 +413,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   describe 'DELETE /workflows/:id with associated request' do
     let!(:request) { create(:request, :workflow => workflows.first) }
 
-    before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+    before { admin_access }
 
     it 'returns status code 403' do
       delete "#{api_version}/workflows/#{id}", :headers => default_headers
@@ -433,7 +431,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     it 'returns status code 204 for admin' do
-      allow(rs_class).to receive(:paginate).and_return(admin_acls)
+      admin_access
       post "#{api_version}/workflows/#{id}/link", :params => obj, :headers => default_headers
 
       expect(response).to have_http_status(204)
@@ -444,14 +442,14 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     it 'returns status code 403 for approver' do
-      allow(rs_class).to receive(:paginate).and_return(approver_acls)
+      approver_access
       post "#{api_version}/workflows/#{id}/link", :params => obj, :headers => default_headers
 
       expect(response).to have_http_status(403)
     end
 
     it 'returns status code 403 for regular user' do
-      allow(rs_class).to receive(:paginate).and_return(requester_acls)
+      user_access
       post "#{api_version}/workflows/#{id}/link", :params => obj, :headers => default_headers
 
       expect(response).to have_http_status(403)
@@ -467,21 +465,21 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     end
 
     it 'returns status code 204' do
-      allow(rs_class).to receive(:paginate).and_return(admin_acls)
+      admin_access
       post "#{api_version}/workflows/#{id}/unlink", :params => obj, :headers => default_headers
 
       expect(response).to have_http_status(204)
     end
 
     it 'returns status code 403 for approver' do
-      allow(rs_class).to receive(:paginate).and_return(approver_acls)
+      approver_access
       post "#{api_version}/workflows/#{id}/unlink", :params => obj, :headers => default_headers
 
       expect(response).to have_http_status(403)
     end
 
     it 'returns status code 403 for regular user' do
-      allow(rs_class).to receive(:paginate).and_return(requester_acls)
+      user_access
       post "#{api_version}/workflows/#{id}/unlink", :params => obj, :headers => default_headers
 
       expect(response).to have_http_status(403)
@@ -494,7 +492,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     let(:obj_b) { { :object_type => 'Portfolio', :app_name => 'catalog', :object_id => '123'} }
     let(:obj_c) { { :object_type => 'Portfolio', :object_id => '123'} }
     before do
-      allow(rs_class).to receive(:paginate).and_return(admin_acls)
+      admin_access
 
       allow(AddRemoteTags).to receive(:new).with(obj_a).and_return(add_tag_svc)
       allow(add_tag_svc).to receive(:process).with([tag]).and_return(add_tag_svc)
@@ -526,7 +524,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   end
 
   describe 'Entitlement enforcement' do
-    before { allow(rs_class).to receive(:paginate).and_return(admin_acls) }
+    before { admin_access }
 
     let(:false_hash) do
       false_hash = default_user_hash

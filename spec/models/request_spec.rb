@@ -3,13 +3,13 @@ RSpec.describe Request, type: :model do
   it { should belong_to(:workflow) }
   it { should belong_to(:parent) }
   it { should have_many(:actions) }
-  it { should have_many(:children) }
+  it { should have_many(:requests) }
   it { should have_many(:random_access_keys) }
 
   it { should validate_presence_of(:name) }
 
   describe '#number_of_children and #number_of_finished_children' do
-    subject { FactoryBot.create(:request, :children => children) }
+    subject { FactoryBot.create(:request, :requests => children) }
 
     context 'no children' do
       let(:children) { [] }
@@ -80,7 +80,7 @@ RSpec.describe Request, type: :model do
   end
 
   describe '#parent? and #child?' do
-    subject { FactoryBot.create(:request, :children => children) }
+    subject { FactoryBot.create(:request, :requests => children) }
 
     before { subject.invalidate_number_of_children }
 
@@ -110,6 +110,12 @@ RSpec.describe Request, type: :model do
         expect(child.parent?).to be_falsey
         expect(child.child?).to be_truthy
       end
+    end
+  end
+
+  context '.policy_class' do
+    it "is RequestPolicy" do
+      expect(Request.policy_class).to eq(RequestPolicy)
     end
   end
 end
