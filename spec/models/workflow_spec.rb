@@ -40,9 +40,7 @@ RSpec.describe Workflow, :type => :model do
 
   context "with same name in different tenants" do
     let(:another_tenant) { create(:tenant) }
-    let(:another_workflow) do
-      create(:workflow, :name => workflow.name)
-    end
+    let(:another_workflow) { create(:workflow, :name => workflow.name) }
 
     describe "create workflow" do
       before do
