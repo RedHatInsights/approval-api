@@ -10,14 +10,7 @@ class Workflow < ApplicationRecord
   has_many :tag_links, :dependent => :destroy, :inverse_of => :workflow
   has_many :access_control_entries, :as => :aceable, :dependent => :destroy, :inverse_of => :aceable
 
-  validates :name, :presence => true
-  validate :unique_with_same_tenant
-
-  def unique_with_same_tenant
-    if name_changed? && Workflow.exists?(:name => name)
-      errors.add(:name, "has already been taken")
-    end
-  end
+  validates :name, :presence => true, :uniqueness => {:scope => :tenant}
 
   def external_processing?
     template&.process_setting.present?
