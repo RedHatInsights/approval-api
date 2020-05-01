@@ -11,6 +11,11 @@ class WorkflowCreateService
   def create(options)
     options[:group_refs] = validate_approver_groups(options[:group_refs]) if options[:group_refs]
 
-    template.workflows.create!(options)
+    begin
+      retries ||= 0
+      template.workflows.create!(options)
+    rescue ActiveRecord::RecordNotUnique # The auto generated sequence number may be found duplicated due to concurrent issue
+      retry if (retries += 1) < 3
+    end
   end
 end
