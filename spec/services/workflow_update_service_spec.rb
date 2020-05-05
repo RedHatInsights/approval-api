@@ -6,7 +6,7 @@ RSpec.describe WorkflowUpdateService do
   context 'when update' do
     it 'with group_refs' do
       Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
-        expect(subject).to receive(:ensure_group).and_return(instance_double(Group, :name => 'newname', :has_role? => true))
+        expect(subject).to receive(:ensure_group).and_return(instance_double(Group, :name => 'newname', :can_approve? => true))
         subject.update(:group_refs => [{'name' => 'n999', 'uuid' => '999'}])
         workflow.reload
         expect(workflow.group_refs.first).to include('name' => 'newname', 'uuid' => '999')

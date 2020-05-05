@@ -3,7 +3,7 @@ RSpec.describe RequestCreateService do
   let(:workflow1) { create(:workflow, :group_refs => [{'uuid' => 'ref1'}], :template => template) }
   let(:workflow2) { create(:workflow, :group_refs => [{'uuid' => 'ref2'}, {'uuid' => 'ref3'}], :template => template) }
   let(:resolved_workflows) { [] }
-  let(:group) { instance_double(Group, :name => 'gname', :has_role? => true, :users => ['user']) }
+  let(:group) { instance_double(Group, :name => 'gname', :can_approve? => true, :users => ['user']) }
 
   before do
     allow(Thread).to receive(:new).and_yield
@@ -64,7 +64,7 @@ RSpec.describe RequestCreateService do
       end
 
       it 'creates a request with invalid group' do
-        allow(group).to receive(:has_role?).and_return(false)
+        allow(group).to receive(:can_approve?).and_return(false)
 
         expect { subject.create(:name => 'req1', :content => 'test me') }.to raise_error(Exceptions::UserError, /does not have approver role/)
       end

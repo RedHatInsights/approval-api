@@ -6,16 +6,11 @@ RSpec.describe WorkflowGetService do
   let(:workflow) { create(:workflow, :group_refs => [{'name' => 'group1', 'uuid' => 'uuid'}]) }
 
   describe '#get' do
-    before do
-      allow(Insights::API::Common::RBAC::Service).to receive(:call).with(RBACApiClient::GroupApi, {}).and_yield(group_api)
-    end
-
     context 'group exists' do
-      let(:raw_group) { instance_double(RBACApiClient::GroupWithPrincipalsAndRoles, :uuid => 'uuid', :description => 'desc', :name => 'newname', :principals => %w[u1 u2], :roles => roles) }
-      let(:group_api) { instance_double(RBACApiClient::GroupApi, :get_group => raw_group) }
+      before { allow(Group).to receive(:find).and_return(group) }
 
       context 'with approver role' do
-        let(:roles) { [double(:name => 'Approval Approver')] }
+        let(:group) { instance_double(Group, :name => 'newname', :uuid =>'uuid', :can_approve? => true) }
 
         it 'updates group name with latest value' do
           found = described_class.new(workflow.id).get
@@ -26,7 +21,7 @@ RSpec.describe WorkflowGetService do
       end
 
       context 'without approver role' do
-        let(:roles) { [double(:name => 'Approval User')] }
+        let(:group) { instance_double(Group, :name => 'newname', :can_approve? => false) }
 
         it 'appends (No approver permission) to group name' do
           found = described_class.new(workflow.id).get
@@ -38,6 +33,7 @@ RSpec.describe WorkflowGetService do
     end
 
     context 'group does not exist' do
+      before { allow(Insights::API::Common::RBAC::Service).to receive(:call).with(RBACApiClient::GroupApi, {}).and_yield(group_api) }
       let(:group_api) do
         instance_double(RBACApiClient::GroupApi).tap do |api|
           allow(api).to receive(:get_group).and_raise(RBACApiClient::ApiError.new(:code => 404))
@@ -53,6 +49,8 @@ RSpec.describe WorkflowGetService do
     end
 
     context 'rbac error' do
+      before { allow(Insights::API::Common::RBAC::Service).to receive(:call).with(RBACApiClient::GroupApi, {}).and_yield(group_api) }
+
       let(:group_api) do
         instance_double(RBACApiClient::GroupApi).tap do |api|
           allow(api).to receive(:get_group).and_raise(RBACApiClient::ApiError.new(:code => 500))

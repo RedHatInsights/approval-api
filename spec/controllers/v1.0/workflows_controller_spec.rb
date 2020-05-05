@@ -240,7 +240,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     let(:uuid_2) { SecureRandom.uuid }
     let(:uuid_3) { SecureRandom.uuid }
     let(:group_refs) { [{'name' => 'n990', 'uuid' => uuid_1}, {'name' => 'n991', 'uuid' => uuid_2}, {'name' => 'n992', 'uuid' => uuid_3}] }
-    let(:group) { instance_double(Group, :name => 'group', :uuid => 990, :has_role? => true) }
+    let(:group) { instance_double(Group, :name => 'group', :uuid => 990, :can_approve? => true) }
     let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
 
     before do
@@ -279,7 +279,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
     context 'when a request with invalid group' do
       before do
         admin_access
-        allow(group).to receive(:has_role?).and_return(false)
+        allow(group).to receive(:can_approve?).and_return(false)
       end
 
       it 'returns status code 400' do
@@ -314,7 +314,7 @@ RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
   # Test suite for PATCH /workflows/:id
   describe 'PATCH /workflows/:id' do
     let(:valid_attributes) { {:name => "test", :group_refs => [{'name' => 'n1000', 'uuid' => SecureRandom.uuid}], :sequence => 2} }
-    let(:group) { instance_double(Group, :name => 'n1000', :uuid => '1000', :has_role? => true) }
+    let(:group) { instance_double(Group, :name => 'n1000', :uuid => '1000', :can_approve? => true) }
 
     context 'admin role when item exists' do
       before do

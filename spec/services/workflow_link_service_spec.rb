@@ -3,7 +3,7 @@ RSpec.describe WorkflowLinkService, :type => :request do
     Insights::API::Common::Request.with_request(default_request_hash) { example.call }
   end
 
-  let(:group) { instance_double(Group, :name => 'gname', :uuid => '990', :has_role? => true) }
+  let(:group) { instance_double(Group, :name => 'gname', :uuid => '990', :can_approve? => true) }
   let(:workflow) { create(:workflow, :with_tenant, :group_refs => [{'name' => 'gname', 'uuid' => '990'}]) }
   let(:obj_a) { {:object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
   let(:remote_tag_svc) { instance_double(AddRemoteTags) }
@@ -27,7 +27,7 @@ RSpec.describe WorkflowLinkService, :type => :request do
     end
 
     it 'fails to add a new link when the group is invalid' do
-      allow(group).to receive(:has_role?).and_return(false)
+      allow(group).to receive(:can_approve?).and_return(false)
       expect { subject.link(obj_a) }.to raise_error(Exceptions::UserError, /does not have approver role/)
     end
 
