@@ -42,6 +42,8 @@ class RequestPolicy < ApplicationPolicy
     super.merge(valid_actions_hash)
   end
 
+  private
+
   def valid_actions_hash
     hash = {Action::APPROVE_OPERATION => false,
             Action::CANCEL_OPERATION  => false,
@@ -59,8 +61,6 @@ class RequestPolicy < ApplicationPolicy
 
     hash
   end
-
-  private
 
   def valid_actions_on_state(state = record.state)
     {
