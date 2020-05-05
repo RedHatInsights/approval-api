@@ -22,8 +22,8 @@ before_script:
 - curl -L https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/bin/utils/openapi-generator-cli.sh
   > ./openapi-generator-cli
 - chmod +x ./openapi-generator-cli
-- chmod +x ./.swagger-codegen/openapi-validator.sh
-- ./.swagger-codegen/openapi-validator.sh
+- chmod +x ./.travis_scripts/openapi-validator.sh
+- ./.travis_scripts/openapi-validator.sh
 - bundle exec rake db:create db:migrate
 after_script:
 - "./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT"
