@@ -11,7 +11,7 @@ RSpec.describe Request, type: :model do
   describe '#number_of_children and #number_of_finished_children' do
     subject { FactoryBot.create(:request, :requests => children) }
 
-    context 'no children' do
+    context 'when no children' do
       let(:children) { [] }
 
       it 'has 0 children and 0 finished children' do
@@ -22,7 +22,7 @@ RSpec.describe Request, type: :model do
       end
     end
 
-    context 'all children are finished' do
+    context 'when all children are finished' do
       let(:children) do
         [
           FactoryBot.create(:request, :state => Request::COMPLETED_STATE),
@@ -31,7 +31,7 @@ RSpec.describe Request, type: :model do
         ]
       end
 
-      it 'has 3 children and 3 finished children' do
+      it 'has 3 finished children' do
         subject.invalidate_number_of_children
         subject.invalidate_number_of_finished_children
         expect(subject.number_of_children).to eq(3)
@@ -39,7 +39,7 @@ RSpec.describe Request, type: :model do
       end
     end
 
-    context 'some children are finished' do
+    context 'when some children are finished' do
       let(:children) do
         [
           FactoryBot.create(:request, :state => Request::COMPLETED_STATE),
@@ -48,7 +48,7 @@ RSpec.describe Request, type: :model do
         ]
       end
 
-      it 'has 3 children and 1 finished children' do
+      it 'has 3 children and one of them is finished' do
         subject.invalidate_number_of_children
         subject.invalidate_number_of_finished_children
         expect(subject.number_of_children).to eq(3)
@@ -84,7 +84,7 @@ RSpec.describe Request, type: :model do
 
     before { subject.invalidate_number_of_children }
 
-    context 'no child' do
+    context 'when no child' do
       let(:children) { [] }
 
       it 'is a single node' do
@@ -95,7 +95,7 @@ RSpec.describe Request, type: :model do
       end
     end
 
-    context 'with children' do
+    context 'when has children' do
       let(:child) { FactoryBot.create(:request) }
       let(:children) { [child] }
 
@@ -110,6 +110,16 @@ RSpec.describe Request, type: :model do
         expect(child.parent?).to be_falsey
         expect(child.child?).to be_truthy
       end
+    end
+  end
+
+  describe '#group' do
+    let(:group) { instance_double(Group, :name => 'g1') }
+    before { allow(Group).to receive(:find).and_return(group) }
+
+    it 'returns group' do
+      expect(Group).to receive(:find).once
+      expect(subject.group).to eq(group)
     end
   end
 

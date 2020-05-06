@@ -1,33 +1,48 @@
 RSpec.describe Group do
+  let(:group_api) { double(:group_api) }
+  let(:raw_group) do
+    double(:raw_group, :uuid => 'uuid', :description => 'desc', :name => 'gname', :principals => %w[u1 u2], :roles => %w[r1 r2])
+  end
+
   describe '.find' do
-    before do
-      raw_group = double(:raw_group, :uuid => 'uuid', :description => 'desc', :name => 'gname', :principals => %w[u1 u2])
-      group_api = double(:group_api)
+    it 'fetches a group with details from rbac service' do
       expect(group_api).to receive(:get_group).with('uuid').and_return(raw_group)
       expect(Insights::API::Common::RBAC::Service).to receive(:call).with(RBACApiClient::GroupApi, {}).and_yield(group_api)
-    end
-
-    it 'fetches a group with details from rbac service' do
       expect(described_class.find('uuid')).to have_attributes(
         :name        => 'gname',
         :description => 'desc',
         :uuid        => 'uuid',
-        :users       => %w[u1 u2]
+        :users       => %w[u1 u2],
+        :roles       => %w[r1 r2]
       )
     end
   end
 
   describe '.all' do
-    before do
-      raw_groups = [double(:g1, :uuid => 'uuid1').as_null_object, double(:g2, :uuid => 'uuid2').as_null_object]
-      raw_list = double(:group_list, :meta => double(:count => 2), :data => raw_groups)
-      group_api = double(:group_api)
+    let(:raw_groups) { [double(:g1, :uuid => 'uuid1').as_null_object, double(:g2, :uuid => 'uuid2').as_null_object] }
+    let(:raw_list) { double(:group_list, :meta => double(:count => 2), :data => raw_groups) }
+
+    it 'lists all groups' do
       expect(group_api).to receive(:list_groups).with(hash_including(:username => 'myname')).and_return(raw_list)
       expect(Insights::API::Common::RBAC::Service).to receive(:call).with(RBACApiClient::GroupApi, {}).and_yield(group_api)
+      expect(described_class.all('myname').size).to eq(2)
+    end
+  end
+
+  describe '#users and #roles' do
+    before do
+      allow(Insights::API::Common::RBAC::Service).to receive(:call).with(RBACApiClient::GroupApi, {}).and_yield(group_api)
+      allow(group_api).to receive(:get_group).and_return(raw_group)
     end
 
-    it 'list all groups' do
-      expect(described_class.all('myname').size).to eq(2)
+    it 'returns users' do
+      group = described_class.find('uuid')
+      expect(group.users.size).to eq(2)
+    end
+
+    it 'returns roles' do
+      group = described_class.find('uuid')
+      expect(group.roles.size).to eq(2)
     end
   end
 
@@ -61,10 +76,10 @@ RSpec.describe Group do
       allow(role_api).to receive(:get_role_access).and_return(acls)
     end
 
-    context 'when has admin action create permissions' do
+    context 'when has admin action_create_permission' do
       let(:acls) { double(:acls, :meta => double(:count => 2), :data => [admin_action_create_acl, user_action_create_acl]) }
 
-      it 'should return true' do
+      it 'returns true' do
         expect(ContextService).to receive(:new).once
         expect(subject.can_approve?).to be_truthy
 
@@ -73,18 +88,18 @@ RSpec.describe Group do
       end
     end
 
-    context 'when has approver action create permissions' do
+    context 'when has approver action_create_permission' do
       let(:acls) { double(:acls, :meta => double(:count => 2), :data => [approver_action_create_acl, user_action_create_acl]) }
 
-      it 'should return true' do
+      it 'returns true' do
         expect(subject.can_approve?).to be_truthy
       end
     end
 
-    context 'when only has user action create permissions' do
+    context 'when has user action_create_permission' do
       let(:acls) { double(:acls, :meta => double(:count => 2), :data => [user_action_create_acl, request_create_acl]) }
 
-      it 'should return false' do
+      it 'returns false' do
         expect(subject.can_approve?).to be_falsey
       end
     end
