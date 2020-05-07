@@ -38,10 +38,6 @@ module Api
         head :no_content
       rescue ActiveRecord::InvalidForeignKey => e
         json_response({ :message => e.message }, :forbidden)
-      rescue ActiveRecord::RecordNotDestroyed
-        raise unless workflow.errors[:base].include?(Workflow::MSG_PROTECTED_RECORD)
-
-        json_response({ :message => Workflow::MSG_PROTECTED_RECORD }, :forbidden)
       end
 
       def link
