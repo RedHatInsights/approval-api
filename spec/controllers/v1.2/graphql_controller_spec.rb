@@ -1,4 +1,4 @@
-RSpec.describe Api::V1x0::GraphqlController, :type => :request do
+RSpec.describe Api::V1x2::GraphqlController, :type => :request do
   include_context "approval_rbac_objects"
   let(:tenant) { create(:tenant) }
 

@@ -1,4 +1,4 @@
-RSpec.describe Api::V1x0::StageactionController do
+RSpec.describe Api::V1x2::StageactionController do
   describe '#set_order' do
     before { subject.instance_variable_set(:@request,  create(:request)) }
 

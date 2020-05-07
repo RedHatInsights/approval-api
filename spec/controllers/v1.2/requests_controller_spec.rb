@@ -1,4 +1,4 @@
-RSpec.describe Api::V1x0::RequestsController, :type => :request do
+RSpec.describe Api::V1x2::RequestsController, :type => :request do
   include_context "approval_rbac_objects"
   # Initialize the test data
   let(:encoded_user) { encoded_user_hash }

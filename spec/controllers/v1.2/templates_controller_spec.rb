@@ -1,4 +1,4 @@
-RSpec.describe Api::V1x0::TemplatesController, :type => :request do
+RSpec.describe Api::V1x2::TemplatesController, :type => :request do
   include_context "approval_rbac_objects"
   # initialize test data
   let!(:templates) { create_list(:template, 10) }

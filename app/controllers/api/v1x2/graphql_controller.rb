@@ -1,7 +1,7 @@
 require "insights/api/common/graphql"
 
 module Api
-  module V1x0
+  module V1x2
     class GraphqlController < ApplicationController
       def query
         graphql_api_schema = ::Insights::API::Common::GraphQL::Generator.init_schema(request, overlay)

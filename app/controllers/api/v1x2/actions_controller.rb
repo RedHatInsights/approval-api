@@ -1,5 +1,5 @@
 module Api
-  module V1x0
+  module V1x2
     class ActionsController < ApplicationController
       include Mixins::IndexMixin
 
