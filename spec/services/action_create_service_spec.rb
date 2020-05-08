@@ -145,6 +145,21 @@ RSpec.describe ActionCreateService do
       expect { svc1.create('operation' => 'strange operation', 'processed_by' => 'man') }.to raise_error(Exceptions::UserError)
     end
 
+    it 'forbids start operation from the stage other than pending' do
+      child1.update(:state => Request::NOTIFIED_STATE)
+      expect { svc1.create('operation' => Action::START_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
+    end
+
+    it 'forbids skip operation from the stage other than pending' do
+      child1.update(:state => Request::NOTIFIED_STATE)
+      expect { svc1.create('operation' => Action::SKIP_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
+    end
+
+    it 'forbids notify operation from the stage other than started' do
+      child1.update(:state => Request::NOTIFIED_STATE)
+      expect { svc1.create('operation' => Action::NOTIFY_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
+    end
+
     it 'forbids approve operation from pending stage' do
       expect { svc1.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
     end

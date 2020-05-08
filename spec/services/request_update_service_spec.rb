@@ -2,7 +2,6 @@ RSpec.describe RequestUpdateService do
   let(:request) { create(:request, :with_tenant) }
   subject { described_class.new(request.id) }
   let!(:event_service) { EventService.new(request) }
-  let(:group) { instance_double(Group, :name => 'group1', :can_approve? => true, :users => ['user']) }
 
   before { allow(EventService).to receive(:new).with(request).and_return(event_service) }
 
@@ -17,6 +16,18 @@ RSpec.describe RequestUpdateService do
   end
 
   context 'state becomes finished' do
+    it 'sends request_finished event' do
+      expect(event_service).to receive(:request_completed)
+      expect(event_service).to receive(:approver_group_finished)
+      subject.update(:state => Request::COMPLETED_STATE)
+      request.reload
+      expect(request.state).to eq(Request::COMPLETED_STATE)
+    end
+  end
+
+  context 'state becomes finished by external call' do
+    let!(:request) { create(:request, :with_tenant, :state => Request::NOTIFIED_STATE, :decision => Request::APPROVED_STATUS) }
+
     it 'sends request_finished event' do
       expect(event_service).to receive(:request_completed)
       expect(event_service).to receive(:approver_group_finished)
@@ -47,6 +58,8 @@ RSpec.describe RequestUpdateService do
   end
 
   describe '#runtime_validate_group' do
+    let(:group) { instance_double(Group, :name => 'group1', :can_approve? => true, :users => ['user']) }
+
     before { allow(subject).to receive(:ensure_group).and_return(group) }
 
     context 'with approver role' do
@@ -85,6 +98,15 @@ RSpec.describe RequestUpdateService do
         expect(request.actions.first.comments).to eq(msg)
         expect(request.state).to eq(Request::FAILED_STATE)
       end
+    end
+
+    it 'calls error_action' do
+      allow(subject).to receive(:ensure_group).and_raise(Exceptions::UserError)
+
+      subject.runtime_validate_group(request)
+      request.reload
+      expect(request.actions.count).to eq(1)
+      expect(request.state).to eq(Request::FAILED_STATE)
     end
   end
 end
