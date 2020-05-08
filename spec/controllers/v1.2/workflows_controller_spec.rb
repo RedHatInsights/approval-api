@@ -1,4 +1,4 @@
-RSpec.describe Api::V1x0::WorkflowsController, :type => :request do
+RSpec.describe Api::V1x2::WorkflowsController, :type => :request do
   include_context "approval_rbac_objects"
   # Initialize the test data
   let(:tenant) { create(:tenant) }
