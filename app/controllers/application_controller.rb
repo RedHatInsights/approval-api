@@ -17,7 +17,7 @@ class ApplicationController < ActionController::API
     Insights::API::Common::Request.with_request(request) do |current|
       Rails.logger.info("Request started #{request.original_url}")
 
-      UserContext.with_user_context(UserContext.new(current, params)) do |user_context|
+      UserContext.with_user_context(UserContext.new(current, params)) do |_user_context|
         if current.required_auth?
           raise Insights::API::Common::EntitlementError, "User not Entitled" unless check_entitled(current.entitlement)
 

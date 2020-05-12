@@ -2,98 +2,198 @@ describe ActionPolicy do
   include_context "approval_rbac_objects"
 
   let(:request) { create(:request) }
-  let(:actions) { create_list(:action, 3, :request => request) }
-  let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => true) }
-  let(:group_uuids) { ['group_uid'] }
-  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true, :group_uuids => group_uuids) }
-
-  before do
-    allow(subject).to receive(:validate_create_action).and_return(true)
-  end
+  let(:key) { create(:random_access_key, :request => request) }
+  let(:action) { create(:action, :request => request) }
+  let(:subject) { described_class.new(user, action) }
 
   describe 'with admin role' do
-    before { allow(access).to receive(:scopes).and_return(['admin']) }
+    before { admin_access }
 
-    context 'when action resource is model class' do
-      let(:subject) { described_class.new(user, Action) }
-
-      it '#create?' do
-        expect(subject.create?).to be_truthy
+    describe '#show?' do
+      it 'returns true' do
+        expect(subject.show?).to be_truthy
       end
     end
 
-    context 'when action resource is instance' do
-      let(:subject) { described_class.new(user, actions.first) }
+    describe '#create?' do
+      let(:subject) { described_class.new(user, Action) }
+      let(:params) { ActionController::Parameters.new({ :operation => operation, :request_id => request.id }) }
+      let(:request_params) { { 'x-rh-random-access-key' => nil } }
 
-      it '#show?' do
-        expect(subject.show?).to be_truthy
+      before do
+        allow(user).to receive_message_chain('request.headers').and_return(request_params)
+      end
+
+      context 'when operation is approve' do
+        let(:operation) { 'approve' }
+
+        it 'returns true' do
+          expect(subject.create?).to be_truthy
+        end
+      end
+
+      context 'when operation is deny' do
+        let(:operation) { 'deny' }
+
+        it 'returns true' do
+          expect(subject.create?).to be_truthy
+        end
+      end
+
+      context 'when operation is cancel' do
+        let(:operation) { 'cancel' }
+
+        it 'returns true' do
+          expect(subject.create?).to be_truthy
+        end
+      end
+
+      context 'when operation is memo' do
+        let(:operation) { 'memo' }
+
+        it 'returns true' do
+          expect(subject.create?).to be_truthy
+        end
+      end
+
+      context 'when invalid operations' do
+        let(:operation) { 'start' }
+
+        it 'returns false' do
+          expect(subject.create?).to be_falsey
+        end
+      end
+
+      context 'when uuid is present' do
+        let(:operation) { 'notify' }
+        let(:request_params) { { 'x-rh-random-access-key' => key.access_key } }
+
+        it 'returns true' do
+          expect(subject.create?).to be_truthy
+        end
+      end
+
+      context 'when wrong access_key is present' do
+        let(:operation) { 'notify' }
+        let(:request_params) { { 'x-rh-random-access-key' => 'wrong_key' } }
+
+        it 'returns false' do
+          expect(subject.create?).to be_falsey
+        end
       end
     end
   end
 
   describe 'with approver role' do
+    let(:group_uuid) { 'group-uuid' }
+
     before do
-      allow(access).to receive(:scopes).and_return(['group'])
+      approver_access
+      allow(user).to receive(:group_uuids).and_return([group_uuid])
     end
 
-    context 'when action resource is model class' do
-      let(:subject) { described_class.new(user, Action) }
+    describe '#show?' do
+      it 'returns true for notified state' do
+        request.update(:group_ref => group_uuid, :state => 'notified')
+        expect(subject.show?).to be_truthy
+      end
 
-      it '#create?' do
-        expect(subject.create?).to be_truthy
+      it 'returns true for completed state' do
+        request.update(:group_ref => group_uuid, :state => 'completed')
+        expect(subject.show?).to be_truthy
+      end
+
+      it 'returns false for unapprovable states' do
+        request.update(:group_ref => group_uuid, :state => 'pending')
+        expect(subject.show?).to be_falsey
       end
     end
 
-    context 'when action resource is instance' do
-      let(:subject) { described_class.new(user, actions.first) }
+    describe '#create?' do
+      let(:subject) { described_class.new(user, Action) }
+      let(:params) { ActionController::Parameters.new({ :operation => operation, :request_id => request.id }) }
+      let(:request_params) { { 'x-rh-random-access-key' => nil } }
 
-      context 'when approver is assigned to approve the request' do
-        before { request.update(:group_ref => group_uuids.first, :state => 'notified') }
+      before do
+        allow(user).to receive_message_chain('request.headers').and_return(request_params)
+      end
 
-        it 'is allowed to show the action instance' do
-          expect(subject.show?).to be_truthy
+      context 'when operation is approve' do
+        let(:operation) { 'approve' }
+
+        it 'returns true' do
+          expect(subject.create?).to be_truthy
         end
       end
 
-      context 'when approver is not assigned to approve the request' do
-        it 'is not allowed to show the action instance' do
-          expect(subject.show?).to be_falsey
+      context 'when operation is deny' do
+        let(:operation) { 'deny' }
+
+        it 'returns true' do
+          expect(subject.create?).to be_truthy
+        end
+      end
+
+      context 'when operation is memo' do
+        let(:operation) { 'memo' }
+
+        it 'returns true' do
+          expect(subject.create?).to be_truthy
+        end
+      end
+
+      context 'when operation is cancel' do
+        let(:operation) { 'cancel' }
+
+        it 'returns false' do
+          expect(subject.create?).to be_falsey
         end
       end
     end
   end
 
   describe 'with requester role' do
-    before { allow(access).to receive(:scopes).and_return(['user']) }
+    before { user_access }
 
-    context 'when action resource is model class' do
-      let(:subject) { described_class.new(user, Action) }
-
-      it '#create?' do
-        expect(subject.create?).to be_truthy
-      end
-    end
-
-    context 'when action resource is instance' do
+    describe '#show?' do
       around do |example|
         Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
           example.call
         end
       end
 
-      let(:subject) { described_class.new(user, actions.first) }
+      it 'returns true for valid owner' do
+        expect(subject.show?).to be_truthy
+      end
 
-      context 'when requester is owner of the request' do
-        it 'is allowed to show the action instance' do
-          expect(subject.show?).to be_truthy
+      it 'returns false for invalid owner' do
+        request.update(:owner => 'bad people')
+        expect(subject.show?).to be_falsey
+      end
+    end
+
+    describe '#create?' do
+      let(:subject) { described_class.new(user, Action) }
+      let(:params) { ActionController::Parameters.new({ :operation => operation, :request_id => request.id }) }
+      let(:request_params) { { 'x-rh-random-access-key' => nil } }
+
+      before do
+        allow(user).to receive_message_chain('request.headers').and_return(request_params)
+      end
+
+      context 'when operation is cancel' do
+        let(:operation) { 'cancel' }
+
+        it 'returns true' do
+          expect(subject.create?).to be_truthy
         end
       end
 
-      context 'when requester is not owner of the request' do
-        before { request.update(:owner => 'ugly name') }
+      context 'when operations are invalid' do
+        let(:operation) { 'approve' }
 
-        it 'is not allowed to show the action instance' do
-          expect(subject.show?).to be_falsey
+        it 'returns false' do
+          expect(subject.create?).to be_falsey
         end
       end
     end

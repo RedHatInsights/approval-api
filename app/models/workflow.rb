@@ -2,22 +2,17 @@ class Workflow < ApplicationRecord
   include Metadata
   acts_as_tenant(:tenant)
 
-  acts_as_list :scope => [:tenant_id], :column => 'sequence'
   default_scope { order(:sequence => :asc) }
 
   belongs_to :template
   has_many :requests, -> { order(:id => :asc) }, :inverse_of => :workflow
   has_many :tag_links, :dependent => :destroy, :inverse_of => :workflow
-  has_many :access_control_entries, :as => :aceable, :dependent => :destroy, :inverse_of => :aceable
 
-  validates :name, :presence => true
-  validate :unique_with_same_tenant
+  validates :name, :presence => true, :uniqueness => {:scope => :tenant}
+  validates :sequence, :uniqueness => { scope: :tenant_id }
 
-  def unique_with_same_tenant
-    if name_changed? && Workflow.exists?(:name => name)
-      errors.add(:name, "has already been taken")
-    end
-  end
+  before_validation :new_sequence, :on => :create
+  before_validation :move_rest_higher, :on => :update
 
   def external_processing?
     template&.process_setting.present?
@@ -25,5 +20,25 @@ class Workflow < ApplicationRecord
 
   def external_signal?
     template&.signal_setting.present?
+  end
+
+  private
+
+  def table
+    self.class.arel_table
+  end
+
+  def new_sequence
+    return move_rest_higher if sequence
+
+    self.sequence = self.class.last&.sequence.to_i + 1
+  end
+
+  # move all related sequence number one higher if the desired number is in use
+  def move_rest_higher
+    return unless sequence && self.class.where(:sequence => sequence).exists
+
+    self.class.where(table[:sequence].gteq(sequence)).update_all("sequence = (-sequence - 1)")
+    self.class.where(table[:sequence].lt(0)).update_all("sequence = (-sequence)")
   end
 end

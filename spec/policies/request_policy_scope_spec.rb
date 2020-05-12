@@ -1,163 +1,125 @@
 describe RequestPolicy::Scope do
   include_context "approval_rbac_objects"
 
-  let(:group_uuids) { ['group-uuid'] }
-  let(:request) do
-    Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) { create(:request, :state => 'notified') }
-  end
-  let!(:requests) { create_list(:request, 2) }
-  let!(:sub_requests) { create_list(:request, 2, :parent_id => request.id) }
-  let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => true) }
-  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true, :params => params, :group_uuids => group_uuids, :graphql_params => graphql_params) }
-
-  let(:subject) { described_class.new(user, scope) }
-  let(:headers_with_admin) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/admin') }
-  let(:headers_with_approver) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/approver') }
-  let(:headers_with_requester) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/requester') }
-  let(:headers) { {:headers => req_headers, :original_url=>'url'} }
-
-  describe '#resolve /requests' do
-    let(:params) { {} }
-    let(:scope) { Request }
-    let(:graphql_params) { nil }
-
-    context 'when admin role' do
-      let(:req_headers) { headers_with_admin }
-      before { allow(access).to receive(:scopes).and_return(['admin']) }
-
-      it 'returns requests' do
-        Insights::API::Common::Request.with_request(headers) do
-          expect(subject.resolve.count).to eq(Request.where(:parent_id => nil).count)
-        end
-      end
-    end
-
-    context 'when approver role' do
-      let(:req_headers) { headers_with_approver }
-      before do
-        sub_requests.first.update(:group_ref => group_uuids.first, :state => 'completed')
-        requests.last.update(:group_ref => group_uuids.first, :state => 'notified')
-        allow(access).to receive(:scopes).and_return(['group'])
-      end
-
-      it 'returns requests' do
-        Insights::API::Common::Request.with_request(headers) do
-          expect(subject.resolve.sort).to eq(Request.where(:id => [sub_requests.first.id, requests.last.id]).sort)
-        end
-      end
-    end
-
-    context 'when requester role' do
-      let(:req_headers) { headers_with_requester }
-      before do
-        allow(access).to receive(:scopes).and_return(['user'])
-      end
-
-      it 'returns requests' do
-        Insights::API::Common::Request.with_request(headers) do
-          expect(subject.resolve.count).to eq(1)
-          expect(subject.resolve.first).to eq(request)
-        end
-      end
+  let(:group_uuid) { 'group-uuid' }
+  let(:requests) do
+    Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+      create_list(:request, 2, :state => 'notified', :group_ref => group_uuid)
     end
   end
+  let!(:sub_requests) { create_list(:request, 2, :parent_id => requests.first.id) }
+  let(:subject) { described_class.new(user, Request) }
 
-  describe '#resolve GraphQL' do
-    let(:params) { {} }
-    let(:scope) { Request.all }
+  describe '#resolve_scope' do
+    context 'when user params contains request_id' do
+      let(:params) { { :request_id => requests.first.id } }
 
-    context 'when graphql_query_by_id is not true' do
-      let(:graphql_params) { double }
-      before do
-        allow(subject).to receive(:graphql_query_by_id?).and_return(false)
+      it 'returns the scope with admin role' do
+        admin_access
+        expect(subject.resolve_scope).to match_array(sub_requests)
       end
 
-      context 'when admin role' do
-        let(:req_headers) { headers_with_admin }
-        before { allow(access).to receive(:scopes).and_return(['admin']) }
+      context 'with approver role' do
+        before { approver_access }
+
+        it 'returns scope for valid group uuid' do
+          allow(user).to receive(:group_uuids).and_return([group_uuid])
+          expect(subject.resolve_scope).to match_array(sub_requests)
+        end
+
+        it 'raises an error for invalid group uuid' do
+          allow(user).to receive(:group_uuids).and_return([])
+          expect { subject.resolve_scope }.to raise_error(Exceptions::NotAuthorizedError)
+        end
+      end
+
+      context 'with user role' do
+        before { user_access }
 
         it 'returns requests' do
-          Insights::API::Common::Request.with_request(headers) do
-            expect(subject.resolve.count).to eq(Request.where(:parent_id => nil).count)
+          Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+            expect(subject.resolve_scope).to match_array(sub_requests)
           end
         end
-      end
 
-      context 'when approver role' do
-        let(:req_headers) { headers_with_approver }
-        before do
-          sub_requests.first.update(:group_ref => group_uuids.first, :state => 'completed')
-          requests.last.update(:group_ref => group_uuids.first, :state => 'notified')
-          allow(access).to receive(:scopes).and_return(['group'])
-        end
+        context 'when owner is wrong' do
+          before { requests.first.update(:owner => 'ugly name') }
 
-        it 'returns requests' do
-          Insights::API::Common::Request.with_request(headers) do
-            expect(subject.resolve.count).to eq(2)
-          end
-        end
-      end
-
-      context 'when requester role' do
-        let(:req_headers) { headers_with_requester }
-        before do
-          allow(access).to receive(:scopes).and_return(['user'])
-        end
-
-        it 'returns requests' do
-          Insights::API::Common::Request.with_request(headers) do
-            expect(subject.resolve.count).to eq(1)
-            expect(subject.resolve.first).to eq(request)
+          it 'raises an error' do
+            Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+              expect { subject.resolve_scope }.to raise_error(Exceptions::NotAuthorizedError)
+            end
           end
         end
       end
     end
 
-    context 'when graphql_query_by_id is true' do
-      let(:graphql_params) { double("graphql_params", :id => request.id) }
-      before do
-        allow(subject).to receive(:graphql_query_by_id?).and_return(true)
-      end
+    context 'when user params do not contain request_id' do
+      let(:admin_header) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/admin') }
+      let(:approver_header) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/approver') }
+      let(:user_header) { RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/requester') }
+      let(:header) { {:headers => persona_header, :original_url=>'url'} }
+      let!(:other_requests) { create_list(:request, 2) }
 
-      context 'when admin role' do
-        let(:req_headers) { headers_with_admin }
-        before { allow(access).to receive(:scopes).and_return(['admin']) }
+      context 'with admin role' do
+        let(:persona_header) { admin_header }
 
         it 'returns requests' do
-          Insights::API::Common::Request.with_request(headers) do
-            expect(subject.resolve.count).to eq(5)
+          admin_access
+
+          Insights::API::Common::Request.with_request(header) do
+            expect(subject.resolve_scope).to match_array(requests + other_requests)
+          end
+        end
+      end
+
+      context 'with approver role' do
+        let(:persona_header) { approver_header }
+
+        it 'returns requests' do
+          allow(user).to receive(:group_uuids).and_return([group_uuid])
+          approver_access
+
+          Insights::API::Common::Request.with_request(header) do
+            expect(subject.resolve_scope).to match_array(requests)
+          end
+        end
+
+        it 'returns empty requests' do
+          allow(user).to receive(:group_uuids).and_return([])
+          approver_access
+
+          Insights::API::Common::Request.with_request(header) do
+            expect(subject.resolve_scope).to eq([])
+          end
+        end
+      end
+
+      context 'with user role' do
+        let(:persona_header) { user_header }
+
+        it 'returns requests' do
+          user_access
+
+          Insights::API::Common::Request.with_request(header) do
+            expect(subject.resolve_scope).to match_array(requests)
+          end
+        end
+      end
+
+      context 'when persona is invalid' do
+        let(:persona_header) do
+          RequestSpecHelper.default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/invalid')
+        end
+
+        it 'raises an error' do
+          admin_access
+
+          Insights::API::Common::Request.with_request(header) do
+            expect { subject.resolve_scope }.to raise_error(Exceptions::NotAuthorizedError)
           end
         end
       end
     end
-  end
-
-  describe '#resolve /requests/#{id}/requests' do
-    let!(:scope) { request.requests }
-    let(:params) { {:request_id => request.id} }
-    let(:graphql_params) { nil }
-
-    context 'when admin role' do
-      let(:req_headers) { headers_with_admin }
-      before { allow(access).to receive(:scopes).and_return(['admin']) }
-
-      it 'returns requests' do
-        Insights::API::Common::Request.with_request(headers) do
-          expect(subject.resolve).to match_array(sub_requests)
-        end
-      end
-    end
-
-    context 'when regular user role' do
-      let(:req_headers) { headers_with_requester }
-      before { allow(access).to receive(:scopes).and_return(['user']) }
-
-      it 'returns requests' do
-        Insights::API::Common::Request.with_request(headers) do
-          expect(subject.resolve).to match_array(sub_requests)
-        end
-      end
-    end
-
   end
 end

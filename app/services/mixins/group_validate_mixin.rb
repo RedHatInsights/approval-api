@@ -1,6 +1,4 @@
 module GroupValidateMixin
-  APPROVER_ROLE = 'Approval Approver'.freeze
-
   def validate_approver_groups(group_refs, raise_error = true)
     not_uniq = group_refs.uniq! { |ref| ref['uuid'] }
     raise Exceptions::UserError, 'Duplicated group UUID was detected' if not_uniq && raise_error
@@ -35,7 +33,7 @@ module GroupValidateMixin
       return false
     end
 
-    unless group.has_role?(APPROVER_ROLE)
+    unless group.can_approve?
       error_action(request, "Group #{group.name} does not have approver role")
       return false
     end
@@ -58,7 +56,7 @@ module GroupValidateMixin
 
   def validate_approver_group_and_raise(uuid)
     group = ensure_group(uuid)
-    raise Exceptions::UserError, "Group #{group.name} does not have approver role" unless group.has_role?(APPROVER_ROLE)
+    raise Exceptions::UserError, "Group #{group.name} does not have approver role" unless group.can_approve?
 
     {'name' => group.name, 'uuid' => uuid}
   end
@@ -66,7 +64,7 @@ module GroupValidateMixin
   def validate_approver_group_no_raise(uuid, old_name)
     name = begin
              group = ensure_group(uuid)
-             if group.has_role?(APPROVER_ROLE)
+             if group.can_approve?
                group.name
              else
                "#{group.name}(No approver permission)"

@@ -5,7 +5,7 @@ RSpec.describe WorkflowCreateService do
 
   let(:template) { create(:template) }
   let(:group_refs) { [{'name' => 'n991', 'uuid' => '991'}, {'name' => 'n992', 'uuid' => '992'}, {'name' => 'n993', 'uuid' => '993'}] }
-  let(:group) { instance_double(Group, :name => 'gname', :has_role? => true) }
+  let(:group) { instance_double(Group, :name => 'gname', :can_approve? => true) }
 
   subject { described_class.new(template.id) }
 
@@ -35,7 +35,7 @@ RSpec.describe WorkflowCreateService do
 
     context 'when the group has no approver role' do
       it 'raises an error' do
-        allow(group).to receive(:has_role?).and_return(false)
+        allow(group).to receive(:can_approve?).and_return(false)
         expect { subject.create(:name => 'workflow_1', :group_refs => group_refs) }.to raise_error(Exceptions::UserError, /does not have approver role/)
       end
     end

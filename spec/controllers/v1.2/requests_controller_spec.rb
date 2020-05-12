@@ -1,4 +1,4 @@
-RSpec.describe Api::V1x0::RequestsController, :type => :request do
+RSpec.describe Api::V1x2::RequestsController, :type => :request do
   include_context "approval_rbac_objects"
   # Initialize the test data
   let(:encoded_user) { encoded_user_hash }
@@ -9,7 +9,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
   let(:headers_with_approver)  { default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/approver') }
   let(:headers_with_requester) { default_headers.merge(Insights::API::Common::Request::PERSONA_KEY => 'approval/requester') }
 
-  let(:group1) { instance_double(Group, :name => 'group1', :uuid => "123", :has_role? => true) }
+  let(:group1) { instance_double(Group, :name => 'group1', :uuid => "123", :can_approve? => true) }
   let(:group2) { instance_double(Group, :name => 'group2', :uuid => "456") }
   let(:group3) { instance_double(Group, :name => 'group3', :uuid => "789") }
 
@@ -358,7 +358,7 @@ RSpec.describe Api::V1x0::RequestsController, :type => :request do
         'tags'        => [{:tag => '/ns1/name1=v1'}]
       }]
     end
-    let(:group) { instance_double(Group, :name => 'foo', :has_role? => true) }
+    let(:group) { instance_double(Group, :name => 'foo', :can_approve? => true) }
     let(:workflow1) { create(:workflow, :group_refs => [group1.uuid]) }
     let(:workflow2) { create(:workflow, :group_refs => [group2.uuid]) }
 

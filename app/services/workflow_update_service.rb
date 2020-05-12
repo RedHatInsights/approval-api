@@ -13,6 +13,11 @@ class WorkflowUpdateService
       options[:group_refs] = validate_approver_groups(options[:group_refs])
     end
 
-    workflow.update!(options)
+    begin
+      retries ||=0
+      workflow.update!(options)
+    rescue ActiveRecord::RecordNotUnique # Sequence numbers may be found duplicated due to concurrent issue
+      retry if (retries += 1) < 3
+    end
   end
 end

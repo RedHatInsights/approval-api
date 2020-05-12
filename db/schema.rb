@@ -10,23 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_20_110205) do
+ActiveRecord::Schema.define(version: 2020_05_05_141640) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-
-  create_table "access_control_entries", force: :cascade do |t|
-    t.string "group_uuid"
-    t.bigint "tenant_id"
-    t.string "permission"
-    t.string "aceable_type"
-    t.bigint "aceable_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["aceable_type", "aceable_id"], name: "index_access_control_entries_on_aceable_type_and_aceable_id"
-    t.index ["group_uuid", "permission", "aceable_type"], name: "index_ace_on_group_uuid_aceable_type_permission"
-    t.index ["tenant_id"], name: "index_access_control_entries_on_tenant_id"
-  end
 
   create_table "actions", force: :cascade do |t|
     t.string "processed_by"
@@ -130,6 +117,7 @@ ActiveRecord::Schema.define(version: 2020_03_20_110205) do
     t.bigint "tenant_id"
     t.jsonb "group_refs", default: [], array: true
     t.integer "sequence"
+    t.index ["sequence", "tenant_id"], name: "index_workflows_on_sequence_and_tenant_id", unique: true
     t.index ["template_id"], name: "index_workflows_on_template_id"
     t.index ["tenant_id"], name: "index_workflows_on_tenant_id"
   end

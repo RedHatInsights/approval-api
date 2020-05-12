@@ -1,9 +1,9 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Insights Service Approval APIs",
-        "description": "APIs to query approval service",
-        "version": "1.2.0",
+        "title": "Insights Approval Service API",
+        "description": "The API to create and query approval requests",
+        "version": "1.2.1",
         "contact": {
             "email": "support@redhat.com"
         },
@@ -15,23 +15,23 @@
     "tags": [
         {
             "name": "Action",
-            "description": "Operations about actions"
+            "description": "Operations on actions"
         },
         {
             "name": "Request",
-            "description": "Operations about requests"
+            "description": "Operations on requests"
         },
         {
             "name": "Template",
-            "description": "Operations about templates"
+            "description": "Operations on templates"
         },
         {
             "name": "Workflow",
-            "description": "Operations about workflows"
+            "description": "Operations on workflows"
         },
         {
             "name": "Graphql",
-            "description": "Operations about GraphQL"
+            "description": "Operations on GraphQL"
         }
     ],
     "paths": {
@@ -40,9 +40,9 @@
                 "tags": [
                     "Graphql"
                 ],
-                "summary": "Perform a GraphQL Query",
+                "summary": "Perform a GraphQL query",
                 "operationId": "postGraphql",
-                "description": "Performs a GraphQL Query",
+                "description": "Perform a GraphQL query",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -51,12 +51,12 @@
                             }
                         }
                     },
-                    "description": "GraphQL Query Request",
+                    "description": "GraphQL query request",
                     "required": true
                 },
                 "responses": {
                     "200": {
-                        "description": "GraphQL Query Response",
+                        "description": "Returned objects found by GraphQL query",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -73,8 +73,8 @@
                 "tags": [
                   "Action"
                 ],
-                "summary": "Return an user action by id",
-                "description": "Return an user action by id, available to all",
+                "summary": "Return an action",
+                "description": "Find an action by its id, available to everyone",
                 "operationId": "showAction",
                 "parameters": [
                     {
@@ -83,7 +83,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Returned the action",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -109,8 +109,8 @@
                 "tags": [
                   "Action"
                 ],
-                "summary": "Add an action to a given request",
-                "description": "Add an action to a given request. Admin can do approve, deny, memo, and cancel operations; approver can do approve, deny and memo operations; while requester can do only cancel operation.",
+                "summary": "Create an action under the request",
+                "description": "Create an action under a request identified by its id. Admin can create approve, deny, memo, and cancel operations; approver can create approve, deny, and memo operations; while requester can create only cancel operation.",
                 "operationId": "createAction",
                 "parameters": [
                     {
@@ -128,12 +128,12 @@
                             }
                         }
                     },
-                    "description": "Action object that will be added",
+                    "description": "Action object that needs to be added",
                     "required": true
                 },
                 "responses": {
                     "201": {
-                        "description": "Success",
+                        "description": "Created an action",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -158,7 +158,7 @@
                   "Action"
                 ],
                 "summary": "List all actions of a request",
-                "description": "Return actions in a given request, available for admin/approver",
+                "description": "Find actions of a request identified by its id, available to everyone",
                 "operationId": "listActionsByRequest",
                 "parameters": [
                     {
@@ -167,7 +167,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Returned a list of actions",
                         "headers": {
                             "X-total-count": {
                                 "description": "Total number of items",
@@ -201,7 +201,7 @@
                 "tags": [
                   "Request"
                 ],
-                "summary": "Return an array of requester made approval requests, available to anyone",
+                "summary": "List filtered requests, available to everyone",
                 "description": "The result depends on the x-rh-persona header (approval/admin, approval/requseter, or approval/approver). Program generated child requests are not included.",
                 "operationId": "listRequests",
                 "parameters": [
@@ -223,7 +223,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Returned a list of requests",
                         "headers": {
                             "X-total-count": {
                                 "description": "Total number of items",
@@ -255,8 +255,8 @@
                 "tags": [
                   "Request"
                 ],
-                "summary": "Add an approval request by given parameters",
-                "description": "Add an approval request by given parameters, available to anyone",
+                "summary": "Create a new approval request",
+                "description": "Create an approval request using given parameters, available to everyone",
                 "operationId": "createRequest",
                 "requestBody": {
                     "content": {
@@ -266,12 +266,12 @@
                             }
                         }
                     },
-                    "description": "Parameters need to create a request",
+                    "description": "Parameters needed to create a request",
                     "required": true
                 },
                 "responses": {
                     "201": {
-                        "description": "Success",
+                        "description": "Created an approval request",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -297,8 +297,8 @@
                 "tags": [
                   "Request"
                 ],
-                "summary": "Return an approval request by given id",
-                "description": "Return an approval request by given id, available to anyone who can access the request",
+                "summary": "Return an approval request",
+                "description": "Find an approval request by its id, available to anyone who can access the request",
                 "operationId": "showRequest",
                 "parameters": [
                     {
@@ -307,7 +307,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Returned the approval request",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -333,8 +333,8 @@
                 "tags": [
                   "Request"
                 ],
-                "summary": "Return an array of child requests of a given request id",
-                "description": "Return an array of child requests of a given request id. The result depends on the x-rh-persona header (approval/admin, approval/requseter, or approval/approver).",
+                "summary": "List filtered child requests of a request",
+                "description": "Find child requests based on the parent request id. The result depends on the x-rh-persona header (approval/admin, approval/requseter, or approval/approver).",
                 "operationId": "listRequestsByRequest",
                 "parameters": [
                     {
@@ -346,7 +346,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Returned a list of requests",
                         "headers": {
                             "X-total-count": {
                                 "description": "Total number of items",
@@ -380,8 +380,8 @@
                 "tags": [
                   "Request"
                 ],
-                "summary": "Return request content of a given request id",
-                "description": "Return request content of a given request id, available to all",
+                "summary": "Return the request content of a request",
+                "description": "Find the request content based on a request id, available to everyone",
                 "operationId": "showRequestContent",
                 "parameters": [
                     {
@@ -390,7 +390,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Returned the request content",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -416,8 +416,8 @@
                 "tags": [
                   "Template"
                 ],
-                "summary": "Return all templates, only available for admin",
-                "description": "Return all templates",
+                "summary": "List templates",
+                "description": "Find all templates, available to admin only",
                 "operationId": "listTemplates",
                 "parameters": [
                     {
@@ -435,7 +435,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Returned a list of templates",
                         "headers": {
                             "X-total-count": {
                                 "description": "Total number of items",
@@ -469,8 +469,8 @@
                 "tags": [
                   "Template"
                 ],
-                "summary": "Return a template by given id, only available for admin",
-                "description": "Return a template by given id",
+                "summary": "Return a template",
+                "description": "Find a template by its id, available to admin only",
                 "operationId": "showTemplate",
                 "parameters": [
                     {
@@ -479,7 +479,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Returned the template",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -505,8 +505,8 @@
                 "tags": [
                   "Workflow"
                 ],
-                "summary": "Return all approval workflows, only available for admin",
-                "description": "Depends on the query parameters, either return all workflows in ascending sequence order when no parameters are provided; or return the workflows linking to the resource object whose app_name, object_type and object_id are specified by query parameters",
+                "summary": "List approval workflows",
+                "description": "Find approval workflows matching search parameters, available to admin only. Optionally select workflows linked to a resource object whose app_name, object_type and object_id are specified by query parameters. Default sorting is by sequence number in ascending order.",
                 "operationId": "listWorkflows",
                 "parameters": [
                     {
@@ -533,7 +533,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Returned a list of workflows",
                         "headers": {
                             "X-total-count": {
                                 "description": "Total number of items",
@@ -567,8 +567,8 @@
                 "tags": [
                   "Workflow"
                 ],
-                "summary": "Return an array of workflows by given template id, only available for admin",
-                "description": "Return an array of workflows by given template id",
+                "summary": "List all workflows belonging to a template",
+                "description": "Find workflows based on the template id, available to admin only",
                 "operationId": "listWorkflowsByTemplate",
                 "parameters": [
                     {
@@ -589,7 +589,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Returned a list of workflows",
                         "headers": {
                             "X-total-count": {
                                 "description": "Total number of items",
@@ -621,8 +621,8 @@
                 "tags": [
                   "Workflow"
                 ],
-                "summary": "Add a workflow by given template id, only available for admin",
-                "description": "Add a workflow by given template id",
+                "summary": "Create a workflow from a template",
+                "description": "Create a workflow from a template identified by its id, available to admin only",
                 "operationId": "addWorkflowToTemplate",
                 "parameters": [
                     {
@@ -641,12 +641,12 @@
                             }
                         }
                     },
-                    "description": "Parameters need to create workflow",
+                    "description": "Parameters needed to create a workflow",
                     "required": true
                 },
                 "responses": {
                     "201": {
-                        "description": "Success",
+                        "description": "Created a workflow",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -672,8 +672,8 @@
                 "tags": [
                   "Workflow"
                 ],
-                "summary": "Return an approval workflow by given id, only available for admin",
-                "description": "Return an approval workflow by given id",
+                "summary": "Return an approval workflow",
+                "description": "Find an approval workflow by its id, available to admin only",
                 "operationId": "showWorkflow",
                 "parameters": [
                     {
@@ -682,7 +682,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Returned the workflow",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -706,8 +706,8 @@
                 "tags": [
                   "Workflow"
                 ],
-                "summary": "Update an approval workflow by given id, only available for admin",
-                "description": "Update an approval workflow by given id",
+                "summary": "Update an approval workflow",
+                "description": "Find an approval workflow by its id and update its content, available to admin only",
                 "operationId": "updateWorkflow",
                 "parameters": [
                     {
@@ -726,12 +726,12 @@
                            }
                         }
                     },
-                    "description": "Parameters need to update approval workflow",
+                    "description": "Parameters needed to update an approval workflow",
                     "required": true
                 },
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Returned the updated workflow",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -755,8 +755,8 @@
                 "tags": [
                   "Workflow"
                 ],
-                "summary": "Delete approval workflow by given id, only available for admin",
-                "description": "Delete approval workflow by given id",
+                "summary": "Delete an approval workflow",
+                "description": "Delete an approval workflow by its id, available to admin only",
                 "operationId": "destroyWorkflow",
                 "parameters": [
                     {
@@ -765,7 +765,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Workflow Deleted"
+                        "description": "Deleted the workflow"
                     },
                     "400": {
                         "$ref": "#/components/schemas/HttpApiErrorCollection"
@@ -784,9 +784,9 @@
                 "tags": [
                   "Workflow"
                 ],
-                "summary": "Create a resource link to a given workflow",
+                "summary": "Create a resource link to a workflow",
                 "operationId": "linkWorkflow",
-                "description": "Link a resource object to a given workflow",
+                "description": "Link a resource object to a workflow identified by its id, available to admin only",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -805,7 +805,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Success"
+                        "description": "Created a link"
                     },
                     "400": {
                         "$ref": "#/components/schemas/HttpApiErrorCollection"
@@ -824,9 +824,9 @@
                 "tags": [
                   "Workflow"
                 ],
-                "summary": "Break the link between a resource object and selected workflow",
+                "summary": "Break the link between a resource object and a workflow",
                 "operationId": "unlinkWorkflow",
-                "description": "Break the link between a resource object and selected workflow",
+                "description": "Break the link between a resource object selected by the body and a workflow by its id, available to admin only",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -840,12 +840,12 @@
                             }
                         }
                     },
-                    "description": "Parameters needed to remove a link",
+                    "description": "Parameters needed to select a resource object",
                     "required": true
                 },
                 "responses": {
                     "200": {
-                        "description": "Success"
+                        "description": "Broke the link"
                     },
                     "400": {
                         "$ref": "#/components/schemas/HttpApiErrorCollection"
@@ -893,7 +893,7 @@
             "id": {
                 "name": "id",
                 "in": "path",
-                "description": "Query by id",
+                "description": "ID used to select a resource",
                 "required": true,
                 "schema": {
                     "type": "string",
@@ -903,7 +903,7 @@
             "template_id": {
                 "name": "template_id",
                 "in": "path",
-                "description": "Id of template",
+                "description": "ID of a template",
                 "required": true,
                 "schema": {
                     "type": "string",
@@ -913,7 +913,7 @@
             "workflow_id": {
                 "name": "workflow_id",
                 "in": "path",
-                "description": "Id of workflow",
+                "description": "ID of a workflow",
                 "required": true,
                 "schema": {
                     "type": "string",
@@ -923,7 +923,7 @@
             "request_id": {
                 "name": "request_id",
                 "in": "path",
-                "description": "Id of request",
+                "description": "ID of a request",
                 "required": true,
                 "schema": {
                     "type": "string",
@@ -933,7 +933,7 @@
             "limit": {
                 "name": "limit",
                 "in": "query",
-                "description": "How many items to return at one time (max 1000)",
+                "description": "Maximum number of items per page. Used by pagination",
                 "required": false,
                 "schema": {
                     "type": "integer",
@@ -946,7 +946,7 @@
             "offset": {
                 "name": "offset",
                 "in": "query",
-                "description": "Starting Offset",
+                "description": "Number of items to skip before starting to collect the result set. Used by pagination",
                 "required": false,
                 "schema": {
                     "type": "integer",
@@ -967,7 +967,7 @@
             "object_id": {
                 "name": "object_id",
                 "in": "query",
-                "description": "Id of the resource object",
+                "description": "ID of a resource object",
                 "required": false,
                 "schema": {
                     "type": "string"
@@ -976,7 +976,7 @@
             "object_type": {
                 "name": "object_type",
                 "in": "query",
-                "description": "Type of the resource object",
+                "description": "Type of a resource object",
                 "required": false,
                 "schema": {
                     "type": "string"
@@ -985,7 +985,7 @@
             "filter": {
                 "in": "query",
                 "name": "filter",
-                "description": "Filter for querying collections.",
+                "description": "Filter for querying collections",
                 "required": false,
                 "style": "deepObject",
                 "explode": true,
@@ -996,7 +996,7 @@
             "sort_by": {
                 "name": "sort_by",
                 "in": "query",
-                "description": "Parameter to sort collection",
+                "description": "Attribute used to sort a collection",
                 "required": false,
                 "schema": {
                     "type": "string"
@@ -1005,7 +1005,7 @@
             "persona": {
                 "in": "header",
                 "name": "x-rh-persona",
-                "description": "Current login user's persona",
+                "description": "Desired persona of the current login user",
                 "required": false,
                 "schema": {
                     "type": "string",
@@ -1026,18 +1026,24 @@
                 "properties": {
                     "query": {
                         "type": "string",
+                        "title": "Query",
                         "description": "The GraphQL query",
-                        "default": "{}"
+                        "default": "{}",
+                        "example": "{ workflows {  id template_id name  } }"
                     },
                     "operationName": {
                         "type": "string",
-                        "description": "If the Query contains several named operations, the operationName controls which one should be executed",
-                        "default": ""
+                        "title": "Operation name",
+                        "description": "If the query contains several named operations, the operationName controls which one should be executed",
+                        "default": "",
+                        "example": "searchByName"
                     },
                     "variables": {
                         "type": "object",
-                        "description": "Optional Query variables",
-                        "nullable": true
+                        "title": "Variables",
+                        "description": "Optional query variables",
+                        "nullable": true,
+                        "example": "{\"workflow_id\":3}"
                     }
                 },
                 "required": [
@@ -1049,10 +1055,12 @@
                 "properties": {
                     "data": {
                         "type": "object",
+                        "title": "Data",
                         "description": "Results from the GraphQL query"
                     },
                     "errors": {
                         "type": "array",
+                        "title": "Errors",
                         "description": "Errors resulting from the GraphQL query",
                         "items": {
                             "type": "object"
@@ -1062,29 +1070,40 @@
             },
             "Action": {
                 "type": "object",
+                "description": "An action that changes the state of a request",
                 "properties": {
                     "id": {
                         "type": "string",
+                        "title": "Action ID",
+                        "description": "ID of the action",
+                        "example": "123",
                         "readOnly": true
                     },
                     "created_at": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "Timestamp of creation",
+                        "title": "Created time",
+                        "description": "Time when the action was created",
+                        "example": "2020-04-12T11:23:16Z",
                         "readOnly": true
                     },
                     "request_id": {
                         "type": "string",
-                        "description": "Associated request id",
+                        "title": "Request ID",
+                        "description": "ID of the request that the action belongs to",
+                        "example": "123",
                         "readOnly": true
                     },
                     "processed_by": {
                         "type": "string",
-                        "description": "The person who performs the action"
+                        "title": "Processed by",
+                        "description": "The person who performs the action",
+                        "example": "John Doe"
                     },
                     "operation": {
                         "type": "string",
-                        "description": "Types of action, may be one of the value (approve, cancel, deny, error, notify, memo, skip, or start). The request state will be updated according to the operation.",
+                        "title": "Operation",
+                        "description": "Action type, must be one of the predefined values. The request state will be updated according to the operation.",
                         "enum": [
                             "approve",
                             "cancel",
@@ -1095,11 +1114,14 @@
                             "skip",
                             "start"
                         ],
-                        "default": "memo"
+                        "default": "memo",
+                        "example": "memo"
                     },
                     "comments": {
                         "type": "string",
+                        "title": "Comments",
                         "description": "Comments for action",
+                        "example": "Cannot approve the request due to lacking of resources",
                         "nullable": true
                     }
                 }
@@ -1115,21 +1137,27 @@
                 "properties": {
                     "object_type": {
                         "type": "string",
-                        "description": "Object type"
+                        "title": "Object type",
+                        "description": "Object type",
+                        "example": "Portfolio"
                     },
                     "app_name": {
                         "type": "string",
-                        "description": "Application name the object belongs to"
+                        "title": "App name",
+                        "description": "Name of the application that the object belongs to",
+                        "example": "catalog-api"
                     },
                     "object_id": {
                         "type": "string",
-                        "description": "Id of the object"
+                        "title": "Object ID",
+                        "description": "ID of the object",
+                        "example": "123"
                     }
                 }
             },
             "RequestIn": {
                 "type": "object",
-                "description": "Input parameters for approval request object.",
+                "description": "Input parameters for approval request object",
                 "required": [
                     "name",
                     "content",
@@ -1138,19 +1166,26 @@
                 "properties": {
                     "name": {
                         "type": "string",
-                        "description": "Request name"
+                        "title": "Request name",
+                        "description": "Name of the the request to be created",
+                        "example": "VM order"
                     },
                     "description": {
                         "type": "string",
-                        "description": "Request description"
+                        "title": "Description",
+                        "description": "Describe the request in more details",
+                        "example": "Order a higher end VM for production"
                     },
                     "content": {
                         "type": "object",
-                        "description": "JSON object with request content"
+                        "title": "Content",
+                        "description": "Content of the request in JSON format",
+                        "example": "{\"CPU\":2,\"Memory\":\"16G\",\"Disk\":\"320G\"}"
                     },
                     "tag_resources": {
                         "type": "array",
-                        "description": "collection of resources having tags that determine the workflows for the request",
+                        "title": "Request tags",
+                        "description": "An array of resource tags that determine the workflows for the request",
                         "items": {
                           "$ref": "#/components/schemas/TagResource"
                         }
@@ -1158,8 +1193,8 @@
                 }
             },
             "TagResource": {
-                "description": "Resource with tags",
                 "type": "object",
+                "description": "Resource with tags",
                 "required": [
                     "app_name",
                     "object_type",
@@ -1167,13 +1202,21 @@
                 ],
                 "properties": {
                     "app_name": {
-                        "type": "string"
+                        "type": "string",
+                        "title": "App name",
+                        "description": "Name of the app that the resource belongs to",
+                        "example": "catalog-api"
                     },
                     "object_type": {
-                        "type": "string"
+                        "type": "string",
+                        "title": "Resource type",
+                        "description": "The type of the resource",
+                        "example": "Portfolio"
                     },
                     "tags": {
                         "type": "array",
+                        "title": "Tags",
+                        "description": "An array of tags that the resource is tagged with",
                         "items": {
                             "$ref": "#/components/schemas/Tag"
                         }
@@ -1181,27 +1224,32 @@
                 }
             },
             "Tag": {
-                "description": "tag details",
                 "type": "object",
+                "description": "tag details",
                 "properties": {
                     "tag": {
-                        "example": "/namespace/architecture=x86_64",
-                        "type": "string"
+                        "type": "string",
+                        "title": "Tag",
+                        "description": "The string representation of the tag",
+                        "example": "/namespace/architecture=x86_64"
                     }
                 },
                 "additionalProperties": false
             },
             "Request": {
-                "description": "Approval request. It may have child requests. Only a leaf node request can have workflow_id",
                 "type": "object",
+                "description": "Approval request. It may have child requests. Only a leaf node request can have workflow_id",
                 "properties": {
                     "id": {
                         "type": "string",
+                        "title": "Request ID",
+                        "description": "ID of the request",
                         "readOnly": true
                     },
                     "state": {
                         "type": "string",
-                        "description": "The state of the request. Possible value: canceled, completed, failed, notified, skipped, or started",
+                        "title": "State",
+                        "description": "The state of the request, must be one of the predefined values",
                         "enum": [
                             "canceled",
                             "completed",
@@ -1211,11 +1259,13 @@
                             "skipped",
                             "started"
                         ],
-                        "readOnly": true
+                        "readOnly": true,
+                        "example": "completed"
                     },
                     "decision": {
                         "type": "string",
-                        "description": "Approval decision. Possible value: undecided, approved, canceled, denied, or error",
+                        "title": "Decision",
+                        "description": "Approval decision, must be one of the predefined values",
                         "enum": [
                             "undecided",
                             "approved",
@@ -1223,85 +1273,113 @@
                             "denied",
                             "error"
                         ],
-                        "readOnly": true
+                        "readOnly": true,
+                        "example": "approved"
                     },
                     "reason": {
                         "type": "string",
-                        "description": "Reason for the decision. Optional. Present normally when the decision is denied",
+                        "title": "Reason",
+                        "description": "Optional reason for the decision, present normally when the decision is denied",
                         "readOnly": true,
-                        "nullable": true
+                        "nullable": true,
+                        "example": "Reject the request because the inventory is low"
                     },
                     "workflow_id": {
                         "type": "string",
-                        "description": "Associate workflow id. Available only if the request is a leaf node",
+                        "title": "Workflow ID",
+                        "description": "ID of the workflow that the request belongs to. Present only if the request is a leaf node",
                         "readOnly": true,
-                        "nullable": true
+                        "nullable": true,
+                        "example": "123"
                     },
                     "created_at": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "Timestamp of creation",
-                        "readOnly": true
+                        "title": "Created Time",
+                        "description": "Time when the request was created",
+                        "readOnly": true,
+                        "example": "2020-04-12T11:23:16Z"
                     },
                     "notified_at": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "Timestamp of notification sent to approvers",
+                        "title": "Notified time",
+                        "description": "Time when a notification was sent to approvers",
                         "readOnly": true,
-                        "nullable": true
+                        "nullable": true,
+                        "example": "2020-04-12T11:23:16Z"
                     },
                     "finished_at": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "Timestamp of finishing (skipped, canceled, or completed)",
+                        "title": "Finished time",
+                        "description": "Time when the request was finished (skipped, canceled, or completed)",
                         "readOnly": true,
-                        "nullable": true
+                        "nullable": true,
+                        "example": "2020-04-12T11:23:16Z"
                     },
                     "number_of_children": {
                         "type": "integer",
+                        "title": "Sub-requests",
                         "description": "Number of child requests",
-                        "readOnly": true
+                        "readOnly": true,
+                        "example": 0
                     },
                     "number_of_finished_children": {
                         "type": "integer",
+                        "title": "Finished sub-requests",
                         "description": "Number of finished child requests",
-                        "readOnly": true
+                        "readOnly": true,
+                        "example": 0
                     },
                     "owner": {
                         "type": "string",
-                        "description": "Requester's id",
-                        "readOnly": true
+                        "title": "Owner",
+                        "description": "Identification of whom made the request",
+                        "readOnly": true,
+                        "example": "customer@redhat.com"
                     },
                     "requester_name": {
                         "type": "string",
-                        "description": "Requester's full name",
-                        "readOnly": true
+                        "title": "Requester name",
+                        "description": "Full name of the requester",
+                        "readOnly": true,
+                        "example": "John Doe"
                     },
                     "name": {
                         "type": "string",
-                        "description": "Request name",
-                        "readOnly": true
+                        "title": "Request name",
+                        "description": "Name of the request to be created",
+                        "readOnly": true,
+                        "example": "VM order"
                     },
                     "description": {
                         "type": "string",
-                        "description": "Request description",
-                        "readOnly": true
+                        "title": "Description",
+                        "description": "Describe the request in more details",
+                        "readOnly": true,
+                        "example": "Order a higher end VM for production"
                     },
                     "group_name": {
                         "type": "string",
+                        "title": "Approver group(s)",
                         "description": "Name of approver group(s) assigned to approve this request",
-                        "readOnly": true
+                        "readOnly": true,
+                        "example": "Finance,Engineering"
                     },
                     "parent_id": {
                         "type": "string",
-                        "description": "Parent request id",
-                        "readOnly": true
+                        "title": "Parent ID",
+                        "description": "ID of the parent group if present",
+                        "readOnly": true,
+                        "example": "123"
                     },
                     "metadata": {
-                      "type": "object",
-                      "title": "Metadata",
-                      "description": "JSON Metadata about the request",
-                      "readOnly": true
+                        "type": "object",
+                        "title": "Metadata",
+                        "description": "JSON metadata about the request",
+                        "readOnly": true,
+                        "example": "{\"user_capabilities\":{\"show\":true,\"create\":true,\"approve\":true,\"cancel\":true,\"deny\":true,\"memo\":true}}"
                     }
                 }
             },
@@ -1311,25 +1389,35 @@
             },
             "Template": {
                 "type": "object",
-                "description": "The template to categorize workflows.",
+                "description": "The template to categorize workflows",
                 "properties": {
                     "id": {
                         "type": "string",
-                        "readOnly": true
+                        "title": "Template ID",
+                        "description": "ID of the template",
+                        "readOnly": true,
+                        "example": "123"
                     },
                     "title": {
                         "type": "string",
-                        "readOnly": true
+                        "title": "Name",
+                        "description": "Name of the template",
+                        "readOnly": true,
+                        "example": "Basic"
                     },
                     "description": {
                         "type": "string",
-                        "readOnly": true
+                        "title": "Description",
+                        "description": "Describe the template with more details",
+                        "readOnly": true,
+                        "example": "A multi-level approval process"
                     },
                     "metadata": {
                         "type": "object",
                         "title": "Metadata",
-                        "description": "JSON Metadata about the template",
-                        "readOnly": true
+                        "description": "JSON metadata about the template",
+                        "readOnly": true,
+                        "example": "{\"user_capabilities\":{\"show\":true}}"
                     }
                 }
             },
@@ -1339,29 +1427,43 @@
                 "properties": {
                     "id": {
                         "type": "string",
-                        "readOnly": true
+                        "title": "Workflow ID",
+                        "description": "ID of the workflow",
+                        "readOnly": true,
+                        "example": "123"
                     },
                     "template_id": {
                         "type": "string",
-                        "description": "Associated template id",
-                        "readOnly": true
+                        "title": "Template ID",
+                        "description": "ID of the template that the workflow belongs to",
+                        "readOnly": true,
+                        "example": "456"
                     },
                     "name": {
-                        "type": "string"
+                        "type": "string",
+                        "title": "Name",
+                        "description": "Name of the workflow",
+                        "example": "Basic IT"
                     },
                     "description": {
                         "type": "string",
-                        "nullable": true
+                        "title": "Description",
+                        "description": "Describe the workflow in more details",
+                        "nullable": true,
+                        "example": "A approval process requires ID department to approve"
                     },
                     "sequence": {
                         "type": "integer",
+                        "title": "Sequence",
                         "description": "an indicator of the execution order for selected workflows",
                         "minimum": 0,
-                        "exclusiveMinimum": true
+                        "exclusiveMinimum": true,
+                        "example": 3
                     },
                     "group_refs": {
                         "type": "array",
-                        "description": "Group reference ids associated with workflow",
+                        "title": "Approval groups",
+                        "description": "Array of RBAC groups associated with workflow. The groups need to have approval permission",
                         "items": {
                             "$ref": "#/components/schemas/GroupRef"
                         },
@@ -1370,8 +1472,9 @@
                     "metadata": {
                         "type": "object",
                         "title": "Metadata",
-                        "description": "JSON Metadata about the workflow",
-                        "readOnly": true
+                        "description": "JSON metadata about the workflow",
+                        "readOnly": true,
+                        "example": "{\"user_capabilities\":{\"link\":true,\"show\":true,\"update\":true,\"unlink\":true,\"destroy\":true,\"create\":true}}"
                     }
                 }
             },
@@ -1384,12 +1487,16 @@
                 "properties": {
                     "name": {
                         "type": "string",
-                        "description": "Group name"
+                        "title": "Group name",
+                        "description": "Name of the RBAC group",
+                        "example": "Finance"
                     },
                     "uuid": {
                         "type": "string",
-                        "description": "Group UUID",
-                        "format": "uuid"
+                        "title": "Group UUID",
+                        "description": "RBAC ID of the group",
+                        "format": "uuid",
+                        "example": "20560093-369e-412b-9c73-a6799f966447"
                     }
                 }
             },
@@ -1491,18 +1598,18 @@
                 "properties": {
                     "count": {
                         "type": "integer",
-                        "title": "Total number of items in the result set",
-                        "description": "This is the total number of items in the result set, of which only a subset is returned defined by the QueryLimit parameter"
+                        "title": "Total items",
+                        "description": "Total number of items in the result set, of which only a subset is returned defined by the QueryLimit parameter"
                     },
                     "limit": {
                         "type": "integer",
-                        "title": "The number of items in each page",
-                        "description": "This is the number of items each page can display"
+                        "title": "Items per page",
+                        "description": "The number of items each page can display"
                     },
                     "offset": {
                         "type": "integer",
-                        "title": "Offset from beginning of the result set",
-                        "description": "This is the offset from beginning of the result set"
+                        "title": "Offset",
+                        "description": "Offset from beginning of the result set"
                     }
                 }
             },
@@ -1512,6 +1619,7 @@
                 "properties": {
                     "errors": {
                         "type": "array",
+                        "title": "Error list",
                         "description": "Error list from the API query",
                         "items": {
                             "$ref": "#/components/schemas/HttpApiError"
@@ -1525,11 +1633,13 @@
                 "properties": {
                     "status": {
                         "type": "string",
+                        "title": "Status code",
                         "description": "HTTP status code",
                         "example": "400"
                     },
                     "details": {
                         "type": "string",
+                        "title": "Details",
                         "description": "Error details",
                         "example": "Bad Request"
                     }
