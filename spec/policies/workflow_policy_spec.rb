@@ -1,92 +1,109 @@
 describe WorkflowPolicy do
   include_context "approval_rbac_objects"
 
-  let(:workflows) { create_list(:workflow, 3) }
-  let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => accessible_flag) }
-  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true) }
+  let(:workflow) { create(:workflow) }
+  subject { described_class.new(user, workflow) }
 
-  describe 'with admin role' do
-    let(:accessible_flag) { true }
-    before { allow(access).to receive(:admin_scope?).and_return(true) }
-
-    context 'with class' do
-      subject { described_class.new(user, Workflow) }
-
-      it '#create?' do
-        expect(subject.create?).to be_truthy
-      end
+  shared_examples_for 'all_falsey' do
+    it 'returns false from #create?' do
+      expect(subject.create?).to be_falsey
     end
 
-    context 'with instance' do
-      subject { described_class.new(user, workflows.first) }
+    it 'returns false from #update?' do
+      expect(subject.update?).to be_falsey
+    end
 
-      it '#show?' do
-        expect(subject.show?).to be_truthy
-      end
+    it 'returns false from #destroy?' do
+      expect(subject.destroy?).to be_falsey
+    end
 
-      it '#update?' do
-        expect(subject.update?).to be_truthy
-      end
+    it 'returns false from #link?' do
+      expect(subject.update?).to be_falsey
+    end
 
-      it '#destroy?' do
-        expect(subject.destroy?).to be_truthy
-      end
+    it 'returns false from #unlink?' do
+      expect(subject.destroy?).to be_falsey
+    end
+  end
+
+  describe 'with admin role' do
+    before { admin_access }
+
+    it 'returns true from #create?' do
+      expect(subject.create?).to be_truthy
+    end
+
+    it 'returns true from #show?' do
+      expect(subject.show?).to be_truthy
+    end
+
+    it 'returns true from #update?' do
+      expect(subject.update?).to be_truthy
+    end
+
+    it 'returns true from #destroy?' do
+      expect(subject.destroy?).to be_truthy
+    end
+
+    it 'returns true from #link?' do
+      expect(subject.update?).to be_truthy
+    end
+
+    it 'returns true from #unlink?' do
+      expect(subject.destroy?).to be_truthy
+    end
+
+    it 'returns all user capabilities from #user_capabilities' do
+      result = { "create"=>true,
+                 "destroy"=>true,
+                 "link"=>true,
+                 "show"=>true,
+                 "unlink"=>true,
+                 "update"=>true }
+
+      expect(subject.user_capabilities).to eq(result)
     end
   end
 
   describe 'with approver role' do
-    let(:accessible_flag) { false }
+    before { approver_access }
 
-    context 'with class' do
-      subject { described_class.new(user, Workflow) }
-
-      it '#create?' do
-        expect(subject.create?).to be_falsey
-      end
+    it_behaves_like 'all_falsey'
+    
+    it 'returns false from #show?' do
+      expect(subject.show?).to be_falsey
     end
 
-    context 'with instance' do
-      subject { described_class.new(user, workflows.first) }
+    it 'returns true from #user_capabilities' do
+      result = { "create"=>false,
+                 "destroy"=>false,
+                 "link"=>false,
+                 "show"=>false,
+                 "unlink"=>false,
+                 "update"=>false }
 
-      it '#show?' do
-        expect(subject.show?).to be_falsey
-      end
-
-      it '#update?' do
-        expect(subject.update?).to be_falsey
-      end
-
-      it '#destroy?' do
-        expect(subject.destroy?).to be_falsey
-      end
+      expect(subject.user_capabilities).to eq(result)
     end
   end
 
-  describe 'with requester role' do
-    subject { described_class.new(user, workflows.first) }
+  describe 'with user role' do
+    before { user_access }
 
-    context 'when permission_check is true' do
-      let(:accessible_flag) { true }
-
-      it '#show?' do
-        expect(subject.show?).to be_truthy
-      end
+    it_behaves_like 'all_falsey'
+    
+    it 'returns true from #show?' do
+      expect(subject.show?).to be_truthy
     end
 
-    context 'when permission_check is false' do
-      let(:accessible_flag) { false }
+    it 'returns all user capabilities from #user_capabilities' do
+      result = { "create"=>false,
+                 "destroy"=>false,
+                 "link"=>false,
+                 "show"=>true,
+                 "unlink"=>false,
+                 "update"=>false }
 
-      it '#create?' do
-        expect(described_class.new(user, Workflow).create?).to be_falsey
-      end
-
-      it '#update?' do
-        expect(subject.update?).to be_falsey
-      end
-
-      it '#destroy?' do
-        expect(subject.destroy?).to be_falsey
-      end
+      expect(subject.user_capabilities).to eq(result)
     end
   end
 end

@@ -23,6 +23,15 @@ describe UserContext, [:type => :current_forwardble] do
     end
   end
 
+  describe "#graphql_params" do
+    it "returns args" do
+      args = double(:args) 
+      subject.graphql_params = args
+
+      expect(subject.graphql_params).to eq(args)
+    end
+  end
+
   describe ".with_user_context" do
     it "uses the given user" do
       expect(Thread.current[:user_context]).to be_nil

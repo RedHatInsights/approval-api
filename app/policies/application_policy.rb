@@ -68,6 +68,8 @@ class ApplicationPolicy
       scope.all
     end
 
+    private
+
     def graphql_id_query
       id = user.graphql_params.id
 

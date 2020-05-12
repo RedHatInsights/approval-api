@@ -1,103 +1,110 @@
 describe RequestPolicy do
   include_context "approval_rbac_objects"
 
-  let(:requests) { create_list(:request, 3) }
-  let(:access) { instance_double(Insights::API::Common::RBAC::Access, :accessible? => accessible_flag) }
-  let(:group_uuids) { ['group-uuid'] }
-  let(:user) { instance_double(UserContext, :access => access, :rbac_enabled? => true, :group_uuids => group_uuids) }
-  let(:headers) { {:headers => RequestSpecHelper::default_headers, :original_url=>'url'} }
+  let(:group_uuid) { 'group-uuid' }
+  let(:request) { create(:request, :state => 'notified', :group_ref => group_uuid) }
+  let(:subject) { described_class.new(user, request) }
 
   describe 'with admin role' do
-    let(:accessible_flag) { true }
-    before { allow(access).to receive(:scopes).and_return(['admin']) }
+    before { admin_access }
 
-    context 'when record is model class' do
-      let(:subject) { described_class.new(user, Request) }
-
-      it '#create?' do
-        expect(subject.create?).to be_truthy
-      end
+    it 'returns true from #create?' do
+      expect(subject.create?).to be_truthy
     end
 
-    context 'when record is an instance' do
-      let(:subject) { described_class.new(user, requests.first) }
+    it 'returns true from #show?' do
+      expect(subject.show?).to be_truthy
+    end
 
-      it '#show?' do
-        expect(subject.show?).to be_truthy
-      end
+    it 'returns all user capabilities from #user_capabilities' do
+      result = { "approve"=> true, 
+                 "cancel" => true, 
+                 "create" => true, 
+                 "deny"   => true, 
+                 "memo"   => true, 
+                 "show"   => true }
+
+      expect(subject.user_capabilities).to eq(result)
     end
   end
 
   describe 'with approver role' do
-    before do
-      allow(access).to receive(:scopes).and_return(['group'])
+    before { approver_access }
+
+    it 'returns false from #create?' do
+      expect(subject.create?).to be_falsey
     end
 
-    context 'when record is model class' do
-      let(:subject) { described_class.new(user, Request) }
-      let(:accessible_flag) { false }
+    describe '#show?' do
+      context 'when has valid group_uuid' do
+        it 'returns true' do
+          allow(user).to receive(:group_uuids).and_return([group_uuid])
+          expect(subject.show?).to be_truthy
+        end
+      end
 
-      it '#create?' do
-        expect(subject.create?).to be_falsey
+      context 'when has invalid group_uuid' do
+        it 'returns false' do
+          allow(user).to receive(:group_uuids).and_return([])
+          expect(subject.show?).to be_falsey
+        end
+      end
+
+      context 'when request has invisible states' do
+        before { request.update(:state => 'started') }
+        it 'returns false' do
+          allow(user).to receive(:group_uuids).and_return([group_uuid])
+          expect(subject.show?).to be_falsey
+        end
       end
     end
 
-    context 'when record is a request approvable by approver' do
-      let(:subject) { described_class.new(user, requests.first) }
-      let(:accessible_flag) { true }
-      before { requests.first.update(:group_ref => group_uuids.first, :state => 'completed') }
-
-      it 'can be shown to the approver' do
-        expect(subject.show?).to be_truthy
-      end
-    end
-
-    context 'when record is a request not approvable by approver' do
-      let(:subject) { described_class.new(user, requests.second) }
-      let(:accessible_flag) { true }
-
-      it 'cannot be shown to the approver' do
-        expect(subject.show?).to be_falsey
-      end
+    it 'returns all user capabilities from #user_capabilities' do
+      allow(user).to receive(:group_uuids).and_return([group_uuid])
+      result = { "approve"=> true, 
+                 "cancel" => false, 
+                 "create" => false, 
+                 "deny"   => true, 
+                 "memo"   => true }
+      expect(subject.user_capabilities).to include(result)
     end
   end
 
   describe 'with requester role' do
-    let(:accessible_flag) { true }
+    before { user_access }
 
-    before do
-      allow(access).to receive(:scopes).and_return(['user'])
+    it 'returns true from #create?' do
+      expect(subject.create?).to be_truthy
     end
 
-    context 'when record is model class' do
-      let(:subject) { described_class.new(user, Request) }
-
-      it '#create?' do
-        expect(subject.create?).to be_truthy
-      end
-    end
-
-    context 'when record is a request created by user' do
-      let(:subject) { described_class.new(user, requests.first) }
-
-      it 'can be shown to user' do
-        Insights::API::Common::Request.with_request(headers) do
-          requests.first.update(:owner => Insights::API::Common::Request.current.user.username)
-
-          expect(subject.show?).to be_truthy
+    describe '#show?' do
+      around do |example|
+        Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+          example.call
         end
       end
-    end
 
-    context 'when record is a request not created by user' do
-      let(:subject) { described_class.new(user, requests.second) }
+      it 'returns true' do
+        expect(subject.show?).to be_truthy
+      end
 
-      it 'cannot be shown to user' do
-        Insights::API::Common::Request.with_request(headers) do
-          requests.second.update(:owner => 'ugly name')
+      context 'when not owner' do
+        before { request.update(:owner => 'ugly name') }
 
+        it 'returns false' do
           expect(subject.show?).to be_falsey
         end
+      end
+    end
+
+    it 'returns all user capabilities from #user_capabilities' do
+      result = { "approve"=> false, 
+                 "cancel" => true, 
+                 "create" => true, 
+                 "deny"   => false, 
+                 "memo"   => true }
+      Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+        expect(subject.user_capabilities).to include(result)
       end
     end
   end
