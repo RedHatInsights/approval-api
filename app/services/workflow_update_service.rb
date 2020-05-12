@@ -15,10 +15,8 @@ class WorkflowUpdateService
 
     begin
       retries ||=0
-      Workflow.transaction do
-        workflow.update!(options)
-      end
-    rescue ActiveRecord::RecordNotUnique # The auto generated sequence number may be found duplicated due to concurrent issue
+      workflow.update!(options)
+    rescue ActiveRecord::RecordNotUnique # Sequence numbers may be found duplicated due to concurrent issue
       retry if (retries += 1) < 3
     end
   end
