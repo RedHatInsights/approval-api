@@ -3,7 +3,6 @@ source 'https://rubygems.org'
 plugin 'bundler-inject', '~> 1.1'
 require File.join(Bundler::Plugin.index.load_paths("bundler-inject")[0], "bundler-inject") rescue nil
 
-gem 'acts_as_list',        '~> 1.0'
 gem 'byebug'
 gem 'faraday',             '>= 0.17.0'
 gem 'insights-api-common', '~> 4.0'

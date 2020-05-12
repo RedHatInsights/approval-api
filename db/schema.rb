@@ -117,6 +117,7 @@ ActiveRecord::Schema.define(version: 2020_05_05_141640) do
     t.bigint "tenant_id"
     t.jsonb "group_refs", default: [], array: true
     t.integer "sequence"
+    t.index ["sequence", "tenant_id"], name: "index_workflows_on_sequence_and_tenant_id", unique: true
     t.index ["template_id"], name: "index_workflows_on_template_id"
     t.index ["tenant_id"], name: "index_workflows_on_tenant_id"
   end

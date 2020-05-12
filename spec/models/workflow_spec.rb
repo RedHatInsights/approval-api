@@ -25,16 +25,16 @@ RSpec.describe Workflow, :type => :model do
       expect(create(:workflow).sequence).to be > old_last.sequence
     end
 
-    it 'moves up an workflow sequence' do
+    it 'moves up a workflow sequence' do
       old_ids = Workflow.pluck(:id)
       Workflow.find(old_ids[3]).update(:sequence => Workflow.find(old_ids[1]).sequence)
       expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[3], old_ids[1], old_ids[2], old_ids[4]])
     end
 
-    it 'moves down an workflow sequence' do
+    it 'moves down a workflow sequence' do
       old_ids = Workflow.pluck(:id)
       Workflow.find(old_ids[1]).update(:sequence => Workflow.find(old_ids[3]).sequence)
-      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[2], old_ids[3], old_ids[1], old_ids[4]])
+      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[2], old_ids[1], old_ids[3], old_ids[4]])
     end
   end
 
