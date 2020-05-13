@@ -1,5 +1,6 @@
 Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 Dir[Insights::API::Common::Engine.root.join("spec/support/**/*.rb")].each { |f| require f }
+Dir[Insights::API::Common::Engine.root.join("lib/insights/api/common/rbac/*.rb")].each { |f| require f }
 require 'webmock/rspec'
 
 RSpec.configure do |config|
