@@ -18,7 +18,6 @@ gem 'rails',               '>= 5.2.2.1', '~> 5.2.2'
 gem 'sprockets',           '~> 3.7.2'
 
 gem 'kie_client', :git => "https://github.com/RedHatInsights/kie-api-client-ruby", :branch => "master"
-gem 'rbac-api-client', :git => 'https://github.com/RedHatInsights/insights-rbac-api-client-ruby.git', :branch => "master"
 
 group :development, :test do
   gem 'climate_control'

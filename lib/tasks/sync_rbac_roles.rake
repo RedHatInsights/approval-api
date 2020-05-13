@@ -1,4 +1,4 @@
-require 'rbac-api-client'
+require 'insights-rbac-api-client'
 
 namespace :approval do
   desc "create RBAC roles for existing workflows with an given user yaml file"
