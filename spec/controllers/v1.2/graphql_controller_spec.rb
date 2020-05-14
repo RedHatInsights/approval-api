@@ -1,4 +1,4 @@
-RSpec.describe Api::V1x2::GraphqlController, :type => :request do
+RSpec.describe Api::V1x2::GraphqlController, :type => [:request, :v1x2] do
   include_context "approval_rbac_objects"
   let(:tenant) { create(:tenant) }
 
@@ -10,8 +10,6 @@ RSpec.describe Api::V1x2::GraphqlController, :type => :request do
   let!(:child_requests) { create_list(:request, 2, :parent_id => parent_request.id, :tenant => tenant) }
   let!(:actions1) { create_list(:action, 2, :request_id => child_requests.first.id, :tenant => tenant) }
   let!(:actions2) { create_list(:action, 2, :request_id => child_requests.second.id, :tenant => tenant) }
-
-  let(:api_version) { version }
 
   let(:graphql_simple_query) { { 'query' => '{ workflows {  id template_id name  } }' } }
   let(:graphql_id_query) { { 'query' => "{ requests(id: #{id}) { id requests { id parent_id actions { id operation } } description parent_id } }" } }

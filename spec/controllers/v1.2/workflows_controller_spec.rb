@@ -1,4 +1,4 @@
-RSpec.describe Api::V1x2::WorkflowsController, :type => :request do
+RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
   include_context "approval_rbac_objects"
   # Initialize the test data
   let(:tenant) { create(:tenant) }
@@ -12,8 +12,6 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => :request do
   let(:get_tag_svc) { instance_double(GetRemoteTags, :tags => [tag_string]) }
   let(:tag_string) { "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{id}" }
   let(:tag) { {'tag' => tag_string} }
-
-  let(:api_version) { version }
 
   describe 'GET /templates/:template_id/workflows' do
     context 'admin role when template exists' do
