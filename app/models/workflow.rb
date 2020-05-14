@@ -36,7 +36,7 @@ class Workflow < ApplicationRecord
 
   # move all related sequence number one higher if the desired number is in use
   def move_rest_higher
-    return unless sequence && self.class.where(:sequence => sequence).exists
+    return unless sequence && sequence_changed? && self.class.exists?(:sequence => sequence)
 
     self.class.where(table[:sequence].gteq(sequence)).update_all("sequence = (-sequence - 1)")
     self.class.where(table[:sequence].lt(0)).update_all("sequence = (-sequence)")
