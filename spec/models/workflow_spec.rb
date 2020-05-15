@@ -22,39 +22,69 @@ RSpec.describe Workflow, :type => :model do
 
     it 'places newly created workflow to the end of ascending list' do
       old_last = Workflow.last
-      expect(create(:workflow).sequence).to be > old_last.sequence
+      expect(create(:workflow).sequence).to eq(old_last.sequence + 1)
+    end
+
+    it "auto adjusts newly created workflow's sequence if it is too large" do
+      old_last = Workflow.last
+      expect(create(:workflow, :sequence => 100).sequence).to eq(old_last.sequence + 1)
+    end
+
+    it 'inserts newly created workflow in desired position' do
+      old_ids = Workflow.pluck(:id)
+      wf = create(:workflow, :sequence => 2)
+      expect(wf.sequence).to eq(2)
+      expect(Workflow.pluck(:id)).to eq([old_ids[0], wf.id, old_ids[1], old_ids[2], old_ids[3], old_ids[4]])
+    end
+
+    it 'fails the creation if the sequence is not positive' do
+      expect { Workflow.create!(:name => 'any', :sequence => -2) }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    it 'moves a workflow to the top' do
+      old_ids = Workflow.pluck(:id)
+      Workflow.find(old_ids[3]).update(:sequence => 1)
+      expect(Workflow.pluck(:id)).to eq([old_ids[3], old_ids[0], old_ids[1], old_ids[2], old_ids[4]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
+    end
+
+    it 'moves a worflows to the bottom' do
+      old_ids = Workflow.pluck(:id)
+      Workflow.find(old_ids[3]).update(:sequence => nil)
+      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[1], old_ids[2], old_ids[4], old_ids[3]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
     end
 
     it 'moves up a workflow sequence' do
       old_ids = Workflow.pluck(:id)
       Workflow.find(old_ids[3]).update(:sequence => Workflow.find(old_ids[1]).sequence)
       expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[3], old_ids[1], old_ids[2], old_ids[4]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
     end
 
     it 'moves down a workflow sequence' do
       old_ids = Workflow.pluck(:id)
       Workflow.find(old_ids[1]).update(:sequence => Workflow.find(old_ids[3]).sequence)
-      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[2], old_ids[1], old_ids[3], old_ids[4]])
-    end
-  end
-
-  describe '#save' do
-    let!(:old_sequence) { workflow.sequence }
-
-    context 'when sequence has new value' do
-      it 'updates with the new sequence' do
-        workflow.update(:sequence => old_sequence + 1)
-        workflow.reload
-        expect(workflow.sequence).to eq(old_sequence + 1)
-      end
+      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[2], old_ids[3], old_ids[1], old_ids[4]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
     end
 
-    context 'when sequence has not changed' do
-      it 'does not change sequence after save' do
-        workflow.update(:name => 'new_name')
-        workflow.reload
-        expect(workflow.sequence).to eq(old_sequence)
-      end
+    it 'does not change sequence when only other attributes changed' do
+      old_ids = Workflow.pluck(:id)
+      Workflow.find(old_ids[1]).update(:name => 'newname')
+      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[1], old_ids[2], old_ids[3], old_ids[4]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
+    end
+
+    it 'fails to update non-positive sequence' do
+      expect { Workflow.first.update!(:sequence => 0) }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    it 'moves up sequences after a workflow is deleted' do
+      old_ids = Workflow.pluck(:id)
+      Workflow.find(old_ids[1]).destroy
+      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[2], old_ids[3], old_ids[4]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4])
     end
   end
 
