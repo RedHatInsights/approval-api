@@ -38,6 +38,26 @@ RSpec.describe Workflow, :type => :model do
     end
   end
 
+  describe '#save' do
+    let!(:old_sequence) { workflow.sequence }
+
+    context 'when sequence has new value' do
+      it 'updates with the new sequence' do
+        workflow.update(:sequence => old_sequence + 1)
+        workflow.reload
+        expect(workflow.sequence).to eq(old_sequence + 1)
+      end
+    end
+
+    context 'when sequence has not changed' do
+      it 'does not change sequence after save' do
+        workflow.update(:name => 'new_name')
+        workflow.reload
+        expect(workflow.sequence).to eq(old_sequence)
+      end
+    end
+  end
+
   context "with same name in different tenants" do
     let(:another_tenant) { create(:tenant) }
     let(:another_workflow) { create(:workflow, :name => workflow.name) }
