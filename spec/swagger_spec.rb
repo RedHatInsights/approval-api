@@ -2,7 +2,7 @@ describe "Swagger stuff" do
   describe "Routing" do
     include Rails.application.routes.url_helpers
 
-    %w[1.0 1.1].each do |version|
+    %w[1.2].each do |version|
       context "customizable route prefixes for version #{version}" do
         let(:route_path_name) { "api_v#{version.gsub('.','x')}_requests_url" }
 
