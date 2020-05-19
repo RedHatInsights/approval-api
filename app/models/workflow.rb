@@ -58,23 +58,26 @@ class Workflow < ApplicationRecord
 
   # sequences increment between [sequence sequence_was sequence)
   def sequence_higher(startp, endp = nil)
-    query = self.class.where(table[:sequence].gteq(startp))
-    query = query.where(table[:sequence].lteq(endp)) if endp
-    query.update_all("sequence = (-sequence - 1)")
-
-    query = self.class.where(table[:sequence].lt(0))
-    query = query.where.not(:sequence => -endp - 1) if endp # endp to be updated by rails
-    query.update_all("sequence = (-sequence)")
+    change_sequences_to_negative(startp, endp, -1)
+    change_sequences_to_positive(endp ? -endp - 1 : nil)
   end
 
   # sequences decrement between [startp endp]
   def sequence_lower(startp = sequence, endp = nil)
+    change_sequences_to_negative(startp, endp, 1)
+    change_sequences_to_positive(-startp + 1)
+  end
+
+  def change_sequences_to_negative(startp, endp, delta)
     query = self.class.where(table[:sequence].gteq(startp))
     query = query.where(table[:sequence].lteq(endp)) if endp
-    query.update_all("sequence = (-sequence + 1)")
+    query.update_all(["sequence = (-sequence + (?))", delta])
+  end
 
-    # startp to be updated by rails
-    query = self.class.where(table[:sequence].lt(0)).where.not(:sequence => -startp + 1).update_all("sequence = (-sequence)")
+  def change_sequences_to_positive(exceptp)
+    query = self.class.where(table[:sequence].lt(0))
+    query = query.where.not(:sequence => exceptp) if exceptp
+    query.update_all("sequence = (-sequence)")
   end
 
   def last_sequence

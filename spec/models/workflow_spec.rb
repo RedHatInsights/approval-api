@@ -48,7 +48,7 @@ RSpec.describe Workflow, :type => :model do
       expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
     end
 
-    it 'moves a worflows to the bottom' do
+    it 'moves a worflow to the bottom' do
       old_ids = Workflow.pluck(:id)
       Workflow.find(old_ids[3]).update(:sequence => nil)
       expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[1], old_ids[2], old_ids[4], old_ids[3]])
@@ -76,7 +76,7 @@ RSpec.describe Workflow, :type => :model do
       expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
     end
 
-    it 'fails to update non-positive sequence' do
+    it 'fails to update a 0 sequence' do
       expect { Workflow.first.update!(:sequence => 0) }.to raise_error(ActiveRecord::RecordInvalid)
     end
 
