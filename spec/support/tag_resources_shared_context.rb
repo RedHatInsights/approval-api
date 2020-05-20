@@ -1,11 +1,12 @@
 RSpec.shared_context "tag_resource_objects" do
   let(:tenant1) { create(:tenant) }
   let(:tenant2) { create(:tenant, :external_tenant => 'fred') }
-  let(:workflow1) { create(:workflow, :tenant => tenant1, :sequence => 10) }
+  let(:tenant1_workflows) { create_list(:workflow, 2, :tenant => tenant1) }
+  let(:workflow1) { tenant1_workflows[1] }
   let(:wf1_tag)   { "/approval/workflows=#{workflow1.id}" }
-  let(:workflow2) { create(:workflow, :tenant => tenant1, :sequence => 5) }
+  let(:workflow2) { tenant1_workflows[0] }
   let(:wf2_tag)   { "/approval/workflows=#{workflow2.id}" }
-  let(:workflow3) { create(:workflow, :tenant => tenant2, :sequence => 7) }
+  let(:workflow3) { create(:workflow, :tenant => tenant2) }
   let(:wf3_tag)   { "/approval/workflows=#{workflow3.id}" }
 
   let!(:tag_link1) { create(:tag_link, :tenant => tenant1, :app_name => 'catalog', :object_type => 'Portfolio', :tag_name => wf1_tag, :workflow => workflow1) }
