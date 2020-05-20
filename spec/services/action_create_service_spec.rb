@@ -145,31 +145,32 @@ RSpec.describe ActionCreateService do
       expect { svc1.create('operation' => 'strange operation', 'processed_by' => 'man') }.to raise_error(Exceptions::UserError)
     end
 
-    it 'forbids start operation from the stage other than pending' do
-      child1.update(:state => Request::NOTIFIED_STATE)
-      expect { svc1.create('operation' => Action::START_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
+    context "when the child is in a notified state" do
+      before do
+        child1.update(:state => Request::NOTIFIED_STATE)
+      end
+    
+      shared_examples_for "forbidden_operation" do |operation|
+        it "forbids #{operation}" do
+          expect { svc1.create('operation' => operation, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
+        end
+      end
+    
+      [Action::START_OPERATION, Action::SKIP_OPERATION, Action::NOTIFY_OPERATION].each do |operation|
+        it_behaves_like "forbidden_operation", operation
+      end
     end
 
-    it 'forbids skip operation from the stage other than pending' do
-      child1.update(:state => Request::NOTIFIED_STATE)
-      expect { svc1.create('operation' => Action::SKIP_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
-    end
-
-    it 'forbids notify operation from the stage other than started' do
-      child1.update(:state => Request::NOTIFIED_STATE)
-      expect { svc1.create('operation' => Action::NOTIFY_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
-    end
-
-    it 'forbids approve operation from pending stage' do
+    it 'forbids approve operation from pending state' do
       expect { svc1.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
     end
 
-    it 'forbids approve operation from already finished stage' do
+    it 'forbids approve operation from already finished state' do
       child1.update(:state => Request::COMPLETED_STATE)
       expect { svc1.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
     end
 
-    it 'forbids approve operation from already skipped stage' do
+    it 'forbids approve operation from already skipped state' do
       child1.update(:state => Request::SKIPPED_STATE)
       expect { svc1.create('operation' => Action::APPROVE_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
     end

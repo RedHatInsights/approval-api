@@ -11,4 +11,12 @@ describe Kie::Service do
       end.to raise_exception(Exceptions::KieError)
     end
   end
+
+  it "sets the authorization headers" do
+    auth_headers = described_class.call(KieClient::ProcessInstancesBPMApi, options) do |api|
+      api.api_client.default_headers["Authorization"]
+    end
+
+    expect(auth_headers).to eq(KieClient.configure.basic_auth_token)
+  end
 end

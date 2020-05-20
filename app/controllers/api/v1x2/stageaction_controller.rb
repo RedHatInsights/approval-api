@@ -28,6 +28,7 @@ module Api
       before_action :set_stage, :only => [:show, :update]
 
       def show
+        render :status => :ok, :action => :show
       end
 
       def update

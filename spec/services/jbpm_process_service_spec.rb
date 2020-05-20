@@ -64,7 +64,7 @@ RSpec.describe JbpmProcessService do
   end
 
   describe 'kie service raise exception' do
-    context 'when start_process' do
+    describe '#start' do
       before do
         allow(jbpm).to receive(:start_process).and_raise(kie_ex)
         allow(subject).to receive(:enhance_groups)
@@ -81,7 +81,7 @@ RSpec.describe JbpmProcessService do
       end
     end
 
-    context 'when signal_process_instance' do
+    describe '#signal' do
       before do
         allow(jbpm).to receive(:signal_process_instance).and_raise(kie_ex)
         allow(subject).to receive(:enhance_groups)

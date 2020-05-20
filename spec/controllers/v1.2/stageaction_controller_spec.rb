@@ -2,12 +2,20 @@ RSpec.describe Api::V1x2::StageactionController, :type => [:v1x2, :request, :con
   let(:key) { create(:random_access_key, :access_key => 'unique-123', :approver_name => 'Joe Smith') }
   let!(:approval_request) { create(:request, :with_tenant, :with_context, :random_access_keys => [key]) }
 
+  let(:test_env) do
+    {
+      :APPROVAL_WEB_LOGO    => 'http://localhost/logo',
+      :APPROVAL_WEB_PRODUCT => 'http://localhost/product'
+    }
+  end
+
   describe 'GET /stageaction/:id' do
     it 'returns 200' do
-      get "#{api_version}/stageaction/#{key.access_key}"
+      with_modified_env test_env do
+        get "#{api_version}/stageaction/#{key.access_key}"
 
-      expect(controller.instance_variable_get(:@request)).to eq(approval_request)
-      expect(controller.instance_variable_get(:@approver)).to eq('Joe Smith')
+        expect(response.status).to eq(200)
+      end
     end
 
     context 'when access key is invalid' do
@@ -22,7 +30,7 @@ RSpec.describe Api::V1x2::StageactionController, :type => [:v1x2, :request, :con
 
   describe 'PATCH /stageaction/:id' do
     context 'when operaton is memo/deny' do
-      it 'returns actions with message' do
+      it 'successfully adds an action' do
         patch "#{api_version}/stageaction/#{key.access_key}", :params => {:commit => 'Memo', :message => 'hello'}
 
         expect(approval_request.actions.count).to eq(1)
@@ -30,7 +38,7 @@ RSpec.describe Api::V1x2::StageactionController, :type => [:v1x2, :request, :con
         expect(approval_request.actions.first.comments).to eq("hello")
       end
 
-      it 'returns 400 with message' do
+      it 'returns 400 if message is missing' do
         patch "#{api_version}/stageaction/#{key.access_key}", :params => {:commit => 'Deny'}
 
         expect(response.status).to eq(400)
@@ -38,7 +46,7 @@ RSpec.describe Api::V1x2::StageactionController, :type => [:v1x2, :request, :con
     end
 
     context 'when operaton is approve' do
-      it 'returns actions with message' do
+      it 'successfully adds an action' do
         approval_request.update(:state => Request::NOTIFIED_STATE)
         patch "#{api_version}/stageaction/#{key.access_key}", :params => {:commit => 'Approve'}
 
