@@ -1,8 +1,15 @@
 # spec/factories/requests.rb
 FactoryBot.define do
   factory :request do
-    items = { Faker::Lorem.word   => Faker::Lorem.word,
-             Faker::Lorem.word   => Faker::Lorem.word }
+    items = {:product   => Faker::Lorem.word,
+             :portfolio => Faker::Lorem.word,
+             :order_id  => Faker::Lorem.word,
+             :platform  => Faker::Lorem.word,
+             :params    => {
+               Faker::Lorem.word => Faker::Lorem.word,
+               Faker::Lorem.word => Faker::Lorem.word,
+               Faker::Lorem.word => Faker::Lorem.word
+             }}
     name            { Faker::Lorem.word }
     requester_name  { Faker::Lorem.word }
     owner           { Faker::Lorem.word }
