@@ -4,6 +4,7 @@ class User
   attr_accessor :first_name
   attr_accessor :last_name
   attr_accessor :is_org_admin
+  MAX_USERS_LIMIT = 500
 
   def org_admin?
     !!is_org_admin
@@ -20,7 +21,7 @@ class User
   def self.all
     users = []
     Insights::API::Common::RBAC::Service.call(RBACApiClient::PrincipalApi, Thread.current[:rbac_extra_headers] || {}) do |api|
-      Insights::API::Common::RBAC::Service.paginate(api, :list_principals, {}).each do |item|
+      Insights::API::Common::RBAC::Service.paginate(api, :list_principals, :limit => MAX_USERS_LIMIT).each do |item|
         users << from_raw(item)
       end
     end
