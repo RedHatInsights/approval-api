@@ -4,6 +4,8 @@ class Group
   attr_accessor :uuid
   attr_writer   :users
   attr_writer   :roles
+  MAX_GROUPS_LIMIT = 500
+  MAX_ROLES_LIMIT  = 500
 
   def self.find(uuid)
     group = nil
@@ -15,8 +17,9 @@ class Group
 
   def self.all(username = nil)
     groups = []
+    opts = {:username => username, :limit => MAX_GROUPS_LIMIT}
     Insights::API::Common::RBAC::Service.call(RBACApiClient::GroupApi, Thread.current[:rbac_extra_headers] || {}) do |api|
-      Insights::API::Common::RBAC::Service.paginate(api, :list_groups, :username => username).each do |item|
+      Insights::API::Common::RBAC::Service.paginate(api, :list_groups, opts).each do |item|
         groups << from_raw(item)
       end
     end
@@ -59,9 +62,10 @@ class Group
   end
 
   def acls
+    opts = {:limit => MAX_ROLES_LIMIT}
     Insights::API::Common::RBAC::Service.call(RBACApiClient::RoleApi, Thread.current[:rbac_extra_headers] || {}) do |api|
       roles.each_with_object([]) do |role, acls|
-        Insights::API::Common::RBAC::Service.paginate(api, :get_role_access, {}, role.uuid).each do |acl|
+        Insights::API::Common::RBAC::Service.paginate(api, :get_role_access, opts, role.uuid).each do |acl|
           acls << acl
         end
       end

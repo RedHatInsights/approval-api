@@ -69,7 +69,7 @@ describe UserContext, [:type => :current_forwardble] do
   describe "#group_uuids" do
     before do
       allow(rs_class).to receive(:call).with(RBACApiClient::GroupApi).and_yield(api_instance)
-      allow(rs_class).to receive(:paginate).with(api_instance, :list_groups, :scope => 'principal')
+      allow(rs_class).to receive(:paginate).with(api_instance, :list_groups, :limit => described_class::MAX_GROUPS_LIMIT, :scope => 'principal')
         .and_return(group_list)
     end
 
