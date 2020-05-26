@@ -1,4 +1,4 @@
-RSpec.describe Api::V1x2::ActionsController, :type => :request do
+RSpec.describe Api::V1x2::ActionsController, :type => [:request, :v1x2] do
   include_context "approval_rbac_objects"
   let(:tenant) { create(:tenant) }
 
@@ -14,7 +14,6 @@ RSpec.describe Api::V1x2::ActionsController, :type => :request do
   let(:request2) { create(:request, :with_context, :workflow => workflow, :group_ref => group2.uuid, :state => 'notified', :tenant => tenant, :owner => "jdoe2") }
   let(:actions2) { create_list(:action, 10, :request => request2, :tenant => tenant) }
   let(:id2) { actions2.first.id }
-  let(:api_version) { version }
 
   describe 'GET /actions/:id' do
     let(:params) { { :id => "#{id}" } }

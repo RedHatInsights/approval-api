@@ -1,9 +1,8 @@
-RSpec.describe Api::V1x2::TemplatesController, :type => :request do
+RSpec.describe Api::V1x2::TemplatesController, :type => [:request, :v1x2] do
   include_context "approval_rbac_objects"
   # initialize test data
   let!(:templates) { create_list(:template, 10) }
   let(:template_id) { templates.first.id }
-  let(:api_version) { version }
 
   # Test suite for GET /templates
   describe 'GET /templates' do

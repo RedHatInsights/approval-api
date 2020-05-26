@@ -46,11 +46,10 @@ RSpec.describe JbpmProcessService do
         "description" => "Group 1",
         "roles"       => [],
         "users"       =>
-          [{"username"   => "jsmith",
-            "email"      => "a@b.com",
-            "first_name" => "Joe",
-            "last_name"  => "Smith"}]
-      }]
+                         [{"username"   => "jsmith",
+                           "email"      => "a@b.com",
+                           "first_name" => "Joe",
+                           "last_name"  => "Smith"}]}]
     end
 
     it 'inserts random_access_key to user' do
@@ -64,20 +63,39 @@ RSpec.describe JbpmProcessService do
     end
   end
 
-  context 'when kie service raise exception' do
-    before do
-      allow(jbpm).to receive(:start_process).and_raise(kie_ex)
-      allow(subject).to receive(:enhance_groups)
+  describe 'kie service raise exception' do
+    describe '#start' do
+      before do
+        allow(jbpm).to receive(:start_process).and_raise(kie_ex)
+        allow(subject).to receive(:enhance_groups)
+      end
+
+      it 'should post an error action' do
+        expect { subject.start }.to raise_exception(Exceptions::KieError)
+
+        request.reload
+
+        expect(request.state).to eq(Request::FAILED_STATE)
+        expect(request.decision).to eq(Request::ERROR_STATUS)
+        expect(request.reason).to eq(kie_ex.message)
+      end
     end
 
-    it 'should post an error action' do
-      expect { subject.start }.to raise_exception(Exceptions::KieError)
+    describe '#signal' do
+      before do
+        allow(jbpm).to receive(:signal_process_instance).and_raise(kie_ex)
+        allow(subject).to receive(:enhance_groups)
+      end
 
-      request.reload
+      it 'should post an error action' do
+        expect { subject.signal('approved') }.to raise_exception(Exceptions::KieError)
 
-      expect(request.state).to eq(Request::FAILED_STATE)
-      expect(request.decision).to eq(Request::ERROR_STATUS)
-      expect(request.reason).to eq(kie_ex.message)
+        request.reload
+
+        expect(request.state).to eq(Request::FAILED_STATE)
+        expect(request.decision).to eq(Request::ERROR_STATUS)
+        expect(request.reason).to eq(kie_ex.message)
+      end
     end
   end
 end

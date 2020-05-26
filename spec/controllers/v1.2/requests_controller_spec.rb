@@ -1,4 +1,4 @@
-RSpec.describe Api::V1x2::RequestsController, :type => :request do
+RSpec.describe Api::V1x2::RequestsController, :type => [:request, :v1x2] do
   include_context "approval_rbac_objects"
   # Initialize the test data
   let(:encoded_user) { encoded_user_hash }
@@ -51,8 +51,6 @@ RSpec.describe Api::V1x2::RequestsController, :type => :request do
     setup_requests
     user_access
   end
-
-  let(:api_version) { version }
 
   before do
     allow(WorkflowFindService).to receive(:new).and_return(workflow_find_service)
