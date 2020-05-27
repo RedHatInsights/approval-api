@@ -5,7 +5,7 @@ class Workflow < ApplicationRecord
   default_scope { order(:sequence => :asc) }
 
   belongs_to :template
-  before_destroy :validate_deletable, :pretend => true
+  before_destroy :validate_deletable, :prepend => true
   has_many :requests, -> { order(:id => :asc) }, :inverse_of => :workflow, :dependent => :nullify
   has_many :tag_links, :dependent => :destroy, :inverse_of => :workflow
 
