@@ -14,11 +14,6 @@ RSpec.describe DeleteRemoteTags, :type => :request do
     { 'Content-Type' => 'application/json' }.merge(default_headers)
   end
 
-  let(:remote_tags) do
-    [{:tag => '/Charkie/Gnocchi=Hundley'},
-     {:tag => '/Curious George/Jumpy Squirrel=Compass'}]
-  end
-
   let(:test_env) do
     {
       :TOPOLOGICAL_INVENTORY_URL => 'http://localhost',
@@ -49,7 +44,7 @@ RSpec.describe DeleteRemoteTags, :type => :request do
       let(:http_status) { [404, 'Bad Request'] }
       it 'raises an error if the status is not 200' do
         with_modified_env test_env do
-          expect { subject.process(approval_tags) }.to raise_error(RuntimeError, /Error posting tags/)
+          expect { subject.process(approval_tags) }.to raise_error(Exceptions::TaggingError, /Error posting tags/)
         end
       end
     end

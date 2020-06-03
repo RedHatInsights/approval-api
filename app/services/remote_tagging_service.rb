@@ -6,6 +6,7 @@ class RemoteTaggingService
   # TODO: Support proper pagination of tags from Faraday since
   # we are not using the generated client here.
   QUERY_LIMIT = 1000
+
   def initialize(options)
     @app_name = options[:app_name]
     @object_type = options[:object_type]
@@ -46,7 +47,7 @@ class RemoteTaggingService
 
   def service_url
     match = self.class.remotes.detect { |item| item[:app_name] == @app_name && item[:object_type] == @object_type }
-    raise "No url found for app #{@app_name} object #{@object_type}" unless match
+    raise Exceptions::InvalidURLError.new("No url found for app #{@app_name} object #{@object_type}") unless match
 
     match[:url].call
   end
@@ -75,7 +76,7 @@ class RemoteTaggingService
     if response.status == 403
       raise Exceptions::NotAuthorizedError, response.reason_phrase
     else
-      raise "#{message_prefix} #{response.reason_phrase}" unless VALID_HTTP_CODES.include?(response.status)
+      raise Exceptions::TaggingError.new("#{message_prefix} #{response.reason_phrase}") unless VALID_HTTP_CODES.include?(response.status)
     end
   end
 

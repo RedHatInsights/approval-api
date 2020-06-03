@@ -5,9 +5,6 @@ RSpec.describe GetRemoteTags, :type => :request do
 
   let(:object_id) { '123' }
   let(:options) { {:object_type => object_type, :app_name => app_name, :object_id => object_id} }
-  let(:approval_tag) do
-    { :tag => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=100" }
-  end
   let(:app_name) { 'catalog' }
   let(:object_type) { 'Portfolio' }
   let(:url) { "http://localhost/api/catalog/v1.0/portfolios/#{object_id}/tags?limit=1000" }
@@ -30,7 +27,7 @@ RSpec.describe GetRemoteTags, :type => :request do
 
   subject { described_class.new(options) }
 
-  context 'get tags' do
+  describe 'get tags' do
     before do
       stub_request(:get, url)
         .to_return(:status => http_status, :body => {:data => remote_tags}.to_json, :headers => default_headers)
@@ -39,6 +36,16 @@ RSpec.describe GetRemoteTags, :type => :request do
     it 'successfully fetches tags' do
       with_modified_env test_env do
         expect(subject.process.tags).to match([tag1_string, tag2_string])
+      end
+    end
+
+    context 'with invalid object_type' do
+      let(:object_type) { 'InvalidObjectType' }
+
+      it 'raises an error' do
+        with_modified_env test_env do
+          expect { subject.process }.to raise_error(Exceptions::InvalidURLError, /No url found/)
+        end
       end
     end
   end
@@ -52,7 +59,7 @@ RSpec.describe GetRemoteTags, :type => :request do
 
     it 'raises error' do
       with_modified_env test_env do
-        expect { subject.process }.to raise_error(RuntimeError, /Not found/)
+        expect { subject.process }.to raise_error(Exceptions::TaggingError, /Not found/)
       end
     end
   end
