@@ -2,8 +2,10 @@
 ActionDispatch::ExceptionWrapper.rescue_responses.merge!(
   "ActiveRecord::RecordNotSaved"               => :bad_request,
   "ActiveRecord::RecordInvalid"                => :bad_request,
+  "ActiveRecord::RecordNotUnique"              => :bad_request,
   "ActionController::ParameterMissing"         => :bad_request,
   "Exceptions::InvalidStateTransitionError"    => :bad_request,
+  "Exceptions::NegativeSequenceError"          => :bad_request,
   "Exceptions::UserError"                      => :bad_request,
   "Exceptions::NotAuthorizedError"             => :forbidden,
   "Pundit::NotAuthorizedError"                 => :forbidden,

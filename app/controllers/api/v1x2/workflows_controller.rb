@@ -34,7 +34,7 @@ module Api
         workflow = Workflow.find(params.require(:id))
         authorize workflow
 
-        workflow.destroy!
+        WorkflowDeleteService.new(params[:id]).destroy
         head :no_content
       rescue ActiveRecord::InvalidForeignKey => e
         json_response({ :message => e.message }, :forbidden)
