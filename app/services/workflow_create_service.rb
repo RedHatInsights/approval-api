@@ -15,7 +15,7 @@ class WorkflowCreateService
       retries ||= 0
       template.workflows.create!(options)
     rescue ActiveRecord::RecordNotUnique # The auto generated sequence number may be found duplicated due to concurrent issue
-      retry if (retries += 1) < 3
+      (retries += 1) < 3 ? retry : raise
     end
   end
 end
