@@ -5,7 +5,7 @@ ActionDispatch::ExceptionWrapper.rescue_responses.merge!(
   "ActiveRecord::RecordNotUnique"              => :bad_request,
   "ActionController::ParameterMissing"         => :bad_request,
   "Exceptions::InvalidStateTransitionError"    => :bad_request,
-  "Exceptions::NegativeSequenceError"          => :bad_request,
+  "Exceptions::NegativeSequence"               => :bad_request,
   "Exceptions::UserError"                      => :bad_request,
   "Exceptions::NotAuthorizedError"             => :forbidden,
   "Pundit::NotAuthorizedError"                 => :forbidden,

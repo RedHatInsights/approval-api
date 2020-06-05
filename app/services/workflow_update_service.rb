@@ -17,7 +17,7 @@ class WorkflowUpdateService
       retries ||= 0
       Workflow.find(workflow_id).update!(options)
     rescue ActiveRecord::RecordNotUnique, Exceptions::NegativeSequence # Sequence numbers may be found duplicated due to concurrent issue
-      retry if (retries += 1) < 3
+      (retries += 1) < 3 ? retry : raise
     end
   end
 end
