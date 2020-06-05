@@ -27,12 +27,9 @@ RSpec.describe AddRemoteTags, :type => :request do
 
   # .with(:body => approval_tag.to_json, :headers => headers)
   shared_examples_for '#test_all' do
-    before do
-      stub_request(:post, url)
-        .to_return(:status => http_status, :body => approval_tags.to_json, :headers => headers)
-    end
-
     it 'adds a remote tag' do
+      stub_request(:post, url).to_return(:status => http_status, :body => approval_tags.to_json, :headers => headers)
+
       with_modified_env test_env do
         subject.process(approval_tags)
       end
@@ -42,21 +39,35 @@ RSpec.describe AddRemoteTags, :type => :request do
       expect { subject.process(approval_tags) }.to raise_error(RuntimeError, env_not_set)
     end
 
-    context "raises error" do
-      let(:http_status) { [404, 'Bad Request'] }
-      it 'raises an error if the status is not 200' do
-        with_modified_env test_env do
-          expect { subject.process(approval_tags) }.to raise_error(Exceptions::TaggingError, /Error posting tags/)
-        end
+    it "raises tagging error" do
+      stub_request(:post, url).to_raise(Faraday::BadRequestError)
+
+      with_modified_env test_env do
+        expect { subject.process(approval_tags) }.to raise_error(Exceptions::TaggingError)
       end
     end
 
-    context "raises authentication error" do
-      let(:http_status) { [403, 'Authentication Error'] }
-      it 'raises an error if the status is 403' do
-        with_modified_env test_env do
-          expect { subject.process(approval_tags) }.to raise_error(Exceptions::NotAuthorizedError, /Authentication Error/)
-        end
+    it "raises authentication error" do
+      stub_request(:post, url).to_raise(Faraday::UnauthorizedError)
+
+      with_modified_env test_env do
+        expect { subject.process(approval_tags) }.to raise_error(Exceptions::NotAuthorizedError)
+      end
+    end
+
+    it "raises network error" do
+      stub_request(:post, url).to_raise(Faraday::ConnectionFailed)
+
+      with_modified_env test_env do
+        expect { subject.process(approval_tags) }.to raise_error(Exceptions::NetworkError)
+      end
+    end
+
+    it "raises timeout error" do
+      stub_request(:post, url).to_raise(Faraday::TimeoutError)
+
+      with_modified_env test_env do
+        expect { subject.process(approval_tags) }.to raise_error(Exceptions::TimedOutError)
       end
     end
   end

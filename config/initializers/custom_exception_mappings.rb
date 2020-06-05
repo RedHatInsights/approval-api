@@ -8,7 +8,6 @@ ActionDispatch::ExceptionWrapper.rescue_responses.merge!(
   "Exceptions::NegativeSequenceError"          => :bad_request,
   "Exceptions::UserError"                      => :bad_request,
   "Exceptions::KieError"                       => :bad_request,
-  "Exceptions::InvalidURLError"                => :bad_request,
   "Exceptions::TaggingError"                   => :bad_request,
   "Exceptions::NotAuthorizedError"             => :forbidden,
   "Pundit::NotAuthorizedError"                 => :forbidden,

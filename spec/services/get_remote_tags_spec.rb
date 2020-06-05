@@ -28,12 +28,9 @@ RSpec.describe GetRemoteTags, :type => :request do
   subject { described_class.new(options) }
 
   describe 'get tags' do
-    before do
-      stub_request(:get, url)
-        .to_return(:status => http_status, :body => {:data => remote_tags}.to_json, :headers => default_headers)
-    end
-
     it 'successfully fetches tags' do
+      stub_request(:get, url).to_return(:status => http_status, :body => {:data => remote_tags}.to_json, :headers => default_headers)
+
       with_modified_env test_env do
         expect(subject.process.tags).to match([tag1_string, tag2_string])
       end
@@ -42,24 +39,42 @@ RSpec.describe GetRemoteTags, :type => :request do
     context 'with invalid object_type' do
       let(:object_type) { 'InvalidObjectType' }
 
-      it 'raises an error' do
+      it 'raises user error' do
         with_modified_env test_env do
-          expect { subject.process }.to raise_error(Exceptions::InvalidURLError, /No url found/)
+          expect { subject.process }.to raise_error(Exceptions::UserError)
         end
       end
     end
-  end
 
-  context 'not found' do
-    let(:http_status) { [404, 'Not found'] }
-    before do
-      stub_request(:get, url)
-        .to_return(:status => http_status, :body => {:a => 1}.to_json, :headers => default_headers)
+    it 'raises tagging error' do
+      stub_request(:get, url).to_raise(Faraday::BadRequestError)
+
+      with_modified_env test_env do
+        expect { subject.process }.to raise_error(Exceptions::TaggingError)
+      end
     end
 
-    it 'raises error' do
+    it 'raises network error' do
+      stub_request(:get, url).to_raise(Faraday::ConnectionFailed)
+
       with_modified_env test_env do
-        expect { subject.process }.to raise_error(Exceptions::TaggingError, /Not found/)
+        expect { subject.process }.to raise_error(Exceptions::NetworkError)
+      end
+    end
+
+    it 'raises timeout error' do
+      stub_request(:get, url).to_raise(Faraday::TimeoutError)
+
+      with_modified_env test_env do
+        expect { subject.process }.to raise_error(Exceptions::TimedOutError)
+      end
+    end
+
+    it 'raises authentication error' do
+      stub_request(:get, url).to_raise(Faraday::UnauthorizedError)
+
+      with_modified_env test_env do
+        expect { subject.process }.to raise_error(Exceptions::NotAuthorizedError)
       end
     end
   end
