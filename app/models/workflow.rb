@@ -13,7 +13,9 @@ class Workflow < ApplicationRecord
 
   before_validation :new_sequence, :on => :create
   before_validation :adjust_sequences, :on => :update
+  after_save        :validate_positive_sequences
   before_destroy    :sequence_lower
+  after_destroy     :validate_positive_sequences
 
   def external_processing?
     template&.process_setting.present?
@@ -82,5 +84,9 @@ class Workflow < ApplicationRecord
 
   def last_sequence
     self.class.last&.sequence.to_i
+  end
+
+  def validate_positive_sequences
+    raise Exceptions::NegativeSequence if self.class.where(table[:sequence].lteq(0)).exists?
   end
 end

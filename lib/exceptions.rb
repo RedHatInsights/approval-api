@@ -6,4 +6,5 @@ module Exceptions
   class KieError < StandardError; end
   class InvalidStateTransitionError < StandardError; end
   class UserError < StandardError; end
+  class NegativeSequence < StandardError; end
 end
