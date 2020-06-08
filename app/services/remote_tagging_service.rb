@@ -2,10 +2,10 @@ require 'faraday'
 require_relative 'mixins/tag_mixin'
 class RemoteTaggingService
   include TagMixin
-  VALID_HTTP_CODES = [200, 201, 202, 204, 304].freeze
   # TODO: Support proper pagination of tags from Faraday since
   # we are not using the generated client here.
   QUERY_LIMIT = 1000
+
   def initialize(options)
     @app_name = options[:app_name]
     @object_type = options[:object_type]
@@ -46,37 +46,41 @@ class RemoteTaggingService
 
   def service_url
     match = self.class.remotes.detect { |item| item[:app_name] == @app_name && item[:object_type] == @object_type }
-    raise "No url found for app #{@app_name} object #{@object_type}" unless match
+    raise Exceptions::UserError.new("No url found for app #{@app_name} object #{@object_type}") unless match
 
     match[:url].call
   end
 
   def post_request(url, tags)
-    con = Faraday.new
-    response = con.post(url) do |session|
-      session.headers['Content-Type'] = 'application/json'
-      headers(session)
-      session.body = tags.to_json
+    call_remote_service do |con|
+      con.post(url) do |session|
+        session.headers['Content-Type'] = 'application/json'
+        headers(session)
+        session.body = tags.to_json
+      end
     end
-    check_for_exceptions(response, "Error posting tags")
   end
 
   def get_request(url, params)
-    con = Faraday.new
-    response = con.get(url) do |session|
-      headers(session)
-      params.each { |k, v| session.params[k] = v }
+    call_remote_service do |con|
+      con.get(url) do |session|
+        headers(session)
+        params.each { |k, v| session.params[k] = v }
+      end
     end
-    check_for_exceptions(response, "Error getting tags")
-    response
   end
 
-  def check_for_exceptions(response, message_prefix)
-    if response.status == 403
-      raise Exceptions::NotAuthorizedError, response.reason_phrase
-    else
-      raise "#{message_prefix} #{response.reason_phrase}" unless VALID_HTTP_CODES.include?(response.status)
-    end
+  def call_remote_service
+    connection = Faraday.new
+    yield(connection)
+  rescue Faraday::TimeoutError => e
+    raise Exceptions::TimedOutError, e.message
+  rescue Faraday::ConnectionFailed => e
+    raise Exceptions::NetworkError, e.message
+  rescue Faraday::UnauthorizedError => e
+    raise Exceptions::NotAuthorizedError, e.message
+  rescue Faraday::Error => e
+    raise Exceptions::TaggingError, e.message
   end
 
   def headers(session)

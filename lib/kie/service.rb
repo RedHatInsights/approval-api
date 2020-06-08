@@ -6,6 +6,9 @@ module Kie
       yield init(klass)
     rescue KieClient::ApiError => err
       Rails.logger.error("KieClient::ApiError #{err.message} ")
+
+      raise Exceptions::TimedOutError.new('Connection timed out') if err.code.nil?
+      raise Exceptions::NetworkError.new(err.message) if err.code.zero?
       raise Exceptions::KieError, "KieClient::ApiError: #{err.message}"
     end
 
