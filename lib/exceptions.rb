@@ -7,4 +7,7 @@ module Exceptions
   class InvalidStateTransitionError < StandardError; end
   class UserError < StandardError; end
   class NegativeSequence < StandardError; end
+  class TaggingError < StandardError; end
+  class NetworkError < StandardError; end
+  class TimedOutError < StandardError; end
 end

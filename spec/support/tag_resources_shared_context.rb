@@ -22,10 +22,6 @@ RSpec.shared_context "tag_resource_objects" do
     { :tag => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{workflow2.id}" }
   end
 
-  let(:tag3) do
-    { :tag => "/#{WorkflowLinkService::TAG_NAMESPACE}/#{WorkflowLinkService::TAG_NAME}=#{workflow3.id}" }
-  end
-
   let(:bogus_tag) do
     { :tag => '/curious/george=gnocchi' }
   end
