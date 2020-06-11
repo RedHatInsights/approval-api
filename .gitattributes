@@ -1,3 +1,1 @@
-* linguist-vendored
-*.css linguist-vendored=false
-*.rb linguist-vendored=true
+*.css linguist-vendored=true
