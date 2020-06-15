@@ -3,6 +3,7 @@ ActionDispatch::ExceptionWrapper.rescue_responses.merge!(
   "ActiveRecord::RecordNotSaved"               => :bad_request,
   "ActiveRecord::RecordInvalid"                => :bad_request,
   "ActiveRecord::RecordNotUnique"              => :bad_request,
+  "ActiveRecord::Deadlocked"                   => :bad_request,
   "ActionController::ParameterMissing"         => :bad_request,
   "Exceptions::InvalidStateTransitionError"    => :bad_request,
   "Exceptions::NegativeSequence"               => :bad_request,

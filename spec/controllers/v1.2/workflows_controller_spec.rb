@@ -398,6 +398,19 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
           expect(response).to have_http_status(400)
         end
       end
+
+      context 'when deadlock may be resulted' do
+        before do
+          allow(Workflow).to receive(:find).with(id.to_s).and_return(workflows[0])
+          allow(workflows[0]).to receive(:change_sequences_to_negative).and_raise(ActiveRecord::Deadlocked)
+        end
+
+        it 'returns status code 400' do
+          delete "#{api_version}/workflows/#{id}", :headers => default_headers
+
+          expect(response).to have_http_status(400)
+        end
+      end
     end
 
     context 'approver role when delete' do
