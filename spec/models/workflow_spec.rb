@@ -91,14 +91,14 @@ RSpec.describe Workflow, :type => :model do
   describe '#deletable?' do
     shared_examples_for "undeletable_states" do |state|
       it "returns false for #{state}" do
-        request = create(:request, :workflow => workflow, :state => state)
+        create(:request, :workflow => workflow, :state => state)
         expect(workflow.deletable?).to eq(false)
       end
     end
-    
+
     shared_examples_for "deletable_states" do |state|
       it "returns true for #{state}" do
-        request = create(:request, :workflow => workflow, :state => state)
+        create(:request, :workflow => workflow, :state => state)
         expect(workflow.deletable?).to eq(true)
       end
     end

@@ -72,12 +72,12 @@ describe WorkflowPolicy do
       end
 
       it 'returns false on #destroy in user capabilities' do
-        result = { "create"=>true,
-                   "destroy"=>false,
-                   "link"=>true,
-                   "show"=>true,
-                   "unlink"=>true,
-                   "update"=>true }
+        result = {"create"  => true,
+                  "destroy" => false,
+                  "link"    => true,
+                  "show"    => true,
+                  "unlink"  => true,
+                  "update"  => true}
 
         expect(subject.user_capabilities).to eq(result)
       end
