@@ -71,13 +71,13 @@ class Workflow < ApplicationRecord
   end
 
   def change_sequences_to_negative(startp, endp, delta)
-    query = self.class.where(table[:sequence].gteq(startp))
+    query = self.class.reorder(:id).where(table[:sequence].gteq(startp))
     query = query.where(table[:sequence].lteq(endp)) if endp
     query.update_all(["sequence = (-sequence + (?))", delta])
   end
 
   def change_sequences_to_positive(exceptp)
-    query = self.class.where(table[:sequence].lt(0))
+    query = self.class.reorder(:id).where(table[:sequence].lt(0))
     query = query.where.not(:sequence => exceptp) if exceptp
     query.update_all("sequence = (-sequence)")
   end
@@ -87,6 +87,6 @@ class Workflow < ApplicationRecord
   end
 
   def validate_positive_sequences
-    raise Exceptions::NegativeSequence if self.class.where(table[:sequence].lteq(0)).exists?
+    raise Exceptions::NegativeSequence, "Internal error caused by concurrency. Please try again" if self.class.where(table[:sequence].lteq(0)).exists?
   end
 end

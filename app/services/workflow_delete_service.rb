@@ -9,9 +9,8 @@ class WorkflowDeleteService
     begin
       retries ||= 0
       Workflow.find(workflow_id).destroy!
-    rescue ActiveRecord::RecordNotUnique, Exceptions::NegativeSequence # Failed to update sequence after deletion due to concurrent issue
+    rescue ActiveRecord::RecordNotUnique, ActiveRecord::Deadlocked, Exceptions::NegativeSequence # Failed to update sequence after deletion due to concurrent issue
       (retries += 1) < 3 ? retry : raise
     end
   end
-
 end
