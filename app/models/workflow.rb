@@ -9,7 +9,7 @@ class Workflow < ApplicationRecord
   has_many :tag_links, :dependent => :destroy, :inverse_of => :workflow
 
   validates :name, :presence => true, :uniqueness => {:scope => :tenant}
-  validates :sequence, :uniqueness => { scope: :tenant_id }
+  validates :sequence, :uniqueness => {:scope => :tenant_id}
 
   before_validation :new_sequence, :on => :create
   before_validation :adjust_sequences, :on => :update
@@ -25,7 +25,20 @@ class Workflow < ApplicationRecord
     template&.signal_setting.present?
   end
 
+  def metadata
+    super.merge(:object_dependencies => object_dependencies)
+  end
+
   private
+
+  def object_dependencies
+    {}.tap do |dependencies|
+      tag_links.pluck(:app_name, :object_type).uniq.each do |key, value|
+        dependencies[key] ||= []
+        dependencies[key] << value
+      end
+    end
+  end
 
   def table
     self.class.arel_table
