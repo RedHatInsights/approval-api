@@ -1474,7 +1474,7 @@
                         "title": "Metadata",
                         "description": "JSON metadata about the workflow",
                         "readOnly": true,
-                        "example": "{\"user_capabilities\":{\"link\":true,\"show\":true,\"update\":true,\"unlink\":true,\"destroy\":true,\"create\":true}}"
+                        "example": "{\"user_capabilities\":{\"link\":true,\"show\":true,\"update\":true,\"unlink\":true,\"destroy\":true,\"create\":true},\"object_dependencies\":{\"catalog\":[\"Portfolio\", \"PortfolioItem\"], \"sources\":[\"Source\"]}}"
                     }
                 }
             },
