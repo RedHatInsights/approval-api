@@ -5,11 +5,13 @@ class Workflow < ApplicationRecord
   default_scope { order(:sequence => :asc) }
 
   belongs_to :template
-  has_many :requests, -> { order(:id => :asc) }, :inverse_of => :workflow
+  before_destroy :validate_deletable, :prepend => true
+  after_commit :send_deletion_message
+  has_many :requests, -> { order(:id => :asc) }, :inverse_of => :workflow, :dependent => :nullify
   has_many :tag_links, :dependent => :destroy, :inverse_of => :workflow
 
   validates :name, :presence => true, :uniqueness => {:scope => :tenant}
-  validates :sequence, :uniqueness => { scope: :tenant_id }
+  validates :sequence, :uniqueness => {:scope => :tenant_id}
 
   before_validation :new_sequence, :on => :create
   before_validation :adjust_sequences, :on => :update
@@ -25,7 +27,32 @@ class Workflow < ApplicationRecord
     template&.signal_setting.present?
   end
 
+  def metadata
+    super.merge(:object_dependencies => object_dependencies)
+  end
+
+  def deletable?
+    requests.any? { |request| !request.finished? } ? false : true
+  end
+
   private
+
+  def validate_deletable
+    throw :abort unless deletable?
+  end
+
+  def object_dependencies
+    {}.tap do |dependencies|
+      tag_links.pluck(:app_name, :object_type).uniq.each do |key, value|
+        dependencies[key] ||= []
+        dependencies[key] << value
+      end
+    end
+  end
+
+  def send_deletion_message
+    EventService.new(nil).workflow_deleted(id)
+  end
 
   def table
     self.class.arel_table
@@ -71,13 +98,13 @@ class Workflow < ApplicationRecord
   end
 
   def change_sequences_to_negative(startp, endp, delta)
-    query = self.class.where(table[:sequence].gteq(startp))
+    query = self.class.reorder(:id).where(table[:sequence].gteq(startp))
     query = query.where(table[:sequence].lteq(endp)) if endp
     query.update_all(["sequence = (-sequence + (?))", delta])
   end
 
   def change_sequences_to_positive(exceptp)
-    query = self.class.where(table[:sequence].lt(0))
+    query = self.class.reorder(:id).where(table[:sequence].lt(0))
     query = query.where.not(:sequence => exceptp) if exceptp
     query.update_all("sequence = (-sequence)")
   end
@@ -87,6 +114,6 @@ class Workflow < ApplicationRecord
   end
 
   def validate_positive_sequences
-    raise Exceptions::NegativeSequence if self.class.where(table[:sequence].lteq(0)).exists?
+    raise Exceptions::NegativeSequence, "Internal error caused by concurrency. Please try again" if self.class.where(table[:sequence].lteq(0)).exists?
   end
 end

@@ -26,4 +26,9 @@ RSpec.describe EventService do
     expect(subject).to receive(:send_event).with(described_class::EVENT_APPROVER_GROUP_FINISHED, hash_including(:request_id, :group_name, :decision, :reason))
     subject.approver_group_finished
   end
+
+  it 'sends workflow_deleted event' do
+    expect(subject).to receive(:send_event).with(described_class::EVENT_WORKFLOW_DELETED, hash_including(:workflow_id))
+    subject.workflow_deleted(1)
+  end
 end

@@ -18,13 +18,13 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
       before { admin_access }
 
       it 'returns status code 200' do
-        get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
+        get "#{api_version}/templates/#{template_id}/workflows", :params => {:limit => 5, :offset => 0}, :headers => default_headers
 
         expect(response).to have_http_status(200)
       end
 
       it 'returns all template workflows' do
-        get "#{api_version}/templates/#{template_id}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
+        get "#{api_version}/templates/#{template_id}/workflows", :params => {:limit => 5, :offset => 0}, :headers => default_headers
 
         expect(json['links']).not_to be_empty
         expect(json['links']['first']).to match(/limit=5&offset=0/)
@@ -76,19 +76,19 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
       before { admin_access }
 
       it 'returns status code 200' do
-        get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
+        get "#{api_version}/workflows", :params => {:limit => 5, :offset => 0}, :headers => default_headers
 
         expect(response).to have_http_status(200)
       end
 
       it 'returns all workflows' do
-        get "#{api_version}/workflows", :params => { :limit => 5, :offset => 0 }, :headers => default_headers
+        get "#{api_version}/workflows", :params => {:limit => 5, :offset => 0}, :headers => default_headers
 
         expect(json['links']).not_to be_empty
         expect(json['links']['first']).to match(/limit=5&offset=0/)
         expect(json['links']['last']).to match(/limit=5&offset=15/)
         expect(json['data'].size).to eq(5)
-        expect(json['data'].first['metadata']).to have_key("user_capabilities")
+        expect(json['data'].first['metadata'].keys).to match_array(%w[user_capabilities object_dependencies])
       end
     end
 
@@ -155,6 +155,7 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
 
         workflow = workflows.first
 
+        expect(response).to have_http_status(200)
         expect(json).not_to be_empty
         expect(json['id']).to eq(workflow.id.to_s)
         expect(json["metadata"]["user_capabilities"]).to eq(
@@ -166,11 +167,23 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
           "update"  => true
         )
       end
+    end
 
-      it 'returns status code 200' do
+    context "when has linked objects" do
+      before { admin_access }
+
+      it 'returns object dependencies' do
+        TagLink.create(:tag_name => 'tag1', :workflow_id => id, :app_name => 'catalog', :object_type => 'Portfolio', :tenant => tenant)
+        TagLink.create(:tag_name => 'tag2', :workflow_id => id, :app_name => 'catalog', :object_type => 'PortfolioItem', :tenant => tenant)
+        TagLink.create(:tag_name => 'tag3', :workflow_id => id, :app_name => 'catalog', :object_type => 'PortfolioItem', :tenant => tenant)
+        TagLink.create(:tag_name => 'tag4', :workflow_id => id, :app_name => 'sources', :object_type => 'Source', :tenant => tenant)
+
         get "#{api_version}/workflows/#{id}", :headers => default_headers
 
-        expect(response).to have_http_status(200)
+        expect(json["metadata"]["object_dependencies"]).to eq(
+          "catalog" => ["Portfolio", "PortfolioItem"],
+          "sources" => ["Source"]
+        )
       end
     end
 
@@ -239,7 +252,7 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
     let(:uuid_3) { SecureRandom.uuid }
     let(:group_refs) { [{'name' => 'n990', 'uuid' => uuid_1}, {'name' => 'n991', 'uuid' => uuid_2}, {'name' => 'n992', 'uuid' => uuid_3}] }
     let(:group) { instance_double(Group, :name => 'group', :uuid => 990, :can_approve? => true) }
-    let(:valid_attributes) { { :name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs } }
+    let(:valid_attributes) { {:name => 'Visit Narnia', :description => 'workflow_valid', :group_refs => group_refs} }
 
     before do
       admin_access
@@ -398,6 +411,19 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
           expect(response).to have_http_status(400)
         end
       end
+
+      context 'when deadlock may be resulted' do
+        before do
+          allow(Workflow).to receive(:find).with(id.to_s).and_return(workflows[0])
+          allow(workflows[0]).to receive(:change_sequences_to_negative).and_raise(ActiveRecord::Deadlocked)
+        end
+
+        it 'returns status code 400' do
+          delete "#{api_version}/workflows/#{id}", :headers => default_headers
+
+          expect(response).to have_http_status(400)
+        end
+      end
     end
 
     context 'approver role when delete' do
@@ -434,7 +460,7 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
   end
 
   describe 'POST /workflows/:id/link' do
-    let(:obj) { { :object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
+    let(:obj) { {:object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
 
     before do
       allow(AddRemoteTags).to receive(:new).with(obj).and_return(add_tag_svc)
@@ -468,7 +494,7 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
   end
 
   describe 'POST /workflows/:id/unlink' do
-    let(:obj) { { :object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
+    let(:obj) { {:object_type => 'inventory', :app_name => 'topology', :object_id => '123'} }
 
     before do
       allow(DeleteRemoteTags).to receive(:new).with(obj).and_return(del_tag_svc)
@@ -499,9 +525,9 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
 
   # TODO: resolve needs further work to query tag names
   describe 'GET /workflows?resource_object_params' do
-    let(:obj_a) { { :object_type => 'ServiceInventory', :app_name => 'topology', :object_id => '123'} }
-    let(:obj_b) { { :object_type => 'Portfolio', :app_name => 'catalog', :object_id => '123'} }
-    let(:obj_c) { { :object_type => 'Portfolio', :object_id => '123'} }
+    let(:obj_a) { {:object_type => 'ServiceInventory', :app_name => 'topology', :object_id => '123'} }
+    let(:obj_b) { {:object_type => 'Portfolio', :app_name => 'catalog', :object_id => '123'} }
+    let(:obj_c) { {:object_type => 'Portfolio', :object_id => '123'} }
     before do
       admin_access
 
@@ -550,14 +576,14 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
     end
 
     it "fails if the ansible entitlement is false" do
-      headers = { 'x-rh-identity' => encoded_user_hash(false_hash), 'x-rh-insights-request-id' => 'gobbledygook' }
+      headers = {'x-rh-identity' => encoded_user_hash(false_hash), 'x-rh-insights-request-id' => 'gobbledygook'}
       get "#{api_version}/workflows", :headers => headers
 
       expect(response).to have_http_status(:bad_request)
     end
 
     it "allows the request through if entitlements isn't present" do
-      headers = { 'x-rh-identity' => encoded_user_hash(missing_hash), 'x-rh-insights-request-id' => 'gobbledygook' }
+      headers = {'x-rh-identity' => encoded_user_hash(missing_hash), 'x-rh-insights-request-id' => 'gobbledygook'}
       get "#{api_version}/workflows", :headers => headers
 
       expect(response).to have_http_status(:ok)

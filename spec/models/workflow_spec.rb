@@ -88,6 +88,75 @@ RSpec.describe Workflow, :type => :model do
     end
   end
 
+  describe '#deletable?' do
+    shared_examples_for "undeletable_states" do |state|
+      it "returns false for #{state}" do
+        create(:request, :workflow => workflow, :state => state)
+        expect(workflow.deletable?).to eq(false)
+      end
+    end
+
+    shared_examples_for "deletable_states" do |state|
+      it "returns true for #{state}" do
+        create(:request, :workflow => workflow, :state => state)
+        expect(workflow.deletable?).to eq(true)
+      end
+    end
+
+    (Request::STATES - Request::FINISHED_STATES).each do |state|
+      it_behaves_like "undeletable_states", state
+    end
+
+    Request::FINISHED_STATES.each do |state|
+      it_behaves_like "deletable_states", state
+    end
+  end
+
+  describe '#destroy' do
+    let!(:taglink) { create(:tag_link, :workflow => workflow) }
+
+    context 'when without associated request' do
+      it 'deletes workflow' do
+        expect(TagLink.count).to eq(1)
+        workflow.destroy
+
+        expect(workflow).to be_destroyed
+        expect(TagLink.count).to eq(0)
+      end
+    end
+
+    context 'when associated with requests' do
+      let(:event_service) { double('event_service') }
+
+      it "is not deletable" do
+        allow(workflow).to receive(:deletable?).and_return(false)
+
+        request = create(:request, :workflow => workflow)
+
+        expect(TagLink.count).to eq(1)
+        expect { workflow.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
+        expect(workflow).not_to be_destroyed
+        expect(request.workflow_id).to eq(workflow.id)
+        expect(TagLink.count).to eq(1)
+      end
+
+      it "is deletable" do
+        allow(workflow).to receive(:deletable?).and_return(true)
+        allow(EventService).to receive(:new).and_return(event_service)
+
+        request = create(:request, :workflow => workflow, :state => Request::COMPLETED_STATE)
+
+        expect(event_service).to receive(:workflow_deleted)
+        expect(TagLink.count).to eq(1)
+        workflow.destroy
+        request.reload
+        expect(workflow).to be_destroyed
+        expect(request.workflow_id).to be_nil
+        expect(TagLink.count).to eq(0)
+      end
+    end
+  end
+
   context "with same name in different tenants" do
     let(:another_tenant) { create(:tenant) }
     let(:another_workflow) { create(:workflow, :name => workflow.name) }

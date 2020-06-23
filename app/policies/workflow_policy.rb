@@ -16,7 +16,7 @@ class WorkflowPolicy < ApplicationPolicy
   end
 
   def destroy?
-    permission_check('delete')
+    permission_check('delete') ? record.deletable? : false
   end
 
   def link?

@@ -6,6 +6,7 @@ class EventService
   EVENT_REQUEST_CANCELED  = 'request_canceled'.freeze
   EVENT_APPROVER_GROUP_NOTIFIED = 'approver_group_notified'.freeze
   EVENT_APPROVER_GROUP_FINISHED = 'approver_group_finished'.freeze
+  EVENT_WORKFLOW_DELETED = 'workflow_deleted'.freeze
   EVENT_SENDER = 'approval_service'.freeze
 
   attr_accessor :request
@@ -32,6 +33,10 @@ class EventService
                :group_name => request.group_name,
                :decision   => request.decision,
                :reason     => request.reason || '')
+  end
+
+  def workflow_deleted(workflow_id)
+    send_event(EVENT_WORKFLOW_DELETED, :workflow_id => workflow_id)
   end
 
   # request is root
