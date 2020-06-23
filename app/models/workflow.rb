@@ -5,7 +5,9 @@ class Workflow < ApplicationRecord
   default_scope { order(:sequence => :asc) }
 
   belongs_to :template
-  has_many :requests, -> { order(:id => :asc) }, :inverse_of => :workflow
+  before_destroy :validate_deletable, :prepend => true
+  after_commit :send_deletion_message
+  has_many :requests, -> { order(:id => :asc) }, :inverse_of => :workflow, :dependent => :nullify
   has_many :tag_links, :dependent => :destroy, :inverse_of => :workflow
 
   validates :name, :presence => true, :uniqueness => {:scope => :tenant}
@@ -29,7 +31,15 @@ class Workflow < ApplicationRecord
     super.merge(:object_dependencies => object_dependencies)
   end
 
+  def deletable?
+    requests.any? { |request| !request.finished? } ? false : true
+  end
+
   private
+
+  def validate_deletable
+    throw :abort unless deletable?
+  end
 
   def object_dependencies
     {}.tap do |dependencies|
@@ -38,6 +48,10 @@ class Workflow < ApplicationRecord
         dependencies[key] << value
       end
     end
+  end
+
+  def send_deletion_message
+    EventService.new(nil).workflow_deleted(id)
   end
 
   def table

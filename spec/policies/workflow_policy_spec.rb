@@ -63,6 +63,25 @@ describe WorkflowPolicy do
 
       expect(subject.user_capabilities).to eq(result)
     end
+
+    context 'when workflow is undeletable' do
+      before { allow(workflow).to receive(:deletable?).and_return(false) }
+
+      it 'returns false on #destroy?' do
+        expect(subject.destroy?).to be_falsey
+      end
+
+      it 'returns false on #destroy in user capabilities' do
+        result = {"create"  => true,
+                  "destroy" => false,
+                  "link"    => true,
+                  "show"    => true,
+                  "unlink"  => true,
+                  "update"  => true}
+
+        expect(subject.user_capabilities).to eq(result)
+      end
+    end
   end
 
   describe 'with approver role' do
