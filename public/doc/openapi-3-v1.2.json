@@ -68,6 +68,24 @@
                 }
             }
         },
+        "/openapi.json": {
+          "get": {
+            "summary": "Return this API document in JSON format",
+            "operationId": "getDocumentation",
+            "responses": {
+              "200": {
+                "description": "The API document for this version of the API",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "/actions/{id}": {
             "get": {
                 "tags": [
@@ -862,7 +880,7 @@
     },
     "security": [
         {
-            "Basic_auth": []
+            "BasicAuth": []
         }
     ],
     "servers": [
@@ -1466,7 +1484,8 @@
                         "description": "Array of RBAC groups associated with workflow. The groups need to have approval permission",
                         "items": {
                             "$ref": "#/components/schemas/GroupRef"
-                        },
+                         },
+                        "nullable": true,
                         "uniqueItems": true
                     },
                     "metadata": {
