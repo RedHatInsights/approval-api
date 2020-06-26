@@ -2,13 +2,12 @@
 set -eu
 set -o pipefail
 
-if ! ./openapi-generator-cli version
-then
-  echo "openapi-generator-cli version failed, likely caused by a mvn build failure. Retry once."
-  ./openapi-generator-cli version
+if ! ver=$(./openapi-generator-cli version | tail -1); then
+  ver="4.3.1"  
+  echo "Use default version ${ver} to validate"
 fi
 
 for entry in ./public/doc/openapi-3-v*.json
 do
-  ./openapi-generator-cli validate -i "$entry"
+  OPENAPI_GENERATOR_VERSION=${ver} ./openapi-generator-cli validate -i "$entry"
 done
