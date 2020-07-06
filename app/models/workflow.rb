@@ -80,7 +80,7 @@ class Workflow < ApplicationRecord
 
     if sequence > sequence_was
       sequence_lower(sequence_was, sequence)
-    else
+    elsif sequence < sequence_was
       sequence_higher(sequence, sequence_was)
     end
   end

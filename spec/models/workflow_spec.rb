@@ -69,6 +69,13 @@ RSpec.describe Workflow, :type => :model do
       expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
     end
 
+    it 'does nothing when attempt to move last sequence further down' do
+      old_ids = Workflow.pluck(:id)
+      Workflow.find(old_ids[4]).update(:sequence => 1000)
+      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[1], old_ids[2], old_ids[3], old_ids[4]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
+    end
+
     it 'does not change sequence when only other attributes changed' do
       old_ids = Workflow.pluck(:id)
       Workflow.find(old_ids[1]).update(:name => 'newname')
