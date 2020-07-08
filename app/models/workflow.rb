@@ -78,6 +78,8 @@ class Workflow < ApplicationRecord
     largest = last_sequence
     self.sequence = largest if sequence.nil? || sequence > largest
 
+    return if sequence == sequence_was
+    
     if sequence > sequence_was
       sequence_lower(sequence_was, sequence)
     else
