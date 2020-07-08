@@ -6,7 +6,6 @@ class Workflow < ApplicationRecord
 
   belongs_to :template
   before_destroy :validate_deletable, :prepend => true
-  after_commit :send_deletion_message
   has_many :requests, -> { order(:id => :asc) }, :inverse_of => :workflow, :dependent => :nullify
   has_many :tag_links, :dependent => :destroy, :inverse_of => :workflow
 
@@ -48,10 +47,6 @@ class Workflow < ApplicationRecord
         dependencies[key] << value
       end
     end
-  end
-
-  def send_deletion_message
-    EventService.new(nil).workflow_deleted(id)
   end
 
   def table
