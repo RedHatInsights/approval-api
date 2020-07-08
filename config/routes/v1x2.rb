@@ -17,6 +17,7 @@ namespace :v1x2, :path => "v1.2" do
 
   post '/workflows/:id/link', :to => "workflows#link", :as => 'link'
   post '/workflows/:id/unlink', :to => "workflows#unlink", :as => 'unlink'
+  post '/workflows/:id/reposition', :to => "workflows#reposition", :as => 'reposition'
 
   resources :templates, :only => %i(index show) do
     resources :workflows, :only => %i(create index)

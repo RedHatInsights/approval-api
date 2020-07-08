@@ -1,4 +1,6 @@
 class DeleteAlwaysApproveFromWorkflows < ActiveRecord::Migration[5.2]
+  class Workflow < ApplicationRecord; end
+
   def up
     always_approve = Workflow.find_by(:name => 'Always approve')
     return unless always_approve

@@ -54,12 +54,13 @@ describe WorkflowPolicy do
     end
 
     it 'returns all user capabilities from #user_capabilities' do
-      result = { "create"=>true,
-                 "destroy"=>true,
-                 "link"=>true,
-                 "show"=>true,
-                 "unlink"=>true,
-                 "update"=>true }
+      result = {"create"     => true,
+                "destroy"    => true,
+                "link"       => true,
+                "reposition" => true,
+                "show"       => true,
+                "unlink"     => true,
+                "update"     => true}
 
       expect(subject.user_capabilities).to eq(result)
     end
@@ -72,12 +73,13 @@ describe WorkflowPolicy do
       end
 
       it 'returns false on #destroy in user capabilities' do
-        result = {"create"  => true,
-                  "destroy" => false,
-                  "link"    => true,
-                  "show"    => true,
-                  "unlink"  => true,
-                  "update"  => true}
+        result = {"create"     => true,
+                  "destroy"    => false,
+                  "link"       => true,
+                  "reposition" => true,
+                  "show"       => true,
+                  "unlink"     => true,
+                  "update"     => true}
 
         expect(subject.user_capabilities).to eq(result)
       end
@@ -94,12 +96,13 @@ describe WorkflowPolicy do
     end
 
     it 'returns true from #user_capabilities' do
-      result = { "create"=>false,
-                 "destroy"=>false,
-                 "link"=>false,
-                 "show"=>false,
-                 "unlink"=>false,
-                 "update"=>false }
+      result = {"create"     => false,
+                "destroy"    => false,
+                "link"       => false,
+                "reposition" => false,
+                "show"       => false,
+                "unlink"     => false,
+                "update"     => false}
 
       expect(subject.user_capabilities).to eq(result)
     end
@@ -115,12 +118,13 @@ describe WorkflowPolicy do
     end
 
     it 'returns all user capabilities from #user_capabilities' do
-      result = { "create"=>false,
-                 "destroy"=>false,
-                 "link"=>false,
-                 "show"=>true,
-                 "unlink"=>false,
-                 "update"=>false }
+      result = {"create"     => false,
+                "destroy"    => false,
+                "link"       => false,
+                "reposition" => false,
+                "show"       => true,
+                "unlink"     => false,
+                "update"     => false}
 
       expect(subject.user_capabilities).to eq(result)
     end

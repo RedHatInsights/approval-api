@@ -159,12 +159,13 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
         expect(json).not_to be_empty
         expect(json['id']).to eq(workflow.id.to_s)
         expect(json["metadata"]["user_capabilities"]).to eq(
-          "create"  => true,
-          "destroy" => true,
-          "link"    => true,
-          "show"    => true,
-          "unlink"  => true,
-          "update"  => true
+          "create"     => true,
+          "destroy"    => true,
+          "link"       => true,
+          "reposition" => true,
+          "show"       => true,
+          "unlink"     => true,
+          "update"     => true
         )
       end
     end
@@ -222,12 +223,13 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
 
         expect(response).to have_http_status(200)
         expect(json["metadata"]["user_capabilities"]).to eq(
-          "create"  => false,
-          "destroy" => false,
-          "link"    => false,
-          "show"    => true,
-          "unlink"  => false,
-          "update"  => false
+          "create"     => false,
+          "destroy"    => false,
+          "link"       => false,
+          "reposition" => false,
+          "show"       => true,
+          "unlink"     => false,
+          "update"     => false
         )
       end
     end
@@ -518,6 +520,64 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
     it 'returns status code 403 for regular user' do
       user_access
       post "#{api_version}/workflows/#{id}/unlink", :params => obj, :headers => default_headers
+
+      expect(response).to have_http_status(403)
+    end
+  end
+
+  describe 'POST /workflows/:id/reposition' do
+    it 'returns status code 204 for positive numeric increment' do
+      admin_access
+      post "#{api_version}/workflows/#{id}/reposition", :params => {:increment => 1}, :headers => default_headers
+
+      expect(response).to have_http_status(204)
+    end
+
+    it 'returns status code 204 for negative numeric increment' do
+      admin_access
+      post "#{api_version}/workflows/#{id + 2}/reposition", :params => {:increment => -1}, :headers => default_headers
+
+      expect(response).to have_http_status(204)
+    end
+
+    it 'returns status code 204 for bottom increment' do
+      admin_access
+      post "#{api_version}/workflows/#{id}/reposition", :params => {:placement => 'bottom'}, :headers => default_headers
+
+      expect(response).to have_http_status(204)
+    end
+
+    it 'returns status code 400 for non-recognized increment' do
+      admin_access
+      post "#{api_version}/workflows/#{id}/reposition", :params => {:placement => 'bad'}, :headers => default_headers
+
+      expect(response).to have_http_status(400)
+    end
+
+    it 'returns status code 204 for nullable value' do
+      admin_access
+      post "#{api_version}/workflows/#{id}/reposition", :params => {:placement => nil, :increment => 1}, :headers => default_headers
+
+      expect(response).to have_http_status(204)
+    end
+
+    it 'returns status code 400 when both placement and increment are set' do
+      admin_access
+      post "#{api_version}/workflows/#{id}/reposition", :params => {:placement => 'top', :increment => 1}, :headers => default_headers
+
+      expect(response).to have_http_status(400)
+    end
+
+    it 'returns status code 403 for approver' do
+      approver_access
+      post "#{api_version}/workflows/#{id}/reposition", :params => {:increment => -1}, :headers => default_headers
+
+      expect(response).to have_http_status(403)
+    end
+
+    it 'returns status code 403 for regular user' do
+      user_access
+      post "#{api_version}/workflows/#{id}/reposition", :params => {:increment => -1}, :headers => default_headers
 
       expect(response).to have_http_status(403)
     end
