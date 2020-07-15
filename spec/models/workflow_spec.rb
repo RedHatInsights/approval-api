@@ -133,8 +133,6 @@ RSpec.describe Workflow, :type => :model do
     end
 
     context 'when associated with requests' do
-      let(:event_service) { double('event_service') }
-
       it "is not deletable" do
         allow(workflow).to receive(:deletable?).and_return(false)
 
@@ -149,11 +147,9 @@ RSpec.describe Workflow, :type => :model do
 
       it "is deletable" do
         allow(workflow).to receive(:deletable?).and_return(true)
-        allow(EventService).to receive(:new).and_return(event_service)
 
         request = create(:request, :workflow => workflow, :state => Request::COMPLETED_STATE)
 
-        expect(event_service).to receive(:workflow_deleted)
         expect(TagLink.count).to eq(1)
         workflow.destroy
         request.reload
