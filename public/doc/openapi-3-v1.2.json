@@ -3,7 +3,7 @@
     "info": {
         "title": "Insights Approval Service API",
         "description": "The API to create and query approval requests",
-        "version": "1.2.1",
+        "version": "1.2.2",
         "contact": {
             "email": "support@redhat.com"
         },
@@ -876,6 +876,46 @@
                     }
                 }
             }
+        },
+        "/workflows/{id}/reposition": {
+            "post": {
+                "tags": [
+                  "Workflow"
+                ],
+                "summary": "Adjust the position of a workflow",
+                "operationId": "reposition",
+                "description": "Adjust the position of a workflow related to others by an offset number",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/id"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Reposition"
+                            }
+                        }
+                    },
+                    "description": "How many levels should the sequence be brought up or down",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Changed the sequence"
+                    },
+                    "400": {
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
+                    },
+                    "403": {
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
+                    },
+                    "404": {
+                        "$ref": "#/components/schemas/HttpApiErrorCollection"
+                    }
+                }
+            }
         }
     },
     "security": [
@@ -1493,7 +1533,7 @@
                         "title": "Metadata",
                         "description": "JSON metadata about the workflow",
                         "readOnly": true,
-                        "example": "{\"user_capabilities\":{\"link\":true,\"show\":true,\"update\":true,\"unlink\":true,\"destroy\":true,\"create\":true},\"object_dependencies\":{\"catalog\":[\"Portfolio\", \"PortfolioItem\"], \"sources\":[\"Source\"]}}"
+                        "example": "{\"user_capabilities\":{\"link\":true,\"show\":true,\"update\":true,\"unlink\":true,\"destroy\":true,\"create\":true,\"reposition\":true},\"object_dependencies\":{\"catalog\":[\"Portfolio\", \"PortfolioItem\"], \"sources\":[\"Source\"]}}"
                     }
                 }
             },
@@ -1516,6 +1556,30 @@
                         "description": "RBAC ID of the group",
                         "format": "uuid",
                         "example": "20560093-369e-412b-9c73-a6799f966447"
+                    }
+                }
+            },
+            "Reposition": {
+                "description": "The desired increment relative to its current position, or placement to top or bottom of the list.",
+                "type": "object",
+                "properties": {
+                    "increment": {
+                        "type": "integer",
+                        "title": "Increment",
+                        "description": "Move the record up (negative) or down (positive) in the list. Do not set it if placement is used",
+                        "example": -2,
+                        "nullable": true
+                    },
+                    "placement": {
+                        "type": "string",
+                        "title": "Placement",
+                        "description": "Place the record to the top or bottom of the list. Do not set it if increment is used",
+                        "enum": [
+                            "bottom",
+                            "top"
+                        ],
+                        "example": "top",
+                        "nullable": true
                     }
                 }
             },

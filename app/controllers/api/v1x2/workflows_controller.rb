@@ -68,6 +68,15 @@ module Api
         json_response(workflow)
       end
 
+      def reposition
+        workflow = Workflow.find(params.require(:id))
+        authorize workflow
+
+        SequenceUpdateService.new(params[:id]).move(increment_param)
+
+        head :no_content
+      end
+
       private
 
       def collection(base_query)
@@ -90,6 +99,12 @@ module Api
         raise Exceptions::UserError, "Invalid resource object params: #{resource_object_params}" unless resource_object_params.length.zero? || resource_object_params.length == 3
 
         !!(resource_object_params[:app_name] && resource_object_params[:object_id] && resource_object_params[:object_type])
+      end
+
+      def increment_param
+        raise Exception::UserError, "Cannot have both increment and placement params set" if params[:placement] && params[:increment]
+
+        params[:placement] || params[:increment]
       end
     end
   end
