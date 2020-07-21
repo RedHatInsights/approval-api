@@ -26,4 +26,8 @@ class WorkflowPolicy < ApplicationPolicy
   def unlink?
     permission_check('unlink')
   end
+
+  def reposition?
+    permission_check('update')
+  end
 end

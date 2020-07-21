@@ -30,13 +30,6 @@ RSpec.describe Workflow, :type => :model do
       expect(create(:workflow, :sequence => 100).sequence).to eq(old_last.sequence + 1)
     end
 
-    it 'inserts newly created workflow in desired position' do
-      old_ids = Workflow.pluck(:id)
-      wf = create(:workflow, :sequence => 2)
-      expect(wf.sequence).to eq(2)
-      expect(Workflow.pluck(:id)).to eq([old_ids[0], wf.id, old_ids[1], old_ids[2], old_ids[3], old_ids[4]])
-    end
-
     it 'fails the creation if the sequence is not positive' do
       expect { Workflow.create!(:name => 'any', :sequence => -2) }.to raise_error(ActiveRecord::RecordInvalid)
     end
@@ -95,6 +88,78 @@ RSpec.describe Workflow, :type => :model do
     end
   end
 
+  describe '#move_internal_sequence' do
+    around(:each) do |example|
+      ActsAsTenant.with_tenant(tenant) { example.run }
+    end
+
+    let(:old_ids) do
+      create_list(:workflow, 5)
+      Workflow.pluck(:id)
+    end
+
+    it 'moves up sequence in range' do
+      Workflow.find(old_ids[4]).move_internal_sequence(-2)
+      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[1], old_ids[4], old_ids[2], old_ids[3]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
+    end
+
+    it 'moves down sequence in range' do
+      Workflow.find(old_ids[1]).move_internal_sequence(2)
+      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[2], old_ids[3], old_ids[1], old_ids[4]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
+    end
+
+    it 'moves up to top' do
+      Workflow.find(old_ids[2]).move_internal_sequence(-2)
+      expect(Workflow.pluck(:id)).to eq([old_ids[2], old_ids[0], old_ids[1], old_ids[3], old_ids[4]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
+    end
+
+    it 'moves down to bottom' do
+      Workflow.find(old_ids[3]).move_internal_sequence(1)
+      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[1], old_ids[2], old_ids[4], old_ids[3]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
+    end
+
+    it 'moves up beyond range' do
+      Workflow.find(old_ids[2]).move_internal_sequence(-20)
+      expect(Workflow.pluck(:id)).to eq([old_ids[2], old_ids[0], old_ids[1], old_ids[3], old_ids[4]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
+    end
+
+    it 'moves down beyond range' do
+      Workflow.find(old_ids[3]).move_internal_sequence(20)
+      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[1], old_ids[2], old_ids[4], old_ids[3]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
+    end
+
+    it 'moves up to top explicitly' do
+      Workflow.find(old_ids[2]).move_internal_sequence(-Float::INFINITY)
+      expect(Workflow.pluck(:id)).to eq([old_ids[2], old_ids[0], old_ids[1], old_ids[3], old_ids[4]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
+    end
+
+    it 'moves down to bottom explicitly' do
+      Workflow.find(old_ids[3]).move_internal_sequence(Float::INFINITY)
+      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[1], old_ids[2], old_ids[4], old_ids[3]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5])
+    end
+
+    it 'places the newly created workflow to the end of list' do
+      old_ids
+      nw = Workflow.create(:name => 'new workflow')
+      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[1], old_ids[2], old_ids[3], old_ids[4], nw.id])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4, 5, 6])
+    end
+
+    it 'maintains sorting after one workflow is removed' do
+      Workflow.find(old_ids[3]).destroy
+      expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[1], old_ids[2], old_ids[4]])
+      expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4])
+    end
+  end
+
   describe '#deletable?' do
     shared_examples_for "undeletable_states" do |state|
       it "returns false for #{state}" do
@@ -133,8 +198,6 @@ RSpec.describe Workflow, :type => :model do
     end
 
     context 'when associated with requests' do
-      let(:event_service) { double('event_service') }
-
       it "is not deletable" do
         allow(workflow).to receive(:deletable?).and_return(false)
 
@@ -149,11 +212,9 @@ RSpec.describe Workflow, :type => :model do
 
       it "is deletable" do
         allow(workflow).to receive(:deletable?).and_return(true)
-        allow(EventService).to receive(:new).and_return(event_service)
 
         request = create(:request, :workflow => workflow, :state => Request::COMPLETED_STATE)
 
-        expect(event_service).to receive(:workflow_deleted)
         expect(TagLink.count).to eq(1)
         workflow.destroy
         request.reload
