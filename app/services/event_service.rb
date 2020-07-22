@@ -11,7 +11,7 @@ class EventService
 
   attr_accessor :request
 
-  def initialize(request)
+  def initialize(request = nil)
     self.request = request
   end
 
