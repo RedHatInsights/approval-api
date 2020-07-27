@@ -31,4 +31,47 @@ RSpec.describe EventService do
     expect(subject).to receive(:send_event).with(described_class::EVENT_WORKFLOW_DELETED, hash_including(:workflow_id))
     subject.workflow_deleted(1)
   end
+
+  describe '#send_event' do
+    let(:headers) { request.context['headers'] }
+    let(:open_args) { {:protocol => 'Kafka', :host => 'khost', :port => '9092', :encoding => 'json'} }
+    let(:publish_args) { }
+    let(:test_env) do
+      {:QUEUE_HOST => 'khost', :QUEUE_PORT => '9092', :QUEUE_NAME => 'platform.approval'}
+    end
+
+    shared_examples_for '#test_send_event' do
+      it 'sends event through messaging client' do
+        RequestSpecHelper.with_modified_env(test_env) do
+          client_mock = double.as_null_object
+          allow(ManageIQ::Messaging::Client).to receive(:open).with(open_args).and_yield(client_mock)
+          expect(client_mock).to receive(:publish_topic).with(:service => 'platform.approval',
+                                                              :sender  => described_class::EVENT_SENDER,
+                                                              :event   => 'event',
+                                                              :payload => 'payload',
+                                                              :headers => headers)
+          object.send(:send_event, 'event', 'payload')
+        end
+      end
+    end
+
+    context 'with request' do
+      let(:object) { subject }
+
+      it_behaves_like "#test_send_event"
+    end
+
+    context 'without request' do
+      let(:object) { described_class.new }
+      let(:headers) { RequestSpecHelper.default_request_hash['headers'] }
+
+      around do |example|
+        Insights::API::Common::Request.with_request(RequestSpecHelper.default_request_hash) do
+          example.call
+        end
+      end
+
+      it_behaves_like "#test_send_event"
+    end
+  end
 end
