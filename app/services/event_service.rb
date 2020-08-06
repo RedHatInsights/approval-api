@@ -11,7 +11,7 @@ class EventService
 
   attr_accessor :request
 
-  def initialize(request)
+  def initialize(request = nil)
     self.request = request
   end
 
@@ -73,7 +73,8 @@ class EventService
       :port     => ENV['QUEUE_PORT'] || 9092,
       :encoding => 'json'
     ) do |client|
-      client.publish_topic(:service => topic, :sender => EVENT_SENDER, :event => event, :payload => payload, :headers => request.request_context['context']['headers'])
+      headers = request ? request.context['headers'] : Insights::API::Common::Request.current.to_h['headers']
+      client.publish_topic(:service => topic, :sender => EVENT_SENDER, :event => event, :payload => payload, :headers => headers)
     end
   rescue StandardError, RBACApiClient::ApiError => error
     Rails.logger.error("Event sending failed. Reason: #{error.message}")
