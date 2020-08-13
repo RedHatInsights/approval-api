@@ -4,66 +4,43 @@
       <h1 class="pf-c-title pf-m-2xl">
         <span>
           <%= @resources[:approval_web_product] %>
-          <span>
-          </span>
         </span>
       </h1>
     </section>
     <section class="pf-l-page__main-section pf-c-page__main-section">
       <section class="body" style="background-color: #fff; padding: 16px">
         <div class="pf-c-content info-panel">  
-          <h2>Automation Services Catalog request</h2>
+          <h2>Approval request ID <%= @order[:order_id] %></h2>
           <p id="notice"><%= notice %></p>
+          <div class="pf-l-grid">
+            <div class="pf-l-grid__item pf-m-12-col-on-xs pf-m-3-col-on-sm pf-m-2-col-on-lg pf-m-2-col-on-xl install-title">
+              Ordered by:
+            </div>
+            <div class="pf-m-fill pf-l-grid__item pf-m-12-col-on-xs pf-m-9-col-on-sm pf-m-10-col-on-lg pf-m-10-col-on-xl">
+              <%= @order[:orderer] %>
+              <br>
+              (<a href="mailto:<%= @order[:orderer_email] %>">
+                <%= @order[:orderer_email] %>
+              </a>)
+            </div> 
+          </div>        
           <%= render :partial => "request" %>
           <br>
-          <a href="#" onclick="showDetails()">Show details</a>
-          <div  id="details" style="display:none;" class="pf-l-grid pf-m-gutter">
-            <div class="pf-l-grid__item">
-              <div class="pf-l-split pf-m-gutter">
-                <div class="pf-l-split__item install-title">
-                  Order details
-                </div>
-                <div class="pf-l-split__item pf-m-fill">
-                  <% @order[:order_content].each do |k, v| %>
-                    <div class="pf-l-grid__item">
-                      <div class="pf-l-split pf-m-gutter">
-                        <div class="pf-l-split__item install-title"><%= k %></div>
-                        <div class="pf-l-split__item pf-m-fill"><%= v %></div>
-                      </div>
-                    </div>
-                  <% end %>
-                </div>
-              </div>
-            </div>
-          </div>
-          <p>
-          <div class="install-title">Reason/Memo</div>
-          <%= form_tag({:action => 'update', :controller => 'stageaction'}, :method => :patch) do %>
+        </div>
+        <p>
+        <div class="install-title">Comment</div>
+        <%= form_tag({:action => 'update', :controller => 'stageaction'}, :method => :patch) do %>
           <div class="pf-l-grid pf-m-gutter">
             <%= text_area_tag(:message, '', :class => "pf-l-grid__item pf-m-12-col-on-xs pf-m-6-col-on-sm pf-m-6-col-on-lg pf-m-6-col-on-xl", :style => "height: 100px") %>
           </div>
           <br>
           <%= hidden_field_tag('approver', Base64.encode64(@approver)) %>
-          <div class="pf-l-grid pf-m-gutter">
-            <div class="pf-l-grid__item pf-m-12-col-on-xs pf-m-2-col-on-sm pf-m-2-col-on-lg pf-m-2-col-on-xl">
-             <%= button_tag 'Memo', :class => "pf-c-button pf-m-secondary pf-m-block", :type => "submit", :name => :commit, :value => "Memo" %>
-            </div>
-            <div class="pf-l-grid__item pf-m-12-col-on-xs pf-m-2-col-on-sm pf-m-2-col-on-lg pf-m-2-col-on-xl">
-              <%= button_tag 'Approve', :class => "pf-c-button pf-m-primary pf-m-block", :type => "submit", :name => :commit, :value => "Approve" %>
-            </div>
-            <div class="pf-l-grid__item pf-m-12-col-on-xs pf-m-2-col-on-sm pf-m-2-col-on-lg pf-m-2-col-on-xl">
-              <%= button_tag 'Deny', :class => "pf-c-button pf-m-danger pf-m-block", :type => "submit", :name => :commit, :value => "Deny" %>
-            </div>
-          <% end %>
-          <script>
-              function showDetails() {
-                  var x = document.getElementById("details");
-                  if (x.style.display === "none") {
-                    x.style.display = "block";
-                  } else {
-                    x.style.display = "none";
-                  }
-              }
-          </script>
-        </section>
+          <div>
+            <%= button_tag 'Approve', :class => "pf-c-button pf-m-primary", :type => "submit", :name => :commit, :value => "Approve" %>
+            <%= button_tag 'Deny', :class => "pf-c-button pf-m-danger", :type => "submit", :name => :commit, :value => "Deny" %>
+            <%= button_tag 'Comment', :class => "pf-c-button pf-m-secondary", :type => "submit", :name => :commit, :value => "Memo" %>
+          </div>
+        <% end %>
+      </section>
+    </section>
 <%= render :partial => "footer" %>
