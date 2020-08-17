@@ -79,6 +79,7 @@ module Api
         {
           :orderer       => request.requester_name,
           :orderer_email => request.owner,
+          :status        => request.decision,
           :product       => request.content["product"],
           :portfolio     => request.content["portfolio"],
           :order_id      => request.content["order_id"],
