@@ -1,23 +1,22 @@
-RSpec.describe JbpmProcessService do
+RSpec.describe JbpmProcessService, :type => :request do
+  let(:test_env) do
+    {
+      :APPROVAL_PAM_SERVICE_HOST => 'localhost',
+      :APPROVAL_PAM_SERVICE_PORT => '8080',
+      :KIE_SERVER_USERNAME       => 'executionUser',
+      :KIE_SERVER_PASSWORD       => 'password'
+    }
+  end
+
   let(:template) do
-    ENV['APPROVAL_PAM_SERVICE_HOST'] = 'localhost'
-    ENV['APPROVAL_PAM_SERVICE_PORT'] = '8080'
-    ENV['KIE_SERVER_USERNAME']       = 'executionUser'
-    ENV['KIE_SERVER_PASSWORD']       = 'password'
-
-    Template.seed
-
-    ENV['APPROVAL_PAM_SERVICE_HOST'] = nil
-    ENV['APPROVAL_PAM_SERVICE_PORT'] = nil
-    ENV['KIE_SERVER_USERNAME']       = nil
-    ENV['KIE_SERVER_PASSWORD']       = nil
-
-    Template.find_by(:title => 'Basic')
+    with_modified_env(test_env) do
+      Template.seed
+      Template.find_by(:title => 'Basic')
+    end
   end
 
   let(:workflow) { create(:workflow, :template => template) }
   let(:request)  { create(:request, :with_context, :workflow => workflow) }
-  let(:kie_ex)   { Exceptions::KieError.new("kie error") }
   subject { described_class.new(request) }
 
   let(:jbpm) { double(:jbpm, :api_client => double(:default_headers => {})) }
@@ -64,38 +63,28 @@ RSpec.describe JbpmProcessService do
   end
 
   describe 'kie service raise exception' do
-    describe '#start' do
-      before do
-        allow(jbpm).to receive(:start_process).and_raise(kie_ex)
+    shared_examples_for "expect_failure" do |exception, op, *op_args|
+      it 'posts an error action' do
+        allow(jbpm).to receive(op).and_raise(exception)
         allow(subject).to receive(:enhance_groups)
-      end
-
-      it 'should post an error action' do
-        expect { subject.start }.to raise_exception(Exceptions::KieError)
+        expect { subject.send(*op_args) }.to raise_exception(Exception)
 
         request.reload
 
         expect(request.state).to eq(Request::FAILED_STATE)
         expect(request.decision).to eq(Request::ERROR_STATUS)
-        expect(request.reason).to eq(kie_ex.message)
+        expect(request.reason).to eq(exception.message)
       end
     end
 
+    describe '#start' do
+      it_behaves_like 'expect_failure', Exceptions::KieError.new("kie error"), :start_process, :start
+      it_behaves_like 'expect_failure', Exceptions::NetworkError.new("network error"), :start_process, :start
+    end
+
     describe '#signal' do
-      before do
-        allow(jbpm).to receive(:signal_process_instance).and_raise(kie_ex)
-        allow(subject).to receive(:enhance_groups)
-      end
-
-      it 'should post an error action' do
-        expect { subject.signal('approved') }.to raise_exception(Exceptions::KieError)
-
-        request.reload
-
-        expect(request.state).to eq(Request::FAILED_STATE)
-        expect(request.decision).to eq(Request::ERROR_STATUS)
-        expect(request.reason).to eq(kie_ex.message)
-      end
+      it_behaves_like 'expect_failure', Exceptions::KieError.new("kie error"), :signal_process_instance, :signal, 'approved'
+      it_behaves_like 'expect_failure', Exceptions::NetworkError.new("network error"), :signal_process_instance, :signal, 'approved'
     end
   end
 end
