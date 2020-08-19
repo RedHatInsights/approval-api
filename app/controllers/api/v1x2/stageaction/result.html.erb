@@ -1,5 +1,4 @@
 <%= render :partial => "header" %>
-
 <main class="pf-c-page__main pf-l-page__main">
   <section class="pf-l-page-header pf-c-page-header pf-l-page__main-section pf-c-page__main-section pf-m-light">
     <h1 class="pf-c-title pf-m-2xl">
@@ -13,10 +12,8 @@
   <section class="pf-l-page__main-section pf-c-page__main-section">
     <section class="body" style="background-color: #fff; padding: 16px">
       <div class="pf-c-content info-panel"> 
-
         <% if response.status != 200 %>
           <% if params[:commit] %>
-
             <div class="pf-c-alert pf-m-warning" aria-label="Warning alert">
               <div class="pf-c-alert__icon">
                 <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
@@ -32,7 +29,6 @@
               <p>Reason: <%= response.body %></p>
             </div> 
           </div>
-
         <% else %>
           <div class="pf-c-alert pf-m-success" aria-label="Success alert">
             <div class="pf-c-alert__icon">
@@ -41,13 +37,59 @@
             <h4 class="pf-c-alert__title" style="margin-top: 0">
               <span class="pf-screen-reader">Success alert:</span>Your action [<%= params[:commit] %>] has been recorded.</h4>
           </div>
-
         <% end %>
-        
         <% if @order %>
           <h2>Automation Services Catalog request</h2>
+          <div class="pf-l-grid">
+            <div class="pf-l-grid__item pf-m-12-col-on-xs pf-m-3-col-on-sm pf-m-2-col-on-lg pf-m-2-col-on-xl install-title">
+              Status:
+            </div>
+            <div class="pf-m-fill pf-l-grid__item pf-m-12-col-on-xs pf-m-9-col-on-sm pf-m-10-col-on-lg pf-m-10-col-on-xl">
+              <% if @order[:status] == "approved" %>
+                <span class="pf-c-label pf-m-green pf-m-outline">
+                  <span class="pf-c-label__content">
+                    <span class="pf-c-label__icon">
+                      <i class="fas fa-fw fa-check" aria-hidden="true"></i>
+                    </span>Approved</span>
+                  </span>
+                </span>
+              <% elsif @order[:status] == "denied" %>
+                <span class="pf-c-label pf-m-red pf-m-outline">
+                  <span class="pf-c-label__content">
+                    <span class="pf-c-label__icon">
+                      <i class="fas fa-fw fa-times" aria-hidden="true"></i>
+                    </span>Denied</span>
+                  </span>
+                </span>
+              <% else %>
+                <span class="pf-c-label pf-m-red pf-m-outline">
+                  <span class="pf-c-label__content">
+                    <span class="pf-c-label__icon">
+                      <i class="fas fa-fw fa-info-circle" aria-hidden="true"></i>
+                    </span>Error</span>
+                  </span>
+                </span>
+              <% end %>
+            </div>
+          </div>
+          <div class="pf-l-grid">
+            <div class="pf-l-grid__item pf-m-12-col-on-xs pf-m-3-col-on-sm pf-m-2-col-on-lg pf-m-2-col-on-xl install-title">
+              Ordered by:
+            </div>
+            <div class="pf-m-fill pf-l-grid__item pf-m-12-col-on-xs pf-m-9-col-on-sm pf-m-10-col-on-lg pf-m-10-col-on-xl">
+              <%= @order[:orderer] %>
+              <br>
+              (<a href="mailto:<%= @order[:orderer_email] %>">
+                <%= @order[:orderer_email] %>
+              </a>)
+            </div> 
+          </div>
           <%= render :partial => "request" %>
         <% end %>
+      </div>
+      <div>
+        <br>
+        <a href="https://cloud.redhat.com"><button class="pf-c-button pf-m-primary">Log in to your Red Hat account</button></a>
       </div>
     </section> 
 <%= render :partial => "footer" %>
