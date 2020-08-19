@@ -61,12 +61,20 @@
                     </span>Denied</span>
                   </span>
                 </span>
-              <% else %>
+              <% elsif @order[:status] == "error" %>
                 <span class="pf-c-label pf-m-red pf-m-outline">
                   <span class="pf-c-label__content">
                     <span class="pf-c-label__icon">
                       <i class="fas fa-fw fa-info-circle" aria-hidden="true"></i>
                     </span>Error</span>
+                  </span>
+                </span>
+              <% else %>
+                <span class="pf-c-label pf-m-outline">
+                  <span class="pf-c-label__content">
+                    <span class="pf-c-label__icon">
+                      <i class="fas fa-fw fa-info-circle" aria-hidden="true"></i>
+                    </span><%= @order[:status].capitalize %></span>
                   </span>
                 </span>
               <% end %>
