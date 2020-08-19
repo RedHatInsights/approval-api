@@ -1,0 +1,53 @@
+<div class="pf-c-content info-panel">
+  <ul class="pf-c-alert-group pf-m-toast">
+    <li class="pf-c-alert-group__item">
+      <% if response.status != 200 %>
+
+        <div class="pf-c-alert pf-m-warning" aria-label="Warning alert">
+          <div class="pf-c-alert__icon">
+            <i class="fas fa-fw fa-exclamation-triangle" aria-hidden="true"></i>
+          </div>
+          <p class="pf-c-alert__title">
+            <strong>
+              <span class="pf-screen-reader">Info alert:
+              </span>
+              <% if params[:commit] %>
+                Unable to complete action [<%= params[:commit] %>]
+              <% else %>
+                Unable to complete the action.
+              <% end %>
+            </strong>
+          </p>
+          <div class="pf-c-alert__description">
+            <p>Reason: <%= response.body %></p>
+          </div>
+        </div>
+
+      <% else %>
+
+        <div class="pf-c-alert pf-m-success" aria-label="Success alert">
+          <div class="pf-c-alert__icon">
+            <i class="fas fa-fw fa-check-circle" aria-hidden="true"></i>
+          </div>
+          <p class="pf-c-alert__title">
+            <strong>
+              <span class="pf-screen-reader">Success alert:</span>
+              <% if @order[:status] == "approved" %>
+                Your approval has been accepted successfully
+              <% elsif @order[:status] == "denied" %>
+                Your denial has been accepted successfully
+              <% else %>
+                <% if params[:commit] == "Memo" %>
+                  Your comment has been accepted successfully
+                <% end %>
+              <% end %>
+            </strong>
+          </p>
+          <div class="pf-c-alert__description">
+            <p>You can return to your <a href="https://cloud.redhat.com">request queue</a> by logging in.</p>
+          </div>
+        </div>
+
+      <% end %>
+    </li>
+  </ul>
