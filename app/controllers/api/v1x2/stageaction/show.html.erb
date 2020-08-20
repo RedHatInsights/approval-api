@@ -34,6 +34,8 @@
             <%= text_area_tag(:message, '', :class => "pf-l-grid__item pf-m-12-col-on-xs pf-m-6-col-on-sm pf-m-6-col-on-lg pf-m-6-col-on-xl", :style => "height: 100px") %>
           </div>
           <br>
+          <div><strong>Review the information above and approve or deny this request. If you received this request in error, contact your system administrator.</strong></div>
+          <br>
           <%= hidden_field_tag('approver', Base64.encode64(@approver)) %>
           <div>
             <%= button_tag 'Approve', :class => "pf-c-button pf-m-primary", :type => "submit", :name => :commit, :value => "Approve" %>
