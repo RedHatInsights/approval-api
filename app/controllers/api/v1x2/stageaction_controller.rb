@@ -50,6 +50,9 @@ module Api
           end
         end
 
+        @request.reload
+        @order = set_order
+
         render :result
       end
 
