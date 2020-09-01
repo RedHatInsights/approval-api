@@ -50,6 +50,12 @@ class Workflow < ApplicationRecord
     save!
   end
 
+  # TODO: force synchronizing between two columns. Will be removed when sequence is retired
+  def self.seed
+    Workflow.update_all('internal_sequence = -internal_sequence')
+    Workflow.update_all('internal_sequence = sequence')
+  end
+
   private
 
   def validate_deletable
