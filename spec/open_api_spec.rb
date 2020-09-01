@@ -73,7 +73,19 @@ describe "OpenAPI stuff" do
       it "with a random prefix" do
         expect(ENV["PATH_PREFIX"]).not_to be_nil
         expect(ENV["APP_NAME"]).not_to be_nil
-        expect(api_v1x2_requests_url(:only_path => true)).to eq("/#{ENV["PATH_PREFIX"]}/#{ENV["APP_NAME"]}/v1.2/requests")
+        uri = "/#{ENV["PATH_PREFIX"]}/#{ENV["APP_NAME"]}/v1.2/requests"
+        expect(api_v1x2_requests_url(:only_path => true)).to eq(URI.encode(uri))
+      end
+
+      context "when there is a weird character in the path prefix" do
+        let(:path_prefix) { "" }
+
+        it "escapes the characters properly" do
+          expect(ENV["PATH_PREFIX"]).not_to be_nil
+          expect(ENV["APP_NAME"]).not_to be_nil
+          uri = "/#{ENV["PATH_PREFIX"]}/#{ENV["APP_NAME"]}/v1.2/requests"
+          expect(api_v1x2_requests_url(:only_path => true)).to eq(URI.encode(uri))
+        end
       end
 
       it "with extra slashes" do
