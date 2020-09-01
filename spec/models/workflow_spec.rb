@@ -86,6 +86,13 @@ RSpec.describe Workflow, :type => :model do
       expect(Workflow.pluck(:id)).to eq([old_ids[0], old_ids[2], old_ids[3], old_ids[4]])
       expect(Workflow.pluck(:sequence)).to eq([1, 2, 3, 4])
     end
+
+    it 'resyncs sequences and internal_sequenes by seed after the order is shuffled' do
+      old_ids = Workflow.pluck(:id)
+      Workflow.find(old_ids[3]).update(:sequence => 1)
+      Workflow.seed
+      expect(Workflow.pluck(:sequence)).to eq(Workflow.pluck(:internal_sequence))
+    end
   end
 
   describe '#move_internal_sequence' do
