@@ -1,0 +1,101 @@
+<div id="modal_approve" class="modal" style="display: none">
+  <div class="pf-c-backdrop">
+    <div class="pf-l-bullseye">
+      <%= form_tag({:action => 'update', :controller => 'stageaction'}, :method => :patch) do %>
+        <%= hidden_field_tag('approver', Base64.encode64(@approver)) %>
+        <div class="pf-c-modal-box pf-m-sm" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-description">
+          <button class="pf-c-button pf-m-plain close_approve" type="button" aria-label="Close dialog">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+          <header class="pf-c-modal-box__header">
+            <h1 class="pf-c-modal-box__title" id="modal-title">Approval request ID <%= @order[:order_id] %></h1>
+          </header>
+          <div class="pf-c-modal-box__body" id="modal-description">
+            <div class="pf-l-grid pf-m-gutter">
+              <div class="pf-c-content">
+                <strong>Comment</strong>
+              </div>
+              <%= text_area_tag(:message, '', :class => "pf-l-grid__item", :style => "height: 100px") %>
+            </div>
+          </div>
+          <footer class="pf-c-modal-box__footer">
+            <div class="pf-c-form__actions">
+              <%= button_tag 'Submit', :class => "pf-c-button pf-m-primary", :type => "submit", :name => :commit, :value => "approve" %>
+              <button class="pf-c-button pf-m-link cancel_btn_approve" type="button">
+                Cancel
+              </button>
+            </div>
+          </footer>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div id="modal_deny" class="modal" style="display: none">
+  <div class="pf-c-backdrop">
+    <div class="pf-l-bullseye">
+      <%= form_tag({:action => 'update', :controller => 'stageaction'}, :method => :patch) do %>
+        <%= hidden_field_tag('approver', Base64.encode64(@approver)) %>
+        <div class="pf-c-modal-box pf-m-sm" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-description">
+          <button class="pf-c-button pf-m-plain close_deny" type="button" aria-label="Close dialog">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+          <header class="pf-c-modal-box__header">
+            <h1 class="pf-c-modal-box__title" id="modal-title">Approval request ID <%= @order[:order_id] %></h1>
+          </header>
+          <div class="pf-c-modal-box__body" id="modal-description">
+            <div class="pf-l-grid pf-m-gutter">
+              <div class="pf-c-content">
+                <strong>Comment</strong>
+              </div>
+              <%= text_area_tag(:message, '', :class => "pf-l-grid__item", :style => "height: 100px", :required => true) %>
+            </div>
+          </div>
+          <footer class="pf-c-modal-box__footer">
+            <div class="pf-c-form__actions">
+              <%= button_tag 'Submit', :class => "pf-c-button pf-m-primary", :type => "submit", :name => :commit, :value => "deny" %>
+              <button class="pf-c-button pf-m-link cancel_btn_deny" type="button">
+                Cancel
+              </button>
+            </div>
+          </footer>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div id="modal_comment" class="modal" style="display: none">
+  <div class="pf-c-backdrop">
+    <div class="pf-l-bullseye">
+      <%= form_tag({:action => 'update', :controller => 'stageaction'}, :method => :patch) do %>
+        <%= hidden_field_tag('approver', Base64.encode64(@approver)) %>
+        <div class="pf-c-modal-box pf-m-sm" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-description">
+          <button class="pf-c-button pf-m-plain close_comment" type="button" aria-label="Close dialog">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+          <header class="pf-c-modal-box__header">
+            <h1 class="pf-c-modal-box__title" id="modal-title">Approval request ID <%= @order[:order_id] %></h1>
+          </header>
+          <div class="pf-c-modal-box__body" id="modal-description">
+            <div class="pf-l-grid pf-m-gutter">
+              <div class="pf-c-content">
+                <strong>Comment</strong>
+              </div>
+              <%= text_area_tag(:message, '', :class => "pf-l-grid__item", :style => "height: 100px", :required => true) %>
+            </div>
+          </div>
+          <footer class="pf-c-modal-box__footer">
+            <div class="pf-c-form__actions">
+              <%= button_tag 'Submit', :class => "pf-c-button pf-m-primary", :type => "submit", :name => :commit, :value => "memo" %>
+              <button class="pf-c-button pf-m-link cancel_btn_comment" type="button">
+                Cancel
+              </button>
+            </div>
+          </footer>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
