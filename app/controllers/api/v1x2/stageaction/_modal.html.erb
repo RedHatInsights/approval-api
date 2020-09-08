@@ -8,19 +8,22 @@
             <i class="fas fa-times" aria-hidden="true"></i>
           </button>
           <header class="pf-c-modal-box__header">
-            <h1 class="pf-c-modal-box__title" id="modal-title">Approval request ID <%= @order[:order_id] %></h1>
+            <h1 class="pf-c-modal-box__title" id="modal-title">Approval request</h1>
           </header>
           <div class="pf-c-modal-box__body" id="modal-description">
-            <div class="pf-l-grid pf-m-gutter">
-              <div class="pf-c-content">
-                <strong>Comment</strong>
+            <div class="pf-l-grid pf-xl-gutter">
+              <div class ="pf-l-grid__item pf-u-mt-md pf-u-mb-xl">
+                Provide approval for request <strong><%= @order[:order_id] %></strong>
               </div>
+              <div class ="pf-l-grid__item">
+              <b>Comment</b>
+            </div>
               <%= text_area_tag(:message, '', :class => "pf-l-grid__item", :style => "height: 100px") %>
             </div>
           </div>
           <footer class="pf-c-modal-box__footer">
             <div class="pf-c-form__actions">
-              <%= button_tag 'Submit', :class => "pf-c-button pf-m-primary", :type => "submit", :name => :commit, :value => "approve" %>
+              <%= button_tag 'Approve', :class => "pf-c-button pf-m-primary", :type => "submit", :name => :commit, :value => "approve" %>
               <button class="pf-c-button pf-m-link cancel_btn_approve" type="button">
                 Cancel
               </button>
@@ -42,19 +45,25 @@
             <i class="fas fa-times" aria-hidden="true"></i>
           </button>
           <header class="pf-c-modal-box__header">
-            <h1 class="pf-c-modal-box__title" id="modal-title">Approval request ID <%= @order[:order_id] %></h1>
+            <h1 class="pf-c-modal-box__title" id="modal-title">
+              <i class="fas fa-exclamation-triangle" style="color: rgb(240, 171, 0);" aria-hidden="true"></i>
+                Deny request
+            </h1>
           </header>
           <div class="pf-c-modal-box__body" id="modal-description">
-            <div class="pf-l-grid pf-m-gutter">
-              <div class="pf-c-content">
-                <strong>Comment</strong>
+            <div class="pf-l-grid pf-xl-gutter">
+              <div class ="pf-l-grid__item  pf-u-mt-md pf-u-mb-xl">
+                Provide a reason for denying request <strong><%= @order[:order_id] %></strong>
+              </div>
+              <div class ="pf-l-grid__item">
+                <b>Reason <span style="color: #C9190B">*</span></b>
               </div>
               <%= text_area_tag(:message, '', :class => "pf-l-grid__item", :style => "height: 100px", :required => true) %>
             </div>
           </div>
           <footer class="pf-c-modal-box__footer">
             <div class="pf-c-form__actions">
-              <%= button_tag 'Submit', :class => "pf-c-button pf-m-primary", :type => "submit", :name => :commit, :value => "deny" %>
+              <%= button_tag 'Deny', :class => "pf-c-button pf-m-danger", :type => "submit", :name => :commit, :value => "deny" %>
               <button class="pf-c-button pf-m-link cancel_btn_deny" type="button">
                 Cancel
               </button>
@@ -76,12 +85,15 @@
             <i class="fas fa-times" aria-hidden="true"></i>
           </button>
           <header class="pf-c-modal-box__header">
-            <h1 class="pf-c-modal-box__title" id="modal-title">Approval request ID <%= @order[:order_id] %></h1>
+            <h1 class="pf-c-modal-box__title" id="modal-title">Comment</h1>
           </header>
           <div class="pf-c-modal-box__body" id="modal-description">
-            <div class="pf-l-grid pf-m-gutter">
-              <div class="pf-c-content">
-                <strong>Comment</strong>
+            <div class="pf-l-grid pf-xl-gutter">
+              <div class="pf-l-grid__item  pf-u-mt-md pf-u-mb-xl">
+                Submit a comment on request <strong><%= @order[:order_id] %></strong>
+              </div>
+              <div class ="pf-l-grid__item">
+                <b>Comment <span style="color: #C9190B">*</span></b>
               </div>
               <%= text_area_tag(:message, '', :class => "pf-l-grid__item", :style => "height: 100px", :required => true) %>
             </div>
