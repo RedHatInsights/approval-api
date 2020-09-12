@@ -22,7 +22,7 @@ module GroupValidateMixin
 
     begin
       group = ensure_group(request.group_ref, request.context)
-    rescue Exceptions::UserError => e
+    rescue Exceptions::UserError, RBACApiClient::ApiError, StandardError => e
       error_action(request, e.message)
     end
 
