@@ -31,6 +31,7 @@ class RequestCreateService
       end
 
     prepare_request(request)
+    Rails.logger.info("Create request #{request.id} from options #{options}")
     request
   end
 
