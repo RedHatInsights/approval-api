@@ -24,6 +24,9 @@ module GroupValidateMixin
       group = ensure_group(request.group_ref, request.context)
     rescue Exceptions::UserError => e
       error_action(request, e.message)
+    rescue => e
+      error_action(request, "Internal error while validating a group. Check log for details.")
+      Rails.logger.error(["Caught an error while validating a group before forwarding the request to PAM.", e.message, *e.backtrace].join($RS))
     end
 
     return false unless group
@@ -71,7 +74,7 @@ module GroupValidateMixin
              end
            rescue Exceptions::UserError
              "#{old_name}(Group does not exist)"
-           rescue StandardError
+           rescue
              old_name
            end
 

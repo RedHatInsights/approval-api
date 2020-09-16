@@ -66,7 +66,7 @@ class EventService
   end
 
   def send_event(event, payload)
-    Rails.logger.info("Sending event " + event)
+    Rails.logger.info("Sending event #{event} with payload(#{payload})")
     ManageIQ::Messaging::Client.open(
       :protocol => 'Kafka',
       :host     => ENV['QUEUE_HOST'] || 'localhost',

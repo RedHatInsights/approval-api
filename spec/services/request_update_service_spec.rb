@@ -100,13 +100,21 @@ RSpec.describe RequestUpdateService do
       end
     end
 
-    it 'calls error_action' do
-      allow(subject).to receive(:ensure_group).and_raise(Exceptions::UserError)
+    context 'when raises exceptions' do
+      shared_examples_for "call_error_action" do |exception|
+        it "calls error_action for #{exception}" do
+          allow(subject).to receive(:ensure_group).and_raise(exception)
 
-      subject.runtime_validate_group(request)
-      request.reload
-      expect(request.actions.count).to eq(1)
-      expect(request.state).to eq(Request::FAILED_STATE)
+          subject.runtime_validate_group(request)
+          request.reload
+          expect(request.actions.count).to eq(1)
+          expect(request.state).to eq(Request::FAILED_STATE)
+        end
+      end
+
+      [Exceptions::UserError, RBACApiClient::ApiError, StandardError].each do |exception|
+        it_behaves_like "call_error_action", exception
+      end
     end
   end
 end
