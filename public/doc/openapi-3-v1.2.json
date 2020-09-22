@@ -1510,14 +1510,6 @@
                         "nullable": true,
                         "example": "A approval process requires ID department to approve"
                     },
-                    "sequence": {
-                        "type": "integer",
-                        "title": "Sequence",
-                        "description": "an indicator of the execution order for selected workflows",
-                        "minimum": 0,
-                        "exclusiveMinimum": true,
-                        "example": 3
-                    },
                     "group_refs": {
                         "type": "array",
                         "title": "Approval groups",
