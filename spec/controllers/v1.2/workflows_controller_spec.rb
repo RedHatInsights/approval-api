@@ -326,7 +326,7 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
 
   # Test suite for PATCH /workflows/:id
   describe 'PATCH /workflows/:id' do
-    let(:valid_attributes) { {:name => "test", :group_refs => [{'name' => 'n1000', 'uuid' => SecureRandom.uuid}], :sequence => 2} }
+    let(:valid_attributes) { {:name => "test", :group_refs => [{'name' => 'n1000', 'uuid' => SecureRandom.uuid}]} }
     let(:group) { instance_double(Group, :name => 'n1000', :uuid => '1000', :can_approve? => true) }
 
     context 'admin role when item exists' do
@@ -341,13 +341,6 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
         expect(response).to have_http_status(200)
         updated_item = Workflow.find(id)
         expect(updated_item).to have_attributes(valid_attributes)
-      end
-
-      it 'returns status code 400 if sequence is not positive' do
-        valid_attributes[:sequence] = -1
-        patch "#{api_version}/workflows/#{id}", :params => valid_attributes, :headers => default_headers
-
-        expect(response).to have_http_status(400)
       end
     end
 
@@ -399,32 +392,6 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
         delete "#{api_version}/workflows/#{id}", :headers => default_headers
 
         expect(response).to have_http_status(204)
-      end
-
-      context 'when negative sequence may be resulted' do
-        before do
-          allow(Workflow).to receive(:find).with(id.to_s).and_return(workflows[0])
-          allow(workflows[0]).to receive(:validate_positive_sequences).and_raise(Exceptions::NegativeSequence)
-        end
-
-        it 'returns status code 400' do
-          delete "#{api_version}/workflows/#{id}", :headers => default_headers
-
-          expect(response).to have_http_status(400)
-        end
-      end
-
-      context 'when deadlock may be resulted' do
-        before do
-          allow(Workflow).to receive(:find).with(id.to_s).and_return(workflows[0])
-          allow(workflows[0]).to receive(:change_sequences_to_negative).and_raise(ActiveRecord::Deadlocked)
-        end
-
-        it 'returns status code 400' do
-          delete "#{api_version}/workflows/#{id}", :headers => default_headers
-
-          expect(response).to have_http_status(400)
-        end
       end
     end
 
