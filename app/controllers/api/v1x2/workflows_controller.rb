@@ -104,6 +104,8 @@ module Api
       def increment_param
         raise Exception::UserError, "Cannot have both increment and placement params set" if params[:placement] && params[:increment]
 
+        raise Exception::UserError, "Neither increment nor placement parameter is set" unless params[:placement] || params[:increment]
+
         params[:placement] || params[:increment]
       end
     end
