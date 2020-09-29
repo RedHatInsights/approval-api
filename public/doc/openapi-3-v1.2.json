@@ -822,7 +822,7 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Created a link"
                     },
                     "400": {
@@ -862,7 +862,7 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Broke the link"
                     },
                     "400": {
@@ -902,7 +902,7 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Changed the sequence"
                     },
                     "400": {

@@ -535,6 +535,13 @@ RSpec.describe Api::V1x2::WorkflowsController, :type => [:request, :v1x2] do
       expect(response).to have_http_status(400)
     end
 
+    it 'returns status code 400 when neither placement nor increment is set' do
+      admin_access
+      post "#{api_version}/workflows/#{id}/reposition", :params => {}, :headers => default_headers
+
+      expect(response).to have_http_status(400)
+    end
+
     it 'returns status code 403 for approver' do
       approver_access
       post "#{api_version}/workflows/#{id}/reposition", :params => {:increment => -1}, :headers => default_headers
