@@ -822,7 +822,7 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Created a link"
                     },
                     "400": {
@@ -862,7 +862,7 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Broke the link"
                     },
                     "400": {
@@ -902,7 +902,7 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Changed the sequence"
                     },
                     "400": {
@@ -1509,14 +1509,6 @@
                         "description": "Describe the workflow in more details",
                         "nullable": true,
                         "example": "A approval process requires ID department to approve"
-                    },
-                    "sequence": {
-                        "type": "integer",
-                        "title": "Sequence",
-                        "description": "an indicator of the execution order for selected workflows",
-                        "minimum": 0,
-                        "exclusiveMinimum": true,
-                        "example": 3
                     },
                     "group_refs": {
                         "type": "array",
