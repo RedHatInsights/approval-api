@@ -18,7 +18,7 @@ COPY Gemfile $WORKDIR
 RUN echo "gem: --no-document" > ~/.gemrc && \
     gem install bundler --conservative --without development:test && \
     bundle install --jobs 8 --retry 3 && \
-    find $(gem env gemdir)/gems | grep "\.s\?o$" | xargs rm -rvf && \
+#    find $(gem env gemdir)/gems | grep "\.s\?o$" | xargs rm -rvf && \
     rm -rvf $(gem env gemdir)/cache/* && \
     rm -rvf /root/.bundle/cache
 
