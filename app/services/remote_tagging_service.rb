@@ -13,20 +13,20 @@ class RemoteTaggingService
   end
 
   def self.remotes
-    [{ :app_name => 'topology', :object_type => 'ServiceInventory', :url => proc { topo_url } },
-     { :app_name => 'topology', :object_type => 'Credential',       :url => proc { topo_url } },
-     { :app_name => 'catalog',  :object_type => 'PortfolioItem',    :url => proc { catalog_url } },
-     { :app_name => 'catalog',  :object_type => 'Portfolio',        :url => proc { catalog_url } },
-     { :app_name => 'sources',  :object_type => 'Source',           :url => proc { sources_url } }]
+    [{:app_name => 'catalog-inventory', :object_type => 'ServiceInventory', :url => proc { catalog_inventory_url }},
+     {:app_name => 'catalog-inventory', :object_type => 'Credential',       :url => proc { catalog_inventory_url }},
+     {:app_name => 'catalog',           :object_type => 'PortfolioItem',    :url => proc { catalog_url }},
+     {:app_name => 'catalog',           :object_type => 'Portfolio',        :url => proc { catalog_url }},
+     {:app_name => 'sources',           :object_type => 'Source',           :url => proc { sources_url }}]
   end
 
   private
 
-  def self.topo_url
-    url = ENV.fetch('TOPOLOGICAL_INVENTORY_URL') { raise 'TOPOLOGICAL_INVENTORY_URL is not set' }
-    "#{url}/api/topological-inventory/v2.0"
+  def self.catalog_inventory_url
+    url = ENV.fetch('CATALOG_INVENTORY_URL') { raise 'CATALOG_INVENTORY_URL is not set' }
+    "#{url}/api/catalog-inventory/v1.0"
   end
-  private_class_method :topo_url
+  private_class_method :catalog_inventory_url
 
   def self.catalog_url
     url = ENV.fetch('CATALOG_URL') { raise 'CATALOG_URL is not set' }
@@ -46,7 +46,7 @@ class RemoteTaggingService
 
   def service_url
     match = self.class.remotes.detect { |item| item[:app_name] == @app_name && item[:object_type] == @object_type }
-    raise Exceptions::UserError.new("No url found for app #{@app_name} object #{@object_type}") unless match
+    raise Exceptions::UserError, "No url found for app #{@app_name} object #{@object_type}" unless match
 
     match[:url].call
   end

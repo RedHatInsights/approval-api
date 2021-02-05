@@ -16,9 +16,9 @@ RSpec.describe DeleteRemoteTags, :type => :request do
 
   let(:test_env) do
     {
-      :TOPOLOGICAL_INVENTORY_URL => 'http://localhost',
-      :CATALOG_URL               => 'http://localhost',
-      :SOURCES_URL               => 'http://localhost'
+      :CATALOG_INVENTORY_URL => 'http://localhost',
+      :CATALOG_URL           => 'http://localhost',
+      :SOURCES_URL           => 'http://localhost'
     }
   end
 
@@ -87,19 +87,19 @@ RSpec.describe DeleteRemoteTags, :type => :request do
     end
   end
 
-  context 'topology' do
-    let(:app_name) { 'topology' }
-    let(:env_not_set) { /TOPOLOGICAL_INVENTORY_URL is not set/ }
+  context 'catalog inventory' do
+    let(:app_name) { 'catalog-inventory' }
+    let(:env_not_set) { /CATALOG_INVENTORY_URL is not set/ }
 
     context 'credentials' do
       let(:object_type) { 'Credential' }
-      let(:url)         { "http://localhost/api/topological-inventory/v2.0/credentials/#{object_id}/untag" }
+      let(:url)         { "http://localhost/api/catalog-inventory/v1.0/credentials/#{object_id}/untag" }
       it_behaves_like "#test_all"
     end
 
     context 'ServiceInventory' do
       let(:object_type) { 'ServiceInventory' }
-      let(:url)         { "http://localhost/api/topological-inventory/v2.0/service_inventories/#{object_id}/untag" }
+      let(:url)         { "http://localhost/api/catalog-inventory/v1.0/service_inventories/#{object_id}/untag" }
       it_behaves_like "#test_all"
     end
   end

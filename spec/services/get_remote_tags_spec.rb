@@ -19,9 +19,9 @@ RSpec.describe GetRemoteTags, :type => :request do
 
   let(:test_env) do
     {
-      :TOPOLOGICAL_INVENTORY_URL => 'http://localhost',
-      :CATALOG_URL               => 'http://localhost',
-      :SOURCES_URL               => 'http://localhost'
+      :CATALOG_INVENTORY_URL => 'http://localhost',
+      :CATALOG_URL           => 'http://localhost',
+      :SOURCES_URL           => 'http://localhost'
     }
   end
 
