@@ -57,6 +57,7 @@ class RemoteTaggingService
         session.headers['Content-Type'] = 'application/json'
         headers(session)
         session.body = tags.to_json
+        Rails.logger.info("Posting #{url} with body: #{session.body}")
       end
     end
   end
@@ -66,6 +67,7 @@ class RemoteTaggingService
       con.get(url) do |session|
         headers(session)
         params.each { |k, v| session.params[k] = v }
+        Rails.logger.info("Getting #{url} with params: #{session.params}")
       end
     end
   end
