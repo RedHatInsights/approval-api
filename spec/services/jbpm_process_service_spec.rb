@@ -63,28 +63,34 @@ RSpec.describe JbpmProcessService, :type => :request do
   end
 
   describe 'kie service raise exception' do
-    shared_examples_for "expect_failure" do |exception, op, *op_args|
+    shared_examples_for "expect_failure" do |exception, log_error, op, *op_args|
       it 'posts an error action' do
         allow(jbpm).to receive(op).and_raise(exception)
         allow(subject).to receive(:enhance_groups)
-        expect { subject.send(*op_args) }.to raise_exception(Exception)
 
-        request.reload
+        if log_error
+          expect(Rails.logger).to receive(:error)
+          subject.send(*op_args)
+        else
+          expect { subject.send(*op_args) }.to raise_exception(Exception)
 
-        expect(request.state).to eq(Request::FAILED_STATE)
-        expect(request.decision).to eq(Request::ERROR_STATUS)
-        expect(request.reason).to eq(exception.message)
+          request.reload
+
+          expect(request.state).to eq(Request::FAILED_STATE)
+          expect(request.decision).to eq(Request::ERROR_STATUS)
+          expect(request.reason).to eq(exception.message)
+        end
       end
     end
 
     describe '#start' do
-      it_behaves_like 'expect_failure', Exceptions::KieError.new("kie error"), :start_process, :start
-      it_behaves_like 'expect_failure', Exceptions::NetworkError.new("network error"), :start_process, :start
+      it_behaves_like 'expect_failure', Exceptions::KieError.new("kie error"), false, :start_process, :start
+      it_behaves_like 'expect_failure', Exceptions::NetworkError.new("network error"), false, :start_process, :start
     end
 
     describe '#signal' do
-      it_behaves_like 'expect_failure', Exceptions::KieError.new("kie error"), :signal_process_instance, :signal, 'approved'
-      it_behaves_like 'expect_failure', Exceptions::NetworkError.new("network error"), :signal_process_instance, :signal, 'approved'
+      it_behaves_like 'expect_failure', Exceptions::KieError.new("kie error"), true, :signal_process_instance, :signal, 'approved'
+      it_behaves_like 'expect_failure', Exceptions::NetworkError.new("network error"), true, :signal_process_instance, :signal, 'approved'
     end
   end
 end

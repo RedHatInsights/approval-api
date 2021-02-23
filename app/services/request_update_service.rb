@@ -150,7 +150,6 @@ class RequestUpdateService
 
   # complete the external approval process if configured
   def finish_request(decision)
-    return if request_completed?(decision)
     return unless request.process_ref.present? && request.workflow.try(:external_processing?)
 
     template = request.workflow.template
