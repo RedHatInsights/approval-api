@@ -23,17 +23,21 @@ RSpec.describe RequestUpdateService do
       request.reload
       expect(request.state).to eq(Request::COMPLETED_STATE)
     end
-  end
 
-  context 'state becomes finished by external call' do
-    let!(:request) { create(:request, :with_tenant, :state => Request::NOTIFIED_STATE, :decision => Request::APPROVED_STATUS) }
+    context 'request has external signal set' do
+      let(:request) { create(:request, :with_tenant, :process_ref => 'abc') }
+      before do
+        request.workflow.template.update(:signal_setting => {:processor_type => 'jbpm'})
+      end
 
-    it 'sends request_finished event' do
-      expect(event_service).to receive(:request_completed)
-      expect(event_service).to receive(:approver_group_finished)
-      subject.update(:state => Request::COMPLETED_STATE)
-      request.reload
-      expect(request.state).to eq(Request::COMPLETED_STATE)
+      it 'signals the external process with the approval state' do
+        expect(event_service).to receive(:request_completed)
+        expect(event_service).to receive(:approver_group_finished)
+        expect(JbpmProcessService).to receive(:new).with(request).and_return(double(:signal => nil))
+        subject.update(:state => Request::COMPLETED_STATE, :decision => Request::APPROVED_STATUS)
+        request.reload
+        expect(request.state).to eq(Request::COMPLETED_STATE)
+      end
     end
   end
 

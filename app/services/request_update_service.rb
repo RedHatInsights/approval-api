@@ -150,7 +150,7 @@ class RequestUpdateService
 
   # complete the external approval process if configured
   def finish_request(decision)
-    return unless request.process_ref.present? && request.workflow.try(:external_processing?)
+    return unless request.process_ref.present? && request.workflow.try(:external_signal?)
 
     template = request.workflow.template
     processor_class = "#{template.signal_setting['processor_type']}_process_service".classify.constantize
