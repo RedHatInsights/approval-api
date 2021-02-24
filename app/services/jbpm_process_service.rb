@@ -21,8 +21,8 @@ class JbpmProcessService
       bpm.signal_process_instance(options['container_id'], request.process_ref, options['signal_name'], :body => signal_options(decision))
     end
   rescue => err
-    ActionCreateService.new(request.id).create(:operation => Action::ERROR_OPERATION, :processed_by => 'system', :comments => err.message)
-    raise
+    # Signaling PAM is the last step after the approval has finished. Ignore the error if signal fails
+    Rails.logger.error("Failed to signal PAM with error: #{err.message}")
   end
 
   private
