@@ -26,7 +26,7 @@ class RequestUpdateService
 
     EventService.new(request).request_started if request.root?
 
-    update_parent(options) if request.child?
+    update_parent(options) if request.child? && request.root.state != options[:state]
 
     notify_request if request.leaf?
   end
@@ -39,12 +39,11 @@ class RequestUpdateService
     update_parent(options) if request.child?
   end
 
+  # Called directly when it is a leaf node, or indirectly from its child node
   def completed(options)
     finish_request(options[:decision]) if request.leaf?
 
     return if request.state == Request::CANCELED_STATE
-
-    EventService.new(request).approver_group_finished if request.leaf?
 
     return child_completed(options) if request.child?
 
@@ -81,6 +80,8 @@ class RequestUpdateService
   def child_completed(options)
     request.random_access_keys.destroy_all
     request.update!(options.merge(:finished_at => DateTime.now))
+    EventService.new(request).approver_group_finished
+
     request.parent.invalidate_number_of_finished_children
     update_parent(options)
     if [Request::DENIED_STATUS, Request::ERROR_STATUS].include?(options[:decision])
@@ -90,9 +91,11 @@ class RequestUpdateService
     end
   end
 
+  # parent or standalone
   def parent_completed(options)
     request.random_access_keys.destroy_all
     request.update!(options.merge(:finished_at => DateTime.now))
+    EventService.new(request).approver_group_finished if request.leaf? # standalone
     EventService.new(request).request_completed
   end
 

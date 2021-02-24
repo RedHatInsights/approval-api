@@ -17,9 +17,15 @@ RSpec.describe RequestUpdateService do
 
   context 'state becomes finished' do
     it 'sends request_finished event' do
-      expect(event_service).to receive(:request_completed)
-      expect(event_service).to receive(:approver_group_finished)
-      subject.update(:state => Request::COMPLETED_STATE)
+      expect(event_service).to receive(:request_completed) do
+        request.reload
+        expect(request.decision).to eq(Request::APPROVED_STATUS)
+      end
+      expect(event_service).to receive(:approver_group_finished) do
+        request.reload
+        expect(request.decision).to eq(Request::APPROVED_STATUS)
+      end
+      subject.update(:state => Request::COMPLETED_STATE, :decision => Request::APPROVED_STATUS)
       request.reload
       expect(request.state).to eq(Request::COMPLETED_STATE)
     end
