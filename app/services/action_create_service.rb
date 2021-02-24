@@ -32,8 +32,8 @@ class ActionCreateService
     send(operation, options['comments'])
   end
 
-  def memo(_comments)
-    nil
+  def memo(comments)
+    raise Exceptions::UserError, "The memo message cannot be blank" if comments.blank?
   end
 
   def start(_comments)
@@ -75,7 +75,7 @@ class ActionCreateService
     unless request.state == Request::NOTIFIED_STATE
       raise Exceptions::InvalidStateTransitionError, "Current request is not in notified state"
     end
-    raise Exceptions::UserError, "A reason has to be provided if a request is being denied" unless comments
+    raise Exceptions::UserError, "A reason has to be provided if a request is being denied" if comments.blank?
     raise Exceptions::InvalidStateTransitionError, "Only child level request can be denied" if request.parent?
 
     {:state => Request::COMPLETED_STATE, :decision => Request::DENIED_STATUS, :reason => comments}

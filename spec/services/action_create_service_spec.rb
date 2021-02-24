@@ -62,6 +62,12 @@ RSpec.describe ActionCreateService do
     it 'raises an error when deny on parent request' do
       expect { svc.create('operation' => Action::DENY_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
     end
+
+    it 'raises an error when deny without a comment' do
+      child2.update(:state => Request::NOTIFIED_STATE)
+      expect { svc2.create('operation' => Action::DENY_OPERATION, 'processed_by' => 'man', 'comments' => '') }.to raise_error(Exceptions::UserError)
+      expect { svc2.create('operation' => Action::DENY_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::UserError)
+    end
   end
 
   context 'error operation' do
@@ -131,6 +137,11 @@ RSpec.describe ActionCreateService do
       expect(child1).to  have_attributes(:state => Request::PENDING_STATE,     :decision => Request::UNDECIDED_STATUS)
       expect(request).to have_attributes(:state => Request::PENDING_STATE,     :decision => Request::UNDECIDED_STATUS)
     end
+
+    it 'raises an error when no reason is given' do
+      expect { svc1.create('operation' => Action::MEMO_OPERATION, 'processed_by' => 'man', 'comments' => '') }.to raise_error(Exceptions::UserError)
+      expect { svc1.create('operation' => Action::MEMO_OPERATION, 'processed_by' => 'man') }.to raise_error(Exceptions::UserError)
+    end
   end
 
   context 'auto set processed_by if nil' do
@@ -149,13 +160,13 @@ RSpec.describe ActionCreateService do
       before do
         child1.update(:state => Request::NOTIFIED_STATE)
       end
-    
+
       shared_examples_for "forbidden_operation" do |operation|
         it "forbids #{operation}" do
           expect { svc1.create('operation' => operation, 'processed_by' => 'man') }.to raise_error(Exceptions::InvalidStateTransitionError)
         end
       end
-    
+
       [Action::START_OPERATION, Action::SKIP_OPERATION, Action::NOTIFY_OPERATION].each do |operation|
         it_behaves_like "forbidden_operation", operation
       end
