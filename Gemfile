@@ -4,8 +4,9 @@ plugin 'bundler-inject', '~> 1.1'
 require File.join(Bundler::Plugin.index.load_paths("bundler-inject")[0], "bundler-inject") rescue nil
 
 gem 'byebug'
+gem 'clowder-common-ruby', '~> 0.2.2'
 gem 'faraday',             '>= 0.17.0'
-gem 'insights-api-common', '~> 4.0'
+gem 'insights-api-common', '~> 5.0'
 gem 'jbuilder',            '~> 2.0'
 gem 'manageiq-loggers',    '~> 0.2'
 gem 'manageiq-messaging',  '~> 0.1'

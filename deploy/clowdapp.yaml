@@ -1,0 +1,187 @@
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: approval
+objects:
+- apiVersion: v1
+  kind: Secret # For ephemeral/local environment
+  metadata:
+    name: approval-api-secrets
+    labels:
+      app: approval
+  stringData:
+    encryption-key: "${ENCRYPTION_KEY}"
+    secret-key: "${SECRET_KEY}"
+    rbac-psk: "psk"
+
+- apiVersion: cloud.redhat.com/v1alpha1
+  kind: ClowdApp
+  metadata:
+    name: approval
+  spec:
+    envName: ${ENV_NAME}
+    deployments:
+    - name: api
+      minReplicas: ${{MIN_REPLICAS}}
+      web: true
+      podSpec:
+        image: ${IMAGE}:${IMAGE_TAG}
+        env:
+        - name: APP_NAME
+          value: ${APP_NAME}
+        - name: PATH_PREFIX
+          value: ${PATH_PREFIX}
+        - name: BYPASS_RBAC
+          value: ${BYPASS_RBAC}
+        - name: PGSSLMODE
+          value: ${PGSSLMODE}
+        - name: CATALOG_URL
+          value: ${CATALOG_SCHEME}://${CATALOG_HOST}:${CATALOG_PORT}
+        - name: SOURCES_URL
+          value: ${SOURCES_SCHEME}://${SOURCES_HOST}:${SOURCES_PORT}
+        - name: CATALOG_INVENTORY_URL
+          value: ${CATALOG_INVENTORY_SCHEME}://${CATALOG_INVENTORY_HOST}:${CATALOG_INVENTORY_PORT}
+        - name: KIE_SERVER_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: approval-pam-secrets
+              key: kie-server-user
+        - name: KIE_SERVER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: approval-pam-secrets
+              key: kie-server-pwd
+        - name: APPROVAL_WEB_LOGO
+          value: https://www.redhat.com/profiles/rh/themes/redhatdotcom/img/logo.svg
+        - name: APPROVAL_WEB_PRODUCT
+          value: Automation Services Catalog
+        - name: ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: approval-api-secrets
+              key: encryption-key
+        - name: SECRET_KEY_BASE
+          valueFrom:
+            secretKeyRef:
+              name: approval-api-secrets
+              key: secret-key
+        - name: RBAC_PSK
+          valueFrom:
+            secretKeyRef:
+              name: approval-api-secrets
+              key: rbac-psk
+        - name: RAILS_LOG_LEVEL
+          value: ${RAILS_LOG_LEVEL}
+        - name: RAILS_SERVE_STATIC_FILES
+          value: "true"
+        readinessProbe:
+          tcpSocket:
+            port: 8000
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          failureThreshold: 6
+        resources:
+          limits:
+            cpu: 200m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 500Mi
+    kafkaTopics:
+    - replicas: 3
+      partitions: 10
+      topicName: platform.approval
+    database:
+      name: approval_production
+    dependencies:
+    - rbac
+
+parameters:
+- name: CLOWDER_ENABLED
+  description: Determines Clowder deployment
+  value: "True"
+- name: ENV_NAME
+  description: ClowdEnv Name
+  required: false
+- name: APP_NAME
+  displayName: Application Name
+  description: Application name to be used in request paths. Only used when PATH_PREFIX is also specified.
+  value: approval
+- name: BYPASS_RBAC
+  displayName: Bypass RBAC
+  description: Boolean value that determines whether RBAC should be bypassed.
+  value: 'false'
+- name: IMAGE
+  displayName: Image
+  description: Image name
+  value: quay.io/cloudservices/approval-api
+- name: IMAGE_TAG
+  value: latest
+- name: PATH_PREFIX
+  displayName: Path Prefix
+  description: Base path for the API
+  value: api
+- name: RAILS_LOG_LEVEL
+  displayName: Log level for RAILS
+  description: The valid log levels are info, debug, warn, error
+  value: "info"
+- name: SOURCES_HOST
+  displayName: Sources Service Host
+  description: Host to use for the Sources service URL.
+  value: sources-api
+- name: SOURCES_PORT
+  displayName: Sources Service Port
+  description: Port to use for the Sources service URL.
+  value: "8080"
+- name: SOURCES_SCHEME
+  displayName: Sources Service Scheme
+  description: Scheme to use for the SOURCES service URL. Can be either http or https
+  value: http
+- name: CATALOG_INVENTORY_HOST
+  displayName: Catalog Inventory Host
+  description: Host to use for the catalog inventory service URL.
+  value: catalog-inventory-api
+- name: CATALOG_INVENTORY_PORT
+  displayName: Catalog Inventory Port
+  description: Port to use for the catalog inventory service URL.
+  value: "8080"
+- name: CATALOG_INVENTORY_SCHEME
+  displayName: Catalog Inventory Scheme
+  description: Scheme to use for the catalog inventory service URL. Can be either http or https
+  value: http
+- name: CATALOG_HOST
+  displayName: Catalog Service Host
+  description: Host to use for the Catalog service URL.
+  value: catalog-api
+- name: CATALOG_PORT
+  displayName: Catalog Service Port
+  description: Port to use for the Catalog service URL.
+  value: "8080"
+- name: CATALOG_SCHEME
+  displayName: Catalog Service Scheme
+  description: Scheme to use for the Catalog service URL. Can be either http or https
+  value: http
+- name: PGSSLMODE
+  displayName: Postgres SSL mode
+  description: "Options can be found in the doc: https://www.postgresql.org/docs/current/libpq-ssl.html#LIBPQ-SSL-SSLMODE-STATEMENTS"
+  value: 'prefer'
+- name: MIN_REPLICAS
+  description: The number of replicas to use in the deployment
+  value: "1"
+- name: ENCRYPTION_KEY
+  displayName: Encryption Key (Ephemeral)
+  required: true
+  description: Encryption Key for Passwords
+  from: "[a-zA-Z0-9]{43}"
+  generate: expression
+- name: SECRET_KEY
+  displayName: Secret Key (Ephemeral)
+  required: true
+  description: Rails SECRET_KEY_BASE
+  from: "[a-f0-9]{128}"
+  generate: expression
