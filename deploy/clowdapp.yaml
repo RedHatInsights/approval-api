@@ -22,7 +22,7 @@ objects:
   spec:
     envName: ${ENV_NAME}
     deployments:
-    - name: api
+    - name: api-v2
       minReplicas: ${{MIN_REPLICAS}}
       web: true
       podSpec:
@@ -137,7 +137,7 @@ parameters:
 - name: SOURCES_PORT
   displayName: Sources Service Port
   description: Port to use for the Sources service URL.
-  value: "8080"
+  value: "8000"
 - name: SOURCES_SCHEME
   displayName: Sources Service Scheme
   description: Scheme to use for the SOURCES service URL. Can be either http or https
@@ -149,7 +149,7 @@ parameters:
 - name: CATALOG_INVENTORY_PORT
   displayName: Catalog Inventory Port
   description: Port to use for the catalog inventory service URL.
-  value: "8080"
+  value: "8000"
 - name: CATALOG_INVENTORY_SCHEME
   displayName: Catalog Inventory Scheme
   description: Scheme to use for the catalog inventory service URL. Can be either http or https
@@ -161,7 +161,7 @@ parameters:
 - name: CATALOG_PORT
   displayName: Catalog Service Port
   description: Port to use for the Catalog service URL.
-  value: "8080"
+  value: "8000"
 - name: CATALOG_SCHEME
   displayName: Catalog Service Scheme
   description: Scheme to use for the Catalog service URL. Can be either http or https
