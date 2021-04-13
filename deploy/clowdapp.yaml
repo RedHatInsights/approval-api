@@ -14,6 +14,15 @@ objects:
     encryption-key: "${ENCRYPTION_KEY}"
     secret-key: "${SECRET_KEY}"
     rbac-psk: "psk"
+- apiVersion: v1
+  kind: Secret # For ephemeral/local environment
+  metadata:
+    name: approval-pam-secrets
+  stringData:
+    kie-admin-user: "${KIE_ADMIN_USER}"
+    kie-admin-pwd: "${KIE_ADMIN_PASSWORD}"
+    kie-server-user: "${KIE_SERVER_USER}"
+    kie-server-pwd: "${KIE_SERVER_PASSWORD}"
 
 - apiVersion: cloud.redhat.com/v1alpha1
   kind: ClowdApp
@@ -184,4 +193,28 @@ parameters:
   required: true
   description: Rails SECRET_KEY_BASE
   from: "[a-f0-9]{128}"
+  generate: expression
+- name: KIE_SERVER_USER
+  displayName: Kie Server Username (Ephemeral)
+  required: true
+  description: Kie Server Username
+  from: "[a-f0-9]{8}"
+  generate: expression
+- name: KIE_SERVER_PASSWORD
+  displayName: Kie Server Password (Ephemeral)
+  required: true
+  description: Kie Server Password
+  from: "[a-f0-9]{7}!"
+  generate: expression
+- name: KIE_ADMIN_USER
+  displayName: Kie Admin Username (Ephemeral)
+  required: true
+  description: Kie Admin Username
+  from: "[a-f0-9]{8}"
+  generate: expression
+- name: KIE_ADMIN_PASSWORD
+  displayName: Kie Admin Password (Ephemeral)
+  required: true
+  description: Kie Admin Password
+  from: "[a-f0-9]{7}!"
   generate: expression
