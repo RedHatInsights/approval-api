@@ -106,7 +106,7 @@ objects:
       partitions: 10
       topicName: platform.approval
     database:
-      name: approval_production
+      name: approval
     dependencies:
     - rbac
 
