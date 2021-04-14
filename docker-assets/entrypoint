@@ -11,8 +11,21 @@ if [[ ! -z "${ACG_CONFIG}" ]]; then
   DATABASE_PASSWORD=`jq -r '.database.password' ${ACG_CONFIG}`
   DATABASE_NAME=`jq -r '.database.name' ${ACG_CONFIG}`
 
-  export PGSSLROOTCERT=`jq -r '.database.rdsCa' ${ACG_CONFIG}`
   export RAILS_PORT=`jq -r '.webPort' ${ACG_CONFIG}`
+
+  export PGSSLMODE=`jq -r '.database.sslMode' ${ACG_CONFIG}`
+  if [[ $PGSSLMODE = "null" ]]; then
+    unset PGSSLMODE
+  fi
+
+  certString=`jq -r '.database.rdsCa' ${ACG_CONFIG}`
+  if [[ $certString != "null" ]]; then
+    certPath="/opt/rdsca.crt"
+    echo "RDS Cert Path: $certPath"
+    echo "$certString" > $certPath
+
+    export PGSSLROOTCERT=$certPath
+  fi
 else
   export RAILS_PORT=3000
   DATABASE_NAME=approval_production
