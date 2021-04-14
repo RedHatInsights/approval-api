@@ -43,8 +43,6 @@ objects:
           value: ${PATH_PREFIX}
         - name: BYPASS_RBAC
           value: ${BYPASS_RBAC}
-        - name: PGSSLMODE
-          value: ${PGSSLMODE}
         - name: CATALOG_URL
           value: ${CATALOG_SCHEME}://${CATALOG_HOST}:${CATALOG_PORT}
         - name: SOURCES_URL
@@ -175,10 +173,6 @@ parameters:
   displayName: Catalog Service Scheme
   description: Scheme to use for the Catalog service URL. Can be either http or https
   value: http
-- name: PGSSLMODE
-  displayName: Postgres SSL mode
-  description: "Options can be found in the doc: https://www.postgresql.org/docs/current/libpq-ssl.html#LIBPQ-SSL-SSLMODE-STATEMENTS"
-  value: 'prefer'
 - name: MIN_REPLICAS
   description: The number of replicas to use in the deployment
   value: "1"
