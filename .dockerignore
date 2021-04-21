@@ -1,10 +1,6 @@
 Gemfile.lock
-.git
-.bundle
-.vscode
 log
 temp
-.byebug_history
 .*
 v2_key
 
