@@ -2,14 +2,14 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: approval
+  name: approval-api
 objects:
 - apiVersion: v1
   kind: Secret # For ephemeral/local environment
   metadata:
     name: approval-api-secrets
     labels:
-      app: approval
+      app: approval-api
   stringData:
     encryption-key: "${ENCRYPTION_KEY}"
     secret-key: "${SECRET_KEY}"
@@ -27,11 +27,11 @@ objects:
 - apiVersion: cloud.redhat.com/v1alpha1
   kind: ClowdApp
   metadata:
-    name: approval
+    name: approval-api
   spec:
     envName: ${ENV_NAME}
     deployments:
-    - name: api-v2
+    - name: svc
       minReplicas: ${{MIN_REPLICAS}}
       web: true
       podSpec:
@@ -113,7 +113,7 @@ objects:
     name: approval-api-transitional
     labels:
       app: approval-api
-      pod: approval-api-v2
+      pod: approval-api-svc
   spec:
     ports:
     - port: 8080
@@ -121,7 +121,7 @@ objects:
       targetPort: 8000
       name: weblegacy
     selector:
-      pod: approval-api-v2
+      pod: approval-api-svc
 parameters:
 - name: CLOWDER_ENABLED
   description: Determines Clowder deployment
