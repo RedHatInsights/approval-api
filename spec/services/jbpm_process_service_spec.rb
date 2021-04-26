@@ -1,10 +1,9 @@
 RSpec.describe JbpmProcessService, :type => :request do
   let(:test_env) do
     {
-      :APPROVAL_PAM_SERVICE_HOST => 'localhost',
-      :APPROVAL_PAM_SERVICE_PORT => '8080',
-      :KIE_SERVER_USERNAME       => 'executionUser',
-      :KIE_SERVER_PASSWORD       => 'password'
+      :APPROVAL_PROCESS_URL => 'localhost:8080',
+      :KIE_SERVER_USERNAME  => 'executionUser',
+      :KIE_SERVER_PASSWORD  => 'password'
     }
   end
 

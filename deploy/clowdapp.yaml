@@ -43,6 +43,8 @@ objects:
           value: ${PATH_PREFIX}
         - name: BYPASS_RBAC
           value: ${BYPASS_RBAC}
+        - name: APPROVAL_PROCESS_URL
+          value: ${APPROVAL_PROCESS_SCHEME}://${APPROVAL_PROCESS_HOST}:${APPROVAL_PROCESS_PORT}
         - name: CATALOG_URL
           value: ${CATALOG_SCHEME}://${CATALOG_HOST}:${CATALOG_PORT}
         - name: SOURCES_URL
@@ -186,6 +188,18 @@ parameters:
 - name: CATALOG_SCHEME
   displayName: Catalog Service Scheme
   description: Scheme to use for the Catalog service URL. Can be either http or https
+  value: http
+- name: APPROVAL_PROCESS_HOST
+  displayName: Approval Process Service Host
+  description: Host to use for the Approval process service URL.
+  value: approval-process-pam
+- name: APPROVAL_PROCESS_PORT
+  displayName: Approval Process Service Port
+  description: Port to use for the Approval process service URL.
+  value: "8000"
+- name: APPROVAL_PROCESS_SCHEME
+  displayName: Approval Process Service Scheme
+  description: Scheme to use for the Approval process service URL. Can be either http or https
   value: http
 - name: MIN_REPLICAS
   description: The number of replicas to use in the deployment
