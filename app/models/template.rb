@@ -19,12 +19,14 @@ class Template < ApplicationRecord
   end
 
   private_class_method def self.seed_process_setting(old_setting)
-    return nil unless ENV['APPROVAL_PAM_SERVICE_HOST']
+    return nil unless ENV['APPROVAL_PROCESS_URL']
+
     seed_bpm_setting(old_setting).merge('process_id' => 'MultiStageEmails')
   end
 
   private_class_method def self.seed_signal_setting(old_setting)
-    return nil unless ENV['APPROVAL_PAM_SERVICE_HOST']
+    return nil unless ENV['APPROVAL_PROCESS_URL']
+
     seed_bpm_setting(old_setting).merge('signal_name' => 'nextGroup')
   end
 
@@ -45,7 +47,7 @@ class Template < ApplicationRecord
       'container_id'   => 'approval',
       'password'       => new_password_id,
       'username'       => ENV['KIE_SERVER_USERNAME'],
-      'host'           => "#{ENV['APPROVAL_PAM_SERVICE_HOST']}:#{ENV['APPROVAL_PAM_SERVICE_PORT']}"
+      'host'           => ENV['APPROVAL_PROCESS_URL']
     }
   end
 
