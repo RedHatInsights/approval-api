@@ -31,7 +31,7 @@ objects:
   spec:
     envName: ${ENV_NAME}
     deployments:
-    - name: api-v2
+    - name: api
       minReplicas: ${{MIN_REPLICAS}}
       web: true
       podSpec:
@@ -109,21 +109,6 @@ objects:
       name: approval
     dependencies:
     - rbac
-- apiVersion: v1
-  kind: Service
-  metadata:
-    name: approval-api
-    labels:
-      app: approval-api
-      pod: approval-api-v2
-  spec:
-    ports:
-    - port: 8080
-      protocol: TCP
-      targetPort: 8000
-      name: weblegacy
-    selector:
-      pod: approval-api-v2
 parameters:
 - name: CLOWDER_ENABLED
   description: Determines Clowder deployment
