@@ -220,7 +220,7 @@
                   "Request"
                 ],
                 "summary": "List filtered requests, available to everyone",
-                "description": "The result depends on the x-rh-persona header (approval/admin, approval/requseter, or approval/approver). Program generated child requests are not included.",
+                "description": "The result depends on the x-rh-persona header (approval/admin, approval/requester, or approval/approver). Program generated child requests are not included.",
                 "operationId": "listRequests",
                 "parameters": [
                     {
@@ -352,7 +352,7 @@
                   "Request"
                 ],
                 "summary": "List filtered child requests of a request",
-                "description": "Find child requests based on the parent request id. The result depends on the x-rh-persona header (approval/admin, approval/requseter, or approval/approver).",
+                "description": "Find child requests based on the parent request id. The result depends on the x-rh-persona header (approval/admin, approval/requester, or approval/approver).",
                 "operationId": "listRequestsByRequest",
                 "parameters": [
                     {
