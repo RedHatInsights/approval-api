@@ -9,7 +9,7 @@ RUN dnf -y --disableplugin=subscription-manager module enable ruby:2.6 && \
     # libraries
     postgresql-devel openssl-devel libxml2-devel jq && \
 
-    yum clean all
+    dnf clean all
 
 ENV WORKDIR /opt/approval-api/
 WORKDIR $WORKDIR
